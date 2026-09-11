@@ -1,8 +1,0 @@
-{
-  "name": "typeorm-fixture",
-  "version": "1.0.0",
-  "dependencies": {
-    "typeorm": "^0.3.20",
-    "reflect-metadata": "^0.2.2"
-  }
-}

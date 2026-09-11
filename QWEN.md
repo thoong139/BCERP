@@ -4,6 +4,14 @@ Ngữ cảnh dự án MCV3 cho Qwen Code và các AI assistants tương đương
 
 ---
 
+## 0. Khách Hàng Dự Án: BC Agency (BẮT BUỘC đọc trước)
+
+Repo này dùng DEVKIT (MCV3) để xây **BCERP** — ERP nội bộ cho **BC Agency** (Công ty TNHH Truyền thông & Dịch vụ BC Việt Nam, MST 0109354342, Hà Nội), một **digital marketing agency** — trung gian quản lý tài khoản quảng cáo đa nền tảng (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) cho 1.000+ khách hàng (FMCG, F&B, Retail, Beauty, B2B), kèm dịch vụ Facebook/TikTok/Google marketing, SEO, thiết kế web/đồ họa. Đối tác chính thức: Google, TikTok, Yandex.
+
+Khi phân tích nghiệp vụ ưu tiên `paid-media-expert`, `marketing-expert`, `sales-expert`, `finance-expert` bên cạnh `business-analyst`. Chi tiết đầy đủ: [`docs/00-overview/00-company-context.md`](docs/00-overview/00-company-context.md) — đọc trước khi chạy bất kỳ workflow nào.
+
+---
+
 ## Dự Án
 
 **MCV3** là DEVKIT — framework hỗ trợ người không chuyên xây dựng phần mềm trên nền tảng AI coding (Claude Code, Qwen Code...). Biến ý tưởng mơ hồ thành phần mềm hoàn chỉnh qua đội ngũ 63 AI agents chuyên biệt.

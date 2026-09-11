@@ -1,5 +1,18 @@
 # AGENTS.md
 
+> File này tuân theo quy ước [agents.md](https://agents.md/) — được Claude Code, Codex, zCode, Google Antigravity và các AI coding agent khác tự động đọc khi mở repo. Nếu tool của bạn có file cấu hình riêng (`CLAUDE.md`, `QWEN.md`, ...), file đó bổ sung chi tiết vận hành — nhưng bối cảnh khách hàng ở §0 dưới đây là bắt buộc đọc trước với MỌI agent.
+
+## 0. Dự Án Này Là Gì — Khách Hàng: BC Agency (BẮT BUỘC đọc trước)
+
+Repo này dùng DEVKIT (MCV3) để xây **BCERP** — hệ thống ERP nội bộ cho **BC Agency** (Công ty TNHH Truyền thông & Dịch vụ BC Việt Nam), một **digital marketing agency** — KHÔNG phải doanh nghiệp sản xuất/bán lẻ thông thường.
+
+- **Ngành nghề:** Trung gian quản lý tài khoản quảng cáo đa nền tảng (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) + Facebook/TikTok/Google marketing, SEO, thiết kế web/đồ họa.
+- **Khách hàng mục tiêu của BC Agency:** doanh nghiệp FMCG, F&B, Retail, Beauty, B2B (1.000+ khách hàng toàn cầu, 2.600+ tài khoản quảng cáo active, 8+ năm kinh nghiệm).
+- **Đối tác chính thức:** Google, TikTok, Yandex.
+- **Ưu tiên domain expert khi phân tích nghiệp vụ:** `paid-media-expert` (trung tâm), `marketing-expert`, `sales-expert`, `finance-expert`, `customer-expert`, `compliance-expert` — ngoài `business-analyst` mặc định.
+
+**Chi tiết đầy đủ + hàm ý thiết kế module:** [`docs/00-overview/00-company-context.md`](docs/00-overview/00-company-context.md) — ĐỌC file này trước khi chạy `/wf-brainstorm` hoặc bất kỳ phân tích nghiệp vụ nào. KHÔNG tự suy diễn ngành nghề/mô hình kinh doanh khác với thông tin đã xác nhận ở đó.
+
 ## Mục Tiêu Repo
 
 MCV3 là DEVKIT — framework xây dựng phần mềm cho người không chuyên trên nền tảng AI coding. Repo chứa agents, skills, hooks, rules, doc-framework và scripts. Khi làm việc ở đây, ưu tiên nhất quán của workflow và output contract hơn tối ưu cục bộ từng file.
@@ -13,6 +26,7 @@ Nếu chất lượng và tốc độ xung đột → chất lượng thắng. T
 
 ## Tài Liệu Nên Đọc Trước
 
+0. **`docs/00-overview/00-company-context.md`** — ★★ Bối cảnh khách hàng BC Agency — BẮT BUỘC đọc đầu tiên.
 1. **`docs/README.md`** — ★ ENTRY POINT (persona-driven navigation cho `docs/`).
 2. `CLAUDE.md` — Tổng quan, workflow, cấu trúc thư mục, lệnh validation.
 3. `docs/00-overview/02-positioning-priorities.md` — Khung ưu tiên vận hành.

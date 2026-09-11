@@ -263,6 +263,7 @@ Chi tiết: [`02-standards/10-language-policy.md`](../02-standards/10-language-p
 
 ## 13. Liên kết
 
+- **[`00-company-context.md`](00-company-context.md)** — ★ Bối cảnh khách hàng BC Agency (đọc trước khi phân tích nghiệp vụ dự án BCERP)
 - **CLAUDE.md** (root) — overview hiện tại của MCV3 cho Claude Code
 - **AGENTS.md** (root) — quick reference cho contributors
 - **CHANGELOG.md** — lịch sử phát hành các skill

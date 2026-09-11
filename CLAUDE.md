@@ -2,6 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> Xem cũng **`AGENTS.md`** (root) — file cấu hình chung theo quy ước [agents.md](https://agents.md/) mà Codex, zCode, Google Antigravity và các AI coding agent khác đọc. Bối cảnh khách hàng ở §0 dưới đây khớp với §0 của `AGENTS.md`.
+
+---
+
+## 0. Khách Hàng Dự Án: BC Agency (BẮT BUỘC đọc trước)
+
+Repo này dùng DEVKIT (MCV3) để xây **BCERP** — ERP nội bộ cho **BC Agency** (Công ty TNHH Truyền thông & Dịch vụ BC Việt Nam, MST 0109354342, trụ sở Hà Nội), một **digital marketing agency** 8+ năm kinh nghiệm — KHÔNG phải doanh nghiệp sản xuất/bán lẻ thông thường.
+
+- **Mô hình kinh doanh:** trung gian (agency) quản lý tài khoản quảng cáo đa nền tảng — Meta, Google, TikTok, Bing, X, Pinterest, Yandex — cho 1.000+ khách hàng toàn cầu, 2.600+ tài khoản active; kèm Facebook/TikTok marketing, TikTok Shop, Google Ads, SEO, thiết kế web/đồ họa.
+- **Khách hàng mục tiêu của BC Agency:** FMCG, F&B, Retail, Beauty, B2B. **Đối tác chính thức:** Google, TikTok, Yandex.
+- **Khi chạy `/wf-brainstorm`, `/wf-analyze-requirements`, `/wf-define-features`:** ưu tiên huy động `paid-media-expert` (trung tâm), `marketing-expert`, `sales-expert`, `finance-expert`, `customer-expert`, `compliance-expert` bên cạnh `business-analyst` mặc định. Domain knowledge sẵn có tại `.claude/references/team-expert/paid-media/` và `.claude/references/team-expert/marketing/`.
+- **KHÔNG tự suy diễn** ngành nghề, phạm vi module, hay mô hình thu phí — những điểm chưa xác nhận PHẢI hỏi qua `/wf-brainstorm` (xem danh sách ở §6 của file dưới đây) và chốt vào `req-registry.json` (CORE-004).
+
+**Đọc đầy đủ trước khi phân tích nghiệp vụ:** [docs/00-overview/00-company-context.md](docs/00-overview/00-company-context.md) — hồ sơ công ty, dịch vụ, hàm ý thiết kế module ERP theo đúng nghiệp vụ agency quảng cáo.
+
 ---
 
 ## DEVKIT là gì
@@ -12,6 +27,7 @@ DEVKIT (MCV3) là **bộ công cụ hỗ trợ người không chuyên phát tri
 
 **Tài liệu đọc trước khi bắt đầu task** (theo thứ tự ưu tiên):
 
+0. **[docs/00-overview/00-company-context.md](docs/00-overview/00-company-context.md)** — ★★ Bối cảnh khách hàng BC Agency — BẮT BUỘC đọc trước phân tích nghiệp vụ (xem §0 ở trên)
 1. **[docs/README.md](docs/README.md)** — ★ ENTRY POINT mới (persona-driven navigation, sitemap, index 8 sections)
 2. [docs/00-overview/01-project-description.md](docs/00-overview/01-project-description.md) — Mục tiêu sản phẩm + mô hình 7 phases
 3. [docs/00-overview/02-positioning-priorities.md](docs/00-overview/02-positioning-priorities.md) — Khung ưu tiên vận hành

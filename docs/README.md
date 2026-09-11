@@ -49,6 +49,7 @@ docs/
 ## 3. Đọc theo persona — tôi nên đọc gì trước?
 
 ### 🎯 Tôi muốn hiểu MCV3 là gì
+0. [`00-overview/00-company-context.md`](00-overview/00-company-context.md) — ★★ Bối cảnh khách hàng BC Agency — đọc TRƯỚC bất kỳ phân tích nghiệp vụ nào
 1. [`00-overview/01-project-description.md`](00-overview/01-project-description.md) — Định vị + 7 phases
 2. [`00-overview/02-positioning-priorities.md`](00-overview/02-positioning-priorities.md) — Thứ tự ưu tiên (chất lượng > tốc độ)
 3. [`00-overview/03-glossary.md`](00-overview/03-glossary.md) — Thuật ngữ (DEVKIT, skill, agent, CDG, SSOT, FEAT-ID, ...)

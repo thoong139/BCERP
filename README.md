@@ -7,13 +7,20 @@
 
 ## 📌 Giới Thiệu Dự Án
 
-**BCERP** là giải pháp phần mềm quản trị doanh nghiệp toàn diện (Enterprise Resource Planning) được xây dựng và tối ưu hoá cho **BCAgency**, phát triển trên nền tảng **MCV3 DevKit** — framework kiến trúc phần mềm tích hợp sâu với các AI coding agents (Claude Code, Antigravity, CodeGraph,...).
+**BCERP** là giải pháp phần mềm quản trị doanh nghiệp toàn diện (Enterprise Resource Planning) được xây dựng và tối ưu hoá cho **BC Agency**, phát triển trên nền tảng **MCV3 DevKit** — framework kiến trúc phần mềm tích hợp sâu với các AI coding agents (Claude Code, Codex, zCode, Google Antigravity, CodeGraph,...).
 
-Hệ thống bao gồm các phân hệ cốt lõi:
-- **CRM & Khách hàng:** Quản lý thông tin đối tác, khách hàng, hành trình tương tác và lead pipeline.
-- **Sales & Đơn hàng:** Quản lý báo giá, đơn hàng, chính sách giá và chiết khấu.
-- **Finance & Kế toán:** Quản lý hóa đơn, thanh toán, công nợ, đối soát và sổ cái.
-- **Vận hành & Dự án:** Quản trị quy trình làm việc, phân công nhiệm vụ và tiến độ dự án.
+### Về BC Agency
+
+**BC Agency** (Công ty TNHH Truyền thông & Dịch vụ BC Việt Nam, MST 0109354342, trụ sở Hà Nội) là **digital marketing agency** 8+ năm kinh nghiệm, đóng vai trò trung gian quản lý **tài khoản quảng cáo đa nền tảng** (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) cho 1.000+ khách hàng toàn cầu (FMCG, F&B, Retail, Beauty, B2B) với 2.600+ tài khoản quảng cáo đang hoạt động. Ngoài ra còn cung cấp Facebook/TikTok marketing, TikTok Shop, Google Ads, SEO, thiết kế web/đồ họa. Đối tác chính thức: Google, TikTok, Yandex. Website: [bcagency.vn](http://bcagency.vn/).
+
+> Phạm vi module chính thức của BCERP được chốt qua workflow `/wf-brainstorm` → `/wf-analyze-requirements`, không suy diễn trước. Xem hồ sơ đầy đủ + gợi ý phạm vi module theo đúng nghiệp vụ agency quảng cáo tại [`docs/00-overview/00-company-context.md`](docs/00-overview/00-company-context.md).
+
+Hệ thống dự kiến bao gồm các phân hệ cốt lõi (xác nhận chính thức qua Phase 0-1):
+- **CRM & Khách hàng:** Quản lý thông tin đối tác, khách hàng thuê dịch vụ, hành trình tương tác và lead pipeline.
+- **Quản lý tài khoản quảng cáo:** Theo dõi tài khoản agency theo từng nền tảng, hạn mức chi tiêu, phân bổ cho khách hàng.
+- **Sales & Báo giá:** Quản lý báo giá gói dịch vụ, hợp đồng, chính sách giá, hoa hồng.
+- **Finance & Kế toán:** Quản lý hóa đơn, thanh toán, công nợ, đối soát chi tiêu quảng cáo và sổ cái.
+- **Vận hành & Dự án:** Quản trị quy trình làm việc, phân công nhiệm vụ và tiến độ dự án theo khách hàng/nền tảng.
 
 ---
 

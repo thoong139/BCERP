@@ -1,9 +1,0 @@
-{
-  "name": "case-multi-stack-fixture",
-  "version": "1.0.0",
-  "description": "IMP-001 fixture: Node.js/Express/NestJS stack manifest",
-  "dependencies": {
-    "express": "^4.18.2",
-    "@nestjs/core": "^10.0.0"
-  }
-}
