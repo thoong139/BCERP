@@ -1,0 +1,97 @@
+{
+  "_template_notes": {
+    "purpose": "Aggregated coverage 36 dim entries (v3.0: 26 active v2 Gói C++ Logistics + CD41 E2E Synth + 9 SKIPPED markers). KHÔNG include 5 skeleton CD32-CD36 (v3-deferred). SKIPPED dim có coverage_pct=null. Threshold check tại Phase 5. Tham chiếu 04-file-contract.md §4.3 + _contract.json.profile_activation.",
+    "populate": [
+      "dimensions{}: 36 entries — 26 active v2 + CD41 (active deep/exhaustive, SKIPPED quick/standard) + 9 SKIPPED markers (CD8, CD10, CD12, CD14, CD19, CD20, CD21, CD22, CD27)",
+      "Per active dim: {name, group, wave, coverage_pct (0-100), violations_count, severity_breakdown{MUST/SHOULD/MAY/INFO}, modules_below_threshold[], status=PASS|FAIL_THRESHOLD, signals_file (path), owner_agents[]}",
+      "Per SKIPPED dim: {name, status='SKIPPED', coverage_pct=null, reason, reactivate_in}",
+      "CD41 specific (NEW v3): group='e2e_synth', wave=3, owner_agents=['qa-lead', 'ux-researcher', 'business-analyst'], status=SKIPPED nếu profile=quick|standard, status=PENDING nếu profile=deep|exhaustive",
+      "threshold_per_dim_pct: từ profile — quick=60, standard=80, deep=95 (v2 default), exhaustive=100",
+      "coverage_kind: 'full' (toàn scan) hoặc 'partial' (regression-aware --since)",
+      "overall_status: PASS nếu mọi active dim ≥ threshold, WARN nếu 1-2 dim < threshold, FAIL nếu ≥3 dims < threshold hoặc bất kỳ MUST violation",
+      "wave_breakdown: per-wave overall_pct {wave1, wave2, wave3} — wave3 v3 expand 6→7 lanes nếu CD41 active",
+      "audit_chain.source: path tới signals-aggregated.jsonl",
+      "audit_chain.checksum: sha256 của matrix"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "coverage-matrix-v3",
+  "$schema_previous": "coverage-matrix-v2",
+  "schema_version_history": {
+    "v1": "1.0.0 (2026-05-15) — 10 dim entries CD1-CD10",
+    "v2": "2.0.0 (2026-05-16) — 35 dim entries (26 active Gói C++ + 9 SKIPPED markers). CD32-CD36 skeleton KHÔNG present. Added: group, wave, owner_agents per dim + wave_breakdown.",
+    "v3": "3.0.0 (2026-05-16) — 36 dim entries (26 active v2 + CD41 E2E Synth + 9 SKIPPED). CD41 = 'e2e_synth' group, wave 3, active deep/exhaustive only. Wave 3 lane_count_planned v3: 7 (was 6). Backward-compat readable_by v1/v2/v3 (v1/v2 readers iterate dimensions{} they know — CD41 dim gracefully ignored)."
+  },
+  "schema_version_compat": {
+    "current": "coverage-matrix-v3",
+    "readable_by": ["coverage-matrix-v1", "coverage-matrix-v2", "coverage-matrix-v3"],
+    "v3_compat_note": "CD41 entry added. v1/v2 consumers ignore CD41 dim (just iterate dimensions{} they know). wave_breakdown.wave3.lane_count_planned bump 6→7 — v2 readers expect 6 nhưng phải tolerate ≥6 (defensive coding)."
+  },
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "profile": "{{PROFILE}}",
+  "threshold_per_dim_pct": 80,
+  "coverage_kind": "full",
+  "since_ref": null,
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "dimensions": {
+    "CD1": {"name": "Business domain coverage", "group": "core", "wave": 1, "owner_agents": ["business-analyst"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD2": {"name": "Entity dependency coverage", "group": "core", "wave": 1, "owner_agents": ["architect"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD3": {"name": "Workflow coverage", "group": "core", "wave": 1, "owner_agents": ["architect"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD4": {"name": "API contract coverage", "group": "core", "wave": 1, "owner_agents": ["api-tester"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD5": {"name": "Event coverage", "group": "core", "wave": 1, "owner_agents": ["architect"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD6": {"name": "Permission/RBAC coverage", "group": "core", "wave": 1, "owner_agents": ["security"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD7": {"name": "Data integrity coverage", "group": "core", "wave": 1, "owner_agents": ["dba"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD8": {"name": "Observability coverage", "group": "core", "wave": null, "owner_agents": ["sre"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Defer pre-production go-live (v2 scope)", "reactivate_in": "v2.1 production hardening OR exhaustive"},
+    "CD9": {"name": "Regression coverage", "group": "core", "wave": 3, "owner_agents": ["qa-lead"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD10": {"name": "Documentation coverage", "group": "core", "wave": null, "owner_agents": ["tech-writer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Đắt, không critical hàng ngày", "reactivate_in": "pre-release v2.1 OR exhaustive"},
+
+    "CD11": {"name": "FE Component Contracts coverage", "group": "frontend", "wave": 1, "owner_agents": ["frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD12": {"name": "FE State Integrity coverage", "group": "frontend", "wave": null, "owner_agents": ["frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Deep profile only — defer FE state debug", "reactivate_in": "khi cần FE state debugging deep"},
+    "CD13": {"name": "FE↔BE Contract Sync coverage", "group": "frontend", "wave": 2, "owner_agents": ["architect", "frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD14": {"name": "FE i18n Coverage", "group": "frontend", "wave": null, "owner_agents": ["frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Deep profile only — defer multi-language deep", "reactivate_in": "khi mở rộng VN/CN/EN deep"},
+    "CD15": {"name": "UI Permission Mirror coverage", "group": "frontend", "wave": 2, "owner_agents": ["frontend-developer", "security"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+
+    "CD16": {"name": "Domain Logic Integrity coverage", "group": "backend", "wave": 1, "owner_agents": ["architect", "business-analyst"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD17": {"name": "Persistence Consistency coverage", "group": "backend", "wave": 1, "owner_agents": ["dba", "data-engineer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD18": {"name": "CQRS Pipeline Integrity coverage", "group": "backend", "wave": 2, "owner_agents": ["architect", "developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD19": {"name": "Distributed Transaction coverage", "group": "backend", "wave": null, "owner_agents": ["sre"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Defer — cần SRE expertise", "reactivate_in": "production hardening v2.1+"},
+    "CD20": {"name": "Security Deep coverage", "group": "security", "wave": null, "owner_agents": ["security"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "User không cần security trong scope hiện tại", "reactivate_in": "khi public API / external user"},
+    "CD21": {"name": "Reliability coverage", "group": "ops", "wave": null, "owner_agents": ["sre"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Deep profile only — defer monitoring readiness", "reactivate_in": "monitoring readiness pre-go-live"},
+    "CD22": {"name": "Config & Secret coverage", "group": "security", "wave": null, "owner_agents": ["security", "devops"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Defer production go-live", "reactivate_in": "production go-live v2.1"},
+
+    "CD23": {"name": "UX Design System Consistency coverage", "group": "ux", "wave": 2, "owner_agents": ["ui-designer", "brand-guardian"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD24": {"name": "UX Display Format Consistency coverage", "group": "ux", "wave": 2, "owner_agents": ["ux-designer", "frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD25": {"name": "UX Flow Continuity coverage", "group": "ux", "wave": 2, "owner_agents": ["ux-researcher", "frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD26": {"name": "UX Workflow Visibility coverage", "group": "ux", "wave": 3, "owner_agents": ["ux-designer", "business-analyst", "logistics-expert"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD27": {"name": "UX Microcopy coverage", "group": "ux", "wave": null, "owner_agents": ["ux-designer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "SKIPPED", "signals_file": null, "reason": "Deep profile only — defer khi UX matures", "reactivate_in": "khi UX matures pre-release"},
+
+    "CD28": {"name": "MDM Consistency coverage ★★★", "group": "logistics", "wave": 2, "owner_agents": ["data-engineer", "dba", "logistics-expert"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null, "priority": "critical-for-logistics"},
+    "CD29": {"name": "Audit Trail Completeness coverage", "group": "compliance", "wave": 3, "owner_agents": ["data-engineer", "compliance-expert"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD30": {"name": "Time & Numbering Integrity coverage ★★★", "group": "logistics", "wave": 2, "owner_agents": ["architect", "dba", "logistics-expert"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null, "priority": "critical-for-logistics"},
+    "CD31": {"name": "Money & Tax Integrity coverage ★★★", "group": "logistics", "wave": 2, "owner_agents": ["finance-expert", "dba", "architect"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null, "priority": "critical-for-logistics"},
+
+    "CD37": {"name": "Regulatory Compliance Mapping coverage ★★★", "group": "compliance", "wave": 2, "owner_agents": ["compliance-expert", "legal-expert", "dba"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null, "priority": "critical-for-logistics-vn-cn"},
+
+    "CD38": {"name": "UI Implementation Coverage ★", "group": "implementation", "wave": 3, "owner_agents": ["ux-researcher", "frontend-developer", "business-analyst"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD39": {"name": "Error UX & Recovery coverage ★", "group": "implementation", "wave": 3, "owner_agents": ["ux-designer", "frontend-developer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null},
+    "CD40": {"name": "Print & Export Consistency coverage ★", "group": "implementation", "wave": 3, "owner_agents": ["ui-designer", "frontend-developer", "tech-writer"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": null, "priority": "logistics-document-heavy"},
+
+    "CD41": {"name": "E2E Scenario Synthesizer coverage", "group": "e2e_synth", "wave": 3, "owner_agents": ["qa-lead", "ux-researcher", "business-analyst"], "coverage_pct": null, "violations_count": 0, "severity_breakdown": {"MUST": 0, "SHOULD": 0, "MAY": 0, "INFO": 0}, "modules_below_threshold": [], "status": "PENDING", "signals_file": null, "reason": "Active deep/exhaustive only — SKIPPED quick/standard. Synthesize test-scenario.md từ MUST+HIGH violations CD9/CD11/CD13/CD15/CD23-26/CD38-39.", "v3_introduced": true, "skip_conditions": ["profile=quick", "profile=standard", "no MUST+HIGH violations in filter dims", "fe-route-graph missing + ssot ui-interactivity-spec missing"]}
+  },
+  "wave_breakdown": {
+    "wave1": {"overall_pct": null, "lane_count_planned": 10, "lane_count_active": 0, "status": "PENDING"},
+    "wave2": {"overall_pct": null, "lane_count_planned": 10, "lane_count_active": 0, "status": "PENDING"},
+    "wave3": {"overall_pct": null, "lane_count_planned": 7, "lane_count_planned_v2": 6, "lane_count_active": 0, "status": "PENDING", "v3_note": "lane_count_planned=7 nếu CD41 active (profile=deep|exhaustive); =6 nếu profile=quick|standard (CD41 SKIPPED)."}
+  },
+  "overall_pct": 0,
+  "overall_status": "PENDING",
+  "below_threshold_dims": [],
+  "audit_chain": {
+    "source": "{{SIGNALS_AGGREGATED_PATH}}",
+    "checksum": "{{MATRIX_CHECKSUM}}"
+  }
+}

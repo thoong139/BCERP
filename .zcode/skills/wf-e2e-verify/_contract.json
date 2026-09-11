@@ -1,0 +1,212 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-verify",
+  "version": "8.0.0",
+  "phase": "ORCHESTRATOR — điều phối 11 sub-skills wf-e2e-* (F0/F0a/F0b/F1-F8)",
+  "description": "v8.0.0 (2026-05-15): Tier 0 Foundation Refactor — thêm F0/F0a/F0b vào pipeline. F0a wf-e2e-finding tách FIND khỏi F1. --strict-evidence ON by default. Context G4 checkpoint sau F0a. v7.0.0 (2026-05-13): 8 sub-skills atomic từ monolithic v6.5.0.",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/orchestrate.md",
+    "procedures/skip-rules.md",
+    "procedures/legacy-flags.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      "<feature spec từ registry.features[].file>",
+      ".claude/skills/workflow/wf-e2e-test/",
+      ".claude/skills/workflow/wf-e2e-browser/",
+      ".claude/skills/workflow/wf-e2e-unblock/",
+      ".claude/skills/workflow/wf-e2e-implement/",
+      ".claude/skills/workflow/wf-e2e-retest/",
+      ".claude/skills/workflow/wf-e2e-fix/",
+      ".claude/skills/workflow/wf-e2e-scenario/",
+      ".claude/skills/workflow/wf-e2e-demo/"
+    ],
+    "required_conditions": [
+      "FEAT-ID tồn tại trong registry",
+      "Feature spec tồn tại + đủ content (>500 bytes)",
+      "Tất cả 8 sub-skills directories tồn tại"
+    ],
+    "forensic_validation": "jq -e '.requirements | length > 0 and .features | length > 0' req-registry.json"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "required": true,
+      "description": "Registry SSOT"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/e2e-status.json",
+        "required": true,
+        "template": "templates/e2e-status.template.json",
+        "description": "ORCHESTRATOR SSOT — 8-step pipeline state, anti_loop counters, summary"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/orchestrator-summary.md",
+        "required": true,
+        "template": "templates/orchestrator-summary.template.md",
+        "description": "Final summary tổng kết 8 steps"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/phase-summary.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 tiếng Việt ≤15 dòng"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/session-log.json",
+        "required": true,
+        "template": null,
+        "description": "CORE-026 execution trace APPEND-only"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/error-ledger.json",
+        "required": true,
+        "template": null,
+        "description": "CORE-034 namespaced errors E001-E099 APPEND-only"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "note": "Orchestrator KHÔNG update registry trực tiếp. F4 wf-e2e-implement có SAFE-UPDATE role."
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {},
+    "orchestrates": [
+      {
+        "step": "F0",
+        "skill": "wf-e2e-infra-check",
+        "trigger": "Always run first — never skip",
+        "passes": ["<FEAT-ID>", "--session=<id>"],
+        "validation": "POST-VERIFY infra-blockers.json proceed=true"
+      },
+      {
+        "step": "F0a",
+        "skill": "wf-e2e-finding",
+        "trigger": "Always run second — never skip",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--auto (if set)"],
+        "validation": "POST-VERIFY findings/ 8 files + finding-summary.md + 4 SSOT JSONs"
+      },
+      {
+        "step": "F0b",
+        "skill": "wf-e2e-seed-manifest",
+        "trigger": "Conditional: seed-requirements.json tồn tại AND !--no-seed",
+        "passes": ["<FEAT-ID>", "--session=<id>"],
+        "validation": "POST-VERIFY seed manifest complete"
+      },
+      {
+        "step": "F1",
+        "skill": "wf-e2e-test",
+        "trigger": "Always run — mandatory live-test (consume F0a findings)",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--auto (if set)"],
+        "validation": "POST-VERIFY db/api/ui/integration test reports tồn tại"
+      },
+      {
+        "step": "F2",
+        "skill": "wf-e2e-browser",
+        "trigger": "Default ON (skip only with explicit --skip=F2). Live browser BẮT BUỘC; auto-start mandatory.",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--show-browser (if)", "--mobile (if)"],
+        "validation": "POST-VERIFY screenshots/browser-* tồn tại + browser-test-report.md"
+      },
+      {
+        "step": "F3",
+        "skill": "wf-e2e-unblock",
+        "trigger": "Conditional: block-test.json có ≥1 status=blocked",
+        "passes": ["<FEAT-ID>", "--session=<id>"],
+        "validation": "POST-VERIFY unblock-report.md + block-test.json updated"
+      },
+      {
+        "step": "F4",
+        "skill": "wf-e2e-implement",
+        "trigger": "Conditional: implement-required.json có ≥1 status=pending",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--max-items (if)"],
+        "validation": "POST-VERIFY impl-log.json + registry impl_status updated"
+      },
+      {
+        "step": "F5",
+        "skill": "wf-e2e-retest",
+        "trigger": "Always run sau F4 hoặc khi có PENDING markers",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--scope=all"],
+        "validation": "POST-VERIFY retest-log.md + reports updated"
+      },
+      {
+        "step": "F6",
+        "skill": "wf-e2e-fix",
+        "trigger": "Conditional: issues.json có ≥1 status=open + f6_f5_loop_count < 3",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--auto (if)"],
+        "validation": "POST-VERIFY fix-log.json + issues.json updates"
+      },
+      {
+        "step": "F7",
+        "skill": "wf-e2e-scenario",
+        "trigger": "Default ON (skip only with explicit --skip=F7). Live browser BẮT BUỘC; auto-start mandatory.",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--show-browser (if)", "--mobile (if)"],
+        "validation": "POST-VERIFY scenario-test-report.md + test-scenario.md Pass/Fail filled"
+      },
+      {
+        "step": "F8",
+        "skill": "wf-e2e-demo",
+        "trigger": "Default ON (skip only with explicit --skip=F8). Live browser BẮT BUỘC; auto-start mandatory.",
+        "passes": ["<FEAT-ID>", "--session=<id>", "--show-browser (if)", "--mobile (if)"],
+        "validation": "POST-VERIFY demo-report.md + screenshots/demo-* tồn tại"
+      }
+    ],
+    "anti_loop": {
+      "f6_f5_max_loops": 3,
+      "f3_f2_max_loops": 2
+    }
+  },
+  "error_namespace": {
+    "range": "E001-E009 (orchestrator) + delegated E010-E089 (sub-skills)",
+    "specific": {
+      "E001": "FEAT-ID không hợp lệ",
+      "E002": "Spec content insufficient",
+      "E003": "Sub-skill spawn fail",
+      "E004": "Anti-loop F6↔F5 max 3 vòng",
+      "E005": "Phase gating T4 cross-ref fail",
+      "E006": "Legacy flag mapping ambiguous",
+      "E007": "Lock active",
+      "E008": "Stale lock auto-released",
+      "E009": "Context >90% FORCE STOP"
+    }
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E001-E009",
+    "description": "Orchestrator pipeline/session/lock",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "migration_notes": {
+    "from_version": "6.5.0",
+    "breaking_changes": [],
+    "backward_compat": "Full — legacy flags silent accept + WARN deprecation. Examples: --playwright-mcp → default chain; --fix=<path> → jump F6; --retest → F5; --unblock-test → F3; --cross-module/--parallel-safe → no-op",
+    "internal_changes": "Monolithic 2,424 dòng → 9 skills (≤500 dòng SKILL.md each). Phase 0-7 logic moved to F1-F8. Session dir path unchanged."
+  }
+}

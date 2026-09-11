@@ -1,0 +1,59 @@
+{
+  "_template_notes": {
+    "delete_before_write": true,
+    "purpose": "Manifest inventory cho Phase 9 PRE-GATE consume — danh sách scenarios CD41 sinh ra trong session, phân loại theo type/severity/cross_module/mode.",
+    "rendered_by": "procedures/lanes/CD41.md Step CD41.5 (RENDER)",
+    "consumed_by": [
+      "procedures/phase9-e2e-execute.md Step 9.1 (PRE-GATE T1 — manifest exists + ≥1 scenario)",
+      "procedures/phase9-e2e-execute.md Step 9.6 (FOR each scenario: load scenario_file → execute)",
+      "procedures/phase8-report.md Step 8.3 (count scenarios trong integrity-report v3)",
+      "procedures/phase10-e2e-resolution.md Step 10.1 (cross-ref scenario_id ↔ e2e-results.json fail entry)"
+    ],
+    "schema_id": "scenarios-manifest-v1",
+    "schema_notes": {
+      "session_id": "Session ID owner — phải match SESSION_DIR pattern YYYY-MM-DD-{scope}-{slug}-{NN}",
+      "generated_at": "ISO 8601 timestamp",
+      "lane": "Phải là 'CD41' (constant — chỉ CD41 sinh manifest này)",
+      "mode": "'browser' (default) hoặc 'api-only' (khi fe-route-graph skipped, fallback API endpoint as entry)",
+      "total_synthesized": "Tổng số scenarios attempted synth (bao gồm cả skipped low_confidence)",
+      "total_valid": "Số scenarios thành công render (KHÔNG bao gồm skipped) — Phase 9 sẽ execute count này",
+      "total_skipped_low_confidence": "Số scenarios skipped do workflow-graph walk inconclusive (path_length=0)",
+      "total_cross_module": "Subset của total_valid: scenarios có cross_module=true",
+      "scenarios[]": {
+        "scenario_id": "Pattern CMI-SC-{NNN} (NNN=001,002,...)",
+        "scenario_file": "Relative path từ $LANE_DIR (vd 'scenarios/test-scenario-CMI-001-foo.md')",
+        "scenario_type": "Happy | Validation | Permission | BusinessRule | Cross-module",
+        "severity": "MUST | HIGH (inherit từ source violation)",
+        "source_violation_id": "Violation ID từ signals-aggregated.jsonl (fingerprint hoặc id)",
+        "source_invariant_id": "Invariant ID từ business-invariants.json (null nếu violation không link invariant)",
+        "source_dim": "Lane dim sinh ra violation (CD9/CD11/CD13/CD15/CD23-CD26/CD38/CD39)",
+        "modules_involved": "Array module names từ invariant.modules_involved hoặc violation.affected_entities",
+        "cross_module": "boolean — true nếu modules_involved.length > 1",
+        "expected_actor": "Role từ rbac-matrix (fallback 'sysadmin' nếu RBAC SSOT missing)",
+        "entry_url": "URL Phase 9 sẽ navigate (browser mode) hoặc API endpoint base (api-only mode)",
+        "mode": "browser | api-only (inherit từ manifest.mode hoặc override per scenario)",
+        "confidence": "low_confidence | medium | high — Phase 9 dùng để decide 5x flakiness check + quarantine policy",
+        "scenario_status": "synthesized | skipped_low_confidence — chỉ 'synthesized' mới có scenario_file thực sự tồn tại",
+        "estimated_steps": "Số bước Bước trong scenario (Phase 9 dùng để timeout calc)"
+      },
+      "metadata.filter_dims": "Danh sách dims CD41 filter để chọn violations (hardcoded v3.0 — Stage 7 sẽ cho phép override qua --cd41-dims)",
+      "metadata.filter_severities": "['MUST', 'HIGH'] — hardcoded v3.0",
+      "metadata.max_scenarios_cap": "Cap số scenarios per session — default 40 (override via MCV3_CMI_CD41_MAX_SCENARIOS env var)"
+    }
+  },
+  "$schema": "scenarios-manifest-v1",
+  "session_id": "{SESSION_ID}",
+  "generated_at": "{ISO_TIMESTAMP}",
+  "lane": "CD41",
+  "mode": "browser",
+  "total_synthesized": 0,
+  "total_valid": 0,
+  "total_skipped_low_confidence": 0,
+  "total_cross_module": 0,
+  "scenarios": [],
+  "metadata": {
+    "filter_dims": ["CD9", "CD11", "CD13", "CD15", "CD23", "CD24", "CD25", "CD26", "CD38", "CD39"],
+    "filter_severities": ["MUST", "HIGH"],
+    "max_scenarios_cap": 40
+  }
+}

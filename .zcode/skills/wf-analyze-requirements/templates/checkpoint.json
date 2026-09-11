@@ -1,0 +1,75 @@
+{
+  "$schema": "analyze-checkpoint-v1",
+  "checkpoint_id": "CHK-ANALYZE-YYYYMMDD-NNN",
+  "analyze_id": "ANALYZE-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | user_request | phase_complete | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": null,
+    "current_phase_name": null,
+    "current_step": null,
+    "current_expert": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "experts_completed": [],
+    "files_created": [],
+    "req_ids_generated": []
+  },
+
+  "context_summary": {
+    "project_name": null,
+    "scope": null,
+    "domain": null,
+    "total_experts_planned": 0,
+    "total_departments": 0
+  },
+
+  "partial_state": {
+    "current_expert_output": null,
+    "pending_experts": [],
+    "pending_conflicts": [],
+    "intermediate_data": {},
+    "business_workflow": {
+      "p1_02_created": false,
+      "output_file": null
+    },
+    "stakeholder_overviews": {
+      "so_01_created": false,
+      "so_02_created": false,
+      "so_03_created": false,
+      "index_updated": false
+    },
+    "conflict_resolution": {
+      "auto_resolved_ids": [],
+      "expert_resolved_ids": [],
+      "deferred_ids": [],
+      "pending_ids": []
+    },
+    "registry_update": {
+      "sections_completed": [],
+      "sections_pending": ["systems", "modules", "departments", "requirements", "interface_type"]
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      ".mc-data/work/wf-analyze-requirements/analyze-status.json",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "resume_from_phase": null,
+    "resume_from_expert": null,
+    "user_message": "Resume message to display to user"
+  }
+}

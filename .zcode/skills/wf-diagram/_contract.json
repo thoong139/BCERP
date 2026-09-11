@@ -1,0 +1,212 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-diagram",
+  "version": "2.0.0",
+  "phase": "standalone",
+  "description": "Tự động sinh bộ sơ đồ thiết kế (UML + ERD) cho một module trong hệ thống dựa trên source code có sẵn. Output: file `.md` chứa Mermaid (context, component, erd-context-map, usecase, class, state, activity, sequence) + file `.dbml` riêng cho ERD (system-wide + module-scoped). Standalone skill — KHÔNG thuộc main DEVKIT pipeline. v2.0.0: lazy-load cấu trúc — SKILL.md là routing hub, phase details trong 11 procedures/. module-scoped _system layout — full/module-only writes vào modules/{module}/_system/, system-only writes vào top-level _system/. Hỗ trợ --resume/--status session isolation (CORE-030). Bash delegation: wf-diagram-source-scan.sh (Phase 2), mermaid-validate.sh + dbml-validate.sh (Phase 7 T2). Phải tuân thủ Mermaid 8.8.0 Safety Rules (quote labels, no em-dash/single-quote in label) + quy tắc lọc (activity ≥3 bước/có nhánh, state ≥3 trạng thái, sequence ≥3 components/complex), KHÔNG bịa entity/endpoint không có trong source, idempotent.",
+  "procedure": "procedures/phase0-setup.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase0-setup.md",
+    "procedures/resume-routing.md",
+    "procedures/session-init.md",
+    "procedures/phase1-precheck.md",
+    "procedures/phase2-source-analysis.md",
+    "procedures/phase3-plan.md",
+    "procedures/phase4-system.md",
+    "procedures/phase5-module.md",
+    "procedures/phase6-detail.md",
+    "procedures/phase7-validation.md"
+  ],
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Standalone skill — chỉ yêu cầu source code tồn tại trong --source-path"
+  },
+  "inputs": [
+    {
+      "arg": "--module",
+      "type": "string",
+      "description": "Tên module cần sinh diagram (vd: order, payment, inventory)",
+      "required_when": "scope != system-only"
+    },
+    {
+      "arg": "--source-path",
+      "type": "path",
+      "description": "Đường dẫn root source code",
+      "required": false,
+      "default": "."
+    },
+    {
+      "arg": "--output-path",
+      "type": "path",
+      "description": "Đường dẫn xuất diagrams",
+      "required": false,
+      "default": ".mc-data/docs/diagrams"
+    },
+    {
+      "arg": "--scope",
+      "type": "enum: full | module-only | system-only",
+      "description": "Phạm vi sinh diagram",
+      "required": false,
+      "default": "full"
+    },
+    {
+      "arg": "--resume",
+      "type": "flag",
+      "description": "Tiếp tục session in_progress/paused gần nhất",
+      "required": false
+    },
+    {
+      "arg": "--status",
+      "type": "flag",
+      "description": "Hiển thị status các sessions (5 latest), KHÔNG generate → STOP",
+      "required": false
+    },
+    {
+      "arg": "--session",
+      "type": "string",
+      "description": "Resume session ID cụ thể (chỉ dùng cùng --resume)",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": "{output_path}/_system/context.md",
+        "template": "templates/system-context.md",
+        "required": false,
+        "condition": "scope ∈ {full, system-only}",
+        "description": "Context diagram (C4 L1) — Mermaid flowchart, hệ thống ở giữa + actors + external systems xung quanh"
+      },
+      {
+        "path": "{output_path}/_system/component.md",
+        "template": "templates/system-component.md",
+        "required": false,
+        "condition": "scope ∈ {full, system-only}",
+        "description": "Component diagram — Mermaid flowchart/graph, mỗi module 1 node + quan hệ gọi"
+      },
+      {
+        "path": "{output_path}/_system/erd-context-map.md",
+        "template": "templates/system-erd-context-map.md",
+        "required": false,
+        "condition": "scope ∈ {full, system-only}",
+        "description": "ERD context map — Mermaid flowchart đơn giản, mỗi module ERD 1 node + cạnh ghi qua bảng/khóa nào"
+      },
+      {
+        "path": "{output_path}/_system/actors.md",
+        "template": "templates/system-actors.md",
+        "required": false,
+        "condition": "scope ∈ {full, system-only}",
+        "description": "Bảng Markdown danh sách actor toàn hệ thống (Actor | Mô tả | Module liên quan)"
+      },
+      {
+        "path": "{output_path}/_system/database.dbml",
+        "template": "templates/system-database.dbml",
+        "required": false,
+        "condition": "scope ∈ {full, system-only}",
+        "description": "ERD tổng — DBML format, toàn bộ bảng + quan hệ, group theo module qua TableGroup"
+      },
+      {
+        "path": "{output_path}/modules/{module}/usecases/{group}.md",
+        "template": "templates/module-usecase.md",
+        "required": false,
+        "condition": "scope ∈ {full, module-only}. Mỗi module sinh N file (≥1) — 1 file per group. Group phát hiện theo: controller class → URL prefix segment → sub-folder.",
+        "description": "Use case diagram per group — Mermaid flowchart mô phỏng (actor + use case oval + đường nối + include/extend). Mỗi module có nhiều file usecase, group theo chức năng để tránh sơ đồ rối khi module có nhiều endpoint."
+      },
+      {
+        "path": "{output_path}/modules/{module}/class.md",
+        "template": "templates/module-class.md",
+        "required": false,
+        "condition": "scope ∈ {full, module-only}",
+        "description": "Class diagram — Mermaid classDiagram, class chính của module + quan hệ (inheritance/composition/association), class ngoài module có note hoặc style khác"
+      },
+      {
+        "path": "{output_path}/modules/{module}/erd.dbml",
+        "template": "templates/module-erd.dbml",
+        "required": false,
+        "condition": "scope ∈ {full, module-only}",
+        "description": "ERD subset của module — DBML, bảng thuộc module + bảng external (comment // External: from <module>, chỉ show PK)"
+      },
+      {
+        "path": "{output_path}/modules/{module}/states/{entity}.md",
+        "template": "templates/entity-state.md",
+        "required": false,
+        "condition": "Entity có ≥3 trạng thái (quy tắc lọc)",
+        "description": "State diagram per entity — Mermaid stateDiagram-v2, [*] start + transitions ghi event/action + [*] end"
+      },
+      {
+        "path": "{output_path}/modules/{module}/activities/{process}.md",
+        "template": "templates/process-activity.md",
+        "required": false,
+        "condition": "Process có ≥3 bước HOẶC có nhánh điều kiện (quy tắc lọc — CRUD đơn giản bỏ qua)",
+        "description": "Activity diagram per process — Mermaid flowchart TD, ((Start)) + steps + {decision?} + swimlane (subgraph) khi xuyên nhiều actor"
+      },
+      {
+        "path": "{output_path}/modules/{module}/sequences/{scenario}.md",
+        "template": "templates/scenario-sequence.md",
+        "required": false,
+        "condition": "Endpoint gọi ≥3 service/component HOẶC có error handling phức tạp HOẶC async/callback (quy tắc lọc)",
+        "description": "Sequence diagram per scenario — Mermaid sequenceDiagram, participants (actor + services) + method calls + return + alt/opt/loop"
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-diagram/sessions/{session_id}/diagram-status.json",
+        "template": "templates/diagram-status.json",
+        "required": true,
+        "description": "Tracking file — status, session metadata, scan results, generation_plan, user_decisions, output_files, error_log"
+      },
+      {
+        "path": ".mc-data/work/wf-diagram/sessions/{session_id}/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "description": "Checkpoint cho --resume: phase_states, next_action, intermediate_outputs, args_snapshot"
+      },
+      {
+        "path": ".mc-data/work/wf-diagram/sessions/{session_id}/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "description": "Tóm tắt sinh diagram tiếng Việt cho non-specialist (Protocol 14 / CORE-028) — ≤15 dòng"
+      },
+      {
+        "path": ".mc-data/work/wf-diagram/sessions/{session_id}/analysis.json",
+        "template": null,
+        "required": true,
+        "description": "Inline schema (analysis-v1): kết quả phân tích source — modules[], entities[], endpoints[], actors[], components[], processes[], state_machines[], scenarios[]. Notes: phục vụ Phase 4-6 generation; KHÔNG cross-skill input — internal-only intermediate."
+      }
+    ],
+    "registry": null
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "safe_write_rule": "NONE",
+    "notes": "Standalone skill — không modify req-registry.json. Sinh diagrams từ source code có sẵn, không thuộc workflow registry pipeline."
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {},
+    "notes": "Standalone — không có cross-skill contracts. Tất cả working files (analysis.json, diagram-status.json, checkpoint.json, phase-summary.md) là internal-only intermediate, KHÔNG phải input cho skill khác. Diagrams output (output_path/) là tài liệu cho người đọc, không phải contract feed."
+  },
+  "session_isolation": "CORE-030 / Protocol 18 — mỗi invocation tạo .mc-data/work/wf-diagram/sessions/{session_id}/ riêng. Format: {YYYY-MM-DD}-{scope-label}[-{N}]",
+  "supported_diagram_types": [
+    "context",
+    "component",
+    "erd-context-map",
+    "actors-table",
+    "database-erd",
+    "usecase-per-group",
+    "class",
+    "module-erd",
+    "state",
+    "activity",
+    "sequence"
+  ],
+  "filter_rules": {
+    "usecase_grouping": "Mỗi module sinh N file (≥1) trong usecases/. Group theo (ưu tiên giảm dần): controller class → URL prefix segment đầu → sub-folder. Mỗi group có ≥1 use case. Module luôn có ≥1 file usecase (kể cả khi chỉ 1 group).",
+    "activity": "≥3 bước HOẶC có nhánh điều kiện (CRUD đơn giản bỏ qua)",
+    "state": "Entity có ≥3 trạng thái (active/inactive bỏ qua)",
+    "sequence": "Endpoint gọi ≥3 service/component HOẶC error handling phức tạp HOẶC async/callback (CRUD đơn lẻ bỏ qua)"
+  }
+}

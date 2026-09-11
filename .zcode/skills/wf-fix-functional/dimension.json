@@ -1,0 +1,430 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD1",
+  "dimension_name": "Functional Correctness",
+  "short_name": "Functional",
+  "owner_agent": "general-purpose",
+  "version": "1.0.0",
+  "description": "Phat hien bug functional: UI control, API endpoint, infrastructure, feature coverage, REQ-ID tracking, stub/TODO detection, multi-tenant isolation, spec completeness.",
+  "probes": [
+    {
+      "id": "P-QD1-req-registry-xref",
+      "name": "REQ-ID Registry Cross-Reference",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD1-req-registry-xref.md"
+      },
+      "required_inputs": [
+        "code",
+        "req-registry"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD1-route-config-parse",
+      "name": "Route Config vs Navigation Spec",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+ast",
+        "config": "probes/P-QD1-route-config-parse.md"
+      },
+      "required_inputs": [
+        "code",
+        "phase3-architecture",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD1-infra-preflight",
+      "name": "Infrastructure Preflight",
+      "type": "runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "probes/P-QD1-infra-preflight.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 1000
+      }
+    },
+    {
+      "id": "P-QD1-deep-ui-traversal",
+      "name": "Deep UI Traversal + Interaction Smoke",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD1-deep-ui-traversal.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal",
+        "catalog"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 8000
+      }
+    },
+    {
+      "id": "P-QD1-api-smoke",
+      "name": "API Smoke Test (Happy Path)",
+      "type": "runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "probes/P-QD1-api-smoke.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "phase3-architecture"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD1-orphan-ui-detect",
+      "name": "Orphan UI Detection",
+      "type": "static+runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+playwright",
+        "config": "probes/P-QD1-orphan-ui-detect.md"
+      },
+      "required_inputs": [
+        "code",
+        "phase4-ux",
+        "catalog"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD1-agent-feature-verify",
+      "name": "Agent Feature Verification",
+      "type": "agent",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "agent",
+        "agent": "general-purpose",
+        "config": "probes/P-QD1-agent-feature-verify.md"
+      },
+      "required_inputs": [
+        "phase2-features",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 15000
+      }
+    },
+    {
+      "id": "P-QD1-stub-todo-aggregate",
+      "name": "Stub/TODO/Coming-Soon Aggregation",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+serena+gitnexus",
+        "config": "probes/P-QD1-stub-todo-aggregate.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD1-multitenant-isolation-audit",
+      "name": "Multi-Tenant Data Isolation Audit",
+      "type": "static",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+serena+gitnexus",
+        "config": "probes/P-QD1-multitenant-isolation-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD1-spec-completeness-check",
+      "name": "Spec-to-Code Completeness Verification",
+      "type": "agent",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "agent",
+        "agent": "general-purpose",
+        "config": "probes/P-QD1-spec-completeness-check.md"
+      },
+      "required_inputs": [
+        "phase2-features",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 15000
+      }
+    },
+    {
+      "id": "P-QD1-llm-analysis",
+      "name": "LLM-Augmented Functional Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd1-functional.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD1-req-registry-xref"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD1-req-registry-xref",
+        "P-QD1-infra-preflight",
+        "P-QD1-api-smoke",
+        "P-QD1-route-config-parse",
+        "P-QD1-stub-todo-aggregate",
+        "P-QD1-deep-ui-traversal",
+        "P-QD1-orphan-ui-detect"
+      ],
+      "max_signals_per_probe": 100
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD1-req-registry-xref",
+        "P-QD1-infra-preflight",
+        "P-QD1-api-smoke",
+        "P-QD1-route-config-parse",
+        "P-QD1-stub-todo-aggregate",
+        "P-QD1-multitenant-isolation-audit",
+        "P-QD1-deep-ui-traversal",
+        "P-QD1-orphan-ui-detect",
+        "P-QD1-spec-completeness-check",
+        "P-QD1-agent-feature-verify",
+        "P-QD1-llm-analysis"
+      ],
+      "max_signals_per_probe": 200
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 500
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "P-QD1-infra-preflight: infrastructure down",
+      "impl_status=done + endpoint HTTP 5xx hoac khong ton tai"
+    ],
+    "high_triggers": [
+      "UI primary CTA khong click duoc",
+      "form khong submit",
+      "impl_status=done + REQ-ID khong co code annotation"
+    ],
+    "medium_triggers": [
+      "orphan UI element",
+      "impl_status!=done + REQ-ID khong co code annotation"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [
+      "playwright"
+    ],
+    "agents": [
+      "general-purpose"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/QD1-functional-report.md"
+  },
+  "execution_order": [
+    "P-QD1-req-registry-xref",
+    "P-QD1-infra-preflight",
+    "P-QD1-api-smoke",
+    "P-QD1-route-config-parse",
+    "P-QD1-stub-todo-aggregate",
+    "P-QD1-deep-ui-traversal",
+    "P-QD1-orphan-ui-detect",
+    "P-QD1-multitenant-isolation-audit",
+    "P-QD1-spec-completeness-check",
+    "P-QD1-agent-feature-verify",
+    "P-QD1-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD1-req-registry-xref",
+      "P-QD1-route-config-parse",
+      "P-QD1-stub-todo-aggregate"
+    ],
+    [
+      "P-QD1-infra-preflight"
+    ],
+    [
+      "P-QD1-api-smoke",
+      "P-QD1-deep-ui-traversal"
+    ],
+    [
+      "P-QD1-orphan-ui-detect",
+      "P-QD1-multitenant-isolation-audit"
+    ],
+    [
+      "P-QD1-spec-completeness-check",
+      "P-QD1-agent-feature-verify"
+    ],
+    [
+      "P-QD1-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "static-before-runtime, infra-preflight gates UI traversal, agent-last"
+}

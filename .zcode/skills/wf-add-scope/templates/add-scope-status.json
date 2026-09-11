@@ -1,0 +1,144 @@
+{
+  "$schema": "add-scope-status-v3.0",
+  "schema_version": "add-scope-status-v3.0",
+
+  "add_scope_id": "{SESSION_ID}",
+  "session_id": "{SESSION_ID}",
+  "session_dir": ".mc-data/work/wf-add-scope/sessions/{SESSION_ID}",
+  "host": "{HOSTNAME}",
+  "user": "{USERNAME}",
+  "started_at": "{ISO_TIMESTAMP}",
+  "completed_at": null,
+  "status": "not_started | in_progress | completed | error | paused",
+
+  "target_system": "{SYSTEM_ID}",
+  "project": "{PROJECT_NAME}",
+  "mode": "from-mapping | modules-list | interactive | from-scan",
+  "legacy_mode": false,
+  "dry_run": false,
+  "no_docs": false,
+
+  "arguments": {
+    "system_id": null,
+    "modules_list": null,
+    "from_mapping": false,
+    "interactive": false,
+    "from_scan": false,
+    "dry_run": false,
+    "no_docs": false
+  },
+
+  "lock": {
+    "session_lock_path": "{SESSION_DIR}/.session.lock",
+    "registry_lock_acquired": false,
+    "heartbeat_pid": null
+  },
+
+  "current_phase": 0,
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading & Validation",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "system_validated": false,
+      "legacy_mode_detected": false,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Scope Specification",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "modules_to_add_count": 0,
+      "modules_skipped_count": 0,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Feature Stub Generation (LEGACY_MODE)",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Only runs when legacy_mode == true",
+      "started_at": null,
+      "completed_at": null,
+      "features_generated": 0,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Dry-Run Preview",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "diff_generated": false,
+      "user_confirmed": false,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Registry Safe-Append",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Skipped when --dry-run",
+      "started_at": null,
+      "completed_at": null,
+      "backup_path": null,
+      "modules_appended": 0,
+      "features_appended": 0,
+      "error": null
+    },
+    "phase_5": {
+      "name": "Phase 2 Doc Stubs",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Skipped when --no-docs or --dry-run or no features_to_add",
+      "started_at": null,
+      "completed_at": null,
+      "stubs_created": 0,
+      "stubs_skipped": 0,
+      "error": null
+    },
+    "phase_6": {
+      "name": "Output Report + scope-impact.json",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "scope_impact_built": false,
+      "error": null
+    },
+    "phase_7": {
+      "name": "Phase Summary + Execution Trace",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "phase_summary_created": false,
+      "execution_trace_appended": false,
+      "error": null
+    }
+  },
+
+  "summary": {
+    "modules_before": 0,
+    "modules_after": 0,
+    "modules_added": [],
+    "modules_skipped": [],
+    "features_before": 0,
+    "features_after": 0,
+    "features_added_count": 0,
+    "features_skipped_count": 0,
+    "stubs_created": 0,
+    "stubs_skipped": 0,
+    "files_created": [],
+    "registry_backup": null,
+    "rollback_available": false
+  },
+
+  "audit_chain": {
+    "checksum_pre": null,
+    "checksum_post": null
+  },
+
+  "error_log": [],
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "current_phase": null,
+    "next_action": null
+  }
+}

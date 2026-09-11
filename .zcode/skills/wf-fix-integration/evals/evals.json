@@ -1,0 +1,157 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-integration",
+  "version": "1.0.0",
+  "description": "Evals cho QD10 Cross-Module Integration Lane — kiem tra PRE-GATE skip conditions, probe signal emission cho cross-module drifts, API contract violations, event handler gaps, va orphan references.",
+  "test_cases": [
+    {
+      "id": "TC-QD10-001",
+      "name": "PRE-GATE SKIP khi cross_module_dependencies rong",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-integration duoc spawn nhung req-registry.json khong co cross_module_dependencies hoac mang rong.",
+        "session_dir": "/tmp/test-session-qd10-001",
+        "profile": "standard",
+        "registry_cross_module_deps": []
+      },
+      "expected": {
+        "behavior": "SKIP lane — ghi lane-status.json voi status=skipped va error_code=E100",
+        "no_probes_run": true,
+        "lane_status_value": "skipped",
+        "error_code": "E100"
+      },
+      "validation": "Lane phai SKIP ngay tai Step 8 PRE-GATE. Khong chay bat ky probe nao. lane-status.json phai co status='skipped' va error_code='E100'. Orchestrator nhan skipped va tiep tuc."
+    },
+    {
+      "id": "TC-QD10-002",
+      "name": "PRE-GATE SKIP khi profile=quick",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-integration spawn voi profile=quick. cross_module_dependencies co 3 pairs.",
+        "session_dir": "/tmp/test-session-qd10-002",
+        "profile": "quick",
+        "registry_cross_module_deps_count": 3
+      },
+      "expected": {
+        "behavior": "SKIP lane — lane-status.json status=skipped, skip_reason chua 'profile=quick'",
+        "no_probes_run": true,
+        "lane_status_value": "skipped"
+      },
+      "validation": "Lane phai SKIP tai Step 10 PRE-GATE khi profile=quick. Nhanh hon quick profile = no cross-module analysis. Orchestrator nhan skipped va tiep tuc."
+    },
+    {
+      "id": "TC-QD10-003",
+      "name": "P-QD10-cross-module-ref-static phat hien deprecated import",
+      "type": "stub",
+      "input": {
+        "scenario": "Registry co pair CRM->QUOTATION, entity Customer. Provider export 'CustomerDto' da bi deprecated va thay bang 'CustomerProfileDto'. Consumer code (quotation module) van import 'CustomerDto' cu.",
+        "session_dir": "/tmp/test-session-qd10-003",
+        "profile": "standard",
+        "pair": "CRM-QUOTATION",
+        "provider_module": "CRM",
+        "consumer_module": "QUOTATION",
+        "entity": "Customer",
+        "deprecated_import": "CustomerDto",
+        "new_export": "CustomerProfileDto"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "deprecated_import",
+        "signal_severity": "medium",
+        "probe_id": "P-QD10-cross-module-ref-static",
+        "evidence_type": "import_path",
+        "provider_module": "CRM",
+        "consumer_module": "QUOTATION"
+      },
+      "validation": "Probe dung Serena find_referencing_symbols(CustomerDto) hoac GitNexus impact(CustomerDto) de phat hien consumer dang import deprecated export. Signal MEDIUM voi evidence la import path. POST-GATE T3.5 enforce evidence co mat."
+    },
+    {
+      "id": "TC-QD10-004",
+      "name": "P-QD10-api-contract-drift phat hien breaking change (field rename)",
+      "type": "stub",
+      "input": {
+        "scenario": "Provider OpenAPI spec declare field 'customer_name' (string, required). Consumer TypeScript interface dang dung 'customerName' (camelCase) — field rename tao ra breaking change khi goi API.",
+        "session_dir": "/tmp/test-session-qd10-004",
+        "profile": "standard",
+        "pair": "CRM-QUOTATION",
+        "provider_field": "customer_name",
+        "consumer_field": "customerName",
+        "change_type": "field_rename"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "api_contract_breaking_change",
+        "signal_severity": "high",
+        "probe_id": "P-QD10-api-contract-drift",
+        "evidence_type": "schema_diff",
+        "evidence_contains": "customer_name vs customerName"
+      },
+      "validation": "Probe dung Serena find_symbol(provider_dto) + parse consumer DTO de phat hien field name mismatch. Signal HIGH 'api_contract_breaking_change' voi schema_diff evidence. POST-GATE T3.7 enforce schema evidence co mat."
+    },
+    {
+      "id": "TC-QD10-005",
+      "name": "P-QD10-event-handler-coverage phat hien missing handler",
+      "type": "stub",
+      "input": {
+        "scenario": "Registry cross_module_dependency khai bao consumer QUOTATION subscribe event 'customer.profile_updated'. Code trong QUOTATION module khong co bat ky handler nao cho event nay.",
+        "session_dir": "/tmp/test-session-qd10-005",
+        "profile": "standard",
+        "pair": "CRM-QUOTATION",
+        "event_name": "customer.profile_updated",
+        "expected_subscriber": "QUOTATION",
+        "handler_exists": false
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "event_handler_missing",
+        "signal_severity": "high",
+        "probe_id": "P-QD10-event-handler-coverage",
+        "evidence_type": "import_path"
+      },
+      "validation": "Probe dung GitNexus query('event:customer.profile_updated') hoac Grep on('customer.profile_updated') de kiem tra handler. Khong tim thay → emit signal HIGH 'event_handler_missing'. Consumer module QUOTATION khong co handler cho declared event."
+    },
+    {
+      "id": "TC-QD10-006",
+      "name": "P-QD10-orphan-reference-runtime phat hien orphan FK reference",
+      "type": "stub",
+      "input": {
+        "scenario": "Registry pair QUOTATION->CRM, binding_type=foreign_key, entity Customer. DB co row trong quotation table co customer_id=999 nhung khong co Customer row voi id=999 (orphan reference).",
+        "session_dir": "/tmp/test-session-qd10-006",
+        "profile": "deep",
+        "pair": "QUOTATION-CRM",
+        "binding_type": "foreign_key",
+        "orphan_ids": [999],
+        "query_safe": true,
+        "env": "staging"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "orphan_reference",
+        "signal_severity": "critical",
+        "probe_id": "P-QD10-orphan-reference-runtime",
+        "evidence_type": "query_result",
+        "safety_check_pass": true,
+        "env_not_production": true
+      },
+      "validation": "Probe phai verify env != production truoc khi query (safety guard E104). Query dung LEFT JOIN ... WHERE provider.id IS NULL. Phat hien orphan → emit signal CRITICAL voi query_result evidence. POST-GATE T3.6 enforce query evidence. POST-GATE T3.8 enforce severity=critical."
+    },
+    {
+      "id": "TC-QD10-007",
+      "name": "P-QD10-orphan-reference-runtime BLOCK khi env=production",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-integration duoc spawn trong environment production (DB_ENV=production hoac DATABASE_URL contains 'prod').",
+        "session_dir": "/tmp/test-session-qd10-007",
+        "profile": "deep",
+        "db_env": "production"
+      },
+      "expected": {
+        "behavior": "P-QD10-orphan-reference-runtime phai STOP voi E104 — khong query production DB",
+        "no_db_query": true,
+        "error_code": "E104",
+        "signals_count": 0
+      },
+      "validation": "Safety guard phai detect env=production va STOP probe truoc khi connect DB. Ghi E104 vao probe output. Lane tiep tuc voi cac probes khac (chi orphan-reference-runtime bi skip). Khong duoc query production DB trong bat ky truong hop nao."
+    }
+  ]
+}

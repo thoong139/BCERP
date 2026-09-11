@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "legacy-scan-module-code-mapping-v1",
+  "title": "Module-Code Mapping",
+  "description": "Reference schema cho module-code-mapping.json (CORE-013, owner: /wf-legacy-extract Stage 3.5, path: .mc-data/work/legacy-scan/module-code-mapping.json).",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "description": "Key = canonical module name (kebab-case). Value = module → code mapping entry.",
+    "required": ["canonical_name", "source_files"],
+    "properties": {
+      "canonical_name": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      },
+      "source_files": {
+        "type": "array",
+        "items": { "type": "string" },
+        "minItems": 1
+      },
+      "entity_names": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Class/entity/function names defined trong module"
+      },
+      "endpoint_paths": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "screen_refs": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "estimated_lines": { "type": "integer", "minimum": 0 },
+      "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+    }
+  }
+}

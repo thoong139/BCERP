@@ -1,0 +1,6 @@
+{
+  "_template_notes": "error-ledger.json — Namespaced error tracking cho wf-cmi (CORE-034). APPEND-only JSONL. Namespace ranges: E001-E009 (Shared pipeline/session/lock), E010-E019 (Phase 1 Init), E020-E029 (Phase 2 Discovery), E030-E039 (Phase 3 Invariant), E040-E049 (Phase 4 Coverage Dispatch), E050-E059 (Phase 5 Aggregate), E060-E069 (Phase 6 Regression), E070-E079 (Phase 7 GAP+CDG), E080-E089 (Phase 8 Report), E090-E099 (CDG user-facing gates), E100-E109 (Warnings non-blocking). Mỗi entry: {phase, error_code, severity, message, timestamp, retry_count, auto_fix_attempted, resolved?}. Schema: error-ledger-v2. Strip _template_notes trước khi write.",
+  "skill": "wf-cmi",
+  "session_id": "{{SESSION_ID}}",
+  "errors": []
+}

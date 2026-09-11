@@ -1,0 +1,329 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-manage-change",
+  "version": "3.0.0",
+  "phase": "cross-phase",
+  "description": "Xu ly yeu cau thay doi/bo sung/sua doi tinh nang — analyze → impact → plan → execute → verify",
+  "procedure": ["procedures/phase0-intake.md", "procedures/_shared.md"],
+  "procedures": {
+    "shared": "procedures/_shared.md",
+    "phases": {
+      "phase0": "procedures/phase0-intake.md",
+      "phase1": "procedures/phase1-analyze.md",
+      "phase2": "procedures/phase2-impact.md",
+      "phase3": "procedures/phase3-plan.md",
+      "phase4a": "procedures/phase4a-registry-docs.md",
+      "phase4b": "procedures/phase4b-code.md",
+      "phase4c": "procedures/phase4c-tests.md",
+      "phase5": "procedures/phase5-verify.md",
+      "phase6": "procedures/phase6-report.md"
+    }
+  },
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "required_phases_completed": [
+      "wf-brainstorm"
+    ],
+    "registry_fields": [
+      "requirements",
+      "features",
+      "systems",
+      "modules"
+    ],
+    "notes": "Yeu cau du an da co registry (qua wf-brainstorm). Co the goi bat ky luc nao sau khi co registry."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry — de doc artifacts hien co va xac dinh project state",
+      "required": true
+    },
+    {
+      "path": "user_prompt",
+      "description": "Mo ta yeu cau thay doi tu nguoi dung",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/wf-manage-change/$CHANGE_ID/checkpoint.json",
+      "description": "Checkpoint tu lan chay truoc (resume support)",
+      "required": false,
+      "condition": "resume mode only — $CHANGE_ID lay tu index.json.active_session truoc khi doc checkpoint"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions ve deprecated modules (CORE-022) — enforce DEPRECATED_MODULES exclusion",
+      "required": false,
+      "condition": "LEGACY_MODE only — doc tai Phase 0 PRE-GATE neu LEGACY_MODE detected"
+    },
+    {
+      "path": ".mc-data/docs/_meta/design-input-digest.json",
+      "description": "Architecture digest tu Phase 3",
+      "required": false,
+      "condition": "optional — neu ton tai thi inject vao expert analysis"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "session_isolation_note": "CORE-030: Moi lan chay tao $CHANGE_ID (CHG-YYYYMMDD-NNN). $SESSION_DIR = .mc-data/work/wf-manage-change/$CHANGE_ID/. Tat ca working files nam trong $SESSION_DIR. Chi index.json nam o root folder.",
+    "working": [
+      {
+        "path": ".mc-data/work/wf-manage-change/index.json",
+        "template": "templates/index.json",
+        "required": true,
+        "note": "CORE-030: Session registry — nam o root, khong phai $SESSION_DIR. Theo doi tat ca change sessions."
+      },
+      {
+        "path": "$SESSION_DIR/change-status.json",
+        "template": "templates/change-status.json",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/change-intake.json",
+        "template": "templates/change-intake.json",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/change-analysis.md",
+        "template": "templates/change-analysis.md",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/affected-artifacts.json",
+        "template": "templates/affected-artifacts.json",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/impact-report.md",
+        "template": "templates/impact-report.md",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/change-plan.md",
+        "template": "templates/change-plan.md",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/change-report.md",
+        "template": "templates/change-report.md",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/change-impact.json",
+        "template": "templates/change-impact.json",
+        "required": true,
+        "note": "S3: Cross-skill machine-readable artifact (schema change-impact-v1). Tao tai Phase 6 Step 6.0.5 boi mc-change-impact-build.sh. Consumed boi wf-verify-sync, wf-preflight, wf-implement-feature qua --from-manage-change flag (wire o Sprint 6)."
+      },
+      {
+        "path": "$SESSION_DIR/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "note": "CORE-028: Tom tat tien trinh bang tieng Viet don gian cho non-specialist. Tao cuoi Phase 6. Generated tu template templates/phase-summary.md (CORE-031 compliant)."
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cap nhat requirements[], features[] (UPDATE/APPEND/DELETE), impl_status theo loai thay doi"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "requirements",
+      "features",
+      "impl_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "Skill co the UPDATE existing requirements/features, APPEND new features, UPDATE impl_status. Tuan thu safe-write: doc truoc khi ghi, atomic write, validate sau ghi.",
+    "write_role": "UPDATE-MODE",
+    "change_type_roles": {
+      "MODIFY_FEATURE": "UPDATE",
+      "ADD_FEATURE": "APPEND",
+      "DELETE_FEATURE": "SKIP",
+      "CLARIFY_REQ": "UPDATE description only"
+    }
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-preflight": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/phase1-business/",
+        ".mc-data/docs/phase2-features/",
+        ".mc-data/docs/phase3-architecture/",
+        ".mc-data/docs/phase4-ux/",
+        ".mc-data/work/wf-manage-change/$CHANGE_ID/change-report.md",
+        ".mc-data/work/wf-manage-change/$CHANGE_ID/phase-summary.md",
+        ".mc-data/work/wf-manage-change/$CHANGE_ID/change-impact.json"
+      ],
+      "wf-verify-sync": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/phase1-business/",
+        ".mc-data/docs/phase2-features/",
+        ".mc-data/docs/phase3-architecture/",
+        ".mc-data/docs/phase4-ux/",
+        ".mc-data/work/wf-manage-change/$CHANGE_ID/change-impact.json"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/work/wf-manage-change/$CHANGE_ID/change-impact.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-brainstorm": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/phase1-business/"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/phase2-features/"
+      ],
+      "wf-design": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/design-input-digest.json",
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  },
+  "evals": "evals/evals.json",
+  "changelog": [
+    {
+      "version": "3.0.0",
+      "date": "2026-04-29",
+      "changes": [
+        "S1: 11 bash scripts trong .claude/scripts/wf-manage-change/ — mc-common.sh, mc-acquire-lock.sh, mc-release-lock.sh, mc-heartbeat.sh, mc-generate-session-id.sh, mc-index-append.sh, mc-backup-registry.sh, mc-validate-registry.sh, mc-safety-check.sh, mc-change-impact-build.sh, mc-postgate-check.sh",
+        "S2: Session lock + registry lock + heartbeat daemon + EXIT trap wired vào phase0, phase4a, phase6, _shared.md. sessions.jsonl append-only concurrent-safe index.",
+        "S3: change-impact.json (schema change-impact-v1) producer tạo tại Phase 6 Step 6.0.5/6.0.5b. Template + builder script. POST-GATE T1+T3 schema check. _contract.json entry.",
+        "S4: phase-summary.md template mới (5 H2 sections, $schema=phase-summary-v1). change-plan.md header table. change-status.json thêm phase2_retry_count + 3 intake fields. change-intake.json thêm classification_rationale. CORE-031 compliant.",
+        "S5: 9 phase files wired mc-postgate-check.sh vào POST-GATE. resume-routing.md tách riêng từ _shared.md (G7 fix). SKILL.md Protocol list thêm 16 (CDG), 17 (Agent Spot-Check), 18 (Session Isolation).",
+        "S6: SKILL.md bump 3.0.0. _contract.json bump 3.0.0 + produces_for thêm change-impact.json + wf-implement-feature entry. 00-core.md §4b 3 entries mới. evals.json thêm #16 (lock), #17 (change-impact), #18 (sessions.jsonl).",
+        "S7: E2E review + compliance audit. PASS: skill-compliance-audit.sh (12/12 CRITICAL, 13/13 REQUIRED), validate-schema-sync.sh, mc-change-impact-build.sh (8 base fields verified), mc-index-append.sh (append-only 2 entries), mc-acquire-lock.sh/mc-release-lock.sh (acquire+release both types). Bug fix: DRY-RUN STOP GATE thiếu sessions.jsonl complete entry + lock release — phase4a-registry-docs.md patched. SKILL.md routing description corrected (dry-run inline cleanup, không jump Phase 6). evals.json eval #5 thêm 2 assertions. 18/18 evals conceptually PASS. AC6/AC7/AC8/AC9 PASS (script-verified). AC1-AC5/AC10 documented."
+      ]
+    },
+    {
+      "version": "2.0.3",
+      "date": "2026-04-25",
+      "changes": [
+        "Fix CRITICAL (GAP-1): Anti-collision check cho index.json — phase0-intake.md Step 0.1 re-read index.json sau khi generate CHANGE_ID để detect concurrent session trùng ID",
+        "Fix HIGH (GAP-2): Resume Protocol re-bind đầy đủ tất cả state variables — _shared.md §Resume Logic Step 4 bổ sung $CHANGE_TYPE, $MATURITY, $LEGACY_MODE, $DEPRECATED_MODULES, $RUN_TESTS với fallback defaults",
+        "Fix HIGH (GAP-3): Registry rollback khi Phase 4b fail — phase4b-code.md ESCALATE PROCEDURE bổ sung bước rollback req-registry.json từ backup trước khi STOP",
+        "Fix HIGH (GAP-4): Phase 5 sub-agent response parse fallback — phase5-verify.md bổ sung TRY/CATCH cho preflight và verify-sync parse, set WARN thay vì block Phase 6",
+        "Fix MEDIUM (GAP-5): CLARIFY_REQ POST-GATE exception — phase1-analyze.md POST-GATE cho phép docs_affected=[] và code_affected=[] khi change_type=CLARIFY_REQ nếu registry_changes non-empty",
+        "Fix MEDIUM (GAP-6): Cross-validation guard chia cho 0 — phase5-verify.md Cross-Validation Protocol bổ sung kiểm tra |predicted|=0 trước khi tính coverage formula",
+        "Fix MEDIUM (GAP-7): Argument hint cho --scope/--name — SKILL.md Arguments table bổ sung gợi ý dùng /status để tìm System/Module IDs",
+        "Fix MEDIUM (GAP-8): Auto-detect phiên dở dang — phase0-intake.md Step 0.1a tự phát hiện active_session in_progress và hỏi user tiếp tục hay bắt đầu mới",
+        "Add evals #13 (CLARIFY_REQ registry-only), #14 (Phase 2 user reject + re-scope), #15 (Phase 4b fail + registry rollback consistency)"
+      ]
+    },
+    {
+      "version": "2.0.2",
+      "date": "2026-04-23",
+      "changes": [
+        "Fix LOW: _contract.json field 'procedure' đổi từ string sang array để match template schema",
+        "Fix LOW: _contract.json field 'prerequisites.files' đổi thành 'required_files' + bổ sung 'required_phases_completed'",
+        "Fix LOW: _contract.json produces_for bổ sung phase1-4 docs cho wf-preflight và wf-verify-sync (align 00-core.md §4b)",
+        "Fix LOW: phase-summary.md template đổi từ string 'none' sang null (fix schema-sync false positive)",
+        "Fix LOW: evals.json version đồng bộ 2.0.2"
+      ]
+    },
+    {
+      "version": "2.0.1",
+      "date": "2026-04-19",
+      "changes": [
+        "Fix MEDIUM: Them Expert Prompt Template cho Phase 1 DEEP vao _shared.md (INPUT/OUTPUT/POST-GATE/error handling) — fix F3 agent prompt template missing",
+        "Fix MEDIUM: Them eval #12 modify-requirement-structural — cover MODIFY_REQUIREMENT change type (truoc do chi cover 5/6 types)",
+        "Fix MEDIUM: Update evals.json version tu 1.3.1 len 2.0.0 (stale sau v2.0.0 refactor)",
+        "Fix MEDIUM: Them change_type_confirmed, confirmed_at, classification_history vao change-intake.json template (fields duoc Phase 1 populate nhung thieu trong template)",
+        "Fix LOW: Update review standard G1 — doi tu '4 change types' thanh '6 change types' (bo sung MODIFY_REQUIREMENT, UNCLEAR)",
+        "Fix LOW: Dong bo E9 Phase Summary line count tu '15 dong' thanh '20 dong' trong _template-common.md (match implementation)"
+      ]
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-04-19",
+      "changes": [
+        "BREAKING (internal): Tach procedures/flow-new.md (573 dong monolithic) thanh 9 phase files + _shared.md theo pattern wf-design-ux v3.0.0",
+        "Them procedures/_shared.md (~356 dong): State Variables Glossary, Cross-Phase Data Flow, Session Isolation (CORE-030), LEGACY Detection/Injection (CORE-021/022), Expert Selection Map, Registry Safe-Write Rules (CORE-006), Agent Prompt Templates (Phase 5), Checkpoint Protocol, Resume Logic & Routing Table, CORE-026/028, Fix Rules",
+        "Them 9 phase files: phase0-intake.md, phase1-analyze.md, phase2-impact.md, phase3-plan.md, phase4a-registry-docs.md, phase4b-code.md, phase4c-tests.md, phase5-verify.md, phase6-report.md",
+        "SKILL.md (v2.0.0): thay the bang lazy-load pattern — Phase Routing Map table, moi phase file self-contained voi PRE-GATE/POST-GATE rieng",
+        "_contract.json: field 'procedure' tro sang phase0-intake.md (entry point), them field 'procedures' voi mapping day du phase_name → file_path",
+        "Backward compat: flow-new.md.bak giu lai cho reference",
+        "Khong thay doi behavior — giu nguyen CORE-006, CORE-012, CORE-021/022, CORE-027, CORE-028, CORE-029, CORE-030",
+        "Context tiet kiem: ~47% giam context/phase khi execute (tu 938 xuong ~500 dong/phase)"
+      ]
+    },
+    {
+      "version": "1.3.1",
+      "date": "2026-04-15",
+      "changes": [
+        "Fix HIGH: change-status.json template — cap nhat output_files paths sang $SESSION_DIR pattern (truoc do thieu $CHANGE_ID/)",
+        "Fix MEDIUM: change-status.json template — phase keys nhat quan: phase_0→phase0, phase_1→phase1, phase_2→phase2, phase_3→phase3 (khop checkpoint.json routing table)",
+        "Fix MEDIUM: change-status.json template — them _note cho checkpoint sub-object: denormalized cache, nguon chan ly la checkpoint.json",
+        "Fix LOW: _contract.json produces_for — bo sung phase-summary.md vao produces_for.wf-preflight",
+        "Fix LOW: _contract.json phase-summary.md template field — doi tu null sang 'none (free-form, CORE-028)'",
+        "Fix LOW: evals.json — them 3 evals: #9 Phase 4b code update, #10 Phase 5 verify, #11 LEGACY_MODE CORE-022"
+      ]
+    },
+    {
+      "version": "1.3.0",
+      "date": "2026-04-13",
+      "changes": [
+        "Fix HIGH: CORE-030 Session Isolation — them index.json, $CHANGE_ID, $SESSION_DIR; tat ca output files vao session subfolder rieng biet",
+        "Fix HIGH: POST-GATE T1-T4 (CORE-012) cho Phase 0 va Phase 6 trong flow-new.md",
+        "Fix HIGH: CORE-029 Agent Output Spot-Check — Step 1.4b trong DEEP mode",
+        "Fix MEDIUM: CORE-027 CDG — Step 4a.2 cho DELETE_FEATURE",
+        "Fix MEDIUM: Code file backup — Step 4b.0.5 truoc khi modify bat ky code file",
+        "Fix MEDIUM: Phase 5 agent invocation — them change context vao prompt wf-preflight va wf-verify-sync",
+        "Fix LOW: Phase 2 parallel eligibility check 3-dieu-kien ro rang",
+        "Fix LOW: Phase 4c Step 4c.2.5 — AskUserQuestion khi --run-tests chua set",
+        "Fix LOW: E015 error recovery — 5-buoc rebuild chi tiet",
+        "Them templates/index.json moi cho session isolation"
+      ]
+    },
+    {
+      "version": "1.2.1",
+      "date": "2026-04-12",
+      "changes": [
+        "Fix CRITICAL: Hoan chinh file (truoc do bi truncate — JSON invalid sau dong 130)",
+        "Bo sung consumes_from day du: wf-analyze-requirements, wf-define-features, wf-design",
+        "Lam ro input legacy-decisions.json: them ghi chu 'doc tai Phase 0 PRE-GATE neu LEGACY_MODE'"
+      ]
+    },
+    {
+      "version": "1.2.0",
+      "date": "2026-04-12",
+      "changes": [
+        "Add phase-summary.md vao outputs (CORE-028)"
+      ]
+    }
+  ],
+
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "change_impact",
+    "pattern": "PRE-GATE detection (Na/Nb) + CI-ROUTE Phase 2 impact assessment (phase2-impact.md)",
+    "tools_used": [
+      "gitnexus_impact",
+      "gitnexus_route_map",
+      "serena_find_references"
+    ],
+    "ci_tasks": [
+      "impact_analysis (Phase 2: GitNexus impact de tu dong map blast radius)",
+      "find_references (Phase 2: Serena find_references de tim call sites)",
+      "api_routes (Phase 2: GitNexus route_map khi API thay doi)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Grep/Read. Zero regression.",
+    "notes": "CI tools auto-detected at Phase 0 PRE-GATE. Impact analysis tu dong populate change-impact.json fields."
+  }
+}

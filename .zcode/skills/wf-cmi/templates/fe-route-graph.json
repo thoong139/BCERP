@@ -1,0 +1,59 @@
+{
+  "_template_notes": {
+    "purpose": "Frontend Route graph — Discovery Plugin #10 (v2.0 Gói C++). Parse Next.js App Router structure: page.tsx, layout.tsx, middleware.ts, loading.tsx, error.tsx, not-found.tsx. Build route hierarchy + dynamic segment detection + parent-child nesting. Source: Glob `apps/erp-web/app/**/*.{tsx,ts}`. Consumed by lanes CD25 (UX Flow Continuity) + CD38 (UI Implementation Coverage) qua graph_dependency.",
+    "populate": [
+      "nodes[]: 1 entry per route file — {id, name, kind, route_path, module, file_path, is_dynamic, dynamic_params[], is_protected, fingerprint}",
+      "nodes[].kind: 'page' (page.tsx) | 'layout' (layout.tsx) | 'middleware' (middleware.ts) | 'loading' (loading.tsx) | 'error' (error.tsx) | 'not-found' (not-found.tsx) | 'template' (template.tsx)",
+      "nodes[].route_path: URL path derived from file system (vd '/dashboard/customers/[id]' từ `app/dashboard/customers/[id]/page.tsx`)",
+      "nodes[].is_dynamic: true nếu route có `[param]` segment",
+      "nodes[].dynamic_params[]: list dynamic segments (vd ['id', 'tenantId'])",
+      "nodes[].is_protected: true nếu route nằm trong `(protected)` route group HOẶC middleware redirect detected",
+      "edges[]: 1 entry per route hierarchy — {from_route, to_route, kind: 'child_of'|'wrapped_by'|'middleware_protects'}",
+      "metadata.build_at: ISO 8601 timestamp",
+      "metadata.scope_root: 'apps/erp-web/app' (v2.0 mobile defer v2.1)",
+      "metadata.source_method: 'glob_filesystem' (v1.0 dùng filesystem traversal — KHÔNG cần AST)",
+      "metadata.parser_version: '1.0' filesystem-based; v2.1 → AST parse cho metadata exports (generateMetadata)",
+      "metadata.route_count_by_kind: distribution {page, layout, middleware, ...}"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/erp-web/app/ → SKIP, write empty graph với skipped:true (per CD25 graph_dependency optional, E137 WARN)",
+      "Project dùng Pages Router thay vì App Router → SKIP (v2.0 chỉ support App Router; Pages Router defer v2.1)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "fe-route-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/erp-web/app",
+    "client_apps": ["erp-web"]
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/erp-web/app",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "scanned_file_count": 0,
+    "skipped_files": [],
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "route_count_by_kind": {
+      "page": 0,
+      "layout": 0,
+      "middleware": 0,
+      "loading": 0,
+      "error": 0,
+      "not-found": 0,
+      "template": 0
+    },
+    "dynamic_route_count": 0,
+    "protected_route_count": 0,
+    "skipped": false,
+    "skip_reason": null
+  }
+}

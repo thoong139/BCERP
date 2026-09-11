@@ -1,0 +1,44 @@
+{
+  "skill_name": "wf-prepare-deployment",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-prepare-deployment",
+      "expected_output": "Đọc registry + design docs, spawn DevOps + Tech Writer + SRE + QA Lead, tạo 4 deployment docs, cross-validate, stakeholder review",
+      "assertions": [
+        {"text": "Phase 1 (procedures/phase1-prereq.md) validates req-registry.json (E001) và architecture docs (E004) trước khi spawn agents — xem SKILL.md Error Handling E001/E004 và procedures/phase1-prereq.md PRE-GATE", "type": "behavior"},
+        {"text": "Phase 2 (procedures/phase2-deployment-guide.md) spawn devops agent (prompt P2-DEVOPS từ _shared.md §Agent Prompt Templates) tạo deployment-guide.md Muc 1-8 — xem SKILL.md Phase Routing Map và Execution Strategy", "type": "behavior"},
+        {"text": "Phase 3a (procedures/phase3a-user-guide.md) spawn tech-writer agent (prompt P3a-TECHWRITER) tạo user-guide.md — chạy PARALLEL với Phase 2 vì output files khác nhau — xem SKILL.md Execution Strategy", "type": "behavior"},
+        {"text": "Tạo đầy đủ 4 output files trong phase6-deployment/: deployment-guide.md, user-guide.md, incident-response-runbook.md, stakeholder-review.md — xem SKILL.md Output Files table", "type": "file_exists"},
+        {"text": "Phase 5a Output Report hiển thị bảng 'Files da tao' với 4 docs và Status column — xem procedures/phase5a-review.md §Output Report", "type": "output_contains"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-prepare-deployment (Phase 5 có lỗi: missing deployment-guide + broken reference)",
+      "expected_output": "Phase 5 (procedures/phase5-crossval.md) auto-correction loop: iteration 1 phát hiện lỗi → auto-fix theo Fix Rules → iteration 2 re-check → PASS",
+      "assertions": [
+        {"text": "Phase 5 (procedures/phase5-crossval.md) chạy structural validation (5.1.1→5.1.7) + Content Quality Gate Protocol 8 (5.2.1→5.2.6) — xem procedures/phase5-crossval.md §Structural Validation và §Content Quality Checks", "type": "behavior"},
+        {"text": "Fix Rules table trong procedures/_shared.md §Fix Rules đặc thù: missing_file → 'Re-generate file từ source docs', escalate nếu source unavailable", "type": "behavior"},
+        {"text": "Fix Rules table trong procedures/_shared.md §Fix Rules đặc thù: invalid_reference → 'Fix path/link references', escalate nếu cannot locate file", "type": "behavior"},
+        {"text": "Phase 5 §Auto-Fix Loop max 3 iterations — procedures/phase5-crossval.md POST-GATE ghi 'Auto-Correction Loop PASS (hoặc escalated)'", "type": "behavior"},
+        {"text": "procedures/phase5-crossval.md §Auto-Fix Loop logs error_log với {iteration, error_type, fix_strategy, status}", "type": "file_content"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-prepare-deployment (POST-GATE fail ở Phase 2 — agent output incomplete)",
+      "expected_output": "Accuracy Assurance Protocol: auto-retry generation, re-check POST-GATE, max 3 retries trước khi escalate. Phase 3a chạy PARALLEL với Phase 2. Phase 3b PHẢI đợi Phase 2+3a xong.",
+      "assertions": [
+        {"text": "POST-GATE Phase 2 (procedures/phase2-deployment-guide.md) kiểm tra deployment-guide.md: T2 grep headings Muc 1-8, T3 word count >= 500. Nếu FAIL → re-run Phase 2 agent — xem procedures/phase2-deployment-guide.md POST-GATE", "type": "behavior"},
+        {"text": "SKILL.md Execution Strategy ghi Phase 2 và Phase 3a chạy PARALLEL vì output files KHÁC NHAU. Phase 3b PHẢI SEQUENTIAL sau cả Phase 2+3a vì ghi vào CÙNG FILE — xem SKILL.md Execution Strategy table và procedures/_shared.md §Cross-File Write Conflict Avoidance", "type": "behavior"},
+        {"text": "Phase 3b (procedures/phase3b-account-mgmt.md) PRE-GATE yêu cầu cả deployment-guide.md VÀ user-guide.md tồn tại (Phase 2 + 3a DONE)", "type": "behavior"},
+        {"text": "Error E009: POST-GATE fail sau 3 retries → STOP phase + escalate to user với chi tiết lỗi còn lại — xem SKILL.md Error Handling table E009", "type": "behavior"},
+        {"text": "Error E012 mới trong v2.0: deployment-guide bị ghi đè (Phase 3b hoặc 4) → ROLLBACK — xem procedures/phase3b-account-mgmt.md Error Codes và procedures/_shared.md §Cross-File Write Conflict Avoidance", "type": "behavior"}
+      ],
+      "files": []
+    }
+  ]
+}

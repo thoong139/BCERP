@@ -1,0 +1,119 @@
+{
+  "$schema": "prepare-deployment-status-v1",
+  "version": "1.0",
+  "skill_id": "DEPLOY-YYYYMMDD-NNN",
+  "skill": "wf-prepare-deployment",
+  "project": "[PROJECT_NAME]",
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "arguments": {
+    "scope": "all",
+    "resume": false
+  },
+
+  "phases": {
+    "phase_1": {
+      "name": "Prerequisites Validation",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "sync_rate": null,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Deployment Guide + Infra",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "devops",
+      "error": null
+    },
+    "phase_3": {
+      "name": "User Guide + Account Management",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "tech-writer",
+      "error": null
+    },
+    "phase_3a": {
+      "name": "Checkpoint",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Maintenance Guide",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "devops + tech-writer",
+      "error": null
+    },
+    "phase_5": {
+      "name": "Cross-Validation",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations": 0,
+      "max_iterations": 3,
+      "error": null
+    },
+    "phase_5a": {
+      "name": "Stakeholder Deployment Review",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agents": ["devops", "qa-lead"],
+      "iterations": 0,
+      "max_iterations": 3,
+      "error": null
+    }
+  },
+
+  "output_files": {
+    "deployment_guide": null,
+    "user_guide": null,
+    "account_management": null,
+    "maintenance_guide": null,
+    "so_01": null,
+    "so_02": null,
+    "so_03": null
+  },
+
+  "context_sources": {
+    "registry": ".mc-data/docs/_meta/req-registry.json",
+    "architecture": ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+    "infra_spec": ".mc-data/docs/phase3-architecture/technical-specs/infra-spec.md",
+    "verify_sync": ".mc-data/docs/_meta/verify-sync.md"
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "next_action": null,
+    "trigger_reason": null,
+    "session_number": null
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "agents_spawned": 0,
+    "docs_created": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "validation_iterations": 0
+  }
+}

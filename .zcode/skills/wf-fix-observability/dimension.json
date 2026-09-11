@@ -1,0 +1,331 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD8",
+  "dimension_name": "Observability & Reliability",
+  "short_name": "Observability",
+  "owner_agent": "sre",
+  "version": "1.0.0",
+  "description": "Phat hien thieu sot ve observability (logs, metrics, traces, alerts) va reliability patterns (retry, circuit breaker, timeout, graceful degradation, health check) gay he thong khong quan sat duoc khi loi xay ra trong production.",
+  "probes": [
+    {
+      "id": "P-QD8-log-coverage-audit",
+      "name": "Log Coverage & Quality Audit",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD8-log-coverage-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD8-metrics-instrumentation",
+      "name": "Metrics Instrumentation Coverage",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD8-metrics-instrumentation.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD8-retry-circuit-breaker",
+      "name": "Retry & Circuit Breaker Pattern Audit",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD8-retry-circuit-breaker.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD8-timeout-config-audit",
+      "name": "Timeout Configuration Audit",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD8-timeout-config-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD8-health-check-probe",
+      "name": "Health Check Endpoint Probe",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "probes/P-QD8-health-check-probe.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 1500
+      }
+    },
+    {
+      "id": "P-QD8-trace-propagation",
+      "name": "Distributed Trace Propagation Audit",
+      "type": "static",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD8-trace-propagation.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD8-alert-rule-audit",
+      "name": "Alert Rule Coverage Audit",
+      "type": "static",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD8-alert-rule-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD8-llm-analysis",
+      "name": "LLM-Augmented Observability Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd8-observability.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD8-retry-circuit-breaker",
+        "P-QD8-timeout-config-audit"
+      ],
+      "max_signals_per_probe": 30,
+      "notes": "QD8 quick chi check 2 reliability probe co rui ro production cao nhat"
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD8-retry-circuit-breaker",
+        "P-QD8-timeout-config-audit",
+        "P-QD8-log-coverage-audit",
+        "P-QD8-metrics-instrumentation",
+        "P-QD8-health-check-probe"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD8-retry-circuit-breaker",
+        "P-QD8-timeout-config-audit",
+        "P-QD8-log-coverage-audit",
+        "P-QD8-metrics-instrumentation",
+        "P-QD8-health-check-probe",
+        "P-QD8-trace-propagation",
+        "P-QD8-llm-analysis"
+      ],
+      "max_signals_per_probe": 100
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "Retry without idempotency tren payment endpoint",
+      "Circuit breaker thieu tren critical external dependency (payment gateway, auth)",
+      "Health check endpoint khong ton tai trong production deploy"
+    ],
+    "high_triggers": [
+      "Timeout cho external HTTP call khong cau hinh (default infinite)",
+      "Retry exponential backoff thieu jitter → thundering herd",
+      "Health check return 200 ngay ca khi DB down (false-healthy)"
+    ],
+    "medium_triggers": [
+      "Log thieu structured field (correlation_id, user_id)",
+      "Log level sai (info cho event quan trong, warn cho debug)",
+      "Metrics cardinality cao (label = user_id) → time-series explosion",
+      "Trace propagation thieu giua services (drop context)"
+    ],
+    "low_triggers": [
+      "Log message khong actionable",
+      "Metrics naming khong theo convention (snake_case vs kebab)"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [
+      "curl"
+    ],
+    "agents": [
+      "sre",
+      "devops"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/QD8-observability-report.md"
+  },
+  "execution_order": [
+    "P-QD8-timeout-config-audit",
+    "P-QD8-retry-circuit-breaker",
+    "P-QD8-log-coverage-audit",
+    "P-QD8-metrics-instrumentation",
+    "P-QD8-trace-propagation",
+    "P-QD8-alert-rule-audit",
+    "P-QD8-health-check-probe",
+    "P-QD8-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD8-timeout-config-audit",
+      "P-QD8-retry-circuit-breaker"
+    ],
+    [
+      "P-QD8-log-coverage-audit",
+      "P-QD8-metrics-instrumentation",
+      "P-QD8-trace-propagation",
+      "P-QD8-alert-rule-audit"
+    ],
+    [
+      "P-QD8-health-check-probe"
+    ],
+    [
+      "P-QD8-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "static reliability probes (retry/timeout) chay truoc — kha nang phat hien production blocker; observability instrumentation parallel; runtime health check cuoi"
+}

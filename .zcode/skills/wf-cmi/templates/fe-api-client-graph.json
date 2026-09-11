@@ -1,0 +1,54 @@
+{
+  "_template_notes": {
+    "purpose": "Frontend API Client graph — Discovery Plugin #8 (v2.0 Gói C++). Parse React Query hooks (useQuery/useMutation/useInfiniteQuery) + Refit interfaces + raw fetch/axios calls. Source: Grep `apps/erp-web/**/*.{ts,tsx}` cho client-side API consumption patterns. Consumed by lanes CD13 (FE↔BE Contract Sync) + CD38 (UI Implementation Coverage) qua graph_dependency.",
+    "populate": [
+      "nodes[]: 1 entry per API client unit — {id, name, kind, module, file_path, endpoint_method, endpoint_path, fingerprint}",
+      "nodes[].kind: 'react_query_hook' (useQuery/useMutation/useInfiniteQuery) | 'refit_interface' (Refit IXxxApi) | 'raw_fetch' (window.fetch/axios direct) | 'service_function' (encapsulated helper)",
+      "nodes[].endpoint_method: 'GET'|'POST'|'PUT'|'PATCH'|'DELETE' (parsed từ useMutation method hoặc Refit attribute) — null nếu không xác định được",
+      "nodes[].endpoint_path: route pattern (e.g. '/api/v1/crm/customers/{id}') — null nếu dynamic",
+      "edges[]: 1 entry per client → endpoint call — {from_client, to_endpoint, kind: 'calls', uncertain: boolean}",
+      "metadata.build_at: ISO 8601 timestamp",
+      "metadata.scope_root: 'apps/erp-web' (v2.0 mobile defer v2.1)",
+      "metadata.source_method: 'grep_fallback' (v1.0 parser) | 'ts_morph_ast' (v2.1)",
+      "metadata.parser_version: '1.0' Grep-based; v2.1 → ts-morph AST cho full type extraction",
+      "metadata.client_unit_count: total nodes parsed",
+      "metadata.skipped_files[]: files với parse error (log fail không block)"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/erp-web/ → SKIP, write empty graph với skipped:true (per CD13 graph_dependency optional, E137 WARN)",
+      "Tech stack frontend != Next.js/React → SKIP (parser v1.0 chỉ support React Query + Refit + window.fetch)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "fe-api-client-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/erp-web",
+    "client_apps": ["erp-web"]
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/erp-web",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "client_unit_count": 0,
+    "scanned_file_count": 0,
+    "skipped_files": [],
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "kinds_distribution": {
+      "react_query_hook": 0,
+      "refit_interface": 0,
+      "raw_fetch": 0,
+      "service_function": 0
+    },
+    "skipped": false,
+    "skip_reason": null
+  }
+}

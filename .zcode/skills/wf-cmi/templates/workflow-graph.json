@@ -1,0 +1,28 @@
+{
+  "_template_notes": {
+    "purpose": "Business workflow graph — Discovery #3. Workflows end-to-end + state transitions + sequencing. Source: CQRS Commands/Handlers + state machines + saga orchestrators. Engine #2 + #3.",
+    "populate": [
+      "workflows[]: 1 entry per workflow — {id, name (vd order-to-cash, customer-onboarding), start_state, end_states[], modules_involved[]}",
+      "workflows[].transitions[]: state machine — {from_state, to_state, trigger, command|event, guard?, side_effects[]}",
+      "workflows[].entry_points[]: API endpoints hoặc UI flows kick off workflow",
+      "workflows[].dependencies[]: external workflows phải hoàn thành trước (vd order phải có customer)",
+      "metadata.incomplete_workflows: workflows không tìm thấy end state (broken)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "workflow-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "workflows": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "source_method": "{{SOURCE_METHOD}}",
+    "workflow_count": 0,
+    "modules_covered": [],
+    "incomplete_workflows": []
+  }
+}

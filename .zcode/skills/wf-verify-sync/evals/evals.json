@@ -1,0 +1,339 @@
+{
+  "skill_name": "wf-verify-sync",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-verify-sync",
+      "expected_output": "Scan toàn bộ 10 REQ-IDs, phát hiện 2 not_started (REQ-CRM-CUST-004, REQ-INV-005), 1 in_progress (REQ-INV-004), 1 WARNING (REQ-INV-003 done nhưng không tìm thấy code), 2 orphan files (format-helper.ts, date-utils.ts). Sync Rate khoảng 60%.",
+      "assertions": [
+        { "id": "tc1-total-count", "text": "Report ghi nhận đúng tổng 10 REQ-IDs", "type": "content_check" },
+        { "id": "tc1-not-started", "text": "Phát hiện REQ-CRM-CUST-004 và REQ-INV-005 là Not Started / gaps", "type": "content_check" },
+        { "id": "tc1-in-progress", "text": "Phát hiện REQ-INV-004 là In Progress", "type": "content_check" },
+        { "id": "tc1-orphans", "text": "Liệt kê format-helper.ts và date-utils.ts là orphan code", "type": "content_check" },
+        { "id": "tc1-sync-rate", "text": "Sync Rate tính đúng (khoảng 60% = 6 done có code / 10 total)", "type": "content_check" },
+        { "id": "tc1-coverage-rate", "text": "Coverage Rate tính đúng (khoảng 70% = 7 có code / 10 total)", "type": "content_check" },
+        { "id": "tc1-warning-inv003", "text": "REQ-INV-003 hiển thị WARNING (done nhưng code scan không tìm thấy)", "type": "content_check" },
+        { "id": "tc1-report-file", "text": "Tạo verify-sync.md tại .mc-data/docs/_meta/verify-sync.md", "type": "file_exists" },
+        { "id": "tc1-history-file", "text": "Append history vào verify-sync-history.md", "type": "file_exists" },
+        { "id": "tc1-template-format", "text": "Report dùng template chuẩn (Summary table, Gaps section, Orphan Code section)", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-verify-sync --scope=system --name=SYS-CRM",
+      "expected_output": "Chỉ kiểm tra 5 REQ-IDs thuộc SYS-CRM (CUST-001..004, SALES-001). 4 Implemented, 1 Not Started. Sync Rate 80%. KHÔNG liệt kê REQ-INV-xxx.",
+      "assertions": [
+        { "id": "tc2-scope-filter", "text": "Chỉ xử lý REQ-IDs thuộc SYS-CRM — KHÔNG có REQ-INV-xxx trong report", "type": "content_check" },
+        { "id": "tc2-total-5", "text": "Total REQ-IDs = 5 (chỉ CRM)", "type": "content_check" },
+        { "id": "tc2-implemented-4", "text": "Implemented = 4 (CUST-001,002,003 + SALES-001)", "type": "content_check" },
+        { "id": "tc2-not-started-1", "text": "Not Started = 1 (REQ-CRM-CUST-004)", "type": "content_check" },
+        { "id": "tc2-sync-rate-80", "text": "Sync Rate = 80%", "type": "content_check" },
+        { "id": "tc2-report-scope", "text": "Report ghi rõ Scope: system / SYS-CRM", "type": "content_check" },
+        { "id": "tc2-no-inv-orphans", "text": "KHÔNG liệt kê orphan files từ INV system trong report chính", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-verify-sync --scope=module --name=MOD-CRM-CUST",
+      "expected_output": "Chỉ kiểm tra 4 REQ-IDs thuộc MOD-CRM-CUST. 3/4 Implemented (75%). REQ-CRM-CUST-004 là gap.",
+      "assertions": [
+        { "id": "tc3-module-filter", "text": "Chỉ xử lý REQ-IDs có module_id=MOD-CRM-CUST", "type": "content_check" },
+        { "id": "tc3-total-4", "text": "Total REQ-IDs = 4", "type": "content_check" },
+        { "id": "tc3-implemented-3", "text": "Implemented = 3 (CUST-001, 002, 003)", "type": "content_check" },
+        { "id": "tc3-gap-004", "text": "REQ-CRM-CUST-004 identified as Not Started / gap", "type": "content_check" },
+        { "id": "tc3-sync-rate-75", "text": "Sync Rate = 75%", "type": "content_check" },
+        { "id": "tc3-no-sales", "text": "KHÔNG có REQ-CRM-SALES-xxx trong report", "type": "content_check" },
+        { "id": "tc3-no-inv", "text": "KHÔNG có REQ-INV-xxx trong report", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-verify-sync --fix",
+      "expected_output": "Phát hiện 2 orphan files (format-helper.ts, date-utils.ts), auto-add REQ-ID comment vào đầu file. KHÔNG modify source logic — chỉ thêm comment header.",
+      "assertions": [
+        { "id": "tc4-orphan-detect", "text": "Phát hiện 2 orphan files: format-helper.ts, date-utils.ts", "type": "content_check" },
+        { "id": "tc4-add-reqid-comment", "text": "Thêm REQ-ID comment vào đầu orphan files", "type": "content_check" },
+        { "id": "tc4-no-logic-change", "text": "KHÔNG modify source logic — chỉ thêm REQ-ID comment header", "type": "content_check" },
+        { "id": "tc4-fix-log", "text": "Log tất cả changes (files fixed, REQ-IDs assigned)", "type": "content_check" },
+        { "id": "tc4-suggest-reqid", "text": "Suggest REQ-ID phù hợp từ registry cho mỗi orphan file", "type": "content_check" },
+        { "id": "tc4-verify-after-fix", "text": "Sau fix, re-verify files có REQ-ID comment", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-verify-sync",
+      "expected_output": "REQ-INV-003 có impl_status=done trong registry nhưng code scan không tìm thấy file nào chứa REQ-INV-003. Skill PHẢI hiển thị WARNING và KHÔNG tự downgrade impl_status. Hỏi user xác nhận.",
+      "assertions": [
+        { "id": "tc5-no-downgrade", "text": "KHÔNG downgrade REQ-INV-003 impl_status từ done sang giá trị khác", "type": "registry_check" },
+        { "id": "tc5-warning-shown", "text": "Hiển thị WARNING rõ ràng cho REQ-INV-003 (done nhưng code không tìm thấy)", "type": "content_check" },
+        { "id": "tc5-ask-user", "text": "Yêu cầu user xác nhận trước khi thay đổi REQ-INV-003 status", "type": "content_check" },
+        { "id": "tc5-registry-intact", "text": "Registry sau update vẫn có REQ-INV-003 impl_status=done", "type": "registry_check" },
+        { "id": "tc5-other-updates-ok", "text": "Các REQ-IDs khác update bình thường (not_started vẫn not_started nếu chưa có code)", "type": "registry_check" },
+        { "id": "tc5-w001-error-code", "text": "Log error code W001 trong report cho trường hợp REQ-INV-003", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-verify-sync (project có interface_type=web, có src/app/ với 3 business screens)",
+      "expected_output": "Phase 3 chạy UI coverage: tìm thấy 3 business screens trong src/app/ (dashboard/page.tsx, orders/page.tsx, reports/page.tsx). 2/3 screens có FEAT-ID matching. 1 screen (reports/page.tsx) không có FEAT-ID → MISSING_FROM_FEATURES. 1 FEAT-ID trong registry (FEAT-INV-EXPORT-001) không có screen → MISSING_FROM_CODE. UI coverage report được tạo.",
+      "assertions": [
+        { "id": "tc6-phase3-runs", "text": "Phase 3 UI coverage chạy (không bị skip) khi interface_type=web và src/app/ tồn tại", "type": "content_check" },
+        { "id": "tc6-glob-no-script", "text": "Phase 3 dùng Glob/Grep inline — KHÔNG gọi bash script", "type": "behavior_check" },
+        { "id": "tc6-infra-skipped", "text": "layout.tsx, error.tsx, loading.tsx bị phân loại INFRASTRUCTURE và không tính vào business screens", "type": "content_check" },
+        { "id": "tc6-missing-from-features", "text": "reports/page.tsx hiện trong MISSING_FROM_FEATURES (code có nhưng không có FEAT-ID)", "type": "content_check" },
+        { "id": "tc6-missing-from-code", "text": "FEAT-INV-EXPORT-001 hiện trong MISSING_FROM_CODE (FEAT-ID có nhưng không tìm thấy screen)", "type": "content_check" },
+        { "id": "tc6-report-created", "text": "ui-coverage-report.md được tạo tại .mc-data/work/wf-verify-sync/", "type": "file_exists" },
+        { "id": "tc6-coverage-rate", "text": "coverage_pct = (2/3)*100 ≈ 67%", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-verify-sync --resume (checkpoint tồn tại, registry KHÔNG thay đổi — fingerprint khớp)",
+      "expected_output": "Skill đọc checkpoint.json, tính lại fingerprint registry, so sánh với checkpoint.registry_state.fingerprint → khớp. Tiếp tục từ next_action trong checkpoint (phase2-analyze) mà không restart toàn bộ. Không yêu cầu full scan.",
+      "assertions": [
+        { "id": "tc7-fingerprint-match", "text": "Fingerprint được tính lại và khớp với checkpoint — KHÔNG cảnh báo mismatch", "type": "behavior_check" },
+        { "id": "tc7-resume-from-checkpoint", "text": "Tiếp tục từ phase được ghi trong checkpoint.next_action, không restart từ Phase 1", "type": "behavior_check" },
+        { "id": "tc7-no-rescan", "text": "KHÔNG re-scan toàn bộ code khi fingerprint khớp — dùng $REQ_INDEX và $CODE_REFS từ checkpoint", "type": "behavior_check" },
+        { "id": "tc7-final-report", "text": "Tạo verify-sync.md hoàn chỉnh sau khi resume và hoàn thành các phase còn lại", "type": "file_exists" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-verify-sync --resume (checkpoint tồn tại, registry ĐÃ THAY ĐỔI — fingerprint khác)",
+      "expected_output": "Skill đọc checkpoint.json, tính lại fingerprint → KHÔNG khớp (registry đã có REQ-ID mới). Hiển thị cảnh báo rõ ràng và đề xuất 3 lựa chọn: (A) FULL SCAN — bắt đầu lại từ đầu, (B) PARTIAL RESUME — dùng cached data nhưng re-collect REQ-IDs, (C) FORCE RESUME — tiếp tục với dữ liệu cũ (chấp nhận rủi ro thiếu REQ-ID mới). CHỜ user chọn.",
+      "assertions": [
+        { "id": "tc8-fingerprint-mismatch", "text": "Phát hiện fingerprint mismatch và hiển thị cảnh báo cụ thể (fingerprint cũ vs mới)", "type": "content_check" },
+        { "id": "tc8-three-options", "text": "Cung cấp đúng 3 lựa chọn: FULL SCAN, PARTIAL RESUME, FORCE RESUME", "type": "content_check" },
+        { "id": "tc8-wait-for-user", "text": "CHỜ user chọn — KHÔNG tự quyết định tiếp tục hay restart", "type": "behavior_check" },
+        { "id": "tc8-no-silent-proceed", "text": "KHÔNG tiếp tục thực thi phases mà không có user input khi fingerprint khác", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-verify-sync --fix (3 loại W001: format_mismatch, code_refactored, genuine_missing)",
+      "expected_output": "format_mismatch (REQ-A-001 có '// REQID:' thay vì '// REQ-ID:') → auto-fix comment format. code_refactored (REQ-B-002 có candidate file auth-service.ts) → CHỜ user confirm trước khi thêm comment. genuine_missing (REQ-C-003 không có code liên quan) → KHÔNG fix, báo user 'code thực sự thiếu, cần /wf-implement-feature'.",
+      "assertions": [
+        { "id": "tc9-format-mismatch-autofix", "text": "format_mismatch được auto-fix mà không cần user confirm", "type": "behavior_check" },
+        { "id": "tc9-code-refactored-confirm", "text": "code_refactored buộc phải CHỜ user confirm trước khi apply", "type": "behavior_check" },
+        { "id": "tc9-genuine-missing-notouch", "text": "genuine_missing KHÔNG được add comment — báo user cần implement", "type": "behavior_check" },
+        { "id": "tc9-genuine-missing-suggest", "text": "Suggest '/wf-implement-feature REQ-C-003' cho genuine_missing", "type": "content_check" },
+        { "id": "tc9-fix-log-classification", "text": "FIX_LOG ghi rõ classification cho mỗi entry (format_mismatch/code_refactored/genuine_missing)", "type": "content_check" },
+        { "id": "tc9-verify-after", "text": "Re-verify từng file sau fix để confirm REQ-ID comment tồn tại đúng format", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-verify-sync (tất cả REQ-IDs có impl_status=skipped — total == 0 sau khi loại skipped)",
+      "expected_output": "Tổng REQ-IDs sau loại skipped = 0. Skill set $SYNC_RATE = null, KHÔNG tính sync_rate (tránh division-by-zero). Phase 5 cross-validation được skip. Report hiển thị 'N/A — không có active REQ-IDs (tất cả đã skipped)'. KHÔNG có lỗi arithmetic.",
+      "assertions": [
+        { "id": "tc10-no-division-error", "text": "KHÔNG có lỗi division-by-zero khi total == 0", "type": "behavior_check" },
+        { "id": "tc10-sync-rate-null", "text": "$SYNC_RATE = null (không phải 0%, không phải NaN)", "type": "content_check" },
+        { "id": "tc10-phase5-skip", "text": "Phase 5 cross-validation được skip với reason=E014_total_zero", "type": "behavior_check" },
+        { "id": "tc10-na-report", "text": "Report hiển thị 'N/A' cho sync rate và coverage rate (không hiển thị số)", "type": "content_check" },
+        { "id": "tc10-e014-logged", "text": "E014 được log trong verify-sync-status.json", "type": "content_check" },
+        { "id": "tc10-skipped-list", "text": "Báo cáo liệt kê đầy đủ danh sách REQ-IDs bị skipped", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "/wf-verify-sync --scope=module --name=MOD-CRM-CUST --fix",
+      "expected_output": "Chỉ fix orphan files trong thư mục module CRM/CUST. Các orphan files ở module khác (INV, SALES) bị exclude khỏi fix — KHÔNG được thêm REQ-ID comment. Scope boundary được enforce cả ở scan lẫn fix step.",
+      "assertions": [
+        { "id": "tc11-scan-scoped", "text": "Phase 1 chỉ scan REQ-IDs và code files thuộc MOD-CRM-CUST", "type": "behavior_check" },
+        { "id": "tc11-fix-scoped", "text": "Phase 4 chỉ fix orphan files trong module path MOD-CRM-CUST — KHÔNG fix files ở module khác", "type": "behavior_check" },
+        { "id": "tc11-out-of-scope-log", "text": "Log rõ ràng các orphan files bị bỏ qua vì ngoài scope: '⚠️ Orphan [file] nằm ngoài scope MOD-CRM-CUST — bỏ qua fix'", "type": "content_check" },
+        { "id": "tc11-report-scope", "text": "Report ghi rõ scope=module, name=MOD-CRM-CUST", "type": "content_check" },
+        { "id": "tc11-fix-log-scoped", "text": "FIX_LOG chỉ chứa files thuộc MOD-CRM-CUST", "type": "content_check" }
+      ]
+    }
+    ,
+    {
+      "id": 12,
+      "prompt": "/wf-verify-sync (first run — no existing sessions)",
+      "expected_output": "v3.0 session isolation: vs-generate-session-id.sh tạo session ID dạng {YYYY-MM-DD}-all-01, session dir được tạo tại .mc-data/work/wf-verify-sync/sessions/{id}/, lock file .session.lock được acquire, heartbeat daemon được start, JSONL entry (status: in_progress) được append vào _index/sessions.jsonl. Sau khi hoàn thành: status cập nhật thành completed, lock released, heartbeat killed.",
+      "assertions": [
+        { "id": "tc12-session-id-format", "text": "Session ID có format {YYYY-MM-DD}-all-01 (hoặc scoped variant nếu có --scope)", "type": "content_check" },
+        { "id": "tc12-session-dir-created", "text": "Session dir được tạo: .mc-data/work/wf-verify-sync/sessions/{id}/", "type": "file_exists" },
+        { "id": "tc12-working-files-in-session", "text": "verify-sync-status.json và checkpoint.json nằm trong $SESSION_DIR, KHÔNG ở flat layout cũ", "type": "file_exists" },
+        { "id": "tc12-jsonl-entry", "text": "sessions.jsonl có entry in_progress cho session này", "type": "content_check" },
+        { "id": "tc12-jsonl-completed", "text": "Sau khi hoàn thành, sessions.jsonl có thêm entry completed cho cùng session_id", "type": "content_check" },
+        { "id": "tc12-impact-json-created", "text": "verify-sync-impact.json được tạo trong $SESSION_DIR với verdict và sync_rate_pct hợp lệ", "type": "file_exists" },
+        { "id": "tc12-session-copy-preserved", "text": "verify-sync.md session copy tồn tại tại $SESSION_DIR/verify-sync.md (không chỉ ở canonical path)", "type": "file_exists" }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "/wf-verify-sync (chạy 2 lần liên tiếp với scope khác nhau — run 1: --scope=all, run 2: --scope=system --name=CRM)",
+      "expected_output": "Lần 1 tạo session {date}-all-01. Lần 2 tạo session {date}-system-crm-01. Cả 2 session dirs tồn tại song song. sessions.jsonl có 4 entries (2 in_progress + 2 completed). verify-sync.md ở canonical path = output của run cuối cùng. verify-sync.md ở sessions/{run1}/verify-sync.md vẫn còn nguyên (KHÔNG bị overwrite).",
+      "assertions": [
+        { "id": "tc13-two-session-dirs", "text": "Cả hai session dirs tồn tại: sessions/{date}-all-01/ và sessions/{date}-system-crm-01/", "type": "file_exists" },
+        { "id": "tc13-history-preserved", "text": "verify-sync.md của run 1 vẫn còn tại sessions/{date}-all-01/verify-sync.md — KHÔNG bị xóa hay overwrite bởi run 2", "type": "file_exists" },
+        { "id": "tc13-jsonl-4-entries", "text": "sessions.jsonl có 4 entries (2 in_progress, 2 completed) — 2 entries per session", "type": "content_check" },
+        { "id": "tc13-canonical-latest", "text": "Canonical .mc-data/docs/_meta/verify-sync.md = output của run 2 (system CRM scope)", "type": "content_check" },
+        { "id": "tc13-different-scope-ids", "text": "Hai session IDs khác nhau (all-01 vs system-crm-01)", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/wf-verify-sync --resume (session in_progress tồn tại trong JSONL, session dir + checkpoint.json tồn tại)",
+      "expected_output": "resume-routing.md: discover session từ _index/sessions.jsonl (latest in_progress), validate $SESSION_DIR và checkpoint.json tồn tại, tính lại registry fingerprint, re-acquire lock, restart heartbeat, route tới phase trong checkpoint. Không tạo session mới. Session ID được preserve từ session cũ.",
+      "assertions": [
+        { "id": "tc14-discover-from-jsonl", "text": "Resume tìm session_id từ sessions.jsonl (latest in_progress entry), không tạo session mới", "type": "behavior_check" },
+        { "id": "tc14-session-dir-reused", "text": "Cùng session dir được dùng lại — KHÔNG tạo sessions/{date}-all-02", "type": "behavior_check" },
+        { "id": "tc14-lock-reacquired", "text": "Lock được re-acquire trong cùng session dir", "type": "behavior_check" },
+        { "id": "tc14-checkpoint-loaded", "text": "Data từ checkpoint.json được load vào state vars ($REQ_INDEX, $CODE_REFS, etc.)", "type": "behavior_check" },
+        { "id": "tc14-route-correct-phase", "text": "Execution tiếp tục từ phase được ghi trong checkpoint.position.current_phase", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "/wf-verify-sync (canonical verify-sync.md đã được update bởi phiên khác TRONG KHI phiên này đang chạy — mtime > session_start + 5s)",
+      "expected_output": "Phase 6 Step 6.2b phát hiện canonical mtime > session_start + 5s tolerance. Hiển thị CDG conflict warning rõ ràng với thời gian cụ thể. Cung cấp 3 lựa chọn: [1] Override, [2] Skip (chỉ giữ session copy), [3] Cancel. CHỜ user chọn. Dù chọn [1] hay [2], session copy tại $SESSION_DIR/verify-sync.md luôn được tạo trước.",
+      "assertions": [
+        { "id": "tc15-cdg-triggered", "text": "CDG conflict warning được hiển thị khi mtime canonical > session_start + tolerance", "type": "behavior_check" },
+        { "id": "tc15-three-choices", "text": "Cung cấp đúng 3 lựa chọn: Override, Skip, Cancel", "type": "content_check" },
+        { "id": "tc15-session-copy-always-written", "text": "Session copy $SESSION_DIR/verify-sync.md được tạo BẤT KỂ user chọn gì (trước khi CDG prompt)", "type": "file_exists" },
+        { "id": "tc15-no-silent-override", "text": "Canonical KHÔNG bị overwrite silently — luôn có user confirmation khi conflict detected", "type": "behavior_check" },
+        { "id": "tc15-tolerance-env", "text": "Tolerance default 5s, configurable qua MCV3_VERIFY_SYNC_CDG_TOLERANCE_SEC env var", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "/wf-verify-sync (project có flat layout v2 — verify-sync-status.json tồn tại trực tiếp ở .mc-data/work/wf-verify-sync/ KHÔNG có sessions/ directory)",
+      "expected_output": "session-init.md SI.2 tự động detect flat layout. vs-migrate-flat-to-sessions.sh chạy: 5 flat files (verify-sync-status.json, checkpoint.json, ui-coverage-report.md, ui-snapshot.json, phase-summary.md) được mv vào sessions/_legacy-v2/{timestamp}/. verify-sync-history.md GIỮ NGUYÊN ở top-level (không migrate). Session mới {date}-all-01 được tạo. Migration chỉ chạy 1 lần (idempotent — lần 2 chạy sẽ skip).",
+      "assertions": [
+        { "id": "tc16-flat-detected", "text": "Flat layout được phát hiện tự động (verify-sync-status.json ở root level wf-verify-sync/)", "type": "behavior_check" },
+        { "id": "tc16-legacy-archived", "text": "Flat files được archive vào sessions/_legacy-v2/{timestamp}/ — KHÔNG bị xóa", "type": "file_exists" },
+        { "id": "tc16-history-not-migrated", "text": "verify-sync-history.md KHÔNG được migrate — vẫn ở .mc-data/work/wf-verify-sync/verify-sync-history.md", "type": "file_exists" },
+        { "id": "tc16-new-session-created", "text": "Session mới được tạo đúng sau khi migration — KHÔNG dùng flat files cũ", "type": "behavior_check" },
+        { "id": "tc16-idempotent", "text": "Chạy lần 2 khi đã có sessions/ và không có flat files → migration skip, không lỗi", "type": "behavior_check" },
+        { "id": "tc16-migration-logged", "text": "Migration được log rõ ràng: 'Migrated v2 flat layout → sessions/_legacy-v2/{timestamp}/'", "type": "content_check" }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "/wf-verify-sync (209 REQ-IDs tất cả impl_status=done → Sync Rate 100%, nhưng registry.features[] có 9 features với impl_status=in_progress — ví dụ FEAT-MS-CRM-001, FEAT-MS-FIN-001, FEAT-MS-QC-001)",
+      "expected_output": "Phase 2 Step 2.3b: scan features[] → $FEATURE_SUMMARY = {total:335, done:207, in_progress:9, not_started:88, skipped:1}. $HAS_IN_PROGRESS_FEATURES = true. $IN_PROGRESS_FEATURES_LIST = 9 entries sorted by id. Phase 6: verdict = PARTIAL_FEATURES (KHÔNG phải READY). Report có section Feature Completion với ⚠️ WARNING listing 9 in_progress features. Next step KHÔNG gợi ý /wf-prepare-deployment mà gợi ý /wf-implement-feature cho từng feature in_progress.",
+      "assertions": [
+        { "id": "tc17-feature-scan", "text": "Phase 2 Step 2.3b chạy và set $FEATURE_SUMMARY với in_progress=9", "type": "behavior_check" },
+        { "id": "tc17-has-in-progress-true", "text": "$HAS_IN_PROGRESS_FEATURES = true (KHÔNG phải false dù sync_rate = 100%)", "type": "behavior_check" },
+        { "id": "tc17-verdict-partial-features", "text": "Verdict là PARTIAL_FEATURES — KHÔNG phải READY", "type": "content_check" },
+        { "id": "tc17-no-prepare-deployment", "text": "KHÔNG gợi ý /wf-prepare-deployment trong Next step khi verdict là PARTIAL_FEATURES", "type": "content_check" },
+        { "id": "tc17-feature-completion-section", "text": "Report có section Feature Completion với table và danh sách 9 features in_progress", "type": "content_check" },
+        { "id": "tc17-warning-shown", "text": "⚠️ WARNING hiển thị rõ ràng kèm danh sách features in_progress (tối đa 20)", "type": "content_check" },
+        { "id": "tc17-suggest-implement", "text": "Next step gợi ý /wf-implement-feature [FEAT-ID] cho từng feature in_progress, rồi chạy lại /wf-verify-sync", "type": "content_check" },
+        { "id": "tc17-sync-rate-still-100", "text": "Sync Rate vẫn hiển thị 100% (REQ-ID tracking không bị ảnh hưởng bởi feature scan)", "type": "content_check" },
+        { "id": "tc17-features-not-filter-scoped", "text": "$FEATURE_SUMMARY tính toàn bộ features[] registry — KHÔNG filter theo $SCOPE_FILTER", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "/wf-verify-sync (v4.0 canonical dual-write — canonical .mc-data/docs/_meta/verify-sync.md đã tồn tại từ phiên khác, mtime > session_start + 5s tolerance)",
+      "expected_output": "Phase 6 Step 6.2c phát hiện canonical conflict. CDG hiển thị 3 lựa chọn: [1] Override [2] Skip canonical [3] Cancel. Session copy $SESSION_DIR/verify-sync.md được ghi TRƯỚC CDG prompt (luôn có). canonical_decision được log vào checkpoint.json và verify-sync-status.json. Nếu user chọn Override → canonical được update. Nếu Skip → log WARNING canonical not updated. Nếu Cancel → log cancellation + giữ session copy.",
+      "assertions": [
+        { "id": "tc18-session-copy-first", "text": "Session copy $SESSION_DIR/verify-sync.md được ghi trước khi CDG prompt (luôn tồn tại)", "type": "file_exists" },
+        { "id": "tc18-cdg-triggered", "text": "CDG conflict detection được kích hoạt khi canonical mtime > session_start + tolerance", "type": "behavior_check" },
+        { "id": "tc18-three-options", "text": "3 lựa chọn CDG được hiển thị: Override, Skip canonical, Cancel", "type": "content_check" },
+        { "id": "tc18-canonical-decision-logged", "text": "canonical_decision được ghi vào checkpoint.json (override/skip/cancel/no_conflict)", "type": "content_check" },
+        { "id": "tc18-canonical-written-override", "text": "Override: canonical .mc-data/docs/_meta/verify-sync.md được ghi nội dung giống session copy", "type": "content_check" },
+        { "id": "tc18-canonical-skipped", "text": "Skip: canonical không bị ghi đè, WARNING logged, session copy preserved", "type": "content_check" },
+        { "id": "tc18-no-silent-overwrite", "text": "KHÔNG ghi đè canonical silently — luôn có user confirmation khi conflict", "type": "behavior_check" },
+        { "id": "tc18-tolerance-configurable", "text": "Tolerance mặc định 5s, configurable qua MCV3_VERIFY_SYNC_CDG_TOLERANCE_SEC", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "/wf-verify-sync (project có 3 REQ-IDs impl_status=done nhưng parent Feature impl_status=in_progress → W003 anomalies)",
+      "expected_output": "Phase 2 detect W003: 3 REQ-IDs done nhưng thuộc Feature in_progress. $W003_ANOMALIES = [REQ-A-001, REQ-A-002, REQ-A-003] (parent FEAT-A in_progress). Phase 2 Step 2.2b: W003 count = 3. Checkpoint data_snapshot.w003_anomalies populated. Status sync_results.w003_anomalies có 3 entries. Impact warnings.w003_count = 3. Report có W003 section với table listing 3 REQ-IDs + suggested action 'Hoàn thành Feature FEAT-A trước'. W003 REQ-IDs bị downgrade từ done → in_progress trong analysis.",
+      "assertions": [
+        { "id": "tc19-w003-detected", "text": "W003 anomalies được detect — 3 REQ-IDs done nhưng Feature in_progress", "type": "behavior_check" },
+        { "id": "tc19-w003-in-checkpoint", "text": "checkpoint.json data_snapshot.w003_anomalies chứa 3 REQ-IDs", "type": "content_check" },
+        { "id": "tc19-w003-in-status", "text": "verify-sync-status.json sync_results.w003_anomalies có 3 entries", "type": "content_check" },
+        { "id": "tc19-w003-in-impact", "text": "verify-sync-impact.json warnings.w003_count = 3 và warnings.w003_anomalies có 3 entries", "type": "content_check" },
+        { "id": "tc19-w003-in-report", "text": "Report có section Warnings with W003 table listing 3 REQ-IDs", "type": "content_check" },
+        { "id": "tc19-w003-downgrade", "text": "W003 REQ-IDs bị downgrade từ done → in_progress trong analysis results", "type": "content_check" },
+        { "id": "tc19-w003-suggested-action", "text": "Suggested action: 'Hoàn thành Feature [FEAT-ID] trước khi release' cho mỗi W003 entry", "type": "content_check" },
+        { "id": "tc19-w003-cross-phase", "text": "W003 data flow complete: Phase 2 → checkpoint → status → impact → report (không bị drop)", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "/wf-verify-sync --from-add-scope=2026-05-01-crm-expansion-01 (add-scope session có scope-impact.json với 2 modules mới: MOD-CRM-REPORT, MOD-CRM-DASHBOARD)",
+      "expected_output": "Phase 0 detect --from-add-scope flag. Parse session_id=2026-05-01-crm-expansion-01. Load .mc-data/work/wf-add-scope/sessions/2026-05-01-crm-expansion-01/scope-impact.json → $ADD_SCOPE_CONTEXT = {new_entries: {modules: [MOD-CRM-REPORT, MOD-CRM-DASHBOARD], features: [...]}, ...}. Phase 0 set $HAS_ADD_SCOPE_CONTEXT=true. Phase 5 check 5.12 cross-checks new modules[] against code scan. Phase 6 report có section 'Add-Scope Impact Cross-Reference'. Nếu scope-impact.json missing → log WARNING, set context=null, continue normally (graceful).",
+      "assertions": [
+        { "id": "tc20-flag-parsed", "text": "--from-add-scope flag được parse đúng, session_id được extract", "type": "behavior_check" },
+        { "id": "tc20-context-loaded", "text": "$ADD_SCOPE_CONTEXT được load từ scope-impact.json với new_entries.modules[]", "type": "behavior_check" },
+        { "id": "tc20-phase5-check-5-12", "text": "Phase 5 check 5.12 chạy — cross-check modules mới vs code scan", "type": "behavior_check" },
+        { "id": "tc20-report-section", "text": "Phase 6 report có section 'Add-Scope Impact Cross-Reference' với module list", "type": "content_check" },
+        { "id": "tc20-graceful-missing", "text": "Nếu scope-impact.json không tồn tại → log WARNING, set $ADD_SCOPE_CONTEXT=null, không block", "type": "behavior_check" },
+        { "id": "tc20-auto-resolve", "text": "Nếu không pass session_id (chỉ --from-add-scope) → auto-resolve latest completed từ _index/sessions.jsonl", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "/wf-verify-sync --from-manage-change=CHG-2026-05-01-refund-policy (manage-change session có change-impact.json với registry_changes[]: 3 REQ-IDs impl_status changed)",
+      "expected_output": "Phase 0 detect --from-manage-change flag. Parse change_id=CHG-2026-05-01-refund-policy. Load .mc-data/work/wf-manage-change/CHG-2026-05-01-refund-policy/change-impact.json → $MANAGE_CHANGE_CONTEXT. Phase 5 check 5.13 cross-checks registry_changes[] against current registry state — verify each {before, after} đã apply đúng. Phase 6 report có section 'Change Impact Cross-Reference'. Mismatches (nếu có) được report với error_type=change_not_applied hoặc req_id_missing.",
+      "assertions": [
+        { "id": "tc21-flag-parsed", "text": "--from-manage-change flag được parse đúng, change_id được extract", "type": "behavior_check" },
+        { "id": "tc21-context-loaded", "text": "$MANAGE_CHANGE_CONTEXT được load từ change-impact.json với registry_changes[]", "type": "behavior_check" },
+        { "id": "tc21-phase5-check-5-13", "text": "Phase 5 check 5.13 chạy — verify từng registry change đã apply đúng", "type": "behavior_check" },
+        { "id": "tc21-mismatch-detected", "text": "Nếu registry change chưa apply → report mismatch với error_type và expected_after vs actual_current", "type": "content_check" },
+        { "id": "tc21-report-section", "text": "Phase 6 report có section 'Change Impact Cross-Reference'", "type": "content_check" },
+        { "id": "tc21-graceful-missing", "text": "Nếu change-impact.json không tồn tại → log WARNING, set context=null, không block", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "/wf-verify-sync --from-preflight=2026-05-01-all-01 (preflight session có preflight-impact.json với verdict=WARN, 3 critical findings)",
+      "expected_output": "Phase 0 detect --from-preflight flag. Parse session_id=2026-05-01-all-01. Load .mc-data/work/wf-preflight/sessions/2026-05-01-all-01/preflight-impact.json → $PREFLIGHT_IMPACT_CONTEXT. Phase 5 check 5.14 cross-checks preflight findings (critical/high severity) against current scan results. Phase 6 report có section 'Preflight Impact Cross-Reference' với verdict, score, critical_count, high_count từ preflight. Findings list được cross-reference.",
+      "assertions": [
+        { "id": "tc22-flag-parsed", "text": "--from-preflight flag được parse đúng, session_id được extract", "type": "behavior_check" },
+        { "id": "tc22-context-loaded", "text": "$PREFLIGHT_IMPACT_CONTEXT được load từ preflight-impact.json với findings[]", "type": "behavior_check" },
+        { "id": "tc22-phase5-check-5-14", "text": "Phase 5 check 5.14 chạy — cross-check critical/high preflight findings vs scan", "type": "behavior_check" },
+        { "id": "tc22-report-section", "text": "Phase 6 report có section 'Preflight Impact Cross-Reference' với verdict, score, counts", "type": "content_check" },
+        { "id": "tc22-graceful-missing", "text": "Nếu preflight-impact.json không tồn tại → log WARNING, set context=null, không block", "type": "behavior_check" },
+        { "id": "tc22-auto-resolve", "text": "Nếu không pass session_id → auto-resolve latest completed từ _index/sessions.jsonl", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 23,
+      "prompt": "/wf-verify-sync (lock file có heartbeat_at với ISO timestamp không parse được — corrupted/malformed date → to_epoch returns -1 sentinel)",
+      "expected_output": "vs-acquire-lock.sh gọi to_epoch() trên heartbeat_at timestamp. to_epoch parse fail → return -1 sentinel (không return 0 như trước). acquire-lock check: nếu AGE < 0 (sentinel detected) → treat lock as stale, allow takeover. Log WARNING: 'Cannot parse heartbeat timestamp [value] — treating lock as stale'. Lock được acquire bình thường, không bị block vô hạn.",
+      "assertions": [
+        { "id": "tc23-sentinel-returned", "text": "to_epoch() returns -1 sentinel khi parse fail (KHÔNG return 0)", "type": "behavior_check" },
+        { "id": "tc23-sentinel-checked", "text": "vs-acquire-lock.sh check: AGE < 0 (sentinel) → treat lock as stale, cho phép takeover", "type": "behavior_check" },
+        { "id": "tc23-warning-logged", "text": "WARNING logged: 'Cannot parse heartbeat timestamp' với giá trị corrupted", "type": "content_check" },
+        { "id": "tc23-lock-acquired", "text": "Lock được acquire thành công sau sentinel detection — không bị block", "type": "behavior_check" },
+        { "id": "tc23-sentinel-in-session-id", "text": "vs-generate-session-id.sh cũng check -1 sentinel trong cross-host path", "type": "behavior_check" },
+        { "id": "tc23-no-silent-zero", "text": "KHÔNG return 0 (epoch 1970) cho timestamp không parse được", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 24,
+      "prompt": "/wf-verify-sync (heartbeat daemon bị SIGKILL, lock file vẫn tồn tại với heartbeat_at cũ. Sau 12h heartbeat_count đạt ceiling 1440 → auto-exit)",
+      "expected_output": "vs-heartbeat.sh có MAX_UPDATES=1440 (12h với 30s interval). heartbeat_count được khởi tạo trong lock file khi acquire (heartbeat_count=0). Mỗi lần update: increment heartbeat_count, check nếu >= 1440 → auto-exit (ngăn zombie process). Sau exit, lock file có heartbeat_count >= 1440. Session tiếp theo thấy lock có heartbeat_count >= max → treat as expired zombie → takeover.",
+      "assertions": [
+        { "id": "tc24-max-updates-set", "text": "MAX_UPDATES=1440 được set trong vs-heartbeat.sh", "type": "behavior_check" },
+        { "id": "tc24-count-initialized", "text": "heartbeat_count được khởi tạo = 0 khi vs-acquire-lock.sh tạo lock file", "type": "behavior_check" },
+        { "id": "tc24-count-incremented", "text": "Mỗi heartbeat update increment heartbeat_count trong lock file", "type": "behavior_check" },
+        { "id": "tc24-ceiling-exit", "text": "Khi heartbeat_count >= 1440 → auto-exit với log 'Heartbeat ceiling reached (1440 updates)'", "type": "behavior_check" },
+        { "id": "tc24-zombie-detected", "text": "vs-acquire-lock.sh detect heartbeat_count >= 1440 → treat as zombie, allow takeover", "type": "behavior_check" },
+        { "id": "tc24-no-infinite-zombie", "text": "KHÔNG có zombie heartbeat chạy vô hạn — auto-terminate sau 12h max", "type": "behavior_check" }
+      ]
+    },
+    {
+      "id": 25,
+      "prompt": "/wf-verify-sync (50 REQ-IDs done, sync_rate=85%, 5 features in_progress. vs-build-report-data.sh compute verdict → PARTIAL_FEATURES)",
+      "expected_output": "vs-build-report-data.sh reads analysis-results.json: sync_rate=85% (>=80), not_started=5 (>=1), feature_summary.in_progress=5 (>0). Verdict logic: sync_rate >= 80 AND not_started > 0 AND fiprogress > 0 → PARTIAL_FEATURES (không phải READY). Impact.json verdict = 'PARTIAL_FEATURES'. Report có section Feature Completion với ⚠️ WARNING. Next step gợi ý /wf-implement-feature cho từng feature in_progress. KHÔNG gợi ý /wf-prepare-deployment.",
+      "assertions": [
+        { "id": "tc25-verdict-partial-features", "text": "verdict = 'PARTIAL_FEATURES' khi sync_rate >= 80% và features in_progress > 0", "type": "content_check" },
+        { "id": "tc25-impact-verdict-correct", "text": "verify-sync-impact.json verdict = 'PARTIAL_FEATURES'", "type": "content_check" },
+        { "id": "tc25-not-ready", "text": "KHÔNG phải verdict 'READY' dù sync_rate >= 80% (vì có features in_progress)", "type": "content_check" },
+        { "id": "tc25-feature-completion-section", "text": "Report có Feature Completion section với 5 features in_progress", "type": "content_check" },
+        { "id": "tc25-no-prep-deploy", "text": "Next step KHÔNG gợi ý /wf-prepare-deployment khi features còn in_progress", "type": "content_check" },
+        { "id": "tc25-implement-suggested", "text": "Next step gợi ý /wf-implement-feature [FEAT-ID] cho từng feature in_progress", "type": "content_check" },
+        { "id": "tc25-priority-override", "text": "Nếu có critical not_started → verdict bị override thành NOT_READY dù sync_rate >= 80%", "type": "behavior_check" }
+      ]
+    }
+  ]
+}

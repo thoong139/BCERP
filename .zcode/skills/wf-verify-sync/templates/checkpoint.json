@@ -1,0 +1,96 @@
+{
+  "$schema": "verify-sync-checkpoint-v3",
+  "checkpoint_id": "CP-VSYNC-YYYYMMDD-NNN",
+  "session_id": "{YYYY-MM-DD}-{scope-slug}-{NN}",
+  "session_dir": ".mc-data/work/wf-verify-sync/sessions/{session_id}",
+  "skill_id": "VSYNC-{YYYYMMDD}-{NNN}",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | user_request | phase_complete | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "scope": {
+    "type": "all | system | module",
+    "name": null,
+    "has_fix_flag": false
+  },
+
+  "position": {
+    "current_phase": null,
+    "current_phase_name": null,
+    "current_step": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "current_phase": {
+      "id": null,
+      "name": null,
+      "status": null,
+      "progress_pct": 0
+    },
+    "pending_phases": []
+  },
+
+  "registry_state": {
+    "fingerprint": null,
+    "counts_snapshot": {
+      "total_req_ids": null,
+      "not_started": null,
+      "in_progress": null,
+      "done": null,
+      "skipped": null
+    },
+    "snapshot_timestamp": null
+  },
+
+  "data_snapshot": {
+    "req_index": [],
+    "code_refs": [],
+    "gaps_list": [],
+    "orphan_list": [],
+    "w001_anomalies": [],
+    "w002_anomalies": [],
+    "w003_anomalies": [],
+    "sync_rate": null,
+    "coverage_rate": null,
+    "interface_type": null,
+    "feature_summary": null,
+    "validation_report": null,
+    "fix_log": null
+  },
+
+  "next_action": {
+    "description": null,
+    "phase": null,
+    "step": null,
+    "context_needed": []
+  },
+
+  "resume_instructions": {
+    "command": "/wf-verify-sync --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-status.json",
+      ".mc-data/work/wf-verify-sync/_index/sessions.jsonl",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "context_recovery": [
+      "Read sessions.jsonl to find this session_id (latest in_progress entry)",
+      "Read $SESSION_DIR/verify-sync-status.json for current state",
+      "Load data_snapshot for cached scan results",
+      "Recompute registry_state.fingerprint and compare with checkpoint value",
+      "If fingerprint differs: CDG prompt (Full scan / Partial resume / Force resume)",
+      "Re-acquire lock + restart heartbeat before resuming",
+      "Continue from next_action.step"
+    ]
+  },
+
+  "notes": null
+}

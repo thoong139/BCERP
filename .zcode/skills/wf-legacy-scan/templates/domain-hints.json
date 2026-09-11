@@ -1,0 +1,41 @@
+{
+  "$schema": "domain-hints-v1",
+  "_template_notes": "Skeleton tu Phase A.6 — schema canonical tu 04-data-model.md §2.1 + 10-vietnamese-keywords.md §3.4. Phase C IPS populate.",
+  "version": "1.0",
+  "scan_time": "{{SCAN_TIME_ISO8601}}",
+  "session_id": "{{SESSION_ID}}",
+  "detected_domains": [
+    {
+      "domain": "{{DOMAIN_NAME}}",
+      "confidence": 0.0,
+      "language": "en",
+      "signals": [
+        {
+          "type": "package_dep",
+          "value": "{{SIGNAL_VALUE}}",
+          "weight": 0.0,
+          "lang": "en"
+        }
+      ],
+      "recommended_expert": "{{EXPERT_AGENT_NAME}}",
+      "recommended_agent_type": "{{EXPERT_AGENT_NAME}}"
+    }
+  ],
+  "unresolved_patterns": [],
+  "all_signals": {
+    "package_deps": [],
+    "directory_names": [],
+    "import_patterns": [],
+    "file_patterns": [],
+    "vn_keywords": []
+  },
+  "thresholds": {
+    "strong_match": 0.75,
+    "moderate_match": 0.6,
+    "weak_fallback": 0.4,
+    "notes": "v2.1 raised tu 0.4 -> 0.6 cho moderate. Weak < 0.6 -> fallback business-analyst only. Ref: 09-thresholds-justification.md §2.1, ADR-LS16."
+  },
+  "env_overrides": {
+    "LEGACY_SCAN_DOMAIN_MIN": null
+  }
+}

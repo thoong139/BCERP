@@ -1,0 +1,171 @@
+{
+  "_template_usage": "READ template này → POPULATE với runtime data → WRITE output. KHÔNG ghi đè template file.",
+  "$schema": "preflight-status-v3",
+  "schema_version": "3.0",
+  "session_id": "{YYYY-MM-DD}-{scope-slug}-{NN}",
+  "run_id": "{ISO_TIMESTAMP}",
+  "skill": "wf-preflight",
+  "host": "{HOSTNAME}",
+  "user": "{OS_USER}",
+  "project": "[PROJECT_NAME]",
+  "status": "not_started | in_progress | completed | error",
+  "progress_pct": 0,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null,
+    "duration_seconds": null
+  },
+
+  "scope": {
+    "type": "all | system | module | feature",
+    "name": null
+  },
+
+  "flags": {
+    "fix": false,
+    "run_tests": false
+  },
+
+  "lock": {
+    "heartbeat_pid": null,
+    "acquired_at": null
+  },
+
+  "verdict": "PASS | WARN | FAIL | null",
+  "overall_score": null,
+
+  "scores": {
+    "registry_score": null,
+    "docs_score": null,
+    "sync_score": null,
+    "quality_score": null,
+    "test_score": null
+  },
+
+  "issues": {
+    "total": 0,
+    "by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    }
+  },
+
+  "phases": {
+    "phase_1": {
+      "name": "Setup & Scope Resolution",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Registry Integrity Check",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Document Completeness Check",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Code-REQ Sync Check",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "skipped": false,
+      "skip_reason": null,
+      "error": null
+    },
+    "phase_5": {
+      "name": "Code Quality Check",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "skipped": false,
+      "skip_reason": null,
+      "error": null
+    },
+    "phase_5a": {
+      "name": "Test Execution",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "skipped": true,
+      "skip_reason": "--run-tests not provided",
+      "error": null
+    },
+    "phase_5b": {
+      "name": "Cross-Validation",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_6": {
+      "name": "Auto-fix",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "skipped": true,
+      "skip_reason": "--fix not provided",
+      "fixes_applied": 0,
+      "error": null
+    },
+    "phase_6_5": {
+      "name": "Re-score After Fix",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "skipped": true,
+      "skip_reason": "--fix not provided",
+      "error": null
+    },
+    "phase_7": {
+      "name": "Generate Preflight Report",
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    }
+  },
+
+  "output_files": {
+    "preflight_report": "{SESSION_DIR}/preflight-report.md",
+    "preflight_impact": "{SESSION_DIR}/preflight-impact.json",
+    "phase_summary": "{SESSION_DIR}/phase-summary.md",
+    "preflight_history": ".mc-data/work/wf-preflight/preflight-history.md"
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "next_action": null,
+    "trigger_reason": null
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "checks_run": 0,
+    "issues_found": 0,
+    "fixes_applied": 0,
+    "checkpoints_saved": 0,
+    "score_improvement": null
+  },
+
+  "audit_chain": {
+    "registry_checksum": null,
+    "by_skill_version": "wf-preflight@3.0.0"
+  }
+}

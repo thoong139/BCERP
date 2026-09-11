@@ -1,0 +1,39 @@
+{
+  "_template_notes": "fix-impact.json — Cross-skill artifact (schema fix-impact-v1). Generated at Phase 7. Consumed by wf-verify-sync, wf-prepare-deployment, wf-implement-feature. Consumers validate `$schema` field tại PRE-GATE — KHÔNG được xóa hoặc đổi field này. v10.11.0: thêm by_dimension (từ fix-execution-result.aggregated.by_dimension) + process_integrity (từ process-violations.json) cho consumer downstream — backward-compat, optional fields.",
+  "$schema": "fix-impact-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "pipeline_version": "{{PIPELINE_VERSION}}",
+  "status": "complete",
+  "scope": "{{SCOPE}}",
+  "name": "{{NAME}}",
+  "profile": "{{PROFILE}}",
+  "dimensions_run": [],
+  "fixed_count": 0,
+  "issues_found": 0,
+  "signals_found": 0,
+  "escalated_count": 0,
+  "duration_seconds": 0,
+  "ci_tools_used": {
+    "gitnexus": false,
+    "serena": false
+  },
+  "playwright_used": false,
+  "mobile_devices": [],
+  "by_dimension": {},
+  "process_integrity": {
+    "pass": true,
+    "total_violations": 0,
+    "critical_count": 0
+  },
+  "audit_chain": {
+    "source": "$SESSION_DIR/fix-status.json",
+    "checksum": "{{AUDIT_SHA256}}",
+    "phases_completed": 0
+  },
+  "next_recommended_action": {
+    "skill": "wf-verify-sync",
+    "reason": "Kiểm tra đồng bộ requirement-to-code sau khi sửa lỗi"
+  }
+}
+

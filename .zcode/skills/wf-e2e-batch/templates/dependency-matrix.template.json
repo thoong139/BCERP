@@ -1,0 +1,41 @@
+{
+  "$schema": "dependency-matrix-v2",
+  "_template_notes": "Populate tất cả placeholders trước khi write. Xóa _template_notes khi output.",
+  "batch_id": "{batch_id}",
+  "feats": [
+    {
+      "feat_id": "{feat_id}",
+      "dependencies": [
+        {
+          "type": "feat-to-feat | feat-to-module | feat-to-external",
+          "target": "{target_id}",
+          "reason": "{lý do dependency}",
+          "blocking_level": "hard | soft",
+          "min_completion": "test_passed | impl_done",
+          "fallback": "{fallback strategy nếu có}"
+        }
+      ],
+      "phase_dependencies": [
+        {
+          "phase": "{phase code của FEAT này, vd P2_DB}",
+          "depends_on_feat": "{feat_id của upstream FEAT}",
+          "depends_on_phase": "{phase code của upstream FEAT, vd P1_BUSINESS}",
+          "reason": "{lý do phase-level dependency}"
+        }
+      ]
+    }
+  ],
+  "topology_levels": [
+    {
+      "level": 1,
+      "feats": ["{feat_ids không có dependency}"]
+    },
+    {
+      "level": 2,
+      "feats": ["{feat_ids chỉ depend level 1}"]
+    }
+  ],
+  "circular_dependencies": [],
+  "created_at": "{ISO-8601}",
+  "audit_chain": "{sha256 của nội dung trước khi có audit_chain}"
+}

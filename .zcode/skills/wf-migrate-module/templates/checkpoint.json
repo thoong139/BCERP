@@ -1,0 +1,69 @@
+{
+  "$schema": "migrate-checkpoint-v1",
+  "checkpoint_id": "CHK-MIG-YYYYMMDD-NNN",
+  "migrate_id": "MIG-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | phase_complete | user_request | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": "phase0 | phase1 | phase2 | phase3 | phase4 | phase5 | phase6 | phase7",
+    "current_phase_name": null,
+    "next_phase": null,
+    "next_step": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "features_processed": [],
+    "features_migrated": [],
+    "features_remaining": [],
+    "cdg_decisions": {
+      "strategy": {},
+      "entity_mapping": {},
+      "scope": {}
+    },
+    "rollback_snapshot_ids": []
+  },
+
+  "context_digest": {
+    "source_module": null,
+    "target_system": null,
+    "target_module": null,
+    "strategy_summary": null,
+    "decisions_made": [],
+    "gotchas_and_warnings": []
+  },
+
+  "partial_state": {
+    "phase1": {
+      "business_analysis_done": false,
+      "architecture_analysis_done": false
+    },
+    "phase6": {
+      "current_task": null,
+      "tasks_completed": [],
+      "tasks_remaining": [],
+      "last_completed_task_id": null,
+      "registry_snapshot_before_current": null
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      "$SESSION_DIR/migrate-status.json",
+      "$SESSION_DIR/gap-analysis.md",
+      "$SESSION_DIR/strategy-matrix.md",
+      "$SESSION_DIR/entity-mapping.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "user_message": "[Thong bao cho user khi resume]",
+    "next_action": "[Hanh dong tiep theo]"
+  }
+}

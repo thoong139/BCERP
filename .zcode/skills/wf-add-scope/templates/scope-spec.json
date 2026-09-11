@@ -1,0 +1,56 @@
+{
+  "$schema": "scope-spec-v1",
+  "version": "1.0",
+  "created_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "source": "from-mapping | modules-list | interactive | from-scan",
+  "target_system": "[SYS-ID]",
+  "legacy_mode": false,
+
+  "modules_to_add": [
+    {
+      "id": "MOD-[SYS_SHORT]-[DOMAIN]",
+      "sys_id": "[SYS-ID]",
+      "name": "[System Name] — [Domain] [UI|Module]",
+      "description": "[Description]",
+      "project": "[path/to/code]",
+      "depends_on": [],
+      "depts": [],
+      "code_refs": []
+    }
+  ],
+
+  "features_to_add": [
+    {
+      "id": "FEAT-[SYS_SHORT]-[MOD_SHORT]-NNN",
+      "module_id": "MOD-[SYS_SHORT]-[DOMAIN]",
+      "name": "[Feature Name]",
+      "file": "phase2-features/[sys-slug]/[mod-slug]/[feat-slug].md",
+      "dependencies": [],
+      "req_ids": [],
+      "priority": "MEDIUM",
+      "phase": 1,
+      "cross_system": false,
+      "impl_status": "not_started",
+      "code_refs": [],
+      "stub": true
+    }
+  ],
+
+  "existing_conflicts": [
+    {
+      "entry_type": "module | feature",
+      "entry_id": "",
+      "reason": "Already exists in registry",
+      "action": "skip"
+    }
+  ],
+
+  "summary": {
+    "total_modules_proposed": 0,
+    "total_modules_to_add": 0,
+    "total_modules_skipped": 0,
+    "total_features_proposed": 0,
+    "total_features_to_add": 0,
+    "total_features_skipped": 0
+  }
+}

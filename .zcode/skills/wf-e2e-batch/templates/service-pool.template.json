@@ -1,0 +1,32 @@
+{
+  "$schema": "service-pool-v1",
+  "_template_notes": "Template cho service pool config khi max-parallel > 2. Xóa _template_notes khi output (CORE-031).",
+  "batch_id": "{batch_id}",
+  "max_parallel": 3,
+  "services": [
+    {
+      "name": "postgres",
+      "image": "postgres:15-alpine",
+      "per_feat_isolation": true,
+      "isolation_mechanism": "schema_namespace",
+      "compose_file": "docker-compose.test.yml"
+    },
+    {
+      "name": "redis",
+      "image": "redis:7-alpine",
+      "per_feat_isolation": false,
+      "isolation_mechanism": "key_prefix",
+      "compose_file": "docker-compose.test.yml"
+    }
+  ],
+  "resource_limits": {
+    "cpu_per_feat": "0.5",
+    "memory_per_feat": "512m",
+    "disk_per_feat_mb": 200
+  },
+  "cleanup_policy": {
+    "on_feat_pass": "immediate",
+    "on_feat_fail": "retain_24h",
+    "on_batch_complete": "immediate"
+  }
+}

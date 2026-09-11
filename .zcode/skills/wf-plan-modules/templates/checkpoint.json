@@ -1,0 +1,76 @@
+{
+  "$schema": "planmod-checkpoint-v1",
+  "checkpoint_id": "CHK-PLANMOD-YYYYMMDD-NNN",
+  "planmod_id": "PLANMOD-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | user_request | phase_complete | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": null,
+    "current_phase_name": null,
+    "current_step": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "files_created": [],
+    "modules_processed": [],
+    "layers_assigned": {}
+  },
+
+  "context_summary": {
+    "project_name": null,
+    "mode": "simple | lite | full",
+    "total_modules": 0,
+    "total_dependencies": 0,
+    "has_cycles": false,
+    "arguments": {
+      "graph_only": false,
+      "mvp": false,
+      "impact_module": null,
+      "skip_sprints": false
+    }
+  },
+
+  "partial_state": {
+    "dependency_matrix": null,
+    "layers": {},
+    "cycle_solutions": [],
+    "mvp_modules": [],
+    "impact_report": null,
+    "files_in_progress": {
+      "module_plan": false,
+      "dependency_graph": false,
+      "roadmap": false,
+      "sprints": []
+    },
+    "registry_update": {
+      "implementation_order_written": false
+    },
+    "stakeholder_review": {
+      "SO_01_plan_review": false,
+      "SO_02_consistency_check": false,
+      "SO_03_gap_analysis": false,
+      "_index": false
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      ".mc-data/work/wf-plan-modules/planmod-status.json",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "resume_from_phase": null,
+    "resume_from_step": null,
+    "user_message": "Resume message to display to user"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "_template_notes": {
+    "delete_before_write": true,
+    "purpose": "Output của lint-scenario.sh — validate format scenario .md trước khi Phase 9 execute. PRE-GATE Phase 9 §G1.1 (lint must PASS hoặc lint-fixes.md có suggestions để user fix). Lint check: frontmatter YAML valid, scenarios_manifest entry match, bảng Bước có đúng 5 columns, Bước actions trong 5 known patterns (Click/Fill/Select/Wait/Navigate), Expected result column không rỗng.",
+    "rendered_by": "scripts/wf-cmi-e2e/lint-scenario.sh (Stage 4 implement; Stage 3 chỉ define schema)",
+    "consumed_by": [
+      "procedures/phase9-e2e-execute.md Step 9.3 (lint PRE-GATE — block execute nếu has_critical_errors=true)",
+      "procedures/phase9-e2e-execute.md Step 9.3 (generate lint-fixes.md nếu has_warnings để suggest user fix)"
+    ],
+    "schema_id": "lint-report-v1",
+    "schema_notes": {
+      "session_id": "Session ID hiện tại",
+      "lint_run_at": "ISO 8601",
+      "scenarios_linted[]": {
+        "scenario_id": "Pattern CMI-SC-{NNN}",
+        "scenario_file": "Relative path",
+        "lint_status": "PASS | WARN | FAIL",
+        "errors[]": {
+          "severity": "critical | warning | info",
+          "code": "LINT-{NNN} (vd LINT-001=frontmatter_missing_field, LINT-002=steps_table_malformed, LINT-003=unknown_step_pattern, LINT-004=expected_result_empty, LINT-005=actor_not_in_rbac)",
+          "line": "Line number trong scenario .md",
+          "message": "Tiếng Việt mô tả lỗi",
+          "fix_hint": "Tiếng Việt suggest cách fix"
+        }
+      },
+      "summary": {
+        "n_total / n_pass / n_warn / n_fail": "Counter",
+        "has_critical_errors": "boolean — true nếu bất kỳ scenario có severity=critical → BLOCK execute",
+        "has_warnings": "boolean — true nếu có WARN entries → generate lint-fixes.md"
+      }
+    },
+    "lint_rules_reference": "Compatible với wf-e2e-scenario lint-scenario.sh (Stage 4 port từ .claude/scripts/wf-e2e-verify/lint-scenario.sh)"
+  },
+  "$schema": "lint-report-v1",
+  "session_id": "{SESSION_ID}",
+  "lane_source": "CD41",
+  "lint_run_at": "{ISO_TIMESTAMP}",
+  "scenarios_linted": [],
+  "summary": {
+    "n_total": 0,
+    "n_pass": 0,
+    "n_warn": 0,
+    "n_fail": 0,
+    "has_critical_errors": false,
+    "has_warnings": false
+  },
+  "lint_rules_applied": [
+    "LINT-001 frontmatter_missing_field — 14 required fields per template",
+    "LINT-002 steps_table_malformed — 5 columns Bước|Hành động|Kết quả mong đợi|Kết quả thực tế|Pass/Fail",
+    "LINT-003 unknown_step_pattern — Hành động phải match Click/Fill/Select/Wait/Navigate",
+    "LINT-004 expected_result_empty — Kết quả mong đợi column không được rỗng",
+    "LINT-005 actor_not_in_rbac — actor field phải có trong rbac-matrix.json (Phase 2)",
+    "LINT-006 entry_url_unreachable — entry_url phải resolve (api-only mode skip)",
+    "LINT-007 cross_module_path_invalid — nếu cross_module=true, modules_involved phải có ≥2 entries"
+  ]
+}

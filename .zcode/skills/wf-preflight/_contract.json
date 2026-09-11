@@ -1,0 +1,220 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-preflight",
+  "version": "3.0.0",
+  "phase": "cross-phase",
+  "description": "Health check toàn diện — validate registry + docs + code + tests. Session-isolated v3.0+.",
+
+  "session_isolation": {
+    "enabled": true,
+    "dir_pattern": ".mc-data/work/wf-preflight/sessions/{YYYY-MM-DD}-{scope-slug}-{NN}",
+    "index_file": ".mc-data/work/wf-preflight/_index/sessions.jsonl",
+    "lock_mechanism": "POSIX-mkdir-guard + heartbeat",
+    "session_id_format": "{YYYY-MM-DD}-{scope-slug}-{NN}",
+    "stale_threshold_minutes": 60,
+    "heartbeat_interval_seconds": 30
+  },
+
+  "scripts": {
+    "dir": ".claude/scripts/wf-preflight/",
+    "prefix": "pf-",
+    "count": 10,
+    "files": [
+      "pf-common.sh",
+      "pf-generate-session-id.sh",
+      "pf-acquire-lock.sh",
+      "pf-release-lock.sh",
+      "pf-heartbeat.sh",
+      "pf-index-append.sh",
+      "pf-impact-build.sh",
+      "pf-postgate-check.sh",
+      "pf-validate-registry.sh",
+      "pf-migrate-flat-to-sessions.sh"
+    ]
+  },
+
+  "procedure": "procedures/session-init.md",
+
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/session-init.md",
+    "procedures/resume-routing.md",
+    "procedures/phase1-setup.md",
+    "procedures/phase2-registry.md",
+    "procedures/phase3-docs.md",
+    "procedures/phase4-code-sync.md",
+    "procedures/phase5-quality.md",
+    "procedures/phase5a-tests.md",
+    "procedures/phase5b-crossval.md",
+    "procedures/phase6-autofix.md",
+    "procedures/phase7-report.md"
+  ],
+
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "requirements",
+      "features"
+    ],
+    "notes": "Cần registry tồn tại + có requirements > 0 (Protocol 10.4 forensic check). Code phải có trước khi chạy preflight."
+  },
+
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry để validate impl_status và completeness",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-status.json",
+      "description": "Status file từ session trước (resume support)",
+      "required": false,
+      "condition": "--resume mode only"
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/checkpoint.json",
+      "description": "Checkpoint file từ session trước (resume — load cùng preflight-status.json)",
+      "required": false,
+      "condition": "--resume mode only"
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/_index/sessions.jsonl",
+      "description": "Session index để --resume auto-discover + --status display",
+      "required": false,
+      "condition": "--resume hoặc --status mode"
+    },
+    {
+      "path": ".claude/doc-framework/_meta/definition-of-done.md",
+      "description": "Definition of Done checklist template — reference-only cho quality gate validation",
+      "required": false,
+      "condition": "reference-only"
+    }
+  ],
+
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-status.json",
+        "template": "templates/preflight-status.json",
+        "required": true,
+        "notes": "Schema v3 — session_id, host, user, lock, audit_chain"
+      },
+      {
+        "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-report.md",
+        "template": "templates/preflight-report.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-impact.json",
+        "template": "templates/preflight-impact.json",
+        "required": true,
+        "condition": "Phase 7 completed",
+        "notes": "Cross-skill artifact. Schema preflight-impact-v1. Consumers ship v3.1+."
+      },
+      {
+        "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": false,
+        "condition": "context > 80% or pre_fix trigger"
+      },
+      {
+        "path": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "notes": "CORE-028 phase summary (tiếng Việt, non-specialist)"
+      },
+      {
+        "path": ".mc-data/work/wf-preflight/_index/sessions.jsonl",
+        "template": null,
+        "notes": "Append-only JSONL. 2 entries per session (in_progress + completed/failed). Not a template file.",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-preflight/preflight-history.md",
+        "template": "templates/preflight-history.md",
+        "required": true,
+        "notes": "Append-only global history. KEPT flat path — backward compat across versions."
+      }
+    ],
+    "registry": null
+  },
+
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Preflight chủ yếu chỉ đọc registry. Ngoại lệ: Phase 6.1 (--fix only) có thể sửa JSON syntax của req-registry.json — chỉ structural repair (không thay đổi semantic: impl_status, features[], requirements[]). Không vi phạm Safe-Write Protocol."
+  },
+
+  "resume_routing": {
+    "file": "procedures/resume-routing.md",
+    "status_file": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-status.json",
+    "checkpoint_file": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/checkpoint.json",
+    "index_file": ".mc-data/work/wf-preflight/_index/sessions.jsonl"
+  },
+
+  "doc_framework_ref": null,
+
+  "cross_skill_contracts": {
+    "produces_for": [
+      {
+        "file": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-report.md",
+        "consumer": "wf-fix-bugs, wf-verify-sync, wf-prepare-deployment",
+        "type": "markdown",
+        "notes": "Session-scoped v3.0+. Consumers auto-discover via _index/sessions.jsonl."
+      },
+      {
+        "file": ".mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-impact.json",
+        "schema": "preflight-impact-v1",
+        "consumer": "wf-fix-bugs (--from-preflight), wf-prepare-deployment (--from-preflight), wf-verify-sync (--from-preflight)",
+        "ship_version": "consumers ship v3.1+",
+        "type": "json",
+        "notes": "OPT-IN. Graceful skip nếu file missing. Generator: pf-impact-build.sh."
+      },
+      {
+        "file": ".mc-data/work/wf-preflight/preflight-history.md",
+        "consumer": "user (append-only history log)",
+        "type": "markdown",
+        "notes": "Flat path, persistent across versions."
+      }
+    ],
+    "consumes_from": [
+      {
+        "from_skill": "wf-implement-feature",
+        "file": ".mc-data/docs/_meta/req-registry.json",
+        "condition": "always"
+      },
+      {
+        "from_skill": "wf-manage-change",
+        "file": ".mc-data/docs/_meta/req-registry.json",
+        "condition": "always"
+      },
+      {
+        "from_skill": "wf-manage-change",
+        "file": ".mc-data/work/wf-manage-change/[latest-session]/change-report.md",
+        "condition": "--from-manage-change flag (optional context)"
+      }
+    ]
+  },
+
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2026-04-15",
+      "notes": "Initial release — basic health check, preflight-report.md"
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-04-19",
+      "notes": "Lazy-load procedures, --run-tests flag, Phase 5a test runner, E010 rollback, multi-scope (system/module/feature)"
+    },
+    {
+      "version": "3.0.0",
+      "date": "2026-05-03",
+      "notes": "Session isolation CORE-030, POSIX lock+heartbeat, JSONL index, 10 bash scripts (pf-*), preflight-impact-v1 cross-skill artifact, CDG for --fix CORE-027, resume-routing.md + session-init.md tách file, templates v3 schema (session_id/host/user/audit_chain/lock), v2→v3 migration auto-archive. 22/22 findings closed."
+    }
+  ]
+}

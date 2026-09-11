@@ -1,0 +1,18 @@
+{
+  "$schema": "change-index-v1",
+  "version": "1.0",
+  "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+  "active_session": "CHG-YYYYMMDD-NNN",
+  "sessions": [
+    {
+      "change_id": "CHG-YYYYMMDD-NNN",
+      "created_at": "YYYY-MM-DDTHH:mm:ssZ",
+      "completed_at": null,
+      "status": "not_started | in_progress | completed | error | paused",
+      "change_type": "MODIFY_FEATURE | MODIFY_REQUIREMENT | ADD_FEATURE | DELETE_FEATURE | CLARIFY_REQ | UNCLEAR",
+      "summary": "[Mô tả ngắn gọn yêu cầu thay đổi]",
+      "risk_level": "LOW | MEDIUM | HIGH | null",
+      "path": ".mc-data/work/wf-manage-change/CHG-YYYYMMDD-NNN/"
+    }
+  ]
+}

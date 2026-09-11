@@ -1,0 +1,99 @@
+{
+  "$schema": "target-map-v2",
+  "skill": "wf-scan-target",
+  "version": "2.0.0",
+  "scan_date": "",
+  "session_id": "",
+  "target": "",
+  "target_type": "",
+  "module_name": "",
+  "tech_stack": [],
+  "scan_depth": "deep",
+  "scan_profile": "standard",
+  "scan_fingerprint": "",
+  "previous_scans": [],
+  "scan_diff": null,
+  "traceability": {
+    "req_ids_found_in_code": [],
+    "feat_ids_found_in_code": [],
+    "files_with_traceability": 0,
+    "files_total": 0,
+    "traceability_pct": 0
+  },
+  "module_code_mapping": {},
+  "consumer_hints": {
+    "wf-add-scope": {
+      "ready": false,
+      "command": null,
+      "modules_to_seed": [],
+      "features_to_seed": []
+    },
+    "wf-define-features": {
+      "ready": false,
+      "useful_for": "context-suggestion",
+      "feed_path": null
+    },
+    "wf-design": {
+      "ready": false,
+      "useful_for": "gap-analysis-baseline",
+      "feed_path": null
+    },
+    "wf-implement-feature": {
+      "ready": false,
+      "useful_for": "context-priming",
+      "use_crud_matrix": false
+    }
+  },
+  "layers": {
+    "file_structure": {
+      "total_files": 0,
+      "file_counts_by_ext": {},
+      "directories": [],
+      "key_files": {
+        "entities": [],
+        "commands": [],
+        "command_handlers": [],
+        "queries": [],
+        "query_handlers": [],
+        "endpoints": [],
+        "pages": [],
+        "components": [],
+        "screens": [],
+        "hooks": [],
+        "stores": [],
+        "types": []
+      }
+    },
+    "api_endpoints": [],
+    "ui_screens": [],
+    "ui_components": [],
+    "entities": []
+  },
+  "feature_inventory": {
+    "crud_matrix": {},
+    "business_rules": [],
+    "key_features": []
+  },
+  "gap_analysis": null,
+  "summary": {
+    "completeness_estimate": "",
+    "total_files": 0,
+    "total_endpoints": 0,
+    "total_screens": 0,
+    "total_entities": 0,
+    "total_features": 0,
+    "strengths": [],
+    "gaps": [],
+    "recommendations": []
+  },
+  "metadata": {
+    "generated_by": "/wf-scan-target",
+    "consumer_skills": [
+      "/wf-implement-feature",
+      "/wf-define-features",
+      "/wf-design",
+      "/wf-add-scope"
+    ],
+    "how_to_use": "Đọc file này để hiểu module có gì trước khi implement module mới. Dùng 'feature_inventory.crud_matrix' để biết CRUD nào đã có. Dùng 'layers.api_endpoints' để map API hiện tại. v2 (Sprint 5 cross-skill): consumer_hints chỉ ra command tương ứng cho consumer skill (ví dụ /wf-add-scope --from-scan=<session_id>). module_code_mapping[] dùng cho /wf-add-scope auto-seed."
+  }
+}

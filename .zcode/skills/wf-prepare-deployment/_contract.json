@@ -1,0 +1,136 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-prepare-deployment",
+  "version": "2.1.0",
+  "phase": "phase6-deployment",
+  "description": "Tạo tài liệu Phase 6 — deployment guide, user guide, maintenance, incident runbook, stakeholder review. Refactored v2.0: 10 phase files + _shared.md (lazy-loaded). v2.1.0 (S9): thêm flag --from-fix-bugs[=<id>] để consume fix-impact.json từ wf-fix-bugs — Phase 1 Go/No-Go gate (BLOCK CDG nếu escalated > 0 hoặc tests_failed > 0). Opt-in, backward compat.",
+  "procedure": "procedures/phase0-flags.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase0-flags.md",
+    "procedures/phase1-prereq.md",
+    "procedures/phase2-deployment-guide.md",
+    "procedures/phase3a-user-guide.md",
+    "procedures/phase3b-account-mgmt.md",
+    "procedures/phase3c-checkpoint.md",
+    "procedures/phase4-maintenance.md",
+    "procedures/phase4a-runbook.md",
+    "procedures/phase5-crossval.md",
+    "procedures/phase5a-review.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/verify-sync.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "requirements",
+      "features",
+      "impl_status"
+    ],
+    "notes": "verify-sync.md phải tồn tại với sync rate >= 80% trước khi tạo deployment docs"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/verify-sync.md",
+      "description": "Verify sync report — sync rate phải >= 80%",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry để đọc project info, systems, modules cho deployment docs",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-prepare-deployment/checkpoint.json",
+      "description": "Checkpoint từ lần chạy trước (resume support)",
+      "required": false,
+      "condition": "resume mode only"
+    },
+    {
+      "path": ".mc-data/docs/_meta/design-input-digest.json",
+      "description": "Architecture digest từ Phase 3 — dùng thay thế manual compression của Phase 3 docs nếu có sẵn",
+      "required": false,
+      "condition": "optional — nếu không tồn tại thì pre-compress bằng Grep (fallback Protocol 6.2)"
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/sessions/{session_id}/fix-impact.json",
+      "description": "(v2.1+ S9) fix-impact.json từ wf-fix-bugs session — schema fix-impact-v1, consume khi --from-fix-bugs. Phase 1 đọc next_recommended_action + regression_check + escalated counts để Go/No-Go gate. Auto-resolve latest completed session nếu không pass session_id.",
+      "required": false,
+      "condition": "--from-fix-bugs flag passed"
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/_index/sessions.jsonl",
+      "description": "(v2.1+ S9) Append-only sessions index từ wf-fix-bugs — dùng để auto-resolve latest completed session khi --from-fix-bugs không pass session_id.",
+      "required": false,
+      "condition": "--from-fix-bugs flag passed AND không pass session_id"
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase6-deployment/deployment-guide.md",
+        "template": "phase6-deployment/deployment-guide.md",
+        "contract_key": "deployment-guide",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase6-deployment/user-guide.md",
+        "template": "phase6-deployment/user-guide.md",
+        "contract_key": "user-guide",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase6-deployment/stakeholder-review.md",
+        "template": "phase6-deployment/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase6-deployment/incident-response-runbook.md",
+        "template": "phase6-deployment/incident-response-runbook.md",
+        "contract_key": "incident-response-runbook",
+        "required": false
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-prepare-deployment/prepare-deployment-status.json",
+        "template": "templates/prepare-deployment-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-prepare-deployment/prepare-deployment-plan.md",
+        "template": "templates/prepare-deployment-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-prepare-deployment/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true
+      }
+    ],
+    "registry": null
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Prepare-deployment chỉ đọc registry — không ghi bất kỳ field nào"
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase6-deployment/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {
+      "wf-verify-sync": [
+        ".mc-data/docs/_meta/verify-sync.md",
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-fix-bugs/sessions/{session_id}/fix-impact.json",
+        ".mc-data/work/wf-fix-bugs/_index/sessions.jsonl"
+      ]
+    }
+  }
+}

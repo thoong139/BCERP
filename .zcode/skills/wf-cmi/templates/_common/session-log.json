@@ -1,0 +1,7 @@
+{
+  "_template_notes": "session-log.json — Execution trace cho wf-cmi (CORE-026). Dual-write: global (.mc-data/work/_trace/session-log.json) + session ($SESSION_DIR/session-log.json). Append-only — chỉ append events, KHÔNG bao giờ overwrite. Mỗi event là JSON object: {ts, phase, action, status, message, error_code?, agent?, lane?}. Schema: session-log-v1. Strip _template_notes trước khi write.",
+  "skill": "wf-cmi",
+  "version": "{{SKILL_VERSION}}",
+  "session_id": "{{SESSION_ID}}",
+  "events": []
+}

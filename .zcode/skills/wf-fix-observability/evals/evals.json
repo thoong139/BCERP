@@ -1,0 +1,101 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-observability",
+  "version": "1.0.0",
+  "description": "Evals cho QD8 Observability & Reliability Lane — kiem tra PRE-GATE validation, probe signal emission, va POST-GATE reliability CDG enforcement.",
+  "test_cases": [
+    {
+      "id": "TC-QD8-001",
+      "name": "PRE-GATE fail khi SESSION_DIR khong ton tai",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-observability duoc spawn voi --session-dir=/tmp/nonexistent-session-999 nhung directory khong ton tai",
+        "session_dir": "/tmp/nonexistent-session-999",
+        "profile": "standard"
+      },
+      "expected": {
+        "behavior": "STOP voi E081: SESSION_DIR khong ton tai",
+        "no_signals_emitted": true,
+        "no_lane_status_created": true
+      },
+      "validation": "Skill KHONG tao phase4-find-bugs/lanes/QD8-observability/ subdirectory. In error message voi E081 va exit. KHONG tiep tuc sang Phase 1 SENSE."
+    },
+    {
+      "id": "TC-QD8-002",
+      "name": "P-QD8-retry-circuit-breaker emit critical signal voi CDG-RELIABILITY-RISK cho payment endpoint",
+      "type": "stub",
+      "input": {
+        "scenario": "Endpoint /api/payments/charge co external HTTP call den Stripe API nhung khong wrap trong retry/circuit breaker. File la src/api/payments/charge.ts.",
+        "registry_features": [
+          {
+            "id": "FEAT-PAY-001",
+            "impl_status": "done",
+            "req_ids": [
+              "REQ-PAY-001"
+            ]
+          }
+        ],
+        "code_file": "src/api/payments/charge.ts",
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "critical",
+        "has_cdg_flag": "CDG-RELIABILITY-RISK",
+        "probe_id": "P-QD8-retry-circuit-breaker"
+      },
+      "validation": "Probe phat hien external HTTP call thieu retry/CB pattern. Vi file path chua 'payments' → severity bumped len critical + CDG-RELIABILITY-RISK flag. POST-GATE T3.6 enforce flag co mat."
+    },
+    {
+      "id": "TC-QD8-003",
+      "name": "P-QD8-timeout-config-audit emit signal cho axios call thieu timeout",
+      "type": "stub",
+      "input": {
+        "scenario": "Code dung 'axios.get(externalApiUrl)' khong co option { timeout: ... }. Default infinite.",
+        "code_file": "src/services/external-api.ts",
+        "profile": "standard"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "high",
+        "probe_id": "P-QD8-timeout-config-audit",
+        "description_contains": "timeout"
+      },
+      "validation": "Probe phat hien axios call khong co timeout. Severity = high (default cho external HTTP without timeout)."
+    },
+    {
+      "id": "TC-QD8-004",
+      "name": "P-QD8-log-coverage-audit emit critical signal khi log chua PII",
+      "type": "stub",
+      "input": {
+        "scenario": "Code co `logger.info('User login', { email, password })` — log chua password field.",
+        "code_file": "src/auth/login.ts",
+        "profile": "standard"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity_min": "high",
+        "probe_id": "P-QD8-log-coverage-audit",
+        "description_contains": "PII"
+      },
+      "validation": "Probe phat hien logger statement chua field nhay cam (password). POST-GATE T3.8 PII check enforce severity >= high."
+    },
+    {
+      "id": "TC-QD8-005",
+      "name": "P-QD8-health-check-probe emit critical khi /health 404",
+      "type": "stub",
+      "input": {
+        "scenario": "BASE_URL=http://localhost:3000, all health check paths (/health, /healthz, /ping) return 404",
+        "base_url": "http://localhost:3000",
+        "profile": "standard"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "critical",
+        "probe_id": "P-QD8-health-check-probe",
+        "title_contains": "khong ton tai"
+      },
+      "validation": "Khong tim thay health check endpoint → emit signal critical. POST-GATE T3.9 enforce severity = critical cho 404 health-check."
+    }
+  ]
+}

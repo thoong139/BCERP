@@ -1,0 +1,231 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-data",
+  "version": "1.0.0",
+  "description": "Evals cho QD6 Data Integrity + Schema Drift Lane — kiem tra PRE-GATE validation, probe signal emission, va POST-GATE schema compliance.",
+  "test_cases": [
+    {
+      "id": "TC-QD6-001",
+      "name": "PRE-GATE fail khi SESSION_DIR khong ton tai",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-data duoc spawn voi --session-dir=/tmp/nonexistent-session-999 nhung directory khong ton tai",
+        "session_dir": "/tmp/nonexistent-session-999",
+        "profile": "standard"
+      },
+      "expected": {
+        "behavior": "STOP voi E001: SESSION_DIR khong ton tai",
+        "no_signals_emitted": true,
+        "no_lane_status_created": true
+      },
+      "validation": "Skill KHONG tao phase4-find-bugs/lanes/QD6-data/ subdirectory. In error message voi E001 va exit. KHONG tiep tuc sang Phase 1 SENSE."
+    },
+    {
+      "id": "TC-QD6-002",
+      "name": "P-QD6-schema-drift-detect emit signal cho schema drift giua DB va ORM model",
+      "type": "stub",
+      "input": {
+        "scenario": "Database co column 'discount_rate DECIMAL(5,2)' nhung ORM model dinh nghia 'discount_rate: number' khong co precision constraint. Migration gan nhat khong co down() method.",
+        "registry_features": [
+          {
+            "id": "FEAT-SALES-001",
+            "impl_status": "done",
+            "req_ids": [
+              "REQ-SALES-001"
+            ]
+          }
+        ],
+        "migration_file": "src/migrations/20260401_add_discount_column.ts",
+        "orm_file": "src/features/sales/models/order-item.entity.ts",
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count": 2,
+        "signal_types": [
+          "schema_drift",
+          "migration_missing_down"
+        ],
+        "severity": "critical",
+        "has_evidence": true,
+        "probe_ids": [
+          "P-QD6-schema-drift-detect",
+          "P-QD6-migration-integrity"
+        ]
+      },
+      "validation": "Signal thu nhat co probe_id='P-QD6-schema-drift-detect', dimension_id='QD6', evidence chua DB column spec va ORM model mismatch. Signal thu hai co probe_id='P-QD6-migration-integrity', severity='critical' vi migration thieu down(). Moi signal co description >=10 ky tu va it nhat 1 evidence field non-empty (ADR-09)."
+    },
+    {
+      "id": "TC-QD6-003",
+      "name": "POST-GATE T1-T4 pass cho valid signals.json voi 3 signals tu quick profile",
+      "type": "stub",
+      "input": {
+        "scenario": "Lane chay xong voi profile quick, 3 signals hop le tu 3 probes (schema-drift-detect, migration-integrity, constraint-violation), moi signal co probe_id, dimension_id='QD6', va evidence non-empty",
+        "signals_count": 3,
+        "profile": "quick"
+      },
+      "expected": {
+        "post_gate_result": "PASS",
+        "t1_existence": true,
+        "t2_structure": true,
+        "t3_content": true,
+        "t4_crossref": true
+      },
+      "validation": "POST-GATE T1: signals.json ton tai va non-empty (test -s). T2: jq parse OK + $schema='lane-signals-v1' + signals[] la array. T3: moi signal co probe_id + dimension_id='QD6' + evidence co >=1 field non-empty. T4: moi probe_id match pattern ^P-QD[1-8]-[a-z0-9-]+$. lane-report.md tu template lane-report.md, phase-summary.md <=15 dong tieng Viet (CORE-028)."
+    },
+    {
+      "id": "TC-QD6-004",
+      "name": "Profile standard chay 5 probes, profile deep chay 6 probes (ALL)",
+      "type": "stub",
+      "input": {
+        "scenario": "Kiem tra rang profile quick chay 3 probes, standard chay 5 probes, deep chay 6 probes (ALL) theo dimension.json exit_criteria",
+        "profiles_tested": [
+          "quick",
+          "standard",
+          "deep"
+        ]
+      },
+      "expected": {
+        "quick_probes": [
+          "P-QD6-schema-drift-detect",
+          "P-QD6-migration-integrity",
+          "P-QD6-constraint-violation"
+        ],
+        "standard_probes": [
+          "P-QD6-schema-drift-detect",
+          "P-QD6-migration-integrity",
+          "P-QD6-constraint-violation",
+          "P-QD6-data-type-mismatch",
+          "P-QD6-orm-model-sync"
+        ],
+        "deep_probes": "ALL"
+      },
+      "validation": "Profile quick: 3 probes required (schema-drift-detect, migration-integrity, constraint-violation). Standard: 5 probes (quick + data-type-mismatch, orm-model-sync). Deep: ALL 6 probes (standard + seed-data-audit). Probes khong trong profile duoc skip va ghi vao lane-report.md 'Probes bo qua'."
+    },
+    {
+      "id": "TC-S11-schema-uniformity-QD6",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD6 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-data voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD6-data/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD6",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD6' + signals[*].dimension_id='QD6'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD6",
+      "name": "Probe lazy-load: SKILL.md routing table list 6 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD6 lane phai liet ke 6 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-data voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-data/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 6,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 6,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 6 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD6-005",
+      "name": "D9 audit CRITICAL: CDG handler hardcoded empty — DROP TABLE khong trigger CDG",
+      "description": "Phase 2 D9 + Phase 4: All QD6 probe specs co cdg_flags: [] hardcoded empty list. Dieu nay co nghia DROP TABLE/DROP DATABASE operations trong migration files KHONG trigger CDG notification → DATA LOSS risk. IMP-QD6-013 (P0 DATA LOSS RISK via IMP-024): fix cdg_flags để DROP operations trigger CDG-DATA-DROP.",
+      "type": "stub",
+      "input": {
+        "scenario": "Migration file co: await queryRunner.query('DROP TABLE users CASCADE'). P-QD6-migration-integrity phat hien DROP TABLE nhung cdg_flags=[] → CDG-DATA-DROP KHONG duoc emit.",
+        "migration_file": "src/migrations/20260401_drop_users_table.ts",
+        "drop_statement": "DROP TABLE users CASCADE",
+        "cdg_flags_current": [],
+        "profile": "quick",
+        "probe": "P-QD6-migration-integrity"
+      },
+      "expected": {
+        "current_behavior": "DROP TABLE detected but CDG flag NOT emitted (cdg_flags=[]) → orchestrator not notified → no human review gate",
+        "expected_after_IMP_QD6_013": "CDG-DATA-DROP flag emitted → orchestrator halts pipeline → requires human confirmation before continuing",
+        "data_loss_risk": "CRITICAL — DROP TABLE silently passes QD6 without CDG gate",
+        "cdg_flags_post_fix": ["CDG-DATA-DROP"]
+      },
+      "validation": "TRUOC IMP-QD6-013: cdg_flags=[] → DROP TABLE bypass CDG gate → data loss possible. SAU IMP-QD6-013: migration probe phai emit CDG-DATA-DROP khi detect DROP TABLE/DROP DATABASE/TRUNCATE. Orchestrator phai HALT. IMP-024 CDG Governance (5-dim global) merge cluster.",
+      "audit_ref": "07-qd6-data-audit.md Phase 2 D9 + Phase 4 CDG governance gap + IMP-QD6-013 + IMP-024",
+      "imp_target": "IMP-QD6-013",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD6-006",
+      "name": "D11 audit: tat ca 6 probes QD6 la inline-only — khong co bash dispatch",
+      "description": "Phase 2 D11: Tat ca 6 QD6 probes (schema-drift-detect, migration-integrity, constraint-violation, data-type-mismatch, orm-model-sync, seed-data-audit) la inline SKILL.md text, KHONG co bash scripts. Contrast: QD1/QD3/QD5/QD7 co dedicated bash scripts. Dieu nay lam QD6 phu thuoc vao AI reasoning cho tat ca detection. IMP-QD6-010 (P1 MERGE voi IMP-025 bash dispatch): them bash script cho P-QD6-schema-drift-detect it nhat.",
+      "type": "stub",
+      "input": {
+        "scenario": "Spawn wf-fix-data voi profile=standard. Kiem tra xem co bash script nao duoc invoke tu probes/ folder khong.",
+        "probes_dir": ".claude/skills/workflow/wf-fix-data/procedures/probes/",
+        "profile": "standard"
+      },
+      "expected": {
+        "current_behavior": "0 bash scripts in probes/ — all detection via AI reasoning (inline probe instructions)",
+        "expected_after_IMP_QD6_010": "At least P-QD6-schema-drift-detect has dedicated bash script for ORM vs DB comparison",
+        "bash_scripts_count_current": 0,
+        "bash_scripts_count_target": 1,
+        "detection_reliability": "Inline AI-only detection has higher variance than bash deterministic patterns"
+      },
+      "validation": "TRUOC IMP-QD6-010: ls probes/ phai tra ve 0 .sh files → tat ca inline. SAU IMP-QD6-010: co it nhat 1 bash script cho schema drift detection. IMP-025 bash dispatch standardization (3-dim: QD2/QD4/QD6) global merge cluster.",
+      "audit_ref": "07-qd6-data-audit.md Phase 2 D11 + IMP-QD6-010 + IMP-025 bash dispatch global",
+      "imp_target": "IMP-QD6-010",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD6-007",
+      "name": "Phase 3 audit: EF Core C# decorator-based schema drift duoc detect dung",
+      "description": "Phase 3 Test Fixture: P-QD6-schema-drift-detect phat hien drift giua EF Core C# entity [Column(TypeName='decimal(18,2)')] va actual DB column type DECIMAL(10,4). Fixtures qd6-test/ dung C# EF Core code (khong phai TypeScript/Python) — verify probe hoat dong voi C# ORM pattern. P=R=F1=1.00 dat duoc trong Phase 3 (Phien 17).",
+      "type": "stub",
+      "input": {
+        "scenario": "EF Core entity khai bao [Column(TypeName='decimal(18,2)')] cho 'Price' nhung DB thuc co DECIMAL(10,4). ORM model va DB khong khop → schema drift.",
+        "code_file": "fixtures/qd6-test/positive/pos-01-ef-core-decimal-drift.cs",
+        "db_schema": "DECIMAL(10,4) NOT NULL",
+        "orm_attribute": "[Column(TypeName=\"decimal(18,2)\")]",
+        "profile": "quick",
+        "probe": "P-QD6-schema-drift-detect"
+      },
+      "expected": {
+        "signals_count": 1,
+        "signal_types": ["schema_drift"],
+        "severity": "critical",
+        "evidence": {
+          "db_type": "DECIMAL(10,4)",
+          "orm_type": "decimal(18,2)",
+          "column": "Price"
+        }
+      },
+      "validation": "Probe phat hien mismatch giua EF Core [Column] attribute va DB schema. Evidence phai chua ca db_type va orm_type. Edge: [Column] match DB type → KHONG emit false positive. Fixture verified Phase 3 Phien 17: P=1.00 R=1.00 F1=1.00 tren 5 pos + 5 neg C# fixtures.",
+      "audit_ref": "07-qd6-data-audit.md Phase 3 (Phien 17) — 5 pos + 5 neg EF Core fixtures P=R=F1=1.00 + accuracy-report.md",
+      "imp_target": "IMP-QD6-001 (schema drift detection improvement)",
+      "status": "stub"
+    }
+  ]
+}

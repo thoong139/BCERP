@@ -1,0 +1,517 @@
+{
+  "skill_name": "wf-legacy-classify",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-legacy-classify (du an Node.js/NestJS voi 800 items trong inventory, 3 systems: backend, frontend, shared)",
+      "expected_output": "Classify tat ca items theo batches (8 batches x 100), tao glossary.json, dat classify status = completed",
+      "assertions": [
+        {
+          "text": "PRE-GATE: kiem tra ledger.stages.inventory.status == completed",
+          "type": "behavior"
+        },
+        {
+          "text": "Parse batch_size = 100 (default), tinh batches_total = ceil(800/100) = 8",
+          "type": "behavior"
+        },
+        {
+          "text": "Maturity check: doc ledger.maturity.stage_modes.classify, xu ly theo full/delta/skip",
+          "type": "behavior"
+        },
+        {
+          "text": "Spawn code-reviewer agent cho moi batch — classify files theo 9 categories (screen, api, doc, source, config, test, asset, migration, type)",
+          "type": "behavior"
+        },
+        {
+          "text": "Moi batch tao classified/batch-N.json (N = 1..8) — JSON valid",
+          "type": "file_exists"
+        },
+        {
+          "text": "Checkpoint sau moi 3 batches: cap nhat legacy-scan-status.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Sau tat ca batches: doc template glossary.json, spawn business-analyst agent (truyen schema), agent populate theo template, ghi glossary.json",
+          "type": "file_exists"
+        },
+        {
+          "text": "glossary.json phai co $schema = legacy-scan-glossary-v1, project, stats fields",
+          "type": "behavior"
+        },
+        {
+          "text": "Post-Stage verification: items_classified >= 95% * total_items",
+          "type": "behavior"
+        },
+        {
+          "text": "Cap nhat ledger: stages.classify.status = completed, completed_batches = 8. Cap nhat legacy-scan-status.json: current_stage = extract, next_action = Stage 3: Extract",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-legacy-classify (du an DEVKIT_PARTIAL, ledger.maturity.stage_modes.classify = delta, 500 items trong inventory, 100 da classify tu truoc)",
+      "expected_output": "Chi classify 400 files chua co trong classified/, khong classify lai 100 da co",
+      "assertions": [
+        {
+          "text": "Doc ledger.maturity.stage_modes.classify == delta",
+          "type": "behavior"
+        },
+        {
+          "text": "Load classified/batch-*.json cu, tong hop danh sach paths da classify",
+          "type": "behavior"
+        },
+        {
+          "text": "So sanh voi inventory/source-files.json, xac dinh 400 files chua classify",
+          "type": "behavior"
+        },
+        {
+          "text": "Chi spawn code-reviewer cho 400 files moi (4 batches x 100), khong re-classify 100 cu",
+          "type": "behavior"
+        },
+        {
+          "text": "Tong items_classified = 500 (100 cu + 400 moi) khi ket thuc",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-legacy-classify (du an DOCS_ONLY, maturity_level = DOCS_ONLY, source_count = 0, 50 doc files)",
+      "expected_output": "Classify docs theo doc_type (prd, spec, api_spec, meeting_notes, etc.) thay vi source code types",
+      "assertions": [
+        {
+          "text": "Detect DOCS_ONLY mode tu maturity_level hoac source_count == 0",
+          "type": "behavior"
+        },
+        {
+          "text": "Doc inventory/doc-classified.json thay vi source-files.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Phan loai docs theo doc_type (prd, spec, wireframe, meeting_notes, api_spec, user_guide, process_doc, general)",
+          "type": "behavior"
+        },
+        {
+          "text": "Output classified/batch-N.json co items voi doc_type field thay vi source category",
+          "type": "behavior"
+        },
+        {
+          "text": "Glossary.json van duoc tao tu domain terms trong docs",
+          "type": "file_exists"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-legacy-classify (200 items, sau classify chi 180/200 items duoc classify — 20 missing)",
+      "expected_output": "Self-diagnostic phat hien 180/200 = 90% < 95%, trigger auto-fix, re-classify 20 missing files",
+      "assertions": [
+        {
+          "text": "Post-Stage verification detect 180/200 = 90% < 95%, trigger E019",
+          "type": "behavior"
+        },
+        {
+          "text": "Auto-fix attempt 1: xac dinh 20 missing files (in inventory nhung khong co trong classified/), re-classify",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu van < 95% sau auto-fix: retry toi da 3 lan",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu van fail sau 3 attempts: log E019 vao error-ledger.json, ASK user (AskUserQuestion)",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu auto-fix thanh cong (>=95%): tiep tuc binh thuong, mark completed",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-legacy-classify --status",
+      "expected_output": "Hien thi classify progress (batches done/total, items classified, systems/modules), khong thay doi data",
+      "assertions": [
+        {
+          "text": "Doc ledger.json va hien thi: classify stage status, batches done/total, items_classified, percentage",
+          "type": "behavior"
+        },
+        {
+          "text": "Hien thi danh sach systems va modules da detect, va categories breakdown",
+          "type": "behavior"
+        },
+        {
+          "text": "KHONG thay doi bat ky data nao — read-only operation, KHONG ghi file",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-legacy-classify --resume (da classify 5/8 batches truoc do, context reset)",
+      "expected_output": "Resume tu batch 6, khong classify lai batch 1-5, tiep tuc tu checkpoint",
+      "assertions": [
+        {
+          "text": "Doc legacy-scan-status.json → xac dinh next_action va current_stage",
+          "type": "behavior"
+        },
+        {
+          "text": "Doc ledger.json → completed_batches = 5, total_batches = 8",
+          "type": "behavior"
+        },
+        {
+          "text": "Scan classified/batch-*.json de lay danh sach paths da classify (batch 1-5). Validate JSON cua cac batch cu",
+          "type": "behavior"
+        },
+        {
+          "text": "Tiep tuc tu batch 6 (batch_offset=5, N=6,7,8), khong re-classify files trong batch 1-5, KHONG ghi de batch files cu",
+          "type": "behavior"
+        },
+        {
+          "text": "Khi xong: completed_batches = 8, tao glossary, mark completed. Cap nhat ca ledger va legacy-scan-status",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-legacy-classify (du an NEAR_COMPLETE, ledger.maturity.stage_modes.classify = skip)",
+      "expected_output": "Skip toan bo classify, mark completed voi note skipped_maturity",
+      "assertions": [
+        {
+          "text": "Doc ledger.maturity.stage_modes.classify == skip",
+          "type": "behavior"
+        },
+        {
+          "text": "KHONG spawn bat ky agent nao — skip toan bo classify va glossary",
+          "type": "behavior"
+        },
+        {
+          "text": "Mark stages.classify.status = completed voi note skipped_maturity trong ledger",
+          "type": "behavior"
+        },
+        {
+          "text": "POST-GATE chi can check #1 (status completed) — SKIP check #2-5",
+          "type": "behavior"
+        },
+        {
+          "text": "Hien thi message: classify skipped do maturity level, next step /wf-legacy-extract",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-legacy-classify --batch-size=50 (du an 300 items)",
+      "expected_output": "Su dung batch_size = 50, tao 6 batches thay vi 3 (default 100)",
+      "assertions": [
+        {
+          "text": "Parse --batch-size=50 tu arguments",
+          "type": "behavior"
+        },
+        {
+          "text": "Tinh batches_total = ceil(300/50) = 6",
+          "type": "behavior"
+        },
+        {
+          "text": "Cap nhat ledger.stages.classify.batch_size = 50",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao 6 batch files (classified/batch-1.json den batch-6.json)",
+          "type": "file_exists"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-legacy-classify (chua chay /wf-legacy-scan — khong co ledger.json)",
+      "expected_output": "PRE-GATE fail, STOP voi message yeu cau chay /wf-legacy-scan truoc",
+      "assertions": [
+        {
+          "text": "PRE-GATE check #1: test -f ledger.json FAIL — file khong ton tai",
+          "type": "behavior"
+        },
+        {
+          "text": "STOP ngay, KHONG thuc hien bat ky classify nao, KHONG spawn agent",
+          "type": "behavior"
+        },
+        {
+          "text": "Hien thi message: Chua co ledger.json. Chay /wf-legacy-scan truoc.",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-legacy-classify (ledger.json ton tai nhung stages.inventory.status = in_progress)",
+      "expected_output": "PRE-GATE fail voi message cu the theo inventory status",
+      "assertions": [
+        {
+          "text": "PRE-GATE check #2: stages.inventory.status == in_progress != completed",
+          "type": "behavior"
+        },
+        {
+          "text": "STOP ngay voi message: Scan bi gian doan. Chay /wf-legacy-scan --resume.",
+          "type": "behavior"
+        },
+        {
+          "text": "KHONG thuc hien bat ky classify nao",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "/wf-legacy-classify --batch-size=100 (du an 1500 items, sau batch 3 agent timeout E006)",
+      "expected_output": "Detect E006 timeout, giam batch_size tu 100 xuong 50, retry batch do",
+      "assertions": [
+        {
+          "text": "Batch 1-3 thanh cong voi batch_size=100",
+          "type": "behavior"
+        },
+        {
+          "text": "Batch 4 timeout → trigger E006 error handling",
+          "type": "behavior"
+        },
+        {
+          "text": "Giam batch_size / 2 = 50, retry batch 4 voi 50 items",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu timeout lai: tiep tuc giam 50→25→12. Neu batch_size < 10 → escalate to user",
+          "type": "behavior"
+        },
+        {
+          "text": "Cap nhat ledger.stages.classify.batch_size voi gia tri moi sau khi giam",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "/wf-legacy-classify --resume (batch-3.json corrupt — invalid JSON, cac batch khac OK)",
+      "expected_output": "Detect corrupt batch-3.json (E020), xoa va re-classify batch 3, tiep tuc tu batch tiep theo",
+      "assertions": [
+        {
+          "text": "Resume flow: validate classified/batch-*.json files. Phat hien batch-3.json invalid JSON",
+          "type": "behavior"
+        },
+        {
+          "text": "Trigger E020: xoa batch-3.json corrupt",
+          "type": "behavior"
+        },
+        {
+          "text": "Re-classify batch 3 voi items tuong ung, tao batch-3.json moi",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu > 2 batches lien tiep corrupt → escalate to user",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "/wf-legacy-classify (100 items, sau classify xong, business-analyst agent fail khi tao glossary)",
+      "expected_output": "Detect E021, retry business-analyst agent toi da 2 lan. Neu van fail → tao glossary rong voi warning",
+      "assertions": [
+        {
+          "text": "Classify 100 items thanh cong (1 batch)",
+          "type": "behavior"
+        },
+        {
+          "text": "Business-analyst agent fail khi tao glossary → trigger E021",
+          "type": "behavior"
+        },
+        {
+          "text": "Retry business-analyst agent (max 2 retries, tong 3 attempts). Attempt 2 roi attempt 3 neu can",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu van fail sau 2 retries: tao glossary.json tu template (empty values) voi warning, log E021",
+          "type": "behavior"
+        },
+        {
+          "text": "Glossary fallback (empty) phai co template fields: $schema, project, created_at, created_by, stats",
+          "type": "behavior"
+        },
+        {
+          "text": "Glossary fallback phai co terms=[], abbreviations=[], domain_concepts=[] (arrays rong, khong phai objects)",
+          "type": "behavior"
+        },
+        {
+          "text": "Classify van mark completed (glossary failure khong block pipeline)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/wf-legacy-classify --batch-size=5 (du an 100 items)",
+      "expected_output": "Phase 0 POST-GATE fail: batch_size < 10 (min), STOP",
+      "assertions": [
+        {
+          "text": "Parse --batch-size=5 tu arguments",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 POST-GATE check #1: batch_size >= 10 FAIL (5 < 10) → trigger E023",
+          "type": "behavior"
+        },
+        {
+          "text": "STOP voi message loi (E023: invalid batch_size, valid range [10-500]), khong thuc hien classify",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "/wf-legacy-classify (inventory completed nhung 0 source files — mode = full, khong phai DOCS_ONLY)",
+      "expected_output": "Phase 0 POST-GATE: 0 unclassified items, trigger E022, ASK user",
+      "assertions": [
+        {
+          "text": "PRE-GATE pass (ledger ton tai, inventory completed)",
+          "type": "behavior"
+        },
+        {
+          "text": "Maturity check: mode = full (khong phai skip)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 POST-GATE check #3: 0 unclassified items, mode != skip → trigger E022 WARNING",
+          "type": "behavior"
+        },
+        {
+          "text": "ASK user (AskUserQuestion) xac nhan tiep tuc hay STOP",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "/wf-legacy-classify --batch-size=600 (du an 200 items)",
+      "expected_output": "Phase 0 POST-GATE fail: batch_size > 500 (max), STOP",
+      "assertions": [
+        {
+          "text": "Parse --batch-size=600 tu arguments",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 POST-GATE check #1: batch_size <= 500 FAIL (600 > 500) → trigger E023",
+          "type": "behavior"
+        },
+        {
+          "text": "STOP voi message loi (E023: invalid batch_size, valid range [10-500]), khong thuc hien classify",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "/wf-legacy-classify (du an DOCS_ONLY, 30 docs da classify xong, POST-GATE check doc_type validity)",
+      "expected_output": "POST-GATE check #5 dung doc_type list (prd, spec, wireframe...) thay vi source types (screen, api...)",
+      "assertions": [
+        {
+          "text": "Detect DOCS_ONLY mode tu maturity_level hoac source_count == 0",
+          "type": "behavior"
+        },
+        {
+          "text": "POST-GATE check #5 dung DOCS_ONLY type list: prd, spec, wireframe, meeting_notes, api_spec, user_guide, process_doc, general (hoac UNKNOWN)",
+          "type": "behavior"
+        },
+        {
+          "text": "KHONG reject docs voi doc_type = prd khi POST-GATE validate (khac voi source mode se reject vi 'prd' khong nam trong source types)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "/wf-legacy-classify (du an co naming inconsistencies: 2 batches dung 'CRM' va 'crm' cho cung system, 1 batch dung 'OrderManagement' PascalCase)",
+      "expected_output": "Phase 5 CORE-016 Naming Consistency Check: auto-fix case dedup (CRM->crm) + kebab-case enforcement (OrderManagement->order-management). Tao classify-naming-fixes.json log",
+      "assertions": [
+        {
+          "text": "Phase 5 collect unique (system, module) pairs tu tat ca batch files",
+          "type": "behavior"
+        },
+        {
+          "text": "Phat hien 'CRM' va 'crm' co cung lowercase_key -> AUTO-FIX: chon 'crm', update batch files affected",
+          "type": "behavior"
+        },
+        {
+          "text": "Phat hien 'OrderManagement' khong phai lowercase-kebab-case -> AUTO-FIX: convert sang 'order-management'",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao classified/classify-naming-fixes.json voi schema: applied_at, rule=CORE-016, fixes[], stats {total_fixes, case_dedup, kebab_case}",
+          "type": "file_exists"
+        },
+        {
+          "text": "Re-validate batch files sau naming fixes (Tier 4): JSON van valid, type fields van hop le",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "/wf-legacy-classify (du an 500 items, classify completed binh thuong, kiem tra Phase 6 tao phase-summary.md theo CORE-028)",
+      "expected_output": "Phase 6 cap nhat ledger + status, tao phase-summary.md tieng Viet <=15 dong noi dung, hien thi CLASSIFY COMPLETED report",
+      "assertions": [
+        {
+          "text": "Phase 6.2: ledger.stages.classify.status = completed, summary.items_classified, summary.systems_detected, summary.modules_detected updated",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 6.3: legacy-scan-status.json updated: stages.classify.status=completed, current_stage=extract, next_action='Stage 3: Extract — chay /wf-legacy-extract'",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 6.4 tao .mc-data/work/wf-legacy-classify/phase-summary.md theo CORE-028: tieng Viet, <=15 dong noi dung chinh",
+          "type": "file_exists"
+        },
+        {
+          "text": "phase-summary.md co cac sections: Ket qua (project, items_classified, systems, modules, glossary), Trang thai (mode, naming fixes, errors), Buoc tiep theo (/wf-legacy-extract)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 6.5 hien thi CLASSIFY COMPLETED report voi day du metrics: Batches, Items, Systems, Modules, Glossary, Duration, Errors, Naming fixes",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "/wf-legacy-classify (kiem tra phase routing tu SKILL.md xuong cac phase files lazy-load — v2.0.0 architecture)",
+      "expected_output": "SKILL.md route lazy-load tung phase file. Phase 0 (init) chay truoc, sau do Phase 1-6 tuan tu. Mo phase != skip thi skip Phase 1-5.",
+      "assertions": [
+        {
+          "text": "Read SKILL.md Phase Routing Map -> route Read procedures/phase0-init.md TRUOC TIEN",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 POST-GATE PASS (mode != skip) -> Read procedures/phase1-prepare.md tiep theo (KHONG read tat ca phase files cung luc)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 1 -> Phase 2 (phase2-classify.md) -> Phase 3 (phase3-glossary.md) -> Phase 4 (phase4-verify.md) -> Phase 5 (phase5-postgate.md) -> Phase 6 (phase6-finalize.md)",
+          "type": "behavior"
+        },
+        {
+          "text": "Moi phase file chua PRE-GATE + INPUT + OUTPUT + Steps + POST-GATE rieng (self-contained)",
+          "type": "behavior"
+        },
+        {
+          "text": "Cross-cutting content (state vars, agent prompts, classification types, error codes) duoc tham chieu tu procedures/_shared.md, KHONG nhung lai trong tung phase",
+          "type": "behavior"
+        },
+        {
+          "text": "Skip mode (Phase 0): KHONG read Phase 1-5 files, jump thang Phase 0 Skip Mode Handler -> STOP",
+          "type": "behavior"
+        }
+      ]
+    }
+  ]
+}

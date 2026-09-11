@@ -1,0 +1,285 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD2",
+  "dimension_name": "Business Correctness",
+  "short_name": "Business",
+  "owner_agent": "business-analyst",
+  "version": "1.0.0",
+  "description": "Phat hien bug nghiep vu: sai tinh toan, quy trinh skip buoc, gia tri hard-coded, logic khong dung domain rules.",
+  "probes": [
+    {
+      "id": "P-QD2-domain-expert-review",
+      "name": "Domain Expert Agent Review",
+      "type": "agent",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "agent",
+        "agent": "business/[domain]-expert",
+        "config": "probes/P-QD2-domain-expert-review.md"
+      },
+      "required_inputs": [
+        "req-registry",
+        "phase2-features",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 20000
+      }
+    },
+    {
+      "id": "P-QD2-calculation-check",
+      "name": "Calculation Formula Cross-Reference",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD2-calculation-check.md"
+      },
+      "required_inputs": [
+        "code",
+        "references/team-expert"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD2-domain-fixture",
+      "name": "Domain-Specific Test Fixture Runner",
+      "type": "runtime+fixture",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+jq",
+        "config": "probes/P-QD2-domain-fixture.md"
+      },
+      "required_inputs": [
+        "fixtures",
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 5000
+      }
+    },
+    {
+      "id": "P-QD2-business-analyst-review",
+      "name": "Business Analyst Flow Review",
+      "type": "agent",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "agent",
+        "agent": "business-analyst",
+        "config": "probes/P-QD2-business-analyst-review.md"
+      },
+      "required_inputs": [
+        "phase2-features",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 15000
+      }
+    },
+    {
+      "id": "P-QD2-hardcoded-value-detect",
+      "name": "Hard-Coded Business Value Detection",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD2-hardcoded-value-detect.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD2-llm-analysis",
+      "name": "LLM-Augmented Business Logic Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd2-business.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [],
+      "max_signals_per_probe": 0,
+      "notes": "QD2 SKIP trong quick profile — ton token nhat (09-design-decisions.md §4)"
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD2-domain-expert-review",
+        "P-QD2-calculation-check",
+        "P-QD2-hardcoded-value-detect"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD2-domain-expert-review",
+        "P-QD2-calculation-check",
+        "P-QD2-hardcoded-value-detect",
+        "P-QD2-domain-fixture",
+        "P-QD2-business-analyst-review",
+        "P-QD2-llm-analysis"
+      ],
+      "max_signals_per_probe": 100
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 200
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "Tinh toan sai dan den sai so tien hoac quyet dinh",
+      "Quy trinh skip buoc compliance (audit trail)"
+    ],
+    "high_triggers": [
+      "Business logic khong dung domain rules",
+      "Flow buoc bi bo qua"
+    ],
+    "medium_triggers": [
+      "Hard-coded value nen la config"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [],
+    "agents": [
+      "business-analyst",
+      "finance-expert",
+      "hr-expert",
+      "sales-expert",
+      "logistics-expert",
+      "healthcare-expert",
+      "insurance-expert",
+      "investment-expert",
+      "real-estate-expert",
+      "ecommerce-expert",
+      "education-expert",
+      "marketing-expert",
+      "customer-expert",
+      "retail-expert",
+      "procurement-expert",
+      "operations-expert",
+      "manufacturing-expert",
+      "compliance-expert",
+      "legal-expert",
+      "enterprise-risk-expert",
+      "quality-excellence-expert",
+      "strategy-expert",
+      "data-expert",
+      "paid-media-expert",
+      "automation-architect"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/static-scan/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/QD2-business-report.md"
+  },
+  "execution_order": [
+    "P-QD2-calculation-check",
+    "P-QD2-hardcoded-value-detect",
+    "P-QD2-domain-expert-review",
+    "P-QD2-domain-fixture",
+    "P-QD2-business-analyst-review",
+    "P-QD2-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD2-calculation-check",
+      "P-QD2-hardcoded-value-detect"
+    ],
+    [
+      "P-QD2-domain-expert-review"
+    ],
+    [
+      "P-QD2-domain-fixture"
+    ],
+    [
+      "P-QD2-business-analyst-review"
+    ],
+    [
+      "P-QD2-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "static first, domain agent before BA (BA uses domain context)"
+}

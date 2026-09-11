@@ -1,0 +1,289 @@
+{
+  "$schema": "analyze-status-v1",
+  "version": "4.0",
+  "analyze_id": "ANALYZE-YYYYMMDD-NNN",
+  "project": "[PROJECT_NAME]",
+  "scope": "all | business | functional | [module-name]",
+  "source": "new | onboard",
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Registry Validation & Scope",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "scope_detected": null,
+      "domain_detected": null,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Expert Planning",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "experts_planned": [],
+      "parallel_groups": {},
+      "error": null
+    },
+    "phase_3": {
+      "name": "Business Analyst",
+      "status": "pending | in_progress | completed | error | skipped",
+      "started_at": null,
+      "completed_at": null,
+      "output_file": null,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Domain Experts",
+      "status": "pending | in_progress | completed | error | skipped",
+      "parallel_group": "experts",
+      "started_at": null,
+      "completed_at": null,
+      "experts": {
+        "finance-expert": {
+          "status": "pending | in_progress | completed | error",
+          "dept": "finance",
+          "output_file": null,
+          "req_ids_generated": [],
+          "started_at": null,
+          "completed_at": null,
+          "error": null
+        },
+        "hr-expert": {
+          "status": "pending | in_progress | completed | error",
+          "dept": "hr",
+          "output_file": null,
+          "req_ids_generated": [],
+          "started_at": null,
+          "completed_at": null,
+          "error": null
+        },
+        "operations-expert": {
+          "status": "pending | in_progress | completed | error",
+          "dept": "operations",
+          "output_file": null,
+          "req_ids_generated": [],
+          "started_at": null,
+          "completed_at": null,
+          "error": null
+        }
+      },
+      "checkpoint_after_each": true,
+      "error": null
+    },
+    "phase_5": {
+      "name": "Existing Docs Integration",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Only runs when existing docs found or --from-legacy-scan",
+      "started_at": null,
+      "completed_at": null,
+      "docs_found": [],
+      "docs_integrated": [],
+      "mapping_file": null,
+      "error": null
+    },
+    "phase_6": {
+      "name": "Consolidate Requirements",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "conflicts_detected": [],
+      "conflicts_resolved": [],
+      "interface_type": null,
+      "error": null
+    },
+    "phase_6b": {
+      "name": "Business Workflow (Cross-Departmental)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "output_file": null,
+      "error": null
+    },
+    "phase_6c": {
+      "name": "Stakeholder Overviews (SO-01, SO-02, SO-03)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "so_files": {
+        "SO-01-cross-dept-review": null,
+        "SO-02-consistency-check": null,
+        "SO-03-gap-analysis": null
+      },
+      "error": null
+    },
+    "phase_6d": {
+      "name": "Conflict Resolution & Document Reconciliation",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "findings_total": 0,
+      "auto_resolved": 0,
+      "expert_resolved": 0,
+      "deferred": 0,
+      "pending": 0,
+      "deferred_issues_file": null,
+      "error": null
+    },
+    "phase_8": {
+      "name": "Update Registry (Chunked — NO AGENT)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "registry_updated": false,
+      "registry_method": "direct",
+      "sections_completed": [],
+      "error": null
+    },
+    "phase_8b": {
+      "name": "Final Cross-Validation (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 8,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "errors_escalated": 0,
+      "validation_details": {
+        "8b.1_req_ref_integrity": "pending | passed | fixed | failed",
+        "8b.2_req_in_registry": "pending | passed | fixed | failed",
+        "8b.3_deferred_no_critical": "pending | passed | escalated | failed",
+        "8b.3b_decision_records_exist": "pending | passed | fixed | failed",
+        "8b.4_registry_json_valid": "pending | passed | fixed | failed",
+        "8b.5_no_duplicate_ids": "pending | passed | fixed | failed",
+        "8b.6_no_placeholders": "pending | passed | fixed | failed",
+        "8b.7_req_traceability": "pending | passed | fixed | failed"
+      },
+      "error": null
+    },
+    "phase_8c": {
+      "name": "Generate Phase 1 Handoff",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "artifacts": {
+        "department_digests_created": false,
+        "phase1_handoff_created": false,
+        "meta_synced": false
+      },
+      "error": null
+    }
+  },
+
+  "expert_progress": {
+    "total_experts": 0,
+    "completed_experts": 0,
+    "experts": {}
+  },
+
+  "file_progress": {
+    "total_files": 0,
+    "completed_files": 0,
+    "files": {}
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_expert": null,
+    "next_action": null,
+    "trigger_reason": null,
+    "session_number": null,
+    "partial_data": {}
+  },
+
+  "coverage": {
+    "total_req_ids": 0,
+    "req_ids": [],
+    "departments_covered": [],
+    "note": "features are created by /wf-define-features, not this skill"
+  },
+
+  "existing_docs": {
+    "found": false,
+    "paths": [],
+    "integrated": false,
+    "integration_method": null
+  },
+
+  "handoff_artifacts": {
+    "department_digest_file": {
+      "path": ".mc-data/work/wf-analyze-requirements/department-digests.json",
+      "created": false,
+      "last_updated": null
+    },
+    "phase1_handoff_file": {
+      "path": ".mc-data/work/wf-analyze-requirements/phase1-handoff.json",
+      "created": false,
+      "last_updated": null
+    }
+  },
+
+  "runtime_metrics": {
+    "runtime": {
+      "last_run_started_at": null,
+      "last_run_completed_at": null,
+      "total_seconds": 0,
+      "phase_seconds": {}
+    },
+    "hooks": {
+      "post_write_invocations": 0,
+      "incremental_contract_checks": 0,
+      "full_contract_checks": 0,
+      "sync_updates": 0,
+      "last_changed_file": null,
+      "last_changed_phase": null
+    },
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "artifacts": []
+    },
+    "validation": {
+      "iterations_total": 0,
+      "retries_total": 0,
+      "warnings_total": 0,
+      "errors_total": 0,
+      "last_scope": null
+    },
+    "parallelism": {
+      "agents_spawned": 0,
+      "parallel_groups_executed": 0
+    },
+    "source": {
+      "hook_metrics_file": ".mc-data/logs/hook-metrics.jsonl",
+      "last_metrics_sync_at": null
+    }
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "experts_spawned": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "retries_total": 0
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "$schema": "migrate-status-v1",
+  "version": "1.1",
+  "migrate_id": "MIG-YYYYMMDD-NNN",
+  "skill": "wf-migrate-module",
+  "status": "in_progress | completed | error | paused",
+  "progress_pct": 0,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "scan": {
+    "session_id": "[SCAN_SESSION_ID]",
+    "path": ".mc-data/work/wf-scan-target/sessions/[SCAN_SESSION_ID]/",
+    "source_module": "[ten module cu tu scan docs]",
+    "source_system": "[ten he thong cu]"
+  },
+
+  "target": {
+    "system": "[TARGET_SYSTEM]",
+    "module": "[TARGET_MODULE]",
+    "module_exists": true,
+    "user_prompt": "[USER_PROMPT]"
+  },
+
+  "flags": {
+    "legacy_mode": false,
+    "auto_approve": false,
+    "ci_capabilities": {
+      "gitnexus": false,
+      "serena": false
+    },
+    "skip_phases": [],
+    "deprecated_modules": []
+  },
+
+  "preflight": {
+    "status": "pending | passed | failed",
+    "wf_add_scope": {"status": "pending | pass | fail", "gaps": []},
+    "wf_define_features": {"status": "pending | pass | fail", "gaps": []},
+    "wf_design": {"status": "pending | pass | fail", "gaps": []},
+    "wf_plan_modules": {"status": "pending | pass | fail", "gaps": []},
+    "wf_implement_feature": {"status": "pending | pass | fail", "gaps": []}
+  },
+
+  "phases": {
+    "phase0": {
+      "name": "Intake",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase1": {
+      "name": "Gap Analysis",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "cdg_strategy_confirmed": false,
+      "cdg_entity_mapping_confirmed": false,
+      "cdg_scope_confirmed": false,
+      "error": null
+    },
+    "phase2": {
+      "name": "Add Scope",
+      "status": "pending | in_progress | completed | error | skipped",
+      "started_at": null,
+      "completed_at": null,
+      "features_seeded": 0,
+      "error": null
+    },
+    "phase3": {
+      "name": "Define Features",
+      "status": "pending | in_progress | completed | error | skipped",
+      "started_at": null,
+      "completed_at": null,
+      "specs_created": 0,
+      "error": null
+    },
+    "phase4": {
+      "name": "Architecture Design",
+      "status": "pending | in_progress | completed | error | skipped",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase5": {
+      "name": "Plan Modules",
+      "status": "pending | in_progress | completed | error | skipped",
+      "started_at": null,
+      "completed_at": null,
+      "tasks_created": 0,
+      "error": null
+    },
+    "phase6": {
+      "name": "Implement",
+      "status": "pending | in_progress | completed | error | skipped",
+      "started_at": null,
+      "completed_at": null,
+      "tasks_completed": 0,
+      "features_implemented": 0,
+      "parity": {
+        "total_keep_features": 0,
+        "pass": 0,
+        "partial": 0,
+        "fail": 0
+      },
+      "rollback_snapshots": 0,
+      "error": null
+    },
+    "phase7": {
+      "name": "Report",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    }
+  },
+
+  "strategy": {
+    "total_features": 0,
+    "keep": 0,
+    "redesign": 0,
+    "deprecate": 0,
+    "merge": 0
+  },
+
+  "output_files": {
+    "gap_analysis": "$SESSION_DIR/gap-analysis.md",
+    "strategy_matrix": "$SESSION_DIR/strategy-matrix.md",
+    "entity_mapping": "$SESSION_DIR/entity-mapping.md",
+    "checkpoint": "$SESSION_DIR/checkpoint.json",
+    "report": "$SESSION_DIR/migrate-report.md",
+    "phase_summary": "$SESSION_DIR/phase-summary.md",
+    "_note": "$SESSION_DIR = .mc-data/work/wf-migrate-module/$MIGRATE_ID/"
+  },
+
+  "metrics": {
+    "experts_spawned": 0,
+    "tasks_completed": 0,
+    "tasks_total": 0,
+    "features_migrated": 0,
+    "features_parity_pass": 0,
+    "features_parity_partial": 0,
+    "features_parity_fail": 0,
+    "rollback_snapshots_total": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0
+  },
+
+  "rollback": {
+    "snapshots": [],
+    "auto_triggered": false,
+    "_note": "NEW v1.1 — Danh sach snapshot de rollback neu can. auto_triggered: true neu --auto-rollback da kich hoat."
+  },
+
+  "error_log": [
+    {
+      "_schema": "structured-error-v1",
+      "error_code": "E000",
+      "severity": "CRITICAL | ERROR | WARNING | INFO",
+      "phase": "phase0..phase7",
+      "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+      "message": "Mo ta ngan gon bang tieng Viet",
+      "details": "Chi tiet ky thuat — stack trace, context, affected files",
+      "action_taken": "auto_rollback | user_prompt | retry | logged | skipped",
+      "recoverable": true
+    }
+  ]
+}

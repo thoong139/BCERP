@@ -1,0 +1,87 @@
+{
+  "skill": "wf-e2e-demo",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "TC-F8-001",
+      "name": "Happy path — 8 steps demoed, accuracy 100%",
+      "input": {
+        "command": "/wf-e2e-demo FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2300",
+        "context": "user-guide.md có 8 steps. UI hiện tại khớp 100% với user-guide. Playwright + FE running."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass",
+        "Login → screenshot demo-00-login.png",
+        "Execute 8 steps → all match exact",
+        "Capture 8 screenshots demo-01..08",
+        "Calculate accuracy 100% (Excellent)",
+        "Write demo-report.md với 'No corrections needed'",
+        "POST-GATE pass"
+      ],
+      "assertions": [
+        "ls $SCREENSHOTS/ | grep -c 'demo-' >= 8",
+        "grep '100%' demo-report.md",
+        "grep 'Excellent' demo-report.md"
+      ]
+    },
+    {
+      "id": "TC-F8-002",
+      "name": "Partial accuracy — 4/8 exact, 3 partial, 1 none → 75%",
+      "input": {
+        "command": "/wf-e2e-demo FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1000",
+        "context": "UI đã thay đổi sau khi user-guide sinh. 3 button labels đổi (i18n) + 1 link removed."
+      },
+      "expected_behavior": [
+        "8 steps execute",
+        "3 partial match (button label changes)",
+        "1 no match (link removed)",
+        "Accuracy = (4 + 0.5 × 3) / 8 = 68.75% → Needs revision",
+        "demo-report.md có 'Corrections needed' với 4 entries",
+        "APPEND issues.json: ISS-NNN cho step có no match (link removed)"
+      ],
+      "assertions": [
+        "grep -c 'Match: partial' demo-report.md == 3",
+        "grep -c 'Match: none' demo-report.md == 1",
+        "jq '.signals[] | select(.discovered_by_skill==\"wf-e2e-demo\") | length' issues.json >= 1"
+      ]
+    },
+    {
+      "id": "TC-F8-003",
+      "name": "Auto-correct — apply 3 corrections vào user-guide.md",
+      "input": {
+        "command": "/wf-e2e-demo FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1100 --auto-correct",
+        "context": "Same as TC-002 + --auto-correct flag"
+      },
+      "expected_behavior": [
+        "3 partial corrections detected → apply Edit tool",
+        "user-guide.md updated với 3 text replacements",
+        "demo-report.md mark 'Auto-correct status: applied' cho 3 entries",
+        "1 no-match step → KHÔNG auto-correct (cần manual review)"
+      ],
+      "assertions": [
+        "user-guide.md có text đã đổi (vd: 'Tạo Khách Hàng' thay vì 'Tạo Customer')",
+        "grep -c 'Auto-correct status: applied' demo-report.md == 3"
+      ]
+    },
+    {
+      "id": "TC-F8-004",
+      "name": "Outdated user-guide — accuracy <50% → E088",
+      "input": {
+        "command": "/wf-e2e-demo FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1200",
+        "context": "user-guide.md sinh từ 6 tháng trước. UI đã refactor lớn. Accuracy = 35%."
+      },
+      "expected_behavior": [
+        "Execute steps → accuracy 35%",
+        "POST-GATE T3 fail (accuracy <50%)",
+        "Auto-fix retry x3 KHÔNG cải thiện",
+        "E088 escalate",
+        "Suggest user re-run F1 Phase 6 để regenerate user-guide.md"
+      ],
+      "assertions": [
+        "Output contains 'E088'",
+        "Output contains 'Outdated' or 're-generate'",
+        "Phase-report.md có warning"
+      ]
+    }
+  ]
+}

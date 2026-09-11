@@ -1,0 +1,56 @@
+{
+  "_template_notes": {
+    "purpose": "Frontend Permission graph — Discovery Plugin #9 (v2.0 Gói C++). Parse UI permission guards: <PermissionGate permission='...'>, usePermission('...'), <Can permission='...'>, useAuth().hasPermission('...'). Source: Grep `apps/erp-web/**/*.{tsx,ts}` cho permission-guarded UI elements. Consumed by lanes CD15 (UI Permission Mirror) + CD38 (UI Implementation Coverage) qua graph_dependency.",
+    "populate": [
+      "nodes[]: 1 entry per UI element guarded — {id, name, kind, module, file_path, line, permission, guard_pattern, fingerprint}",
+      "nodes[].kind: 'component_render' (PermissionGate/Can wrapper) | 'hook_call' (usePermission) | 'imperative_check' (hasPermission imperative) | 'route_guard' (middleware)",
+      "nodes[].permission: format `{module}.{resource}.{action}` (vd 'crm.customer.read') — MUST match backend RBAC catalog",
+      "nodes[].guard_pattern: 'PermissionGate' | 'usePermission' | 'Can' | 'hasPermission' | 'authorize_middleware' | 'unknown'",
+      "edges[]: 1 entry per ui_element → permission_required — {from_element, to_permission, kind: 'guards', uncertain: boolean}",
+      "metadata.build_at: ISO 8601 timestamp",
+      "metadata.scope_root: 'apps/erp-web' (v2.0 mobile defer v2.1)",
+      "metadata.source_method: 'grep_fallback' (v1.0) | 'ts_morph_ast' (v2.1)",
+      "metadata.parser_version: '1.0' Grep-based; v2.1 → ts-morph cho dynamic permission expression resolution",
+      "metadata.unique_permissions_used: count distinct permissions across nodes (cross-ref với rbac-permission-catalog.json)",
+      "metadata.skipped_files[]: files với parse error"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/erp-web/ → SKIP, write empty graph với skipped:true (per CD15 graph_dependency optional, E137 WARN)",
+      "Project không dùng permission pattern → empty nodes[] (CD15 lane fallback Grep với E139 WARN)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "fe-permission-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/erp-web",
+    "client_apps": ["erp-web"]
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/erp-web",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "scanned_file_count": 0,
+    "skipped_files": [],
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "unique_permissions_used": 0,
+    "guard_patterns_distribution": {
+      "PermissionGate": 0,
+      "usePermission": 0,
+      "Can": 0,
+      "hasPermission": 0,
+      "authorize_middleware": 0,
+      "unknown": 0
+    },
+    "skipped": false,
+    "skip_reason": null
+  }
+}

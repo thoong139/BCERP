@@ -1,0 +1,33 @@
+{
+  "$schema": "change-impact-v1",
+  "change_id": "{{CHANGE_ID}}",
+  "change_type": "{{CHANGE_TYPE}}",
+  "risk_level": "{{RISK_LEVEL}}",
+  "registry_changes": {
+    "requirements_updated": [],
+    "requirements_added": [],
+    "features_updated": [],
+    "features_added": [],
+    "features_deleted": [],
+    "impl_status_changes": []
+  },
+  "files_modified": [],
+  "docs_modified": [],
+  "verify_evidence": {
+    "preflight_status": null,
+    "sync_rate": null,
+    "cross_validation_coverage": null
+  },
+  "regression_check": {
+    "tests_passed": null,
+    "tests_failed": null,
+    "tests_total": null
+  },
+  "audit_chain": {
+    "checksum_pre": "",
+    "checksum_post": "",
+    "backup_path": ""
+  },
+  "generated_at": "{{GENERATED_AT}}",
+  "generator": "wf-manage-change v3.0"
+}

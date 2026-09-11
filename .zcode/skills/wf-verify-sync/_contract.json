@@ -1,0 +1,299 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-verify-sync",
+  "version": "4.0.1",
+  "phase": "cross-phase",
+  "description": "Kiểm tra đồng bộ REQ-IDs giữa requirements và code. v4.0.0: completeness & hardening — S1 canonical dual-write fix (Step 6.2c CDG), W003 full data flow, error code renumbering per-phase (19E+3W); S2 PARTIAL_FEATURES schema docs, actionable-checklist.md contract entry, produces_for/consumes_from completeness; S3 3 consumer flags (--from-add-scope, --from-manage-change, --from-preflight) + registry_changes capture (F10); S4 bash script delegation (5 scripts + _shared/ split); S5 safety hardening (7 fixes: to_epoch sentinel, heartbeat zombie guard, NTFS atomic append, TOCTOU mkdir claim, disown detection, migration rollback, lock path docs); S6 POST-GATE (vs-postgate-check.sh T1→T4 validation + 8 evals). v3.3.0: audit fixes — verdict sync (PARTIAL_FEATURES + priority override), W002/W003 accounting, registry backup, Comment Style Map, exclude patterns, step reordering. v3.2.0: W003 feature-aware REQ-ID downgrade. v3.1.0: fix verdict READY. v3.0.0: session isolation + lock/heartbeat + JSONL index + dual-write canonical + impact artifact.",
+  "procedure": "procedures/phase0-init.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/_shared/state-variables.md",
+    "procedures/_shared/cross-phase-flow.md",
+    "procedures/_shared/protocols-fix-rules.md",
+    "procedures/_shared/registry-safe-write.md",
+    "procedures/_shared/flag-handlers.md",
+    "procedures/_shared/scope-filtering.md",
+    "procedures/_shared/req-id-patterns.md",
+    "procedures/_shared/checkpoint-protocol.md",
+    "procedures/_shared/canonical-cdg.md",
+    "procedures/session-init.md",
+    "procedures/resume-routing.md",
+    "procedures/phase0-init.md",
+    "procedures/phase1-scan.md",
+    "procedures/phase2-analyze.md",
+    "procedures/phase3-ui-coverage.md",
+    "procedures/phase4-fix.md",
+    "procedures/phase5-crossval.md",
+    "procedures/phase6-report.md"
+  ],
+  "scripts": [
+    ".claude/scripts/wf-verify-sync/vs-common.sh",
+    ".claude/scripts/wf-verify-sync/vs-acquire-lock.sh",
+    ".claude/scripts/wf-verify-sync/vs-release-lock.sh",
+    ".claude/scripts/wf-verify-sync/vs-heartbeat.sh",
+    ".claude/scripts/wf-verify-sync/vs-generate-session-id.sh",
+    ".claude/scripts/wf-verify-sync/vs-index-append.sh",
+    ".claude/scripts/wf-verify-sync/vs-migrate-flat-to-sessions.sh",
+    ".claude/scripts/wf-verify-sync/vs-scan-code.sh",
+    ".claude/scripts/wf-verify-sync/vs-analyze.sh",
+    ".claude/scripts/wf-verify-sync/vs-scan-ui.sh",
+    ".claude/scripts/wf-verify-sync/vs-validate.sh",
+    ".claude/scripts/wf-verify-sync/vs-build-report-data.sh",
+    ".claude/scripts/wf-verify-sync/vs-impact-build.sh",
+    ".claude/scripts/wf-verify-sync/vs-postgate-check.sh",
+    ".claude/scripts/wf-verify-sync/vs-finalize-session.sh"
+  ],
+  "session_isolation": {
+    "enabled": true,
+    "layout": "sessions/{session_id}/",
+    "lock_type": "posix-mkdir",
+    "heartbeat_interval_s": 30,
+    "heartbeat_max_updates": 1440,
+    "jsonl_index": "_index/sessions.jsonl",
+    "migration_script": "vs-migrate-flat-to-sessions.sh",
+    "notes": "v3.0+ session isolation. Lock per session dir. Heartbeat auto-exit sau 1440 updates (12h). JSONL index concurrent-safe qua temp+mv atomic append."
+  },
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "requirements",
+      "features"
+    ],
+    "notes": "Cần có source code với REQ-ID annotations; registry phải có nội dung hợp lệ"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry để cross-validate REQ-IDs với code annotations",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/preflight-report.md",
+      "description": "Preflight report để làm context cho verify",
+      "required": false,
+      "condition": "optional context"
+    },
+    {
+      "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/checkpoint.json",
+      "description": "Checkpoint từ session trước (resume support). Auto-resolve qua _index/sessions.jsonl.",
+      "required": false,
+      "condition": "--resume mode only"
+    },
+    {
+      "path": ".mc-data/work/wf-verify-sync/_index/sessions.jsonl",
+      "description": "Sessions index — dùng để discover latest in_progress session khi --resume không pass session_id",
+      "required": false,
+      "condition": "--resume mode only"
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/sessions/{session_id}/fix-impact.json",
+      "description": "(v2.1+ S9) fix-impact.json từ wf-fix-bugs session — schema fix-impact-v1, consume khi --from-fix-bugs",
+      "required": false,
+      "condition": "--from-fix-bugs flag passed"
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/sessions/{session_id}/docs-sync-report.json",
+      "description": "(v2.1+ S9) docs-sync-report.json từ wf-fix-execute Phase 4a — schema docs-sync-report-v1",
+      "required": false,
+      "condition": "--from-fix-bugs flag passed AND file tồn tại"
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/_index/sessions.jsonl",
+      "description": "(v2.1+ S9) Append-only sessions index từ wf-fix-bugs — auto-resolve latest session",
+      "required": false,
+      "condition": "--from-fix-bugs flag passed AND không pass session_id"
+    },
+    {
+      "path": ".mc-data/work/wf-add-scope/sessions/{session_id}/scope-impact.json",
+      "description": "(v4.0+ S3) scope-impact.json từ wf-add-scope session — schema scope-impact-v1, consume khi --from-add-scope",
+      "required": false,
+      "condition": "--from-add-scope flag passed"
+    },
+    {
+      "path": ".mc-data/work/wf-add-scope/_index/sessions.jsonl",
+      "description": "(v4.0+ S3) Append-only sessions index từ wf-add-scope — auto-resolve latest session",
+      "required": false,
+      "condition": "--from-add-scope flag passed AND không pass session_id"
+    },
+    {
+      "path": ".mc-data/work/wf-manage-change/{change_id}/change-impact.json",
+      "description": "(v4.0+ S3) change-impact.json từ wf-manage-change session — schema change-impact-v1, consume khi --from-manage-change",
+      "required": false,
+      "condition": "--from-manage-change flag passed"
+    },
+    {
+      "path": ".mc-data/work/wf-manage-change/_index/sessions.jsonl",
+      "description": "(v4.0+ S3) Append-only sessions index từ wf-manage-change — auto-resolve latest change",
+      "required": false,
+      "condition": "--from-manage-change flag passed AND không pass change_id"
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/sessions/{session_id}/preflight-impact.json",
+      "description": "(v4.0+ S3) preflight-impact.json từ wf-preflight session — schema preflight-impact-v1, consume khi --from-preflight",
+      "required": false,
+      "condition": "--from-preflight flag passed"
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/_index/sessions.jsonl",
+      "description": "(v4.0+ S3) Append-only sessions index từ wf-preflight — auto-resolve latest session",
+      "required": false,
+      "condition": "--from-preflight flag passed AND không pass session_id"
+    },
+    {
+      "path": ".claude/doc-framework/_meta/definition-of-done.md",
+      "description": "Definition of Done checklist template",
+      "required": false,
+      "condition": "reference-only doc-framework template"
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/_meta/verify-sync.md",
+        "template": null,
+        "required": true,
+        "description": "Canonical output (latest run, dual-write từ Phase 6). CDG conflict check trước khi overwrite. Backward compat cho wf-prepare-deployment."
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync.md",
+        "template": null,
+        "required": true,
+        "description": "Session-scoped copy của verify-sync.md (history preserved — không bị overwrite khi chạy lại)"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-status.json",
+        "template": "templates/verify-sync-status.json",
+        "required": true,
+        "description": "Session-scoped state file"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "description": "Session-scoped checkpoint (resume support)"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-impact.json",
+        "template": "templates/verify-sync-impact.json",
+        "required": true,
+        "description": "Cross-skill artifact (schema verify-sync-impact-v1). Consumers wired v3.1+."
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/ui-coverage-report.md",
+        "template": "templates/ui-coverage-report.md",
+        "required": false,
+        "description": "UI-code coverage report",
+        "condition": "interface_type != api-only"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/ui-snapshot.json",
+        "template": null,
+        "required": false,
+        "description": "UI coverage snapshot",
+        "condition": "interface_type != api-only"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/actionable-checklist.md",
+        "template": null,
+        "required": true,
+        "description": "Actionable checklist trích xuất từ Phase 6 Step 6.2b — kế hoạch triển khai cho user theo dõi tiến độ"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/sessions/{session_id}/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "description": "Phase summary (CORE-028) — tóm tắt toàn bộ skill bằng tiếng Việt"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/_index/sessions.jsonl",
+        "template": null,
+        "required": true,
+        "description": "Append-only sessions index: in_progress entry khi init, completed/failed entry khi Phase 6"
+      },
+      {
+        "path": ".mc-data/work/wf-verify-sync/verify-sync-history.md",
+        "template": null,
+        "required": true,
+        "description": "Global append-only history (top-level, backward compat). Format: [YYYY-MM-DD] session={id} scope=[scope] sync=[rate]%"
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "safe-update",
+      "description": "Safe-update impl_status per REQ-ID — KHÔNG downgrade từ 'done' (CORE-008). Lock: .mc-data/work/wf-verify-sync/.locks/registry.lock"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "impl_status"
+    ],
+    "write_role": "SAFE-UPDATE",
+    "safe_write_rule": "CORE-006",
+    "notes": "CORE-008: KHÔNG downgrade impl_status từ 'done'. Nếu code scan không tìm thấy REQ-ID đã done → WARNING + hỏi user, không tự downgrade"
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-prepare-deployment": [
+        ".mc-data/docs/_meta/verify-sync.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-impact.json"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-impact.json"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-impact.json"
+      ],
+      "wf-verify-sync": [
+        ".mc-data/work/wf-verify-sync/sessions/{session_id}/checkpoint.json",
+        ".mc-data/work/wf-verify-sync/sessions/{session_id}/verify-sync-status.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-implement-feature": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-preflight": [
+        ".mc-data/work/wf-preflight/preflight-report.md",
+        ".mc-data/work/wf-preflight/sessions/{session_id}/preflight-impact.json"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-fix-bugs/sessions/{session_id}/fix-impact.json",
+        ".mc-data/work/wf-fix-bugs/sessions/{session_id}/docs-sync-report.json",
+        ".mc-data/work/wf-fix-bugs/_index/sessions.jsonl"
+      ],
+      "wf-manage-change": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/work/wf-manage-change/{change_id}/change-impact.json"
+      ],
+      "wf-add-scope": [
+        ".mc-data/work/wf-add-scope/sessions/{session_id}/scope-impact.json"
+      ]
+    }
+  },
+
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "reqid_search_crossref",
+    "pattern": "PRE-GATE detection (Na/Nb) + CI-ROUTE Phase 2 REQ-ID search + Phase 3 cross-reference",
+    "tools_used": [
+      "gitnexus_cypher",
+      "serena_find_references"
+    ],
+    "ci_tasks": [
+      "find_by_annotation (Phase 2: GitNexus cypher REQ-ID search + Serena find_references)",
+      "cross_validate (Phase 2: so sanh CI results vs Grep fallback)",
+      "find_references (Phase 3: Serena per REQ-ID + GitNexus context)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Grep/Glob. Zero regression.",
+    "notes": "Serena results are real-time (LSP), GitNexus cypher may be stale if index behind HEAD. Prefer Serena for precision, GitNexus for graph traversal."
+  }
+}

@@ -1,0 +1,207 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-security",
+  "version": "1.0.0",
+  "description": "Evals cho QD3 Security Vulnerabilities Lane — kiem tra PRE-GATE validation, probe signal emission, va POST-GATE schema compliance.",
+  "test_cases": [
+    {
+      "id": "TC-QD3-001",
+      "name": "PRE-GATE fail khi SESSION_DIR khong ton tai",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-security duoc spawn voi --session-dir=/tmp/nonexistent-session-999 nhung directory khong ton tai",
+        "session_dir": "/tmp/nonexistent-session-999",
+        "profile": "standard"
+      },
+      "expected": {
+        "behavior": "STOP voi E-QD3-001: SESSION_DIR khong ton tai",
+        "no_signals_emitted": true,
+        "no_lane_status_created": true
+      },
+      "validation": "Skill KHONG tao phase4-find-bugs/lanes/QD3-security/ subdirectory. In error message 'E-QD3-001' va exit. KHONG tiep tuc sang Phase 1."
+    },
+    {
+      "id": "TC-QD3-002",
+      "name": "P-QD3-owasp-top-ten emit signal cho SQL injection",
+      "type": "stub",
+      "input": {
+        "scenario": "Source code co SQL query voi string concatenation tai line 42",
+        "registry_features": [
+          {
+            "id": "FEAT-CRM-001",
+            "impl_status": "done",
+            "req_ids": [
+              "REQ-CRM-001"
+            ]
+          }
+        ],
+        "code_file": "src/features/customer/service.ts",
+        "vulnerability": "SELECT * FROM customers WHERE id = userId concatenated",
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count": 1,
+        "signal_types": [
+          "sql_injection"
+        ],
+        "severity": "critical",
+        "has_evidence": true,
+        "probe_id": "P-QD3-owasp-top-ten"
+      },
+      "validation": "Signal phai co target.kind='code', target.file_path='src/features/customer/service.ts', target.line_range=[42,42], evidence.code_snippet chua vulnerable query, dimension_id='QD3', suggested_severity='critical'"
+    },
+    {
+      "id": "TC-QD3-003",
+      "name": "POST-GATE T1-T4 pass cho valid signals.json",
+      "type": "stub",
+      "input": {
+        "scenario": "Lane chay xong voi 3 signals hop le tu 2 probes, moi signal co probe_id, dimension_id='QD3', va evidence non-empty",
+        "signals_count": 3,
+        "profile": "standard"
+      },
+      "expected": {
+        "post_gate_result": "PASS",
+        "t1_existence": true,
+        "t2_structure": true,
+        "t3_content": true,
+        "t4_crossref": true
+      },
+      "validation": "POST-GATE T1: signals.json ton tai va non-empty. T2: JSON parse OK + co $schema + signals[] la array. T3: signals co probe_id + evidence co >=1 field non-empty. T4: moi probe_id match pattern P-QD3-xxx, moi dimension_id='QD3'. lane-report.md va phase-summary.md duoc tao."
+    },
+    {
+      "id": "TC-QD3-004",
+      "name": "ADR-22 Rule 6: KHONG su dung scan cache",
+      "type": "stub",
+      "input": {
+        "scenario": "Lane chay profile deep, kiem tra rang KHONG co fingerprint/lookup/store cache calls nao trong probe output",
+        "profile": "deep"
+      },
+      "expected": {
+        "no_cache_calls": true,
+        "all_probes_fresh_scan": true
+      },
+      "validation": "Phase 4 VERIFY step 6 kiem tra KHONG co scan cache calls trong probe output. Moi probe re-scan moi lan tu dau. --use-cache KHONG ton tai trong _contract.json inputs. argument-hint KHONG chua --use-cache."
+    },
+    {
+      "id": "TC-S11-schema-uniformity-QD3",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD3 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-security voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD3-security/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD3",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD3' + signals[*].dimension_id='QD3'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD3",
+      "name": "Probe lazy-load: SKILL.md routing table list 7 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD3 lane phai liet ke 7 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-security voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-security/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 7,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 7,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 7 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD3-005",
+      "name": "D1 audit: OWASP Top 10 coverage chi ~40% (chi static grep, khong co full vuln scan)",
+      "description": "Phase 2 D1 (DISCREPANCY-1 IMPL-REFUTED): P-QD3-owasp-top-ten SKILL.md mieu ta '10 OWASP categories' nhung Phase 2 xac nhan chi 4/10 categories co static patterns (SQL injection, XSS, hardcoded secrets, path traversal). 6/10 categories con lai can runtime analysis. IMP-QD3-001 (P1): mo rong static patterns hoac document coverage gap ro rang.",
+      "type": "stub",
+      "input": {
+        "scenario": "Project co potential SSRF vulnerability (OWASP A10 - Server Side Request Forgery): user-controlled URL duoc fetch ma KHONG validate. Profile=standard.",
+        "vulnerability": "OWASP A10 SSRF: fetch(userInput) without URL whitelist validation",
+        "code_snippet": "const data = await fetch(req.body.url);",
+        "profile": "standard",
+        "probe": "P-QD3-owasp-top-ten"
+      },
+      "expected": {
+        "current_behavior": "NO signal (SSRF pattern not in current static grep set)",
+        "expected_after_IMP_QD3_001": "signal emitted OR probe documents 'SSRF: runtime-only, not statically detectable'",
+        "owasp_categories_covered_now": 4,
+        "owasp_categories_covered_target": 10,
+        "spec_vs_impl_gap": "SKILL.md claims 10 categories, code covers ~40%"
+      },
+      "validation": "TRUOC IMP-QD3-001: SSRF (A10) khong duoc detect → false negative cho critical vuln class. SAU IMP-QD3-001: phai co SSRF pattern hoac explicit note trong lane-report 'A10 SSRF: not statically detectable'. Coverage gap documented. Fixture: fixtures/qd3-test/ Phase 3 accuracy-report.md SPEC_GAP runtime-only sections.",
+      "audit_ref": "04-qd3-security-audit.md Phase 2 DISCREPANCY-1 IMPL-REFUTED + Phase 3 accuracy-report.md SPEC_GAP + IMP-QD3-001",
+      "imp_target": "IMP-QD3-001",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD3-006",
+      "name": "CASCADE-QD3-002 audit: CDG double-fire — auth-flow probe emit CDG 2 lan",
+      "description": "Phase 4 CASCADE-QD3-002: P-QD3-auth-flow-security spawn AI agent cho analysis. Khi CDG-AGENT-DOWN, ca probe bash script VA SKILL.md CDG handler deu fire → CDG flag duoc ghi 2 lan vao signals.json → signal deduplication logic bi break. IMP-QD3-010 (P2): CDG handler phai co idempotent guard.",
+      "type": "stub",
+      "input": {
+        "scenario": "P-QD3-auth-flow-security duoc chay voi profile=standard. CDG condition: AI agent subprocess tra ve CDG-AGENT-DOWN. Probe co ca bash-level CDG emit (line 45) va SKILL.md-level CDG handler → double fire.",
+        "profile": "standard",
+        "mock_cdg_condition": "CDG-AGENT-DOWN",
+        "probe": "P-QD3-auth-flow-security"
+      },
+      "expected": {
+        "current_behavior": "CDG flag duoc append 2 lan vao signals.json → duplicate entries",
+        "expected_after_IMP_QD3_010": "CDG flag chi xuat hien 1 lan (idempotent dedup guard)",
+        "signals_with_cdg_pre_fix": 2,
+        "signals_with_cdg_post_fix": 1
+      },
+      "validation": "TRUOC IMP-QD3-010: signals.json co 2 CDG entries cung source → downstream aggregation bi sai. SAU IMP-QD3-010: CDG emit phai idempotent — check existing before append. IMP-QD3-010 linked to global IMP-024 CDG Governance (5-dim pattern).",
+      "audit_ref": "04-qd3-security-audit.md Phase 4 CASCADE-QD3-002 + IMP-QD3-010 + 09-cross-cutting-findings.md T9 CDG Governance",
+      "imp_target": "IMP-QD3-010",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD3-007",
+      "name": "ADR-22 Rule 6 enforcement: cache NEVER cho security lane — khong co runtime check",
+      "description": "Phase 1 D (ADR-22): Security lane PHAI khong bao gio dung scan cache (false negatives tren cache hits = security miss). dim.json co cache_allowed=false nhung SKILL.md KHONG co runtime enforcement guard. IMP-QD3-003 (P1): them PRE-GATE assertion 'ASSERT cache_calls == 0'.",
+      "type": "stub",
+      "input": {
+        "scenario": "Session dir co .scan-cache/ tu previous run voi stale results. QD3 lane duoc spawn. SKILL.md khong co explicit check ASSERT(cache_calls==0) nen co the tinh nang cache bi leak tu skill invocation.",
+        "session_dir": "$SESSION_DIR",
+        "stale_cache_exists": true,
+        "profile": "standard",
+        "probe": "ALL QD3 probes"
+      },
+      "expected": {
+        "current_behavior": "No runtime enforcement — cache might be used if caller passes --use-cache flag",
+        "expected_after_IMP_QD3_003": "PRE-GATE assertion: ASSERT(cache_calls == 0 for all QD3 probes), fail if violated",
+        "cache_used": false,
+        "enforcement_level": "PRE-GATE"
+      },
+      "validation": "SAU IMP-QD3-003: SKILL.md PRE-GATE phai co assert cache_allowed=false + verify no --use-cache in probe invocations. Neu cache leak detected → STOP voi error 'E-QD3-cache-violation'. TC-QD3-004 da test ADR-22 result; TC-audit-QD3-007 test enforcement mechanism.",
+      "audit_ref": "04-qd3-security-audit.md Phase 1 ADR-22 Rule 6 + TC-QD3-004 existing test + IMP-QD3-003",
+      "imp_target": "IMP-QD3-003",
+      "status": "stub"
+    }
+  ]
+}

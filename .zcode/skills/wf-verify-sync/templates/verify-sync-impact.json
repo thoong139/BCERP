@@ -1,0 +1,63 @@
+{
+  "$schema": "verify-sync-impact-v1",
+  "schema_version": "verify-sync-impact-v1",
+  "session_id": "{SESSION_ID}",
+  "session_dir": "{SESSION_DIR}",
+  "generated_at": "{YYYY-MM-DDTHH:mm:ssZ}",
+  "host": "{HOSTNAME}",
+  "user": "{USERNAME}",
+
+  "scope": {
+    "type": "all | system | module",
+    "name": null
+  },
+
+  "verify_summary": {
+    "total_req_ids": 0,
+    "implemented": 0,
+    "in_progress": 0,
+    "not_started": 0,
+    "skipped": 0,
+    "orphan_count": 0,
+    "sync_rate_pct": 0,
+    "coverage_rate_pct": 0,
+    "verdict": "READY | PARTIAL_FEATURES | PARTIAL | NOT_READY"
+  },
+
+  "warnings": {
+    "w001_count": 0,
+    "w001_anomalies": [],
+    "w002_count": 0,
+    "w002_anomalies": [],
+    "w003_count": 0,
+    "w003_anomalies": []
+  },
+
+  "registry_changes": [],
+
+  "ui_coverage": {
+    "ran": false,
+    "total_screens": 0,
+    "matched": 0,
+    "coverage_pct": null
+  },
+
+  "fix_log": {
+    "applied": false,
+    "files_fixed": 0
+  },
+
+  "next_recommended_action": {
+    "skill": "/wf-prepare-deployment | /wf-fix-bugs | /wf-implement-feature",
+    "rationale": "{RATIONALE}",
+    "blocking_items": []
+  },
+
+  "audit_chain": {
+    "checksum_sha256": "{CHECKSUM}",
+    "data_sources": [
+      "{SESSION_DIR}/verify-sync-status.json",
+      ".mc-data/docs/_meta/req-registry.json"
+    ]
+  }
+}

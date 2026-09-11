@@ -1,0 +1,163 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-legacy-extract",
+  "version": "2.2.0",
+  "phase": "pre-phase0",
+  "description": "Trich xuat requirements va features tu classified modules (6-phase refactored). v2.2.0 (Phase I): domain-hints.json input cho IPS-based domain expert routing chinh xac hon.",
+  "procedure": "procedures/phase0-context.md",
+  "procedures": [
+    "procedures/_shared.md",
+    "procedures/phase0-context.md",
+    "procedures/phase1-resolution.md",
+    "procedures/phase2-extraction.md",
+    "procedures/phase3-dedup.md",
+    "procedures/phase4-alignment.md",
+    "procedures/phase5-verify.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/work/legacy-scan/classified/glossary.json",
+      ".mc-data/work/legacy-scan/ledger.json"
+    ],
+    "registry_fields": [],
+    "notes": "wf-legacy-classify phai hoan thanh truoc (ledger.stages.classify.status == 'completed' HOAC scan-state.layers.L4.status == 'completed'/'skipped_by_profile'). Phase D cham nhan ca v5.0 scan-state (priority) va v4.1 ledger (fallback). Helper init_or_load_session tu migrate neu can."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/legacy-scan/classified/batch-*.json",
+      "description": "Classified file batches tu wf-legacy-classify (grouped by module)",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/classified/glossary.json",
+      "description": "Domain terminology glossary tu wf-legacy-classify",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-profile.json",
+      "description": "Tech stack va project size info tu wf-legacy-scan",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/inventory/dependency-graph.json",
+      "description": "Module dependency graph de tinh topological processing order",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/classified/classify-naming-fixes.json",
+      "description": "Naming fixes tu classify POST-GATE (CORE-016) — apply khi build module_map",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/inventory/ui-manifest.json",
+      "description": "UI manifest voi route mapping cho Buoc 2U UI Screen Analysis",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/sessions/<session_id>/scan-state.json",
+      "description": "(Phase D) v5.0 scan-state.json session. Read qua helper init_or_load_session + read_depth_map + get_domain_expert_for_module. Tu fallback tu ledger.json neu session chua ton tai.",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/domain-hints.json",
+      "description": "(Phase I — NEW v5.0) Domain hints tu IPS-B. Neu ton tai, enriches domain expert routing: module co domain-hints confidence >= 0.6 duoc assign dung domain-expert agent tuong ung (ADR-LS06). Graceful skip neu absent.",
+      "required": false,
+      "condition": "optional — skip gracefully if absent"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/legacy-scan/extract-status.json",
+        "template": "templates/extract-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/extract-plan.md",
+        "template": "templates/extract-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/extract-checkpoint.json",
+        "template": "templates/extract-checkpoint.json",
+        "required": false,
+        "condition": "Chi tao khi MEDIUM/LARGE project (multi-session)"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/extracted/{module}.json",
+        "template": "templates/extracted-module.json",
+        "required": true,
+        "description": "Extracted requirements + features per module (bao gom acceptance_criteria). Ten file = normalized module name (lowercase-kebab-case)"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/extracted/dedup-report.json",
+        "template": null,
+        "required": true,
+        "description": "Deduplication results — items da merge va items giu lai vi ambiguous"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+        "template": null,
+        "required": true,
+        "description": "Module-to-code-project mapping tu Stage 3.5 (CORE-013) — dung boi wf-annotate-code"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/extracted/{module}-divergences.json",
+        "template": null,
+        "required": false,
+        "condition": "Chi tao khi strategy S5 (DIVERGENCE-RESOLVE) — from_code vs from_docs comparison"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/<session_id>/scan-state.json",
+        "template": null,
+        "required": false,
+        "description": "(Phase D) Dual-write target — update layers.L5 (status, outputs[], module_progress) qua helper scan_state_reader. Khong ghi truc tiep; chi mutate via update_layer_status/update_module_progress/append_layer_output."
+      }
+    ],
+    "registry": null
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Skill nay KHONG ghi vao req-registry.json. Chi ghi vao .mc-data/work/legacy-scan/extracted/ va module-code-mapping.json"
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-brainstorm": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json",
+        ".mc-data/work/legacy-scan/extracted/dedup-report.json",
+        ".mc-data/work/legacy-scan/extracted/{module}-divergences.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json",
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json"
+      ],
+      "wf-design": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json",
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ],
+      "wf-annotate-code": [
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-legacy-classify": [
+        ".mc-data/work/legacy-scan/classified/batch-N.json",
+        ".mc-data/work/legacy-scan/classified/glossary.json",
+        ".mc-data/work/legacy-scan/classified/classify-naming-fixes.json"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/project-profile.json",
+        ".mc-data/work/legacy-scan/inventory/dependency-graph.json",
+        ".mc-data/work/legacy-scan/sessions/{id}/scan-state.json",
+        ".mc-data/work/legacy-scan/domain-hints.json"
+      ]
+    }
+  }
+}

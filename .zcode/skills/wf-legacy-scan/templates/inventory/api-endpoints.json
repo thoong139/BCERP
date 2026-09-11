@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory-api-endpoints-v1",
+  "title": "Inventory: API Endpoints",
+  "description": "API routes detected during legacy scan Stage 1. Output: .mc-data/work/legacy-scan/inventory/api-endpoints.json",
+  "type": "object",
+  "required": ["count", "items"],
+  "properties": {
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng số endpoints phát hiện được"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "method", "route", "handler_file"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path đến file chứa route handler"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD", "UNKNOWN"],
+            "description": "HTTP method"
+          },
+          "route": {
+            "type": "string",
+            "description": "API route pattern — vd: /api/users, /api/users/:id"
+          },
+          "handler_file": {
+            "type": "string",
+            "description": "Relative path đến handler file"
+          }
+        }
+      }
+    }
+  }
+}

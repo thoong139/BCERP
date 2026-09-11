@@ -1,0 +1,125 @@
+{
+  "$schema": "checkpoint-v1",
+  "checkpoint_id": "CP-YYYYMMDD-NNN",
+  "impl_id": "IMPL-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+
+  "context_state": {
+    "used_pct": 0,
+    "warning_threshold": 65,
+    "checkpoint_threshold": 80,
+    "force_stop_threshold": 90
+  },
+
+  "feature": {
+    "req_id": "REQ-XXX-NNN",
+    "name": "[Feature Name]"
+  },
+
+  "position": {
+    "session": 1,
+    "phase": 1,
+    "phase_name": "[Phase Name]",
+    "batch": null,
+    "task_id": null,
+    "task_name": null
+  },
+
+  "progress": {
+    "completed_tasks": ["T001", "T002"],
+    "current_task": {
+      "id": "T003",
+      "name": "[Task Name]",
+      "progress_pct": 45,
+      "file": "path/to/file.ts",
+      "line": 67
+    },
+    "pending_tasks": ["T004", "T005", "T006"]
+  },
+
+  "files_state": {
+    "created": [
+      {
+        "path": "path/to/created/file.ts",
+        "lines": 150,
+        "status": "complete"
+      }
+    ],
+    "modified": [
+      {
+        "path": "path/to/modified/file.ts",
+        "lines_added": 25,
+        "lines_removed": 5,
+        "status": "in_progress"
+      }
+    ],
+    "in_progress": {
+      "path": "path/to/current/file.ts",
+      "progress_pct": 45,
+      "last_line": 67
+    }
+  },
+
+  "tests_state": {
+    "total": 5,
+    "passing": 4,
+    "failing": 0,
+    "skipped": 1,
+    "coverage_pct": 72
+  },
+
+  "reviews_state": {
+    "code_review": {
+      "status": "pending | in_progress | completed",
+      "issues_found": 0,
+      "issues_resolved": 0
+    },
+    "security_review": {
+      "status": "pending | in_progress | completed",
+      "vulnerabilities_found": 0,
+      "vulnerabilities_resolved": 0
+    }
+  },
+
+  "next_action": {
+    "description": "[Specific action to take when resuming]",
+    "step": "3.2.1",
+    "command": null,
+    "context_needed": [
+      "Feature design file",
+      "Current implementation pattern"
+    ]
+  },
+
+  "resume_instructions": {
+    "command": "/wf-implement-feature [feature-name] --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/impl-status.json",
+      ".mc-data/docs/phase5-implementation/tasks/[sys]/[mod]/[feature]-impl.md"
+    ],
+    "context_recovery": [
+      "Read impl-status.json for current state",
+      "Read tasks.md for completed items",
+      "Continue from next_action.step"
+    ]
+  },
+
+  "trigger_reason": "context_threshold | user_pause | batch_complete | gate_failed | error",
+
+  "batch_snapshot": {
+    "batch_number": null,
+    "status": "pending | active | gate_passed | gate_failed | rolled_back",
+    "files": {
+      "to_create": ["path/to/new/file.ts"],
+      "to_modify": [
+        {
+          "path": "path/to/modified/file.ts",
+          "hash_before": null
+        }
+      ]
+    },
+    "gate_attempts": 0
+  },
+
+  "notes": "[Any additional notes for the next session]"
+}

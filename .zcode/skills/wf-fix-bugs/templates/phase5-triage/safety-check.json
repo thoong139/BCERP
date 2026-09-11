@@ -1,0 +1,26 @@
+{
+  "$schema": "safety-check-v1",
+  "_template_notes": "safety-check.json — Pre-execution safety gate (CORE-020). Schema: wf-fix-safety-check-v1. 4 checks: collision, xref, uncommitted, deprecated.",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "checks": {
+    "collision_detection": {
+      "pass": false,
+      "details": ""
+    },
+    "xref_validation": {
+      "pass": false,
+      "details": ""
+    },
+    "uncommitted_changes": {
+      "pass": false,
+      "details": ""
+    },
+    "deprecated_modules": {
+      "pass": false,
+      "details": ""
+    }
+  },
+  "all_pass": false,
+  "blockers": []
+}

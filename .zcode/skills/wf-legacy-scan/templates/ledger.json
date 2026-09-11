@@ -1,0 +1,144 @@
+{
+  "$schema": "legacy-scan-ledger-v1",
+
+  "project": "",
+
+  "pipeline_status": "in_progress",
+  "active_skill": "",
+
+  "summary": {
+    "total_items": 0,
+
+    "by_stage": {
+      "inventoried": 0,
+      "classified": 0,
+      "extracted": 0,
+      "normalized": 0
+    },
+
+    "by_status": {
+      "completed": 0,
+      "pending": 0,
+      "error": 0,
+      "stale": 0
+    },
+
+    "systems_detected": 0,
+    "modules_detected": 0,
+    "reqs_extracted": 0,
+    "features_extracted": 0
+  },
+
+  "stages": {
+    "detection": {
+      "status": "pending",
+      "output_file": "project-profile.json"
+    },
+
+    "assessment": {
+      "status": "pending",
+      "output_file": "assessment-report.json"
+    },
+
+    "maturity_validation": {
+      "status": "pending",
+      "skipped": false
+    },
+
+    "inventory": {
+      "status": "pending",
+      "file_counts": {
+        "screens": 0,
+        "apis": 0,
+        "docs": 0,
+        "sources": 0,
+        "configs": 0,
+        "tests": 0,
+        "assets": 0
+      }
+    },
+
+    "classify": {
+      "status": "pending",
+      "batch_size": 100,
+      "completed_batches": 0,
+      "total_batches": 0
+    },
+
+    "extract": {
+      "status": "pending",
+      "module_status": {}
+    },
+
+    "normalize": {
+      "status": "pending",
+      "sub_phases": {
+        "phase0_docs": "pending",
+        "divergence_resolution": "pending",
+        "re_vision": "pending",
+        "phase1_docs": "pending",
+        "phase2_docs": "pending",
+        "phase3_docs": "pending",
+        "registry": "pending",
+        "cross_validation": "pending"
+      }
+    },
+
+    "gap_analysis": {
+      "status": "pending"
+    }
+  },
+
+  "maturity": {
+    "level": "",
+    "recommended_action": "",
+    "stage_modes": {
+      "maturity_validation": "skip",
+      "classify": "full",
+      "extract": "full",
+      "phase0_docs": "create",
+      "phase1_docs": "create",
+      "phase2_docs": "create",
+      "phase3_docs": "create",
+      "registry": "create",
+      "gap_analysis": "full"
+    }
+  },
+
+  "assessment": {
+    "code_quality": { "score": 0, "level": "" },
+    "doc_quality": { "score": 0, "level": "" },
+    "alignment": { "score": 0, "level": "" }
+  },
+
+  "strategy": {
+    "id": "",
+    "name": "",
+    "user_confirmed": false,
+    "user_override": false
+  },
+
+  "modules": {},
+
+  "staleness": {
+    "last_full_scan": null,
+    "stale_items": [],
+    "stale_percentage": 0
+  },
+
+  "session_history": [],
+
+  "_notes": {
+    "ownership": "wf-legacy-scan tao initial ledger voi Stage 0-1 data. Downstream skills tu cap nhat stages cua minh. KHONG ghi de stages cua skill khac.",
+    "stage_owners": {
+      "detection": "wf-legacy-scan",
+      "assessment": "wf-legacy-scan",
+      "maturity_validation": "wf-legacy-scan",
+      "inventory": "wf-legacy-scan",
+      "classify": "wf-legacy-classify",
+      "extract": "wf-legacy-extract",
+      "normalize": "wf-brainstorm + downstream skills",
+      "gap_analysis": "wf-design"
+    }
+  }
+}

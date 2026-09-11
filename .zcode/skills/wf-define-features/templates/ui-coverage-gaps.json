@@ -1,0 +1,52 @@
+{
+  "$schema": "ui-coverage-gaps-v1",
+  "_description": "UI coverage gaps report — so sanh UI screens thuc te voi features da defined. Chi tao khi LEGACY_MODE va co screens.",
+  "generated_at": "ISO_DATE",
+  "total_screens": 0,
+  "total_business_screens": 0,
+  "total_features": 0,
+  "empty_project": false,
+  "coverage_stats": {
+    "covered": 0,
+    "infrastructure_skipped": 0,
+    "gaps": 0,
+    "ambiguous": 0,
+    "total_business_screens": 0,
+    "coverage_pct": null,
+    "_formula": "coverage_pct = (covered / total_business_screens) * 100. total_business_screens = total_screens - infrastructure_skipped. null khi empty_project=true"
+  },
+  "gaps": [
+    {
+      "screen_path": "app/reports/page.tsx",
+      "screen_route": "/reports",
+      "module_hint": "reports",
+      "screen_type": "page",
+      "gap_reason": "no_matching_feature|no_module_mapping|new_screen_post_spec|unknown",
+      "suggested_feature_id": "FEAT-RPT-001",
+      "suggested_title": "Bao cao va thong ke",
+      "stub_created": true,
+      "stub_location": ".mc-data/docs/phase2-features/[sys]/[mod]/[suggested-feature-slug].md",
+      "stub_status": "stub",
+      "review_required": false
+    }
+  ],
+  "ambiguous": [
+    {
+      "screen_path": "app/orders/page.tsx",
+      "screen_route": "/orders",
+      "module_hint": "orders",
+      "screen_type": "page",
+      "matched_features": ["FEAT-ORD-001", "FEAT-ORD-002"],
+      "conflict_reason": "Screen route khop voi nhieu feature specs",
+      "review_required": true
+    }
+  ],
+  "infrastructure_screens": [
+    {
+      "screen_path": "app/layout.tsx",
+      "screen_route": "/",
+      "screen_type": "layout",
+      "skip_reason": "Infrastructure screen — layout file"
+    }
+  ]
+}

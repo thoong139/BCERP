@@ -1,0 +1,81 @@
+{
+  "_template_usage": "READ template này → POPULATE với checkpoint data → WRITE output. KHÔNG ghi đè template file.",
+  "$schema": "preflight-checkpoint-v3",
+  "schema_version": "3.0",
+  "checkpoint_id": "CHK-{SESSION_ID}-{PHASE}",
+  "session_id": "{YYYY-MM-DD}-{scope-slug}-{NN}",
+  "run_id": "{ISO_TIMESTAMP}",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+
+  "trigger": {
+    "reason": "context_limit | phase_complete | user_request | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": "phase_1 | phase_2 | phase_3 | phase_4 | phase_5 | phase_5a | phase_5b | phase_6 | phase_6_5 | phase_7",
+    "current_phase_name": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "parallel_group_a_done": false,
+    "parallel_group_b_done": false,
+    "issues_found": []
+  },
+
+  "context_summary": {
+    "project_name": null,
+    "scope_type": null,
+    "scope_name": null,
+    "fix_flag": false,
+    "run_tests_flag": false,
+    "interface_type": "ui"
+  },
+
+  "partial_state": {
+    "scores_snapshot": {
+      "registry_score": null,
+      "docs_score": null,
+      "sync_score": null,
+      "quality_score": null,
+      "test_score": null
+    },
+    "issues_snapshot": {
+      "registry_issues": null,
+      "doc_issues": null,
+      "sync_issues": null,
+      "quality_issues": null
+    },
+    "fix_state": {
+      "pre_fix_scores": null,
+      "fixes_applied": [],
+      "fix_log": []
+    },
+    "file_snapshots": {
+      "_note": "Populated only when trigger = pre_fix. Key = file path, value = original content before fix. Used for E010 rollback.",
+      "_example": { ".mc-data/docs/_meta/req-registry.json": "<original JSON content>" }
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      "{SESSION_DIR}/preflight-status.json",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "resume_from_phase": null,
+    "next_action": "Resume preflight check",
+    "state_restore_steps": [
+      "1. Restore $SCORES from partial_state.scores_snapshot",
+      "2. Restore $REGISTRY_ISSUES/$DOC_ISSUES/$SYNC_ISSUES/$QUALITY_ISSUES from partial_state.issues_snapshot",
+      "3. Restore $SCOPE_TYPE/$SCOPE_NAME/$HAS_FIX_FLAG/$HAS_RUN_TESTS_FLAG/$INTERFACE_TYPE from context_summary",
+      "4. Re-resolve $TARGET_* from registry (re-read req-registry.json — do NOT use cached data)",
+      "5. Continue from position.next_action"
+    ],
+    "user_message": "Resume message to display to user"
+  }
+}

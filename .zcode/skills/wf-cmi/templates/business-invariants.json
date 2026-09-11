@@ -1,0 +1,59 @@
+{
+  "_template_notes": {
+    "purpose": "Business invariants — Engine #4 sidecar artifact (KHÔNG bump registry — ADR-cmi-002 Revised). Phase 3 produces per-session DRAFT. Phase 7 CDG ACCEPT → APPEND vào CANONICAL sidecar tại .mc-data/work/wf-cmi/business-invariants.json. Tham chiếu 04-file-contract.md §6.3.",
+    "populate": [
+      "invariants[]: 1 entry per inferred invariant — {id (vd INV-CRM-001-01), req_id_ref (REQ-CRM-001), kind=precondition|postcondition|invariant, expression, severity=MUST|SHOULD|MAY, modules_involved[], source_doc, source_docs_extended[], verified_by[], inferred_by, status=proposed|accepted|rejected|stale, approver, approved_at}",
+      "invariants[].inferred_by: {skill='wf-cmi', session_id, pass=1|2|3, agent (vd business-analyst, logistics-expert), domain, confidence ∈ [0,1], evidence[]}",
+      "cross_module_dependencies[]: 1 entry per cross-module dep — {id (CMD-CRM-HRM-001), type=FK|event|api-call|cache-shared, from_module, to_module, from_entity, to_entity, inferred_by}",
+      "audit_chain.source_registry_checksum: sha256(req-registry.json) tại session time — consumer dùng detect stale",
+      "audit_chain.source_registry_path: relative path đến registry",
+      "audit_chain.checksum: sha256 của artifact này (self-reference cho integrity check)",
+      "DRAFT mode (Phase 3): status='proposed', không có approver/approved_at",
+      "CANONICAL mode (Phase 7 sau ACCEPT): status='accepted', có approver=git_user_email, approved_at=ISO 8601"
+    ],
+    "delete_before_write": true,
+    "append_mode_note": "Canonical sidecar APPEND-only — Phase 7 sync chỉ APPEND invariants mới đã ACCEPT, KHÔNG ghi đè existing entries. Conflict detection qua id+expression checksum."
+  },
+  "$schema": "business-invariants-v1",
+  "artifact_version": "1.0.0",
+  "skill": "wf-cmi",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "generated_by": "wf-cmi",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "invariants": [],
+  "cross_module_dependencies": [],
+  "metadata": {
+    "invariant_count": 0,
+    "cross_module_dependency_count": 0,
+    "pass_1_count": 0,
+    "pass_2_count": 0,
+    "pass_3_count": 0,
+    "severity_breakdown": {
+      "MUST": 0,
+      "SHOULD": 0,
+      "MAY": 0
+    },
+    "status_breakdown": {
+      "proposed": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "stale": 0
+    },
+    "modules_covered": []
+  },
+  "audit_chain": {
+    "source_registry_checksum": "{{REGISTRY_CHECKSUM}}",
+    "source_registry_path": ".mc-data/docs/_meta/req-registry.json",
+    "checksum": "{{ARTIFACT_CHECKSUM}}",
+    "git_commit": "{{GIT_COMMIT}}",
+    "git_branch": "{{GIT_BRANCH}}",
+    "author": {
+      "email": "{{GIT_USER_EMAIL}}",
+      "name": "{{GIT_USER_NAME}}"
+    }
+  }
+}

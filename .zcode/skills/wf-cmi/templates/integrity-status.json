@@ -1,0 +1,83 @@
+{
+  "_template_notes": {
+    "purpose": "SSOT pipeline state cho wf-cmi (8 phases). Owned by orchestrator (Phase 1 init), updated atomically sau mỗi POST-GATE. v2.0 schema bump: thêm lanes_active_v2[] + wave_status{} + migration_check. Tham chiếu 04-file-contract.md §4.1 + 03-phase-routing.md §5.",
+    "populate": [
+      "session_id từ Phase 1 init: YYYY-MM-DD-{scope}-{slug}-{NN}",
+      "scope từ args (--scope=system|module|feat)",
+      "profile từ args (default standard); v2.0: deep=26 lanes (BREAKING từ v1.0 deep=10)",
+      "dims_active dựa profile activation matrix (xem _contract.json.profile_activation): quick=7 lanes / standard=13 / deep=26 (Gói C++) / exhaustive=35 (deep+9 SKIPPED enable)",
+      "lanes_active_v2 (NEW v2.0): array CD IDs từ profile (lookup _contract.json.profile_activation.[profile].lanes_active)",
+      "wave_status (NEW v2.0): per-wave execution tracking {wave1, wave2, wave3} với started_at/completed_at/lane_count/pass_count/fail_count",
+      "lane_status start với 'pending' cho mọi active lane, update theo flow pending→running→completed|failed|timeout|skipped",
+      "ci_context populate từ Phase 1 CI PRE-GATE Na/Nb/Nc",
+      "author từ git user.email + user.name",
+      "phases_completed APPEND theo thứ tự sau mỗi POST-GATE PASS",
+      "current_phase cập nhật sau khi PRE-GATE phase mới PASS",
+      "current_wave (NEW v2.0): trong Phase 4 — 1/2/3, null ngoài Phase 4",
+      "next_action: phase{N+1}-{name} hoặc 'complete' hoặc 'error-recovery'",
+      "migration_check (NEW v2.0): nếu --resume session v1.0 với binary v2.0 → set migration_warning='E110_v1_session_with_v2_binary'"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "integrity-status-v2",
+  "$schema_previous": "integrity-status-v1",
+  "schema_version_history": {
+    "v1": "1.0.0 (2026-05-15) — 10 lanes CD1-CD10",
+    "v2": "2.0.0 (2026-05-16) — 26 active lanes Gói C++ Logistics + 9 SKIPPED + 5 skeleton CD32-CD36 v3-deferred. Added: lanes_active_v2[], wave_status{}, current_wave, migration_check"
+  },
+  "skill": "wf-cmi",
+  "version": "{{SKILL_VERSION}}",
+  "session_id": "{{SESSION_ID}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "profile": "{{PROFILE}}",
+  "dims_active": [],
+  "lanes_active_v2": [],
+  "dry_run": false,
+  "ci_mode": false,
+  "since_ref": null,
+  "current_phase": 1,
+  "current_wave": null,
+  "phases_completed": [],
+  "next_action": "phase1-init",
+  "pipeline_status": "running",
+  "context_budget_used_pct": 0,
+  "lane_status": {},
+  "wave_status": {
+    "wave1": {"started_at": null, "completed_at": null, "lane_count": 0, "pass_count": 0, "fail_count": 0, "timeout_count": 0, "skipped_count": 0, "lanes": []},
+    "wave2": {"started_at": null, "completed_at": null, "lane_count": 0, "pass_count": 0, "fail_count": 0, "timeout_count": 0, "skipped_count": 0, "lanes": []},
+    "wave3": {"started_at": null, "completed_at": null, "lane_count": 0, "pass_count": 0, "fail_count": 0, "timeout_count": 0, "skipped_count": 0, "lanes": []}
+  },
+  "ci_context": {
+    "gitnexus_available": false,
+    "serena_available": false,
+    "index_freshness": "unknown",
+    "fallback_tool": null,
+    "fingerprint": null
+  },
+  "coverage_threshold_pct": 80,
+  "signals_total": 0,
+  "violations_total": 0,
+  "suggestions_total": 0,
+  "started_at": "{{STARTED_AT}}",
+  "checkpoint_at": "{{STARTED_AT}}",
+  "updated_at": "{{STARTED_AT}}",
+  "lock_owner_pid": 0,
+  "lock_heartbeat_at": "{{STARTED_AT}}",
+  "author": {
+    "git_user_email": "{{GIT_USER_EMAIL}}",
+    "git_user_name": "{{GIT_USER_NAME}}",
+    "git_commit": "{{GIT_COMMIT}}",
+    "git_branch": "{{GIT_BRANCH}}"
+  },
+  "migration_check": {
+    "session_skill_version": null,
+    "current_skill_version": "{{SKILL_VERSION}}",
+    "migration_warning": null,
+    "legacy_compat_mode": false
+  },
+  "cdg_decisions": [],
+  "cdg_reject_counts": {}
+}

@@ -1,0 +1,228 @@
+{
+  "$schema": "design-status-v2",
+  "version": "5.1",
+
+  "skill_id": "DESIGN-YYYYMMDD-NNN",
+  "project": "",
+  "scope": "platform | system | module",
+  "target": "[System Name or Module Name]",
+  "context": "new | onboard",
+
+  "status": "not_started | in_progress | completed | error | paused",
+  "phase": null,
+  "verdict": "pending | PASS | PASS_WITH_WARN | FAIL",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Registry Validation & Approach",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "approach_detected": null,
+      "output_file": "design-plan.md",
+      "error": null
+    },
+    "phase_2": {
+      "name": "Architecture Overview",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "architect",
+      "output_file": "P3-01-architecture.md",
+      "error": null
+    },
+    "phase_2a": {
+      "name": "API Contract Design",
+      "status": "pending | in_progress | completed | error",
+      "parallel_group": "A",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "architect",
+      "output_file": "api-contract.md",
+      "error": null
+    },
+    "phase_2b": {
+      "name": "Database Design",
+      "status": "pending | in_progress | completed | error",
+      "parallel_group": "A",
+      "started_at": null,
+      "completed_at": null,
+      "agents": ["dba", "architect"],
+      "output_file": "database-design.md",
+      "error": null
+    },
+    "phase_2c": {
+      "name": "Integration & Cross-system Rules",
+      "status": "pending | in_progress | completed | error",
+      "depends_on": ["phase_2a", "phase_2b"],
+      "started_at": null,
+      "completed_at": null,
+      "agent": "architect",
+      "output_files": ["integration-map.md"],
+      "error": null
+    },
+    "phase_2d": {
+      "name": "Infrastructure Spec",
+      "status": "pending | in_progress | completed | error",
+      "parallel_group": "A",
+      "started_at": null,
+      "completed_at": null,
+      "agents": ["devops", "architect"],
+      "output_file": "infra-spec.md",
+      "error": null
+    },
+    "phase_4a": {
+      "name": "Cross-Validation (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 6,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "errors_escalated": 0,
+      "validation_details": {
+        "4a.1_req_in_specs": "pending | passed | fixed | failed",
+        "4a.2_api_db_match": "pending | passed | fixed | failed",
+        "4a.3_integration_refs": "pending | passed | fixed | failed",
+        "4a.5_feature_spec_completeness": "pending | passed | fixed | failed",
+        "4a.6_no_duplicates": "pending | passed | fixed | failed"
+      },
+      "error": null
+    },
+    "phase_4": {
+      "name": "Update Registry",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "output_files": ["design-report.md"],
+      "registry_updated": false,
+      "error": null
+    }
+  },
+
+  "parallel_execution": {
+    "group_A": {
+      "phases": ["phase_2a", "phase_2b", "phase_2d"],
+      "status": "pending | in_progress | completed",
+      "started_at": null,
+      "completed_at": null
+    }
+  },
+
+  "file_progress": {
+    "total_files": 0,
+    "completed_files": 0,
+    "files": {
+      "P3-01-architecture.md": {
+        "phase": "phase_2",
+        "path": "phase3-architecture/P3-01-architecture.md",
+        "status": "pending",
+        "lines": 0,
+        "req_ids": [],
+        "started_at": null,
+        "completed_at": null
+      },
+      "api-contract.md": {
+        "phase": "phase_2a",
+        "path": "phase3-architecture/technical-specs/api-contract.md",
+        "status": "pending",
+        "lines": 0,
+        "req_ids": [],
+        "started_at": null,
+        "completed_at": null
+      },
+      "database-design.md": {
+        "phase": "phase_2b",
+        "path": "phase3-architecture/technical-specs/database-design.md",
+        "status": "pending",
+        "lines": 0,
+        "req_ids": [],
+        "started_at": null,
+        "completed_at": null
+      },
+      "integration-map.md": {
+        "phase": "phase_2c",
+        "path": "phase3-architecture/technical-specs/integration-map.md",
+        "status": "pending",
+        "lines": 0,
+        "req_ids": [],
+        "started_at": null,
+        "completed_at": null
+      },
+      "infra-spec.md": {
+        "phase": "phase_2d",
+        "path": "phase3-architecture/technical-specs/infra-spec.md",
+        "status": "pending",
+        "lines": 0,
+        "req_ids": [],
+        "started_at": null,
+        "completed_at": null
+      }
+    }
+  },
+
+  "coverage": {
+    "total_req_ids": 0,
+    "covered_req_ids": [],
+    "uncovered_req_ids": [],
+    "coverage_pct": 0
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_file": null,
+    "next_action": null,
+    "trigger_reason": null
+  },
+
+  "context_sources": {
+    "req_registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "found": false,
+      "systems_count": 0,
+      "modules_count": 0,
+      "requirements_count": 0
+    },
+    "features": {
+      "path": ".mc-data/docs/phase2-features/features/",
+      "found": false,
+      "count": 0
+    },
+    "business_docs": {
+      "path": ".mc-data/docs/phase1-business/",
+      "found": false
+    }
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "total_lines_written": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "parallel_phases_run": 0,
+    "agents_spawned": 0
+  }
+}

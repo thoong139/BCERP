@@ -1,0 +1,116 @@
+{
+  "$schema": "annotate-status-v1",
+  "version": "1.0",
+  "annotate_id": "ANNOTATE-YYYYMMDD-NNN",
+  "skill": "wf-annotate-code",
+  "project": "[PROJECT_NAME]",
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "arguments": {
+    "module": null,
+    "dry_run": false,
+    "batch_size": 50,
+    "resume": false,
+    "status": false
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading & Mode Detection",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "maturity_level": null,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Build Annotation Map",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "files_matched": 0,
+      "req_ids_mapped": 0,
+      "feat_ids_mapped": 0,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Review & Confirm",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "user_adjustments": 0,
+      "dry_run_stopped": false,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Inject Annotations",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "batches_total": 0,
+      "batches_completed": 0,
+      "files_total": 0,
+      "files_done": 0,
+      "files_skipped": 0,
+      "files_error": 0,
+      "annotation_conflicts_count": 0,
+      "current_batch": null,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Verify & Report",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "traceability_before": 0,
+      "traceability_after": 0,
+      "error": null
+    }
+  },
+
+  "annotation_stats": {
+    "total_files_annotated": 0,
+    "total_req_ids_injected": 0,
+    "total_feat_ids_injected": 0,
+    "modules_covered": 0,
+    "traceability_score_before": 0,
+    "traceability_score_after": 0,
+    "files_corrupted_rollback": 0
+  },
+
+  "context_sources": {
+    "ledger": ".mc-data/work/legacy-scan/ledger.json",
+    "registry": ".mc-data/docs/_meta/req-registry.json",
+    "module_code_mapping": ".mc-data/work/legacy-scan/module-code-mapping.json",
+    "gap_report": ".mc-data/work/legacy-scan/gap-report.md",
+    "project_profile": ".mc-data/work/legacy-scan/project-profile.json"
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_batch": null,
+    "next_action": null,
+    "trigger_reason": null,
+    "session_number": null
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "files_retried": 0,
+    "files_rolled_back": 0
+  }
+}

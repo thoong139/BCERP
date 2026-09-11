@@ -1,0 +1,325 @@
+{
+  "skill_name": "wf-design-ux",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-design-ux (sau khi /wf-design hoan thanh, interface_type = web, 2 systems co UI)",
+      "expected_output": "Tao design system + navigation + screen groups cho tat ca systems, stakeholder-review.md, registry updated",
+      "assertions": [
+        {
+          "text": "Phase 0 PRE-GATE (E002): Doc req-registry.json field interface_type, neu == \"api-only\" → STOP, khong tao bat ky file nao. Chi tiep tuc khi interface_type != api-only",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 PRE-GATE: Kiem tra .mc-data/docs/phase3-architecture/P3-01-architecture.md ton tai (prerequisite tu /wf-design) truoc khi bat dau UX design",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao .mc-data/docs/phase4-ux/design-system.md",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao Navigation-[sys].md cho moi system co UI",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group files tai phase4-ux/[sys]/[mod]/[screen-group].md",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao stakeholder-review.md tai .mc-data/docs/phase4-ux/stakeholder-review.md",
+          "type": "file_exists"
+        },
+        {
+          "text": "Update req-registry.json chi field ux_design_status",
+          "type": "file_content"
+        },
+        {
+          "text": "Report cuoi de xuat /wf-plan-modules",
+          "type": "output_contains"
+        },
+        {
+          "text": "Tao .mc-data/work/wf-design-ux/design-ux-plan.md (dung path theo _contract.json, KHONG phai execution-plan.md)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao .mc-data/work/wf-design-ux/checkpoint.json voi schema $schema: design-ux-checkpoint-v1 (tu templates/checkpoint.json)",
+          "type": "file_content"
+        },
+        {
+          "text": "checkpoint.json co cac required fields: trigger, scope, position, progress, systems_state, files_state, next_action",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-design-ux (interface_type = api-only)",
+      "expected_output": "STOP ngay — thong bao skip vi khong co UI, de xuat /wf-plan-modules",
+      "assertions": [
+        {
+          "text": "Detect interface_type = api-only va STOP khong tao bat ky file nao",
+          "type": "behavior"
+        },
+        {
+          "text": "Thong bao ly do skip va de xuat /wf-plan-modules",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-design-ux --resume",
+      "expected_output": "Doc design-ux-status.json, xac dinh phase dang do, tiep tuc tu dung cho",
+      "assertions": [
+        {
+          "text": "Doc .mc-data/work/wf-design-ux/design-ux-status.json truoc khi lam bat cu dieu gi",
+          "type": "behavior"
+        },
+        {
+          "text": "Thong bao resume tu phase nao va system nao",
+          "type": "output_contains"
+        },
+        {
+          "text": "--resume mode: Doc checkpoint.json hoac ux-checkpoint.json de xac dinh completed_phases[], chi chay phases chua completed, khong overwrite files da tao (design-system.md, Navigation-*.md, v.v.)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "thiet ke giao dien cho he thong CRM",
+      "expected_output": "Trigger wf-design-ux du khong dung lenh /wf-design-ux",
+      "assertions": [
+        {
+          "text": "Trigger skill wf-design-ux tu natural language",
+          "type": "behavior"
+        },
+        {
+          "text": "Scope chi system CRM, khong design tat ca systems",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-design-ux (Phase 4 cross-validation phat hien screen ref khong co trong navigation)",
+      "expected_output": "Auto-correction loop phat hien va fix screen references",
+      "assertions": [
+        {
+          "text": "Phase 4 chay validation checks phat hien screen references loi",
+          "type": "behavior"
+        },
+        {
+          "text": "Auto-fix: them missing screen refs vao navigation file",
+          "type": "behavior"
+        },
+        {
+          "text": "STOP sau 3 iterations neu van con loi",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Thiết kế UX cho web app CRM - dashboard, customer list, pipeline board, order form",
+      "expected_output": "Design system (colors, typography, spacing) + Navigation-CRM.md + screen groups cho dashboard/customer-list/pipeline-board/order-form + stakeholder-review.md + ux_design_status='done' trong registry",
+      "assertions": [
+        {
+          "text": "Tao design-system.md co day du: colors (primary, secondary, neutral), typography (font family, sizes, weights), spacing scale, component conventions",
+          "type": "file_content"
+        },
+        {
+          "text": "Tao Navigation-[sys].md voi menu tree, screen groups, va permissions mapping",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group files cho dashboard: wireframe logic, UI-IDs, API endpoints mapping",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group files cho customer list va pipeline board",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group files cho order form voi form fields, validation, submission flow",
+          "type": "file_exists"
+        },
+        {
+          "text": "design-ux-status.json ghi nhan agents da su dung (metrics.agents_spawned[] khong rong, co ten ux-designer hoac cac agent Phase 1-5)",
+          "type": "file_content"
+        },
+        {
+          "text": "Output luu tai .mc-data/docs/phase4-ux/ (dung path)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Update req-registry.json ux_design_status = 'done'; truong design_status, features[], requirements[] khong bi xoa hoac thay doi",
+          "type": "file_content"
+        },
+        {
+          "text": "cross-validation-report.md ton tai tai .mc-data/work/wf-design-ux/ va co noi dung checks (khong rong)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao stakeholder-review.md the hien verdict ro rang (APPROVED/APPROVED_WITH_CONDITIONS/REJECTED) va zero Critical/High PENDING",
+          "type": "file_content"
+        },
+        {
+          "text": "Cuoi skill de xuat /wf-plan-modules",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Design UI cho mobile app (React Native) - home, product list, cart, checkout, profile",
+      "expected_output": "Design system mobile-first + Navigation spec + screen groups cho 5 screens + ux_design_status='done'",
+      "assertions": [
+        {
+          "text": "Tao design-system.md voi mobile-specific conventions: touch targets, safe areas, native components",
+          "type": "file_content"
+        },
+        {
+          "text": "Tao Navigation spec voi bottom tab / stack navigation pattern phu hop React Native",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group cho Home screen: layout, hero content, quick actions",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group cho Product List: list/grid view, filter, search",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group cho Cart va Checkout: form steps, payment flow",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen group cho Profile: user info, settings, logout",
+          "type": "file_exists"
+        },
+        {
+          "text": "design-ux-status.json ghi nhan agents da su dung (metrics.agents_spawned[] khong rong, co ten ux-designer hoac cac agent Phase 1-5)",
+          "type": "file_content"
+        },
+        {
+          "text": "Output luu tai .mc-data/docs/phase4-ux/ (dung path)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Update req-registry.json ux_design_status = 'done'; truong design_status, features[], requirements[] khong bi xoa hoac thay doi",
+          "type": "file_content"
+        },
+        {
+          "text": "cross-validation-report.md ton tai tai .mc-data/work/wf-design-ux/ va co noi dung checks (khong rong)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao stakeholder-review.md the hien verdict ro rang (APPROVED/APPROVED_WITH_CONDITIONS/REJECTED) va zero Critical/High PENDING",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Thiết kế UX cho hệ thống web + mobile - admin web panel + customer mobile app",
+      "expected_output": "Design system chung + 2 Navigation specs (web admin + mobile customer) + screen groups cho ca 2 systems + ux_design_status='done'",
+      "assertions": [
+        {
+          "text": "Tao design-system.md chung cho ca web va mobile, co platform-specific notes",
+          "type": "file_content"
+        },
+        {
+          "text": "Tao Navigation spec rieng cho web admin panel (sidebar/top-nav)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao Navigation spec rieng cho mobile customer app (bottom tab)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen groups cho admin web: cac man hinh quan tri",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao screen groups cho mobile customer: cac man hinh nguoi dung",
+          "type": "file_exists"
+        },
+        {
+          "text": "design-ux-status.json ghi nhan agents da su dung cho tung system (metrics.agents_spawned[] co it nhat 2 entries cho 2 systems)",
+          "type": "file_content"
+        },
+        {
+          "text": "Output luu tai .mc-data/docs/phase4-ux/[sys]/ cho tung system (path phan tach dung per system)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Update req-registry.json ux_design_status = 'done'; truong design_status, features[], requirements[] khong bi xoa hoac thay doi",
+          "type": "file_content"
+        },
+        {
+          "text": "cross-validation-report.md ton tai tai .mc-data/work/wf-design-ux/ va cover ca 2 systems",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao stakeholder-review.md tong hop ca 2 systems, the hien verdict va zero Critical/High PENDING",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-design-ux (LEGACY_MODE=true, interface_type=web, du an co san React+Tailwind frontend, 3 systems)",
+      "expected_output": "Phase 0.5 extract UI context (existing screens, design tokens, libraries) → existing-ui-analysis.md + screen-inventory.md + design-tokens-baseline.md + ux-implementation-gap.md → Phase 1-7 thiet ke dua tren UI hien co + registry updated",
+      "assertions": [
+        {
+          "text": "Detect LEGACY_MODE=true (project-context.md > 500 bytes) va chay Phase 0.5 truoc Phase 1",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao .mc-data/docs/phase4-ux/existing-ui-analysis.md voi noi dung frontend tech stack va component inventory",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao .mc-data/docs/phase4-ux/[system]/screen-inventory.md cho it nhat 1 system",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tao .mc-data/docs/phase4-ux/design-tokens-baseline.md voi tokens trich xuat tu Tailwind/React code",
+          "type": "file_content"
+        },
+        {
+          "text": "Tao .mc-data/work/legacy-scan/ux-implementation-gap.md voi danh sach UX gaps",
+          "type": "file_exists"
+        },
+        {
+          "text": "Design system (Phase 1) su dung design tokens trich xuat tu code hien co, khong tao tu dau",
+          "type": "file_content"
+        },
+        {
+          "text": "Legacy decisions (DEPRECATE modules) duoc enforce — khong tao UI cho deprecated modules",
+          "type": "behavior"
+        },
+        {
+          "text": "Update req-registry.json ux_design_status = 'done'; cac truong khong bi thay doi",
+          "type": "file_content"
+        },
+        {
+          "text": "Tao .mc-data/work/legacy-scan/ux-checkpoint.json cho resume fallback (LEGACY only)",
+          "type": "file_exists"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

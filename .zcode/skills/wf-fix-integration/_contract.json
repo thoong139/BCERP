@@ -1,0 +1,169 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-integration",
+  "version": "1.9.0",
+  "phase": "lane",
+  "description": "QD10 Cross-Module Integration Lane — phat hien loi tich hop giua cac modules: cross-module reference drift, API contract violations, event handler coverage gaps, orphan FK references, multi-platform entity sync issues, cache staleness, state machine errors, business flow violations, authorization matrix missing guards, frontend-backend coverage gaps. v1.9 (2026-05-11): added P-QD10-frontend-backend-coverage (W6.1, v9.1) — bidirectional FE↔BE endpoint-consumer gap detection (3 signal types: backend_endpoint_no_frontend_consumer, frontend_api_call_no_backend_handler, frontend_form_no_backend_handler). 11 probes total (10 active + _shared). Profile gating: quick=SKIP, standard=4 static (incl. fe-be-coverage), deep=+2 runtime, exhaustive=+5 (cache-staleness opt-in + state-machine-correctness + business-flow-runtime + auth-matrix-check).",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Set by orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay. quick=SKIP, standard=3 static probes (W2.2-W2.4), deep=+3 runtime probes (W3.1-W3.3), exhaustive=+4 (cache-staleness opt-in + state-machine-correctness + business-flow-runtime — all active)."
+    },
+    {
+      "name": "--pair",
+      "type": "string",
+      "required": false,
+      "description": "Filter cross-module pair: MODULE_A-MODULE_B (e.g. CRM-QUOTATION). Neu khong set, chay tat ca pairs trong cross_module_dependencies."
+    },
+    {
+      "name": "--test-cache-sync",
+      "type": "flag",
+      "required": false,
+      "description": "Opt-in flag de chay P-QD10-cache-staleness-probe. Moc dinh OFF vi co side effect (mutation). Chi co hieu luc trong exhaustive profile."
+    }
+  ],
+  "procedure": [
+    "procedures/pre-gate.md",
+    "procedures/post-gate.md",
+    "procedures/probes/_shared.md",
+    "procedures/probes/P-QD10-cross-module-ref-static.md",
+    "procedures/probes/P-QD10-api-contract-drift.md",
+    "procedures/probes/P-QD10-event-handler-coverage.md",
+    "procedures/probes/P-QD10-orphan-reference-runtime.md",
+    "procedures/probes/P-QD10-multi-platform-entity-sync.md",
+    "procedures/probes/P-QD10-cache-staleness-probe.md",
+    "procedures/probes/P-QD10-state-machine-correctness.md",
+    "procedures/probes/P-QD10-business-flow-runtime.md",
+    "procedures/probes/P-QD10-auth-matrix-check.md",
+    "procedures/probes/P-QD10-frontend-backend-coverage.md"
+  ],
+  "procedure_planned": [],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). WRITE toàn bộ bởi static probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime probe signals (signal-v2). APPEND bởi runtime probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/llm-scan/signals.json",
+        "required": false,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). WRITE toàn bộ bởi LLM probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/QD10-integration-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report. Cross-module drift summary: pairs analyzed, signals by severity, probe coverage. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output (JSONL). Schema diffs, import analysis, DB query results, API response comparisons."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/cross-module-map.json",
+        "required": false,
+        "template": null,
+        "notes": "Cross-module dependency map built from registry + static analysis. Format: {pairs: [{consumer, provider, entity, binding_type, status: ok|drift|missing}]}. QD10 internal coordination."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD10 Lane KHONG ghi req-registry.json. Role: NONE.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD10 trong selected_dims AND cross_module_dependencies[] khong rong",
+      "receives": [
+        "--session-dir",
+        "--profile",
+        "--pair",
+        "--test-cache-sync"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD10 complete hoac SKIP",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/QD10-integration-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/",
+        ".mc-data/docs/phase3-architecture/state-machines/",
+        ".mc-data/docs/phase3-architecture/business-flows/",
+        ".mc-data/docs/phase3-architecture/auth-matrix/"
+      ],
+      "wf-fix-runtime-health": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/flow-unreliable.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/dev-server-state.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/auth-session.json"
+      ]
+    }
+  }
+}

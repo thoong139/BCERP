@@ -1,0 +1,47 @@
+{
+  "$schema": "fix-status-v2",
+  "_template_notes": "fix-status.json — SSOT for the entire wf-fix-bugs v10.10.0 pipeline. Set by Phase 1, read by all phases. Schema: fix-status-v2.",
+  "session_id": "{{SESSION_ID}}",
+  "pipeline_status": "running",
+  "project_name": "{{PROJECT_NAME}}",
+  "profile": "{{PROFILE}}",
+  "scope": "{{SCOPE}}",
+  "name": "{{NAME}}",
+  "legacy_mode": false,
+  "dry_run": false,
+  "llm_scan": false,
+  "show_browser": false,
+  "no_browser": false,
+  "mobile_mode": false,
+  "mobile_device": "iPhone 14",
+  "interface_type": "{{INTERFACE_TYPE}}",
+  "ci_tools": {
+    "gitnexus_available": false,
+    "serena_available": false,
+    "index_freshness": "ok"
+  },
+  "playwright": {
+    "mode": "headless",
+    "show_browser": false,
+    "devices": [],
+    "base_url": ""
+  },
+  "dimensions": [],
+  "phases": {
+    "phase1": {"status": "in_progress", "started_at": "", "completed_at": ""},
+    "phase2": {"status": "pending", "started_at": "", "completed_at": ""},
+    "phase3": {"status": "pending", "started_at": "", "completed_at": ""},
+    "phase4": {"status": "pending", "started_at": "", "completed_at": ""},
+    "phase5": {"status": "pending", "started_at": "", "completed_at": ""},
+    "phase6": {"status": "pending", "started_at": "", "completed_at": ""},
+    "phase7": {"status": "pending", "started_at": "", "completed_at": ""}
+  },
+  "cdg_decisions": [],
+  "cdg_reject_counts": {},
+  "errors": [],
+  "signals_total": 0,
+  "issues_total": 0,
+  "fixed_total": 0,
+  "started_at": "{{STARTED_AT}}",
+  "updated_at": "{{STARTED_AT}}"
+}

@@ -1,0 +1,27 @@
+{
+  "_template_notes": "Seed report schema seed-report-v1. Ghi bởi Phase 1.5.",
+  "$schema": "seed-report-v1",
+  "session_id": "",
+  "feat_id": "",
+  "seeded_at": "",
+  "seed_command": "",
+  "entities_seeded": [
+    {
+      "entity": "",
+      "table": "",
+      "records_before": 0,
+      "records_after": 0,
+      "delta": 0,
+      "min_required": 0,
+      "status": "ok|insufficient|skipped"
+    }
+  ],
+  "snapshot_path": "",
+  "guard_results": {
+    "g1_env_check": "ok|blocked",
+    "g2_idempotent_check": "ok|warn|blocked",
+    "g3_backup": "ok|skipped"
+  },
+  "status": "completed|failed|blocked",
+  "audit_chain": ""
+}

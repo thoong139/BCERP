@@ -1,0 +1,103 @@
+{
+  "skill": "wf-e2e-retest",
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "TC-F5-001",
+      "name": "Scan + retest 12 pending items, default Playwright",
+      "input": {
+        "command": "/wf-e2e-retest FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1900",
+        "context": "Reports có 8 PENDING + 4 SKIP. issues.json có 0 fixed cần retest. Playwright + FE running."
+      },
+      "expected_behavior": [
+        "Scan → 12 pending items (UI: 4, code:api: 3, code:db: 2, integration: 2, scenario: 1)",
+        "Acquire browser-mcp.lock cho UI items",
+        "Execute Playwright cho UI items",
+        "Execute curl/psql cho code items",
+        "Update reports: 12 rows PASS/FAIL filled",
+        "Write retest-log.md với tổng 12 results",
+        "Release lock"
+      ],
+      "assertions": [
+        "grep -cE 'PENDING|SKIP|⬜' reports — giảm về 0 (hoặc gần 0)",
+        "test -f retest-log.md",
+        "grep -c 'PASS\\|FAIL' retest-log.md >= 12"
+      ]
+    },
+    {
+      "id": "TC-F5-002",
+      "name": "FE/Playwright không chạy → MANDATORY auto-start, fail → ESCALATE Nhóm 2",
+      "input": {
+        "command": "/wf-e2e-retest FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2000",
+        "context": "UI items cần retest. FE chưa chạy. Auto-start fail sau 2 retry (vd: port conflict không tự giải được)."
+      },
+      "expected_behavior": [
+        "PRE-GATE T4 gọi ensure_infrastructure_running fe — retry 2 lần",
+        "Cả 2 retry fail → capture diagnose log",
+        "GHI block-test.json: BLK-NNN status=blocked, blocking_reason=fe_not_running, Nhóm 2",
+        "ESCALATE AskUserQuestion: Retry / Manual start / Cancel — KHÔNG fallback static",
+        "KHÔNG advance retest, KHÔNG ghi PASS cho UI items"
+      ],
+      "assertions": [
+        "jq '[.blocked_tests[] | select(.blocking_reason==\"fe_not_running\")] | length' block-test.json >= 1",
+        "test -f F5-retest/diagnose-fe.log",
+        "ls $SCREENSHOTS/retest-*.png — không có (escalated, không chạy)",
+        "grep -v 'no-playwright' retest-log.md"
+      ]
+    },
+    {
+      "id": "TC-F5-005",
+      "name": "Item Nhóm 4 (visual_inspection) → cho phép static re-verify",
+      "input": {
+        "command": "/wf-e2e-retest FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2300",
+        "context": "manual.json có MAN-001 với manual_reason=visual_inspection, code_verification.result=PASS. Retest cần re-verify code không regress."
+      },
+      "expected_behavior": [
+        "Detect item thuộc Nhóm 4 từ manual.json",
+        "Cho phép Serena re-verify component code (cập nhật code_verification trong manual.json)",
+        "Update block-test: status=resolved, retest_result=SKIPPED, note='Nhóm 4 special case'",
+        "KHÔNG ghi PASS test runtime"
+      ],
+      "assertions": [
+        "jq '.entries[] | select(.id==\"MAN-001\") | .code_verification.verified_at' manual.json — updated",
+        "jq '[.blocked_tests[] | select(.related_manual_id==\"MAN-001\" and .retest_result==\"SKIPPED\")] | length' block-test.json >= 1"
+      ]
+    },
+    {
+      "id": "TC-F5-003",
+      "name": "CORE-039: update issues.json sau retest",
+      "input": {
+        "command": "/wf-e2e-retest FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2100",
+        "context": "issues.json có 5 signals status=fixed retest_count=0 (vừa được F6 fix)."
+      },
+      "expected_behavior": [
+        "Retest 5 signals → 4 PASS, 1 FAIL (regression)",
+        "Update issues.json: 4 signals retest_count=1 + retest_result=PASS + giữ status=fixed",
+        "1 signal retest_count=1 + retest_result=FAIL + revert status=open",
+        "Update last_updated"
+      ],
+      "assertions": [
+        "jq '[.signals[] | select(.retest_count > 0)] | length' issues.json == 5",
+        "jq '[.signals[] | select(.retest_result==\"FAIL\" and .status==\"open\")] | length' issues.json == 1",
+        "jq '[.signals[] | select(.retest_result==\"PASS\" and .status==\"fixed\")] | length' issues.json == 4"
+      ]
+    },
+    {
+      "id": "TC-F5-004",
+      "name": "New issue from retest → APPEND issues.json",
+      "input": {
+        "command": "/wf-e2e-retest FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2200",
+        "context": "Retest UI item phát hiện regression mới (vd: button text changed broke flow)."
+      },
+      "expected_behavior": [
+        "Retest detect FAIL với new error not previously logged",
+        "APPEND issues.json: ISS-NNN type=ui-runtime, severity=medium, discovered_by_skill=wf-e2e-retest",
+        "retest-log.md có section 'New Issues Discovered'"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.discovered_by_skill==\"wf-e2e-retest\")' issues.json — non-empty",
+        "grep 'New Issues' retest-log.md"
+      ]
+    }
+  ]
+}

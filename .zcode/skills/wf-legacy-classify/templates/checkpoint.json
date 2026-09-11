@@ -1,0 +1,85 @@
+{
+  "$schema": "legacy-classify-checkpoint-v1",
+  "checkpoint_id": "CP-CLASSIFY-YYYYMMDD-NNN",
+  "skill_id": "wf-legacy-classify",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | user_request | batch_complete | error | force",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "batch_completed": null,
+    "error_details": null
+  },
+
+  "scope": {
+    "project_name": "[PROJECT_NAME]",
+    "maturity_mode": "full | delta | skip",
+    "maturity_level": "FULL | DOCS_ONLY | EARLY_PROTOTYPE | PARTIAL",
+    "docs_only_mode": false
+  },
+
+  "position": {
+    "current_phase": "phase2-classify",
+    "current_phase_name": "Classify Batch Loop",
+    "current_batch": 0,
+    "next_phase": null,
+    "next_action": "Resume từ batch N+1"
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "current_phase_progress_pct": 0,
+    "total_batches": 0,
+    "completed_batches": 0,
+    "items_classified": 0,
+    "total_items": 0,
+    "coverage_pct": 0
+  },
+
+  "state": {
+    "batch_size": 100,
+    "batch_offset": 0,
+    "inventory_file": ".mc-data/work/legacy-scan/inventory/source-files.json",
+    "existing_modules": [],
+    "new_modules_log": [],
+    "naming_fixes_count": 0
+  },
+
+  "files_state": {
+    "batch_files_completed": [],
+    "batch_files_pending": [],
+    "glossary_created": false,
+    "naming_fixes_applied": false
+  },
+
+  "next_action": {
+    "description": "Resume Phase 2 từ batch N+1",
+    "phase": "phase2-classify",
+    "batch": 0,
+    "context_needed": [
+      ".mc-data/work/legacy-scan/ledger.json",
+      ".mc-data/work/legacy-scan/inventory/source-files.json",
+      ".mc-data/work/legacy-scan/classified/batch-*.json"
+    ]
+  },
+
+  "resume_instructions": {
+    "command": "/wf-legacy-classify --resume",
+    "files_to_read": [
+      ".mc-data/work/legacy-scan/ledger.json",
+      ".mc-data/work/legacy-scan/legacy-scan-status.json",
+      ".mc-data/work/legacy-scan/checkpoint.json",
+      ".mc-data/work/legacy-scan/classified/batch-*.json (existing)"
+    ],
+    "context_recovery": [
+      "Read checkpoint.json for state restoration",
+      "Reconcile actual_batches từ disk count",
+      "Compute first_missing_batch (batch nhỏ nhất chưa có trên disk)",
+      "Continue Phase 2 từ first_missing_batch"
+    ]
+  },
+
+  "notes": null
+}

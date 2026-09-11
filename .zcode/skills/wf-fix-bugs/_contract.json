@@ -1,0 +1,981 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-bugs",
+  "version": "10.18.0",
+  "phase": "orchestrator",
+  "description": "Orchestrator fix bugs — 7-phase pipeline: Init → Scan → Plan → Find Bugs → Triage → Execute → Verify. Dimension-based lane dispatch (QD1-QD11) với CI-first (GitNexus + Serena qua Protocol 20) và Playwright (headless/visible/mobile). v10.18.0 (2026-05-16): Phase 4 lazy-load split (Session 4 rollout, FINAL phase — pattern T6 fully validated qua TOÀN BỘ 6 phase optimizable 1/3/4/5/6/7) — phase4-find-bugs.md (782 dòng, phase phức tạp nhất pipeline) tách thành 142-dòng index + 8 group files trong phase4-find-bugs/ (A-pregate-setup 118 dòng Steps 4.1+4.2 setup-lanes.sh, B-browser-cdg 130 dòng Step 4.3 INLINE AskUserQuestion E090 Missing URL + E090b BASE_URL Conflict multi-session safety, C-create-lanes 100 dòng Step 4.4 create-lane-dirs.sh mkdir 5 subdirs/lane + lane-status.json template populate CORE-031, D-render-verify 164 dòng Step 4.5 render template substitution Bảng Substitution + FORBIDDEN PATTERNS + Step 4.6 verify-lane-prompt.sh 6 check points C1-C6 chống fantasy prompt, E-dispatch 158 dòng Step 4.5 PARALLEL N×Agent({subagent_type:\"claude\", model:\"opus\"}) trong MỘT response duy nhất CORE-025 max 10 concurrent — Playwright lanes TỰ acquire writer-lock playwright qua Protocol 22 global-rw-lock.sh KHÔNG split Wave, F-monitor-validate 137 dòng Step 4.7 monitor-lanes.sh poll 30s + lane timeout 15min E046 + context budget CORE-038 tier <65/65-80/80-90/>90% E009 + validate-lane-outputs.sh POST-GATE T1-T4 với E043 stub generation/E047 inconsistency detection/E048 invalid signal logging, G-report-finalize 156 dòng Steps 4.8+4.9 generate-phase4-report.sh tạo Phase4-report.md ≤15 dòng tiếng Việt CORE-028 + phase4-summary.json schema phase4-summary-v1 CORE-036 cross-skill artifact + finalize-phase4.sh SPECIAL CASE GIỮ aggregation logic specific signals_total từ 3 streams × N lanes filesystem scan + lanes_completed/failed từ lane-status.json + probe_failures từ log — KHÔNG migrate sang shared phase-finalize.sh do generic chỉ hỗ trợ static PHASE_TOP_FIELDS merge, pattern giống Phase 7 finalize-phase7.sh, POST-GATE 141 dòng T1-T4 với CORE-036 phase4-summary-v1 schema + audit_chain sha256 64-char checksum verification). Smoke test phase4-routing-smoke-test.sh (51/51 PASS, 7 categories — extra Check 7 EXTRA Phase 4-specific PARALLEL Dispatch pattern verification: MANDATORY DISPATCH PROTOCOL banner + Single-Response Parallel Dispatch requirement + max 10 concurrent limit CORE-025 + subagent_type=\"claude\" enforcement CORE-037). Cross-phase smoke tests: 254 checks PASS, 0 regression (Phase 1: 42, Phase 3: 35, Phase 4: 51, Phase 5: 42, Phase 6: 40, Phase 7: 44). Critical preservation Phase 4: Step 4.3 Browser CDG E090/E090b INLINE AskUserQuestion x2 (missing URL + multi-session URL conflict), Step 4.5 PARALLEL Agent spawn INLINE N×Agent({subagent_type:\"claude\", model:\"opus\"}) trong MỘT response duy nhất max 10 concurrent CORE-025 — Playwright lanes TỰ acquire writer-lock playwright qua Protocol 22 global-rw-lock.sh, Step 4.9 finalize-phase4.sh GIỮ SPECIAL CASE (KHÔNG migrate sang shared phase-finalize.sh do aggregation logic specific). Step numbering Phase 4 v10.6 gaps PRESERVED (4.3 merged 4.2, 4.7 merged 4.6, 4.10 merged 4.9). Phase 2 grandfathered (5 steps, <300 dòng — không cần T6 split). ROLLOUT-PLAN v10.15 COMPLETED. v10.17.0 (2026-05-16): Phase 5 + Phase 7 lazy-load split (Session 3 rollout) — phase5-triage.md (648 dòng) → 135-dòng index + 8 group files (A-setup, B-aggregate, C-cdg-critical INLINE CDG, D-spawn-triage INLINE Agent CORE-037, E-validate-handoff POST-GATE+CDG, F-safety-check INLINE CDG blocker, G-reports-finalize migrate phase-finalize.sh, POST-GATE T1-T4). phase7-verify.md (657 dòng) → 120-dòng index + 8 group files (A-setup, B-cqg1 SKIP-if-E005, C-cqg2-cdg INLINE CDG REJECT 145 dòng structured fix-log check v10.10.0, D-mobile-dashboard, E-reports với CORE-038 context budget check, F-finalize giữ finalize-phase7.sh special case, G-todowrite-display ORCH UI tools, POST-GATE T1-T5 với CORE-036 fix-impact-v1 schema + audit_chain sha256 64-char). 2 smoke tests mới phase5-routing-smoke-test.sh (42/42 PASS, 5 categories) + phase7-routing-smoke-test.sh (44/44 PASS, 6 categories — extra check cross-skill artifact). Cross-phase verify: 203 checks PASS (Phase 1: 42, Phase 3: 35, Phase 5: 42, Phase 6: 40, Phase 7: 44), 0 regression. Critical preservation Phase 5: Step 5.4 CDG critical (CONTINUE/ABORT), Step 5.5 Agent({subagent_type:'claude', model:'opus'}) wf-fix-triage spawn (CORE-037), Step 5.7 CDG Pre-Execute (ACCEPT/REJECT/CANCEL anti-loop REJECT 2 lần→E054), Step 5.8 CDG blockers safety (REJECT 2 lần→ESCALATE). Phase 7: Step 7.3 CQG-2 CDG REJECT QD9/QD10 + structured fix-log check v10.10.0 (count fixed PER DIMENSION từ fix-log.json — chống fragile grep-keyword false PASS), Steps 7.7-7.8 TodoWrite + Completion Display ORCH UI (KHÔNG script được). Phase 5 Step 5.10 migrate sang shared phase-finalize.sh (finalize-phase5.sh giữ backward-compat). Phase 7 Step 7.6 GIỮ finalize-phase7.sh special case do (1) pre-finalize pipeline_status=DONE ở Step 7.5 cho CORE-036 audit_chain integrity, (2) dual-write global trace .mc-data/work/_trace/session-log.json CORE-026. Per-group context ~500-1400 tokens vs cũ 6-7K monolithic = -85% initial load. Pattern T6 fully validated qua 5 phases (1, 3, 5, 6, 7) — chỉ còn Phase 4 (~3-4h) cho Session 4. v10.0.0 (2026-05-13): thiết kế lại toàn bộ kiến trúc — SKILL.md ~350 dòng lean routing hub (không code), 9 procedure files (8 phase + resume-status), 32 templates (mọi output CORE-031), 7 Phase reports (Phase1-report.md → Phase7-report.md), 11 Agent reports (QD1-QD11), namespaced error codes (10 ranges E001-E109). CI PRE-GATE Na/Nb/Nc (Protocol 20 §20.8), CI-ROUTE matrix với graceful degradation Grep/Glob. Playwright 3 modes: headless (default), --show-browser (visible), --mobile (device emulation: iPhone 14, Pixel 7, iPad Pro). Phase 4 PARALLEL max 10 agents (CORE-025). v10.2.0 (2026-05-14): cố định Phase 4 lane dispatch chống fantasy prompt — tách Lane Agent Prompt thành file template canonical templates/phase4-find-bugs/lane-agent-prompt.md (placeholder {{VAR}} convention §10), bổ sung Bảng Substitution + FORBIDDEN PATTERNS + Step 4.5a Pre-Dispatch Verify (6 check points: role declaration, unresolved placeholders, 8 BƯỚC presence, 5 shared protocol refs, output naming, tiếng Việt). _shared.md §15 trở thành pointer ngắn. v10.3.0 (2026-05-16): Phase 1 optimization — 25→18 steps, procedure file 1503→~1000 dòng, ~28K→~10K tokens (-65%). Architectural changes: (1) CI PRE-GATE Na/Nb/Nc gộp thành 1 wrapper script `scripts/wf-fix-bugs/ci-pregate.sh` (delete Steps 1.5, 1.6). (2) State files (fix-status, session-log, error-ledger, Phase1-report) populate qua 1 script `scripts/wf-fix-bugs/init-session-state.sh` (delete Steps 1.20, 1.21). (3) Bug dashboard init delegate sang `scripts/wf-fix-bugs/init-bug-dashboard.sh` implements `_shared.md §19` pattern. (4) CDG just-in-time: E090/E090b moved Phase 1 → Phase 4 Step 4.3a (chỉ khi PW_LANE_COUNT > 0); E091/E092/E093 auto-resolve hoặc WARN log (no CDG); E100 deleted (duplicate Phase 3 ISG Recommender). (5) Step 1.16b giờ chỉ là stub init empty cdg-tokens.json. v10.4.0 (2026-05-16): Phase 2 optimization — 10→5 steps (-50%), procedure 874→~345 dòng, ~8.4K→~3.5K tokens (-59%). Architectural changes: (1) Steps 2.3-2.7 (Interface Detection + Code Inventory + Doc Inventory + Scope Analysis + WRITE 3 JSON outputs) gộp thành 1 atomic call wrapper script `scripts/wf-fix-bugs/scan-and-analyze.sh` (458 dòng). Output JSON cho orchestrator eval — interface_type, total_files, frameworks, etc. (2) Step 2.9 Phase Report delegate sang `scripts/wf-fix-bugs/generate-phase2-report.sh` (107 dòng) — fix bug v10.3: template Phase2-report.md trước đây không được sử dụng (inline heredoc thay vì READ→POPULATE→WRITE qua sed); v10.4 đúng CORE-031. (3) Step 2.8 (TRACE CHECKPOINT) deleted — dead code, không phase downstream nào đọc CHECKPOINT event. (4) Step 2.10 bổ sung update `fix-status.json.interface_type` để Phase 3+ truy cập trực tiếp. (5) Step numbering giữ gaps 2.4-2.8 (đã merge vào 2.3, hoặc deleted) tránh churn cross-refs. Solves /compact loop trên large projects (vd: EUREKA-2026). v10.5.0 (2026-05-16): Phase 3 optimization — 12→7 steps (-42%), procedure 1135→502 dòng (-56%), ~10.93K→~5.24K tokens (-52%). Architectural changes: (1) Steps 3.3-3.4 (ISG Recommender + Partition Planner) gộp thành Step 3.3 'ISG + Partition' → 1 atomic call wrapper script `scripts/wf-fix-bugs/plan-isg-partition.sh` (138 dòng). Output JSON cho orchestrator eval — refined_dims, refined_profile, dim_count, workload_count, total_estimated, isg_status, partition_status. Auto-fallback E030/E032 đã handle. (2) Steps 3.6-3.9 (Agent Dispatch Threshold + Playwright Planning + Dim→Lane Routing 11 dims + WRITE work-plan + dimension-plan) gộp thành Step 3.6 'Route + Write Outputs' → 1 atomic call wrapper script `scripts/wf-fix-bugs/route-and-write.sh` (251 dòng). Auto-detect Playwright mode (none/headless/visible/mobile), validate unique output_dir (CORE-025), profile-based probe adjustment (quick÷2, deep×1.5, exhaustive×2), Atomic Write Pattern (CORE-031). (3) Steps 3.11-3.12 (UPDATE fix-status + TRACE COMPLETE) gộp thành Step 3.11 'Finalize'. (4) Step 3.10 Phase Report delegate sang `scripts/wf-fix-bugs/generate-phase3-report.sh` (115 dòng) — fix CORE-031 bug (trước v10.5 dùng inline heredoc thay vì READ→POPULATE→WRITE qua sed, giống Phase 2 v10.4 bug fix). (5) Step 3.5 Workload Gate CDG-11 GIỮ INLINE (user interaction qua AskUserQuestion — không delegate sang script). (6) Step numbering giữ gaps 3.4, 3.7-3.9, 3.12 (đã merge hoặc deleted) tránh churn cross-refs trong _shared.md, SKILL.md, các phase khác. Pre-existing Python CLI bug note: `python -m isg` (cần subcommands analyze/render/enforce/emit) và `python -m partition` (cần --items-file/--group-key) không khớp call args trong plan-isg-partition.sh — luôn rơi vào fallback. Fix CLI alignment defer sang phiên riêng (out of scope optimize). v10.6.0 (2026-05-16): Phase 4 optimization — 12→9 steps (-25%), procedure 1106→740 dòng (-33%), ~15.65K→~8.56K tokens (-45%). Architectural changes: (1) Steps 4.2-4.3 (TRACE START + Load PW Metadata) gộp thành Step 4.2 \"Init + Load PW Metadata\" → 1 atomic call wrapper script scripts/wf-fix-bugs/setup-lanes.sh. Emit JSON với dims_array (slug QD{n}-{kebab-name}) + pw_lane_count. (2) Steps 4.6-4.7 (Monitor Loop + Collect & Validate T1-T4) gộp thành Step 4.6 → 2 sequential script calls monitor-lanes.sh + validate-lane-outputs.sh. Monitor poll 30s + lane timeout 15min (E046) + context budget CORE-038 (tier <65/65-80/80-90/>90% E009). Validate POST-GATE T1-T4 với E043 stub generation, E047 inconsistency detection, E048 invalid signal logging. (3) Steps 4.9-4.10 (Update fix-status + TRACE COMPLETE) gộp thành Step 4.9 \"Finalize\" → finalize-phase4.sh. (4) Step 4.4 Create Lane Dirs delegate sang create-lane-dirs.sh (FOR loop mkdir 5 subdirs + lane-status.json template populate, CORE-031). (5) Step 4.5a 6 check points delegate sang verify-lane-prompt.sh — PRESERVE 6 check semantics (v10.2 fantasy-prompt guard), chỉ delegate execution. (6) Step 4.8 Phase Report delegate sang generate-phase4-report.sh (CORE-031 sed populate, giống Phase 2/3). (7) Step 4.3a Browser CDG (E090/E090b) GIỮ INLINE (user interaction qua AskUserQuestion — không delegate, giống Phase 3 v10.5 CDG-11 Workload Gate). (8) Step 4.5 Dispatch Lane Agents GIỮ orchestrator-side (Agent tool calls không script được — CORE-037). (9) Step numbering giữ gaps 4.3, 4.7, 4.10 (đã merge) tránh churn cross-refs trong _shared.md, SKILL.md, các phase khác. 7 scripts mới tổng ~35KB. v10.7.0 (2026-05-16): Phase 5 optimization — 15→10 steps (-33%, phase nhiều steps nhất pipeline), procedure 1039→616 dòng (-41%), ~10.73K→~5.77K tokens (-46%). Architectural changes: (1) Steps 5.1-5.2 (PRE-GATE + E005 healthy + TRACE START) gộp thành Step 5.1 \"Setup Triage\" → 1 atomic call wrapper script scripts/wf-fix-bugs/setup-triage.sh. Emit JSON với total_signals + per-stream breakdown + e005_healthy flag (exit 5 = E005 path). (2) Steps 5.3-5.4 (Signal Aggregation + CORE-029 Spot-Check) gộp thành Step 5.3 \"Aggregate + Spot-Check\" → aggregate-and-spot-check.sh. Try Python -m aggregate first, fallback jq merge dedup by fingerprint. Sample 3 random issues validate lane/probe_id/fingerprint required fields. (3) Step 5.5 PI1-PI5 Process Integrity delegate sang process-integrity-check.sh. Atomic write process-violations.json từ template (CORE-031). 5 checks: PI1 step completeness, PI2 empty result recording, PI3 signal overwrite detection (CORE-025 1 file = 1 writer), PI4 dimension execution completeness, PI5 cross-source consistency. (4) Step 5.8 POST-GATE T1-T4 delegate sang validate-triage-outputs.sh (T1 file existence, T2 structure, T3 content depth ≥10/15 lines, T4 cross-ref). (5) Step 5.10 CORE-020 Safety Check delegate sang safety-check.sh — 4 checks: collision detection (fix-plan files vs code), xref validation (REQ-IDs trong registry), uncommitted changes (git diff), deprecated modules CORE-022 (LEGACY_MODE only). (6) Steps 5.11-5.12-5.13 (Coverage + Dashboard + Phase5-report) gộp thành Step 5.11 \"Reports\" → generate-phase5-reports.sh. 3 reports từ template (CORE-031). bug-dashboard.md inline fallback matches v10.6 behavior. (7) Steps 5.14-5.15 (Update fix-status + TRACE COMPLETE) gộp thành Step 5.14 \"Finalize\" → finalize-phase5.sh. (8) Step 5.6 Evaluate CDG critical + Step 5.9 CDG Pre-Execute Handoff GIỮ INLINE (user interaction qua AskUserQuestion — không delegate). (9) Step 5.7 Spawn wf-fix-triage GIỮ orchestrator-side (Agent tool call CORE-037 không script được). 7 scripts mới tổng ~37KB. Cross-platform fixes: bc absent Git Bash → awk fallback, grep -c | tr -d \"\r\" chống \"0\n0\" corruption. Step numbering giữ gaps 5.2, 5.4, 5.12, 5.13, 5.15 (đã merge hoặc deleted) tránh churn cross-refs. v10.8.0 (2026-05-16): Phase 6 optimization — 11→7 steps (-36%), procedure 968→581 dòng (-40%), ~10.81K→~5.71K tokens (-47%). Architectural changes: (1) Steps 6.1-6.2 (PRE-GATE + CDG verify + TRACE START) gộp thành Step 6.1 \"Setup Execute\" → 1 atomic call wrapper script scripts/wf-fix-bugs/setup-execute.sh (verify Phase 5 completed + tất cả CDG tokens accepted + fix-plan/issue-registry non-empty + atomic update phase6=in_progress). (2) Step 6.3 dry-run preview delegate sang dry-run-preview.sh (render fix-report preview với issues table + estimated impact + atomic update fix-status phase6=completed dry_run nếu DRY_RUN=true, exit 5 = E_DRY_RUN_DONE để orchestrator STOP pipeline). (3) Steps 6.6-6.7-6.7b (POST-GATE T1-T4 + Verify Counts + Git Diff + Update Dashboard) gộp thành Step 6.7 \"Validate + Verify + Dashboard\" → verify-execute-outputs.sh (T1 file exist, T2 markdown headers, T3 docs-sync JSON valid, T4 fix-result keywords + extract Fixed/Deferred/Failed counts từ fix-report.md regex multi-format + git diff stat/files + regenerate bug-dashboard inline). (4) Step 6.8 Phase6-report delegate sang generate-phase6-report.sh (CORE-031 sed populate template — populate Fixed/Deferred/Failed + Files/Docs synced + Sub-skill outputs valid indicators ✓/✗). (5) Steps 6.9-6.10 (Update fix-status + TRACE COMPLETE) gộp thành Step 6.9 \"Finalize\" → finalize-phase6.sh. (6) Step 6.4 CI-ROUTE Pre-Execution Impact Analysis GIỮ INLINE (Fast/Slow Path detection + GitNexus impact() tool calls + CDG render AskUserQuestion cho HIGH/CRITICAL risk targets — user-facing decision phải INLINE). (7) Step 6.5 Spawn wf-fix-execute GIỮ orchestrator-side (Agent tool call CORE-037 — Phase 6 delegate). 5 scripts mới tổng ~28KB. Step numbering giữ gaps 6.2, 6.7b, 6.9, 6.10 (đã merge) tránh churn cross-refs. v10.9.0 (2026-05-16): Phase 7 optimization — 14→8 steps (-43%), procedure 1186→601 dòng (-49% — phase dài nhất pipeline trước v10.9), ~11.96K→~5.77K tokens (-52%). Architectural changes: (1) Steps 7.1-7.2 (PRE-GATE + E005 detect + TRACE START) gộp thành Step 7.1 \"Setup Verify\" → 1 atomic call wrapper script scripts/wf-fix-bugs/setup-verify.sh (Forensic content check + route detection normal vs e005_skip). (2) Step 7.3 CQG-1 Numeric Verification delegate sang cqg1-numeric.sh (extract expected metrics từ fix-plan.md + actual từ fix-report.md multi-format regex, calculate worst-case deviation, threshold 5% default — E005 skip path). (3) Steps 7.5-7.5b (Mobile Gate + Finalize Bug Dashboard) gộp thành Step 7.5 \"Mobile + Dashboard\" → finalize-dashboard.sh (Mobile gate WARN E045 only nếu MOBILE_MODE=true, dashboard branch theo E005_HEALTHY: healthy template vs final metrics). (4) Steps 7.6-7.7-7.8-7.9 (orchestrator-summary + fix-impact.json + phase-summary + Phase7-report) gộp thành Step 7.6 \"Generate 4 Reports\" → generate-phase7-reports.sh (4 outputs từ templates CORE-031: orchestrator-summary tiếng Việt ≤40 dòng + fix-impact.json schema fix-impact-v1 với sha256 audit_chain CORE-036 cross-skill artifact + phase-summary inline gộp 7-phase head 8 dòng + Phase7-report tiếng Việt ≤15 dòng CORE-028). (5) Steps 7.10-7.11 (Pipeline DONE + TRACE COMPLETE) gộp thành Step 7.10 \"Finalize\" → finalize-phase7.sh (atomic update fix-status pipeline_status=DONE + APPEND COMPLETE event + dual-write global trace CORE-026). (6) Step 7.4 CQG-2 Browser+Integration Gate GIỮ INLINE (CDG REJECT cho missing QD9/QD10 evidence — user-facing decision PHẢI INLINE). (7) Step 7.12 TodoWrite + Step 7.13 Completion Display GIỮ orchestrator-side (UI tools không script được). 5 scripts mới tổng ~33KB. Step numbering giữ gaps 7.2, 7.7, 7.8, 7.9, 7.11 tránh churn cross-refs. Pipeline v10.9 hoàn tất: tất cả 7 phases procedure file <12K tokens (target ~5-6K), không phase nào trigger /compact trên dự án lớn như EUREKA-2026. v10.10.0 (2026-05-16): Phase 4 downstream artifact contract — bổ sung phase4-summary.json (schema phase4-summary-v1) làm cross-lane rollup machine-readable cho downstream phases (5/6/7). Generated bởi generate-phase4-report.sh song song với Phase4-report.md (tiếng Việt ≤15 dòng). Schema bao gồm: per-dim breakdown (status/duration/playwright/signals/by_severity/by_fixability/probe_failures/evidence_count), aggregated rollup (total_signals, by_source/by_severity/by_fixability/by_dimension/by_probe, top_fingerprints top-10 sorted by severity priority), registry_coverage (REQ-ID/FEAT-ID/MODULE → signal count cho prioritization), cdg_decisions (E090/E090b structured snapshot từ cdg-tokens.json), evidence_index cross-lane (path/type/lane/probe_id/description), audit_chain (sha256 của signals.json + lane-status.json — CORE-036 cross-skill artifact contract). produces_for declare downstream consumers (Phase 5 fast-path aggregation, Phase 7 CQG-2 severity check, external audit/compliance tools). 1 file = 1 writer (CORE-025). Non-breaking: downstream skills VẪN có thể đọc lanes/QD*/signals.json trực tiếp (backward compatible). Phase4-report.md template extend với severity hint ([SEV_CRIT], [SEV_HIGH]) + pointer đến summary, vẫn ≤15 dòng tuân thủ CORE-028. Defer: lane-status.json v2 schema extension, Phase 5/7 consumer fast-path wiring. v10.11.0 (2026-05-16): Schema hardening wave — 7 fixes cho phase output contract dựa trên đánh giá design audit. (1) Phase 6 fix-execution-result.json bump schema v1→v2 (backward-compat: giữ field v1 top-level, thêm aggregated{by_dimension,by_error_code}, issues[] per-fix từ fix-log.json, audit_chain.checksum_sha256). Writer chuyển từ wf-fix-execute claim sang scripts/wf-fix-bugs/verify-execute-outputs.sh derive-from-fix-log (cleaner — fix-log.json là structured SSOT của per-fix data). Phase 7 cqg1-numeric.sh ưu tiên đọc fix-execution-result.json structured (fast-path JSON v2), fallback regex Markdown nếu missing (zero regression). actual_source field trong output JSON cho debug. (2) Phase 2 templates bump v2: code-inventory + doc-inventory + scope-analysis bổ sung _schema_notes định nghĩa files[]/docs[]/languages[] item shape, by_module/by_language map schema, dependency_level enum {none,light,moderate,heavy}, interface_type enum, consumer hints (Phase 3 ISG, Phase 4 lane agents). (3) Phase 3 templates bump v2: work-plan.json align template với route-and-write.sh script output (dimensions_applied[], playwright{enabled,mode,order,devices}, agent_count_estimate, workload_count, total_estimated_issues). dimension-plan.json align (dimensions[] item schema: id/lane_skill/agent_type/probe_count/output_dir/needs_playwright/playwright_priority). route-and-write.sh dimension-plan emission thêm $schema field cho consumer validation. (4) Phase 5 mới: coverage-report.json schema coverage-report-v1 song hành coverage-report.md (machine-readable cho Phase 7 + wf-prepare-deployment opt-in consumer). Writer: generate-phase5-reports.sh §5.11b. Schema: dimensions[] per-dim, distribution.by_severity{critical,high,medium,low,info}{count,pct}, totals{dims_covered, dims_total, dims_skipped, probe_success_rate, total_signals, total_issues}. (5) issue-registry.json bump v2: bổ sung _schema_notes định nghĩa issues[] item required fields (id, fingerprint, dimension_id, probe_id, severity, fixability, title, location, source) + optional (req_ids, feat_ids, cdg_flags, recommended_action, evidence_paths). Consumer hints cho wf-fix-triage/wf-fix-execute/CQG-2. (6) docs-sync-report.json bump v2: thêm files_synced field (POST-GATE T3 check), docs_updated[] item schema (path, phase, change_type, req_ids_added/removed, summary), impl_status_changes[] item (req_id, feat_id, old_status, new_status, reason, timestamp — CORE-008 không downgrade done), audit_chain (source, checksum_before/after, applied_by, atomic_write — CORE-006). (7) bug-dashboard.md version counter: HTML comment markers `<!-- bug-dashboard-version: N -->` + `<!-- last-writer: phase-X-Y -->` + `<!-- last-updated: ISO-8601 -->` + visible Version field. 4 writers (init-bug-dashboard, generate-phase5-reports, verify-execute-outputs, finalize-dashboard) bump N+1 (PRIOR_VER+1 pattern). Cho phép CORE-025 concurrent-write conflict detect khi 2 phiên cùng sửa session. Non-breaking: existing dashboard cũ không có marker → PRIOR_VER=0, bump lên 1. Tổng hợp: 5 templates enriched (no breaking change), 1 template mới (coverage-report.json), 3 scripts updated (verify-execute-outputs, cqg1-numeric, generate-phase5-reports, route-and-write — thêm version bump), 4 scripts thêm dashboard version bump pattern. v10.15.0 (2026-05-16): Optimization Playbook + Shared Trace Scripts foundation. (1) Created procedures/_optimization-playbook.md document hóa 10 kỹ thuật canonical (T1 Parallel Wave Dispatchers, T2 Fast-Path Bash Bypass, T3 Caching Idempotent Validations, T4 Heavy Inline Bash Extraction, T5 Shared Protocols Split, T6 Phase Lazy-Load Split, T7 Group Banners + Flow Map, T8 Smoke Test Routing, T9 Cross-Platform Defensive Scripts, T10 Versioned Schemas with Audit Trail) — apply order: T9+T10 foundation, T4 extract, T1 parallelize, T2 bypass, T3 cache, T7 banners, T6 split, T5 shared refs, T8 verify. Includes when-to-apply + when-NOT-to-apply rules + Phase 1 metrics achieved (-87% peak context per phase). (2) Created 2 shared helper scripts reusable cross-phase (2-7): phase-trace-start.sh (~50 dòng — generic START event với atomic write + optional metadata merge), phase-finalize.sh (~85 dòng — generic TRACE COMPLETE + atomic fix-status.phaseN update + extra fields merge). Replace ~30 dòng inline bash per phase = -180 dòng net khi full rollout. (3) Phase 2 migrated to shared scripts: Step 2.2 TRACE START (was 12 dòng → 1 line script call), Step 2.5 TRACE COMPLETE + Update fix-status (was 22 dòng → 3-line script call). (4) Documented multi-session rollout plan plans/wf-fix-bugs-phase-rollout-v10.15/ROLLOUT-PLAN.md với per-phase action plan (Phase 3-7), priority ranking (Phase 4/5/7 HIGH, Phase 6 MEDIUM, Phase 3 borderline), session breakdown (Session 2-5), acceptance criteria, critical preservation rules (CDG INLINE, Agent spawn orchestrator-side, UI tools KHÔNG extract). v10.14.0 (2026-05-16): Phase 1 lazy-load split — phase1-init.md (1106 dòng monolithic, ~9K tokens) tách thành 80-dòng index router + 8 group sub-files (A-bootstrap ~138, B-wave1 ~105, C-decision ~96, D-session-setup ~159, E-isg ~85, F-wave4 ~103, G-finalize ~93, POST-GATE ~74) trong procedures/phase1-init/. Orchestrator workflow: đọc index (~1K tokens) rồi load TỪNG group file ON-DEMAND khi tới execution (500-1200 tokens per group). Mỗi group file có Input/Output contract section + Next Group pointer cuối file để routing rõ ràng. 4 helper scripts mới extract heavy inline bash: phase1-parse-flags.sh (Step 1.2, ~110 dòng standalone), phase1-auto-resolve.sh (Step 1.8, ~95 dòng), phase1-create-session.sh (Step 1.10, ~80 dòng), phase1-trace-start.sh (Step 1.17, ~70 dòng). Per-group context ~88% nhỏ hơn vs monolithic. Smoke test phase1-routing-smoke-test.sh (42 checks: index integrity + group files existence + routing chain unbroken + Input/Output contracts + helper scripts ready) PASS 42/42. Runtime correctness ensured by: (1) index file Group Routing Table với `Khi đọc` column rõ ràng, (2) mỗi group file declare Entry/Exit condition + Next pointer, (3) Input/Output contract sections để orchestrator track state passing giữa groups, (4) shared protocols lazy-load per-group declared at header. Backward compat: phase1-init.md vẫn entry point từ SKILL.md routing, semantic giữ nguyên. v10.13.0 (2026-05-16): Shared protocols split — _shared.md (1227 dòng monolithic, ~10K tokens) tách thành 21 file riêng trong procedures/_shared/ (lazy-load per use-site). Mỗi phase chỉ load 1-4 section cần thiết → giảm context per phase invocation 80-95%. Phase 1: 10K → ~1K shared context (-91%). Phase 2: -97%. Phase 3: -96%. Phase 4: -68%. Phase 5: -86%. Phase 6: -88%. Phase 7: -92%. 4 sections slim (§1 State Vars, §4 Error Handling, §10 Template Usage, §17 Session Isolation) thành pointer 1-line đến rules/00-core.md (CORE-001/CORE-034/CORE-031/CORE-030/CORE-035). Backward compat: _shared.md chuyển từ 1227 dòng monolithic thành ~50 dòng redirect file với quick-index mapping §NN → _shared/NN-name.md. 7 phase files + resume-status.md update reference từ `_shared.md §NN` sang `_shared/NN-name.md`. Phase headers bỏ preemptive `Shared: Đọc procedures/_shared.md...` (orchestrator load lazily on-demand). Tạo _shared/README.md (index, ~80 dòng) với load profile per-phase + slim notes + migration guide. v10.12.0 (2026-05-16): Phase 1 parallel optimization wave — 4 helpers mới (~750 dòng tổng) + procedure refactor. (1) Wave 1 Parallel Discovery: Steps 1.5 (CI PRE-GATE) + 1.6 (Registry+Source+LEGACY) + 1.9 (Sub-skill paths) gộp thành 1 bash tool call qua scripts/wf-fix-bugs/phase1-wave1-dispatch.sh — 3 workers chạy parallel internal qua bash & wait, emit env-style stdout cho orchestrator eval. (2) Wave 4 Parallel State Init: Steps 1.15 (init-session-state 4 files) + 1.16 (init-bug-dashboard) gộp thành 1 bash tool call qua scripts/wf-fix-bugs/phase1-init-bundle.sh — 2 workers parallel, emit aggregated status JSON {state,dashboard,duration_ms}. Exit code aggregation: W1 only=1 CRITICAL, W2 only=2 NON-BLOCKING, both=3 CRITICAL. (3) Step 1.14 ISG fast-path: scripts/wf-fix-bugs/phase1-isg-fastpath.sh — bash hardcoded lookup cho profile chuẩn (quick/standard/deep/exhaustive ~5ms) bypass Python ISG spawn (~200-500ms cold start). Hardcoded dims ĐỒNG BỘ với isg_recommender.PROFILE_DIMENSIONS. Escape hatch MCV3_FIX_BUGS_FORCE_ISG=1 cho legacy/dev path. Phase 3 vẫn dùng real ISG analyzer (sau khi có scan data). (4) Sub-skill paths cache 24h: scripts/wf-fix-bugs/phase1-validate-paths.sh — cache hit ~10ms thay vì 13 test -f syscalls mỗi lần. Cache key: md5(script_path + sub_skills_list), location: ~/.cache/mcv3-fix-bugs/skill-paths-{md5}.json. TTL configurable qua MCV3_FIX_BUGS_PATH_CACHE_TTL. Số bash tool calls Phase 1: ~10 → ~7 (-30%), mỗi call giảm thêm ~500ms-1s Claude orchestration latency. Pure execution time giảm ~500-900ms. Tổng giảm Claude orchestration ~5-10s trên Phase 1 ~30s baseline. Non-breaking: tất cả helpers độc lập, không thay đổi output paths/contracts với phase downstream. Existing init-session-state.sh + init-bug-dashboard.sh vẫn hoạt động (workers bên trong bundle). Backward compat: nếu helpers mới fail → individual steps cũ vẫn dùng được (fallback path). Dependency Chain mới: 6 nhóm thực thi (Bootstrap → Wave 1 parallel → Wave 2 sequential → Session Setup → ISG fast-path → Wave 4 parallel → Finalize) thay vì 18 steps tuần tự.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "registry_fields": [
+      "requirements",
+      "features"
+    ],
+    "forensic_validation": "jq -e '.requirements | length > 0' req-registry.json + src/apps có >= 1 source file (CORE-011, Protocol 10.4)."
+  },
+  "inputs": [
+    {
+      "name": "mô-tả-lỗi",
+      "type": "string",
+      "required": false,
+      "description": "Mô tả lỗi (optional) — pass inline đến Phase 1."
+    },
+    {
+      "name": "--scope",
+      "type": "enum",
+      "values": [
+        "all",
+        "system",
+        "module"
+      ],
+      "required": false,
+      "default": "all"
+    },
+    {
+      "name": "--name",
+      "type": "string",
+      "required": false,
+      "description": "Scope target ID (required nếu --scope=system|module)."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard"
+    },
+    {
+      "name": "--dims",
+      "type": "string",
+      "required": false,
+      "description": "Comma-separated dimensions: QD1,QD3,QD5,QD11. Default: auto (ISG)."
+    },
+    {
+      "name": "--dry-run",
+      "type": "flag",
+      "required": false,
+      "description": "Preview mode — skip fix execution, chỉ preview plan. Phase 6 skip spawn."
+    },
+    {
+      "name": "--resume",
+      "type": "flag",
+      "required": false,
+      "description": "Resume từ session checkpoint gần nhất (route theo fix-status.json)."
+    },
+    {
+      "name": "--status",
+      "type": "flag",
+      "required": false,
+      "description": "Display status (read-only) → STOP. Hiển thị phase table + metrics + next action."
+    },
+    {
+      "name": "--migrate",
+      "type": "flag",
+      "required": false,
+      "description": "Migrate sessions v6.x → v7.0 layout. Delegate sang scripts/wf-fix-migrate-sessions.sh."
+    },
+    {
+      "name": "--session",
+      "type": "string",
+      "required": false,
+      "description": "Khi dùng cùng --resume/--status: chỉ định SESSION_ID cụ thể thay vì tự động tìm session gần nhất. Format: YYYY-MM-DD-{scope}-{slug}-{NN}. (P4)"
+    },
+    {
+      "name": "--resume-strategy",
+      "type": "enum",
+      "values": [
+        "prompt",
+        "auto",
+        "force-fresh"
+      ],
+      "required": false,
+      "default": "prompt",
+      "description": "Hành vi của --resume khi gặp pipeline DONE/FAILED. prompt=AskUser (default). auto=DONE→cancel, FAILED→resume từ failed phase, in_progress→continue. force-fresh=luôn tạo session mới. (P6)"
+    },
+    {
+      "name": "--llm-scan",
+      "type": "flag",
+      "required": false,
+      "description": "Enable LLM-Augmented Scan (Phase 4). Yêu cầu --profile=deep|exhaustive. Cost ~$0.50-1.50/run (Sonnet). Budget guard hard cap $1.50."
+    },
+    {
+      "name": "--show-browser",
+      "type": "flag",
+      "required": false,
+      "description": "Playwright visible mode (default: headless). Hiển thị browser trong quá trình runtime probes."
+    },
+    {
+      "name": "--mobile",
+      "type": "flag",
+      "required": false,
+      "description": "Playwright device emulation — test trên iPhone 14, Pixel 7, iPad Pro. Dùng cho app mobile-responsive."
+    },
+    {
+      "name": "--url",
+      "type": "url",
+      "required": false,
+      "description": "Base URL cho browser tests (QD9 Runtime Health)."
+    },
+    {
+      "name": "--credentials",
+      "type": "string",
+      "required": false,
+      "description": "Credentials: email:password hoặc cookie:NAME=VALUE."
+    },
+    {
+      "name": "--no-browser",
+      "type": "flag",
+      "required": false,
+      "description": "Skip browser-based probes (QD5/QD7/QD9)."
+    },
+    {
+      "name": "--deep",
+      "type": "flag",
+      "required": false,
+      "description": "Shorthand: kích hoạt deep mode cho tất cả probes."
+    },
+    {
+      "name": "--full-test",
+      "type": "flag",
+      "required": false,
+      "description": "Expand → --deep + --responsive."
+    },
+    {
+      "name": "--responsive",
+      "type": "flag",
+      "required": false,
+      "description": "Kích hoạt responsive tests (QD7 Compatibility)."
+    }
+  ],
+  "procedure": "SKILL.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase1-init.md",
+    "procedures/phase2-scan.md",
+    "procedures/phase3-plan.md",
+    "procedures/phase4-find-bugs.md",
+    "procedures/phase5-triage.md",
+    "procedures/phase6-execute.md",
+    "procedures/phase7-verify.md",
+    "procedures/resume-status.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/fix-status.json",
+        "template": "templates/phase1-init/fix-status.json",
+        "notes": "SSOT phase state (7 phases). Owned by orchestrator (init), updated per phase (Atomic Write)."
+      },
+      {
+        "path": "$SESSION_DIR/session-log.json",
+        "template": "templates/_common/session-log.json",
+        "notes": "CORE-026 execution trace. APPEND-only START/COMPLETE/FAIL events."
+      },
+      {
+        "path": "$SESSION_DIR/error-ledger.json",
+        "template": "templates/_common/error-ledger.json",
+        "notes": "Namespaced error tracking. APPEND per error event."
+      },
+      {
+        "path": "$SESSION_DIR/.lock",
+        "template": null,
+        "notes": "Session lock (wf-fix-lock-v1). Acquire + heartbeat daemon. Released by cleanup trap."
+      },
+      {
+        "path": "$SESSION_DIR/phase1-init/Phase1-report.md",
+        "template": "templates/phase1-init/Phase1-report.md",
+        "notes": "Phase 1 report: flags, CI status, CDG decisions, session info."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-scan/scope-analysis.json",
+        "template": "templates/phase2-scan/scope-analysis.json",
+        "notes": "Interface type detection + scope boundaries."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-scan/code-inventory.json",
+        "template": "templates/phase2-scan/code-inventory.json",
+        "notes": "Code inventory: file count, languages, structure."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-scan/doc-inventory.json",
+        "template": "templates/phase2-scan/doc-inventory.json",
+        "notes": "Documentation inventory: .mc-data/docs/ files."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-scan/Phase2-report.md",
+        "template": "templates/phase2-scan/Phase2-report.md",
+        "notes": "Phase 2 report: scan results summary."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-plan/work-plan.json",
+        "template": "templates/phase3-plan/work-plan.json",
+        "notes": "ISG dimensions + partition workloads."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-plan/dimension-plan.json",
+        "template": "templates/phase3-plan/dimension-plan.json",
+        "notes": "Dimension → lane routing table."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-plan/workloads/W{N}/fix-workload.json",
+        "template": "templates/phase3-plan/fix-workload.json",
+        "notes": "Per-workload plan (partition planner output)."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-plan/Phase3-report.md",
+        "template": "templates/phase3-plan/Phase3-report.md",
+        "notes": "Phase 3 report: ISG results, workload classification, dispatch plan."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD{n}-{name}/static-scan/signals.json",
+        "template": "templates/phase4-find-bugs/lane-signals.json",
+        "notes": "Per-dimension static signals (lane-signals-v1). 1 file = 1 writer contract."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD{n}-{name}/runtime/signals.json",
+        "template": "templates/phase4-find-bugs/lane-signals.json",
+        "notes": "Per-dimension runtime signals (lane-signals-v1). 1 file = 1 writer."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD{n}-{name}/llm-scan/signals.json",
+        "template": "templates/phase4-find-bugs/lane-signals.json",
+        "notes": "Per-dimension LLM signals (lane-signals-v1). Opt-in --llm-scan. 1 file = 1 writer."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD{n}-{name}/lane-status.json",
+        "template": "templates/phase4-find-bugs/lane-status.json",
+        "notes": "Per-lane execution status: pending/running/completed/failed."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD{n}-{name}/QD{n}-{name}-report.md",
+        "template": "templates/phase4-find-bugs/QD-report.md",
+        "notes": "Per-agent report (QD1-QD11). CORE-028 Vietnamese."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/Phase4-report.md",
+        "template": "templates/phase4-find-bugs/Phase4-report.md",
+        "notes": "Phase 4 report: lane summary, signals count, severity, Playwright info, pointer đến phase4-summary.json."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/phase4-summary.json",
+        "template": "templates/phase4-find-bugs/phase4-summary.json",
+        "schema": "phase4-summary-v1",
+        "notes": "v10.10: Cross-lane rollup machine-readable cho downstream (5/6/7). Bao gồm per-dim breakdown (severity/fixability/duration), aggregated rollup (by_severity, by_fixability, by_dimension, by_probe, top_fingerprints), registry_coverage (REQ-ID/FEAT-ID/MODULE → count), cdg_decisions (E090/E090b structured), evidence_index cross-lane, audit_chain (sha256 signals + lane-status, CORE-036). Writer: generate-phase4-report.sh."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/probe-failures.log",
+        "template": "templates/phase4-find-bugs/probe-failures-log.json",
+        "notes": "Probe failure JSONL log (timeout, crash, tool error). Schema: probe-failure-v1. APPEND-only — mỗi dòng là 1 JSON object. Template chứa schema example (xem _example), KHÔNG WRITE template thẳng vào file output (sẽ phá JSONL)."
+      },
+      {
+        "path": "(agent-spawn) phase4-find-bugs lane prompt rendered inline",
+        "template": "templates/phase4-find-bugs/lane-agent-prompt.md",
+        "schema": "lane-agent-prompt-v10.2",
+        "notes": "Lane agent prompt canonical template (v10.2). READ template → substitute placeholders ({{SESSION_DIR}}, {{DIM_ID}}, {{DIM_NAME}}, {{PROJECT_NAME}}, {{SOURCE_DIR}}, ...) → pass đến Agent tool. STRIP HTML comment header trước khi render. KHÔNG ghi ra file output — chỉ dùng làm prompt content khi spawn lane agent. Verify bởi Step 4.5a Pre-Dispatch Verify (6 check points)."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-execute/fix-execution-result.json",
+        "template": "templates/phase6-execute/fix-execution-result.json",
+        "schema": "fix-execution-result-v2",
+        "owner": "scripts/wf-fix-bugs/verify-execute-outputs.sh (v10.11.0 — orchestrator derive-from-fix-log)",
+        "notes": "Fix execution result chi tiết per-issue. Schema fix-execution-result-v2 (v10.11.0 — backward-compat v1 fields). Derive từ fix-log.json (structured SSOT per-fix) + git diff + counts. Aggregated{by_dimension,by_error_code}, issues[] per-fix detail, audit_chain.checksum_sha256=sha256(fix-log.json). Consumer: Phase 7 cqg1-numeric.sh fast-path JSON (fallback regex Markdown nếu file missing — zero regression)."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/issue-registry.json",
+        "template": "templates/phase5-triage/issue-registry.json",
+        "notes": "Aggregated + deduped issues (issue-registry-v2)."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/bug-triage.md",
+        "template": "templates/phase5-triage/bug-triage.md",
+        "owner": "wf-fix-triage",
+        "notes": "Triage report: severity + fixability classification."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/fix-plan.md",
+        "template": "templates/phase5-triage/fix-plan.md",
+        "owner": "wf-fix-triage",
+        "notes": "Fix plan với [CDG-0X] markers."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/fix-log.json",
+        "template": "templates/phase5-triage/fix-log.json",
+        "owner": "wf-fix-triage (init), wf-fix-execute (append)",
+        "notes": "Fix execution log. Schema fix-log-v2: mỗi entry = {issue_id, timestamp, action, result, file_changed, duration_sec, retry_count, error_code, notes}. 1 entry = 1 fix attempt."
+      },
+      {
+        "path": "$SESSION_DIR/bug-dashboard.md",
+        "template": "templates/phase5-triage/bug-dashboard.md",
+        "owner": "orchestrator (init: Phase 1 Step 1.22; populate: Phase 5 Step 5.12; update: Phase 6 Step 6.7b; finalize: Phase 7 Step 7.5b)",
+        "notes": "Bug/Signal Tracking Dashboard — danh sách checklist tất cả lỗi kèm trạng thái (✅/⬜/⏸️/❌), mức độ, và hướng dẫn xử lý. Sinh bằng python -m dashboard_generator. Khởi tạo rỗng từ Phase 1, đặt ở SESSION_DIR root để người dùng theo dõi xuyên suốt toàn bộ phiên xử lý bug."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/cdg-tokens.json",
+        "template": "templates/phase5-triage/cdg-tokens.json",
+        "notes": "CDG accept/reject tokens (cdg-tokens-v1). APPEND per decision. Anti-loop: reject ≥3 → E054 escalate."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/safety-check.json",
+        "template": "templates/phase5-triage/safety-check.json",
+        "notes": "CORE-020 safety check: collision/xref/uncommitted/deprecated."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/process-violations.json",
+        "template": "templates/phase5-triage/process-violations.json",
+        "notes": "Process integrity audit: PI1-PI5 violations."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/coverage-report.md",
+        "template": "templates/phase5-triage/coverage-report.md",
+        "notes": "Dimension coverage metrics (human-readable): probes run / issues found / success rate. Song hành coverage-report.json (v10.11)."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/coverage-report.json",
+        "template": "templates/phase5-triage/coverage-report.json",
+        "schema": "coverage-report-v1",
+        "owner": "scripts/wf-fix-bugs/generate-phase5-reports.sh (§5.11b — v10.11.0)",
+        "notes": "v10.11: Machine-readable coverage metrics song hành coverage-report.md. Schema coverage-report-v1. Per-dim breakdown + distribution.by_severity {critical,high,medium,low,info} count/pct + totals.dims_covered/dims_total/probe_success_rate. Consumer: Phase 7 reports (orchestrator-summary breakdown), wf-prepare-deployment opt-in (deployment readiness check qua coverage threshold)."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-triage/Phase5-report.md",
+        "template": "templates/phase5-triage/Phase5-report.md",
+        "notes": "Phase 5 report: aggregation, triage, integrity, CDG, safety."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-execute/fix-report.md",
+        "template": "templates/phase6-execute/fix-report.md",
+        "owner": "wf-fix-execute",
+        "notes": "Fix execution report: fixed/deferred/failed counts + files changed."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-execute/docs-sync-report.json",
+        "template": "templates/phase6-execute/docs-sync-report.json",
+        "schema": "docs-sync-report-v2",
+        "owner": "wf-fix-execute",
+        "notes": "Docs cross-reference sync report. Schema docs-sync-report-v2 (v10.11.0 — enriched item shapes + audit_chain). docs_updated[] item: {path, phase, change_type:created|modified|deleted, req_ids_added[], req_ids_removed[], summary}. impl_status_changes[] item: {req_id, feat_id, old_status, new_status, reason, timestamp} (CORE-008: không downgrade 'done'). audit_chain: {source, checksum_before/after, applied_by, atomic_write} (CORE-006 Safe-Write trace). Consumer: wf-verify-sync (verify REQ-IDs sync), wf-prepare-deployment (impact summary)."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-execute/Phase6-report.md",
+        "template": "templates/phase6-execute/Phase6-report.md",
+        "notes": "Phase 6 report: execution mode, CI impact, fix results, docs sync."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-verify/orchestrator-summary.md",
+        "template": "templates/phase7-verify/orchestrator-summary.md",
+        "notes": "CORE-028 Vietnamese summary ≤40 dòng: tổng quan, signals, fixes, dims, next steps."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-verify/fix-impact.json",
+        "template": "templates/phase7-verify/fix-impact.json",
+        "schema": "fix-impact-v1",
+        "notes": "Schema fix-impact-v1 (chỉ định bởi field `$schema` trong template). Cross-skill artifact consumed by wf-verify-sync, wf-prepare-deployment, wf-implement-feature — cả 3 validate `jq -e '.\"$schema\" == \"fix-impact-v1\"'` tại PRE-GATE. audit_chain.source = $SESSION_DIR/fix-status.json, audit_chain.checksum = sha256(fix-status.json)."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-verify/phase-summary.md",
+        "template": "templates/phase7-verify/phase-summary.md",
+        "notes": "Accumulated summaries from 7 phase reports. CORE-028."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-verify/Phase7-report.md",
+        "template": "templates/phase7-verify/Phase7-report.md",
+        "notes": "Phase 7 report: CQG gates, verification results, pipeline completion."
+      },
+      {
+        "path": ".mc-data/work/wf-fix-bugs/_index/sessions.jsonl",
+        "template": null,
+        "notes": "APPEND-only JSONL session index. Git-friendly. Dual-write: global + session."
+      },
+      {
+        "path": ".mc-data/work/wf-fix-bugs/fix-history.md",
+        "template": null,
+        "owner": "wf-fix-execute",
+        "notes": "APPEND-only cross-session audit log. Bypassed trên --dry-run."
+      }
+    ],
+    "docs": [],
+    "registry": {
+      "action": "none",
+      "description": "Orchestrator KHÔNG ghi req-registry.json. wf-fix-execute (Phase 6) update impl_status."
+    }
+  },
+  "registry_scope": {
+    "write_role": "NONE",
+    "fields_owned": [],
+    "notes": "Delegate hoàn toàn cho wf-fix-execute."
+  },
+  "cross_skill_contracts": {
+    "orchestrates": [
+      {
+        "phase": 5,
+        "skill": "wf-fix-triage",
+        "trigger": "Phase 4 POST-GATE pass (N>0) + CDG handoff accepted",
+        "passes": [
+          "$SESSION_DIR/fix-status.json",
+          "$SESSION_DIR/phase5-triage/issue-registry.json"
+        ],
+        "validation": "jq -e '.phases.phase5.status == \"completed\"' + bug-triage.md + fix-plan.md + fix-log.json"
+      },
+      {
+        "phase": 6,
+        "skill": "wf-fix-execute",
+        "trigger": "Phase 5 POST-GATE pass + Safety Check passed",
+        "passes": [
+          "$SESSION_DIR"
+        ],
+        "validation": "jq -e '.phases.phase6.status == \"completed\"' + fix-report.md + docs-sync-report.json"
+      }
+    ],
+    "internal_phases": [
+      {
+        "phase": 1,
+        "name": "Init",
+        "procedure_file": "procedures/phase1-init.md",
+        "trigger": "SKILL.md entry (fresh run)",
+        "writes": [
+          "fix-status.json",
+          "session-log.json",
+          "error-ledger.json",
+          "phase1-init/Phase1-report.md",
+          "bug-dashboard.md",
+          ".lock"
+        ],
+        "mode": "SEQUENTIAL"
+      },
+      {
+        "phase": 2,
+        "name": "Scan Scope",
+        "procedure_file": "procedures/phase2-scan.md",
+        "trigger": "Phase 1 POST-GATE pass",
+        "writes": [
+          "phase2-scan/scope-analysis.json",
+          "phase2-scan/code-inventory.json",
+          "phase2-scan/doc-inventory.json",
+          "phase2-scan/Phase2-report.md"
+        ],
+        "mode": "HYBRID"
+      },
+      {
+        "phase": 3,
+        "name": "Plan",
+        "procedure_file": "procedures/phase3-plan.md",
+        "trigger": "Phase 2 POST-GATE pass",
+        "writes": [
+          "phase3-plan/work-plan.json",
+          "phase3-plan/dimension-plan.json",
+          "phase3-plan/workloads/W{N}/fix-workload.json",
+          "phase3-plan/Phase3-report.md"
+        ],
+        "mode": "HYBRID",
+        "gates": [
+          "Workload Gate (CDG-11)"
+        ]
+      },
+      {
+        "phase": 4,
+        "name": "Find Bugs",
+        "procedure_file": "procedures/phase4-find-bugs.md",
+        "trigger": "Phase 3 POST-GATE pass",
+        "writes": [
+          "phase4-find-bugs/lanes/QD*/signals.json",
+          "phase4-find-bugs/lanes/QD*/lane-status.json",
+          "phase4-find-bugs/lanes/QD*/QD*-report.md",
+          "phase4-find-bugs/Phase4-report.md",
+          "phase4-find-bugs/phase4-summary.json",
+          "phase4-find-bugs/probe-failures.log"
+        ],
+        "mode": "PARALLEL (max 10)",
+        "playwright": "SEQUENTIAL across lanes",
+        "produces_for": {
+          "phase5-triage": [
+            "phase4-find-bugs/phase4-summary.json (schema phase4-summary-v1) — opt-in fast-path cho aggregation"
+          ],
+          "phase7-verify": [
+            "phase4-find-bugs/phase4-summary.json (schema phase4-summary-v1) — opt-in fast-path cho CQG-2 severity breakdown"
+          ],
+          "external-tools": [
+            "phase4-find-bugs/phase4-summary.json — audit, compliance, dashboards query 1 file"
+          ]
+        }
+      },
+      {
+        "phase": 5,
+        "name": "Classify & Triage",
+        "procedure_file": "procedures/phase5-triage.md",
+        "trigger": "Phase 4 POST-GATE pass (N>0)",
+        "writes": [
+          "phase5-triage/issue-registry.json",
+          "phase5-triage/bug-triage.md",
+          "phase5-triage/fix-plan.md",
+          "phase5-triage/fix-log.json",
+          "phase5-triage/cdg-tokens.json",
+          "phase5-triage/safety-check.json",
+          "phase5-triage/process-violations.json",
+          "phase5-triage/coverage-report.md",
+          "phase5-triage/coverage-report.json",
+          "phase5-triage/Phase5-report.md",
+          "bug-dashboard.md (populate issues)"
+        ],
+        "mode": "Agent Delegation",
+        "early_exit": "N=0 → E005 healthy → jump Phase 7"
+      },
+      {
+        "phase": 6,
+        "name": "Execute Fix",
+        "procedure_file": "procedures/phase6-execute.md",
+        "trigger": "Phase 5 POST-GATE pass",
+        "writes": [
+          "phase6-execute/fix-report.md",
+          "phase6-execute/docs-sync-report.json",
+          "phase6-execute/Phase6-report.md",
+          "bug-dashboard.md (update fix results)"
+        ],
+        "mode": "Agent Delegation",
+        "dry_run": "Preview mode — skip spawn, ghi summary"
+      },
+      {
+        "phase": 7,
+        "name": "Verify & Report",
+        "procedure_file": "procedures/phase7-verify.md",
+        "trigger": "Phase 6 POST-GATE pass (hoặc E005 skip từ Phase 5)",
+        "writes": [
+          "phase7-verify/orchestrator-summary.md",
+          "phase7-verify/fix-impact.json",
+          "phase7-verify/phase-summary.md",
+          "phase7-verify/Phase7-report.md",
+          "bug-dashboard.md (finalize)"
+        ],
+        "mode": "SEQUENTIAL",
+        "gates": [
+          "CQG-1 Numeric Metric Verification",
+          "CQG-2 Browser + Integration Gate"
+        ]
+      }
+    ],
+    "execution_model": {
+      "mode": "hybrid",
+      "rationale": "inline (default) cho project nhỏ; agent_dispatch khi issues>200 hoặc context>70%. Resume re-evaluates threshold. State files cross-compatible giữa 2 modes.",
+      "configurable_env_vars": {
+        "MCV3_FIX_BUGS_INLINE_MAX_ISSUES": "Threshold issues count (default 200)",
+        "MCV3_FIX_BUGS_INLINE_MAX_CONTEXT_PCT": "Threshold context usage % (default 70)",
+        "MCV3_FIX_BUGS_AGENT_MODEL": "Model cho agent_dispatch mode: opus | sonnet | haiku (default opus)."
+      }
+    },
+    "produces_for": {
+      "wf-verify-sync": [
+        "phase7-verify/fix-impact.json",
+        "phase6-execute/fix-report.md",
+        "phase5-triage/issue-registry.json",
+        "fix-history.md"
+      ],
+      "wf-prepare-deployment": [
+        "phase7-verify/fix-impact.json"
+      ],
+      "wf-implement-feature": [
+        "phase7-verify/fix-impact.json (Pre-Implementation Safety enhanced)"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/ (stubs via --deep)"
+      ],
+      "wf-design-ux": [
+        ".mc-data/docs/phase4-ux/ (stubs via --deep)"
+      ],
+      "wf-cmi": [
+        "phase7-verify/fix-impact.json (consumed via --from-fix-bugs opt-in)"
+      ]
+    },
+    "consumes_from": {
+      "wf-preflight": [
+        "preflight-report.md (optional — consumed by Phase 4 QD7)"
+      ],
+      "wf-brainstorm": [
+        "legacy-decisions.json (LEGACY_MODE scope exclusion)"
+      ],
+      "wf-legacy-scan": [
+        "project-context.md (LEGACY_MODE detection CORE-021)",
+        "impact-graph.json (optional seed)"
+      ],
+      "wf-cmi": [
+        "integrity-impact.json (optional — consumed via --from-cmi opt-in, schema integrity-impact-v1)"
+      ]
+    }
+  },
+  "orchestrator_gates": [
+    {
+      "phase": 3,
+      "name": "Workload Gate (CDG-11)",
+      "procedure_file": "procedures/phase3-plan.md",
+      "classification": {
+        "dead_zone": "ratio < 0.8 → silent continue",
+        "warn": "0.8-1.5 → user yes/no",
+        "block": "> 1.5 → Plan A/B menu"
+      },
+      "error_codes": [
+        "E035"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "CDG Pre-Execute Handoff",
+      "procedure_file": "procedures/phase5-triage.md",
+      "source_files": [
+        "phase5-triage/issue-registry.json (cdg_flags[])",
+        "phase5-triage/fix-plan.md ([CDG-0X] markers)"
+      ],
+      "anti_loop_guard": "cdg_reject_counts[cdg_id] >= 2 → force ESCALATE (per-CDG-id, không phải tổng)",
+      "error_codes": [
+        "E054"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Safety Check (CORE-020)",
+      "procedure_file": "procedures/phase5-triage.md",
+      "checks": [
+        "collision detection",
+        "xref validation",
+        "uncommitted changes",
+        "deprecated modules"
+      ],
+      "error_codes": [
+        "E055"
+      ]
+    }
+  ],
+  "resume_routing": {
+    "description": "--resume & --status handlers trong procedures/resume-status.md. --status: 7 steps display phase table + CI status + metrics + next action. --resume: 10 steps find session → read status → stale check → lock → route to phase.",
+    "procedure_file": "procedures/resume-status.md"
+  },
+  "errors": {
+    "E001": {
+      "code": "E001",
+      "severity": "critical",
+      "description": "POST-GATE fail sau 3 retries — DỪNG phase, escalate. Triggered bởi mọi POST-GATE T1-T4 không pass."
+    },
+    "E002": {
+      "code": "E002",
+      "severity": "medium",
+      "description": "User từ chối tiếp tục (CDG reject) — Checkpoint, thông báo --resume."
+    },
+    "E003": {
+      "code": "E003",
+      "severity": "critical",
+      "description": "Registry thiếu/rỗng — STOP. User cần chạy /wf-brainstorm hoặc /existing-project trước."
+    },
+    "E004": {
+      "code": "E004",
+      "severity": "critical",
+      "description": "Sub-skill SKILL.md không tồn tại. Dừng workflow."
+    },
+    "E005": {
+      "code": "E005",
+      "severity": "info",
+      "description": "N=0 issues sau Phase 4 — Hệ thống healthy, skip Phase 5-6 → jump Phase 7. Early-exit guard."
+    },
+    "E008": {
+      "code": "E008",
+      "severity": "medium",
+      "description": "Stale lock detected (≥30 min) — auto-release, WARN, continue."
+    },
+    "E009": {
+      "code": "E009",
+      "severity": "medium",
+      "description": "Context > 90% — FORCE checkpoint, dùng --resume để tiếp tục."
+    },
+    "E010": {
+      "code": "E010",
+      "severity": "medium",
+      "description": "Phase 1: `--status` dispatched — Hiển thị status → STOP. Canonical SSOT: _shared.md §4."
+    },
+    "E011": {
+      "code": "E011",
+      "severity": "medium",
+      "description": "Phase 1: `--resume` dispatched — Enter resume path (resume-status.md §--resume Handler). Canonical SSOT: _shared.md §4."
+    },
+    "E012": {
+      "code": "E012",
+      "severity": "medium",
+      "description": "Phase 1: `--migrate` dispatched — Delegate `scripts/wf-fix-migrate-sessions.sh`. Canonical SSOT: _shared.md §4."
+    },
+    "E013": {
+      "code": "E013",
+      "severity": "high",
+      "description": "Phase 1: Deprecation block (legacy v6.x paths) — CDG render, escape hatch `MCV3_FIX_BUGS_LEGACY_DEPRECATED_OK=1`. Exit 78 (E_LEGACY_BLOCK)."
+    },
+    "E014": {
+      "code": "E014",
+      "severity": "high",
+      "description": "Phase 1: CI detection fail — Graceful degrade → Grep/Glob fallback, pipeline tiếp tục."
+    },
+    "E015": {
+      "code": "E015",
+      "severity": "high",
+      "description": "Phase 1: CI tools unavailable + non-git project — Skip CI, dùng Grep/Glob fallback."
+    },
+    "E016": {
+      "code": "E016",
+      "severity": "high",
+      "description": "Phase 1: CI index severely stale (>50 commits behind HEAD) — WARN mạnh, continue với Grep/Glob fallback."
+    },
+    "E019": {
+      "code": "E019",
+      "severity": "high",
+      "description": "Phase 1: Lock acquire fail hoặc heartbeat daemon fail — STOP nếu process khác active; WARN + continue không heartbeat nếu heartbeat fail (risky)."
+    },
+    "E020": {
+      "code": "E020",
+      "severity": "high",
+      "description": "Phase 2: Code scan fail — không parse được source code structure."
+    },
+    "E021": {
+      "code": "E021",
+      "severity": "medium",
+      "description": "Phase 2: Interface type ambiguous — không xác định được web/mobile/api-only."
+    },
+    "E030": {
+      "code": "E030",
+      "severity": "high",
+      "description": "Phase 3: ISG Recommender fail — không đề xuất được dimensions. Cross-phase: Phase 4 PRE-GATE cũng emit E030 khi phát hiện Phase 3 chưa completed."
+    },
+    "E031": {
+      "code": "E031",
+      "severity": "high",
+      "description": "Phase 3: Partition planner fail — không tạo được workloads. Auto-generate fallback."
+    },
+    "E035": {
+      "code": "E035",
+      "severity": "high",
+      "description": "Phase 3/4: Atomic write / mkdir / template not found fail. Phase 3 dùng cho Workload Gate blocked (>1.5); Phase 4 dùng cho lane dir create + lane-status.json write + Step 4.6 atomic mv."
+    },
+    "E040": {
+      "code": "E040",
+      "severity": "high",
+      "description": "Phase 4: Lane dispatch fail — agent spawn error. Retry per-agent x1."
+    },
+    "E041": {
+      "code": "E041",
+      "severity": "medium",
+      "description": "Phase 4: Probe timeout — probe vượt WF_FIX_PROBE_MAX_RUNTIME_SEC. Ghi probe-failures.log."
+    },
+    "E042": {
+      "code": "E042",
+      "severity": "medium",
+      "description": "Phase 4: Playwright crash — browser process died. Retry x1, fallback skip lane."
+    },
+    "E043": {
+      "code": "E043",
+      "severity": "medium",
+      "description": "Phase 4: Agent report missing sau spawn — generate stub, WARN."
+    },
+    "E044": {
+      "code": "E044",
+      "severity": "high",
+      "description": "Phase 4: Playwright launch fail — Retry x2, escalate nếu vẫn fail."
+    },
+    "E045": {
+      "code": "E045",
+      "severity": "low",
+      "description": "Phase 4: Mobile coverage incomplete — thiếu device test results."
+    },
+    "E046": {
+      "code": "E046",
+      "severity": "high",
+      "description": "Phase 4: Agent spawn/template render fail (lane-agent-prompt corruption / lane timeout >15min). Re-render từ template, KHÔNG sửa tay; mark lane failed nếu retry vẫn fail."
+    },
+    "E047": {
+      "code": "E047",
+      "severity": "high",
+      "description": "Phase 4: DATA INCONSISTENCY — claimed signal count ≠ actual files. Retry fix x1, escalate AskUserQuestion nếu vẫn fail."
+    },
+    "E048": {
+      "code": "E048",
+      "severity": "medium",
+      "description": "Phase 4: Signal schema validation fail — required field thiếu. Drop signal, log warning, tiếp tục."
+    },
+    "E049": {
+      "code": "E049",
+      "severity": "low",
+      "description": "Phase 4: Fingerprint collision — duplicate signals. Keep first, skip duplicate, không block."
+    },
+    "E050": {
+      "code": "E050",
+      "severity": "high",
+      "description": "Phase 5: Aggregator fail — signal aggregation error. Retry x3."
+    },
+    "E051": {
+      "code": "E051",
+      "severity": "high",
+      "description": "Phase 5: Step verification fail — artifact check không pass. CDG render."
+    },
+    "E052": {
+      "code": "E052",
+      "severity": "high",
+      "description": "Phase 5: Process violation detected (PI1-PI5) — evaluate severity, CDG render if critical."
+    },
+    "E053": {
+      "code": "E053",
+      "severity": "high",
+      "description": "Phase 5: Triage spawn fail — wf-fix-triage agent error. Re-spawn x1."
+    },
+    "E054": {
+      "code": "E054",
+      "severity": "high",
+      "description": "Phase 5: CDG Rejected Critical — Anti-loop guard (max 2 reject, đồng nhất với E055/E071), escalate."
+    },
+    "E055": {
+      "code": "E055",
+      "severity": "high",
+      "description": "Phase 5: Safety Check blockers — CDG render, reject 2 lần → ESCALATE."
+    },
+    "E060": {
+      "code": "E060",
+      "severity": "high",
+      "description": "Phase 6: Execute spawn fail — wf-fix-execute agent error. Re-spawn x1."
+    },
+    "E061": {
+      "code": "E061",
+      "severity": "high",
+      "description": "Phase 6: Fix report missing/broken — Retry generate từ template."
+    },
+    "E070": {
+      "code": "E070",
+      "severity": "high",
+      "description": "Phase 7: CQG-1 numeric mismatch — fix-plan vs fix-report metrics differ >5%. Retry x3."
+    },
+    "E071": {
+      "code": "E071",
+      "severity": "high",
+      "description": "Phase 7: CQG-2 browser/integration fail — evidence missing. CDG render, max 2 reject."
+    },
+    "E073": {
+      "code": "E073",
+      "severity": "medium",
+      "description": "Phase 7: Dashboard/summary generation fail. Retry x1."
+    },
+    "E074": {
+      "code": "E074",
+      "severity": "medium",
+      "description": "Phase 7: fix-impact.json / phase-summary / report generation fail. Retry x1."
+    },
+    "E075": {
+      "code": "E075",
+      "severity": "medium",
+      "description": "Phase 7: Atomic write / trace failure. Retry x1."
+    },
+    "E090": {
+      "code": "E090",
+      "severity": "medium",
+      "description": "CDG: Browser flag conflict — --show-browser + --no-browser. --no-browser wins."
+    },
+    "E090b": {
+      "code": "E090b",
+      "severity": "medium",
+      "description": "CDG: Parallel BASE_URL conflict (v10.2) — peer session đang test cùng BASE_URL. AskUserQuestion 3 options: Đợi peer xong / Tiếp tục (chắc chắn isolated) / Hủy session. Bypass cho CI/CD: MCV3_PW_ALLOW_SHARED_URL=1. Trigger bởi wf-fix-baseurl-conflict-check.sh ở Phase 4 Step 4.3 (v10.3 just-in-time CDG, moved from Phase 1)."
+    },
+    "E091": {
+      "code": "E091",
+      "severity": "medium",
+      "description": "CDG: Scope recommendation — ISG suggests narrower scope than requested."
+    },
+    "E092": {
+      "code": "E092",
+      "severity": "medium",
+      "description": "CDG: Cost estimate exceeds budget — LLM scan cost > $1.50 cap."
+    },
+    "E093": {
+      "code": "E093",
+      "severity": "medium",
+      "description": "CDG: Mobile recommendation — interface type supports mobile but --mobile not set."
+    },
+    "E100": {
+      "code": "E100",
+      "severity": "low",
+      "description": "CDG: QD9/QD10/QD11 recommendation — dimension not in plan but applicable."
+    },
+    "EDLG": {
+      "code": "EDLG",
+      "severity": "high",
+      "description": "Sub-skill delegation incomplete — LOG error, FAIL trace."
+    }
+  },
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "role": "orchestrator",
+    "pattern": "CI PRE-GATE Na/Nb/Nc (Protocol 20 §20.8) → CI context injection into sub-skills",
+    "ci_route_matrix": true,
+    "ci_context_passes_to": [
+      "wf-fix-triage",
+      "wf-fix-execute"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Grep/Glob. Non-git → skip. Zero regression."
+  },
+  "evals": {
+    "primary": "evals/evals.json",
+    "regression_tests": [
+      {
+        "id": "test-isg-name-narrowing",
+        "path": "evals/regression-tests/test-isg-name-narrowing.sh",
+        "covers_bug": "skill-issues-2026-05-09 #1",
+        "description": "Verify isg_recommender analyze --scope=module --name=marketing → output scope.name='marketing'.",
+        "runtime_estimate_sec": 5,
+        "requires_fixture": false
+      },
+      {
+        "id": "test-init-status-flags",
+        "path": "evals/regression-tests/test-init-status-flags.sh",
+        "covers_bug": "skill-issues-2026-05-09 #2",
+        "description": "Verify wf-fix-init-status.sh parse --url + --credentials → fix-status.json.flags.",
+        "runtime_estimate_sec": 3,
+        "requires_fixture": false
+      },
+      {
+        "id": "test-probe-timeout-not-silent",
+        "path": "evals/regression-tests/test-probe-timeout-not-silent.sh",
+        "covers_bug": "skill-issues-2026-05-09 #3 (CRITICAL)",
+        "description": "Force WF_FIX_PROBE_MAX_RUNTIME_SEC=1 → verify probe-failures.log has JSONL records.",
+        "runtime_estimate_sec": 30,
+        "requires_fixture": true,
+        "fixture_files": 5000
+      },
+      {
+        "id": "test-xref-on-N-orphans",
+        "path": "evals/regression-tests/test-xref-on-N-orphans.sh",
+        "covers_bug": "skill-issues-2026-05-09 #4",
+        "description": "Verify xref probe wall-clock < 30s with 1000 orphan REQ-IDs.",
+        "runtime_estimate_sec": 10,
+        "requires_fixture": false
+      }
+    ],
+    "e2e_tests": [
+      {
+        "id": "e2e-large-codebase",
+        "path": "evals/e2e-large-codebase.test.sh",
+        "description": "Run lane_dispatch QD1+QD2+QD3 profile=deep trên fixture 50k files.",
+        "runtime_estimate_sec": 180,
+        "requires_fixture": true,
+        "fixture_files": 50000,
+        "fixture_generator": "evals/fixtures/large-codebase/scripts/generate-fixture.py"
+      }
+    ],
+    "ci_workflow": ".github/workflows/devkit-skill-tests.yml",
+    "runner": "evals/regression-tests/run-all.sh"
+  },
+  "last_updated": "2026-05-16",
+  "changelog": [
+    {
+      "version": "10.16.0",
+      "date": "2026-05-16",
+      "summary": "Phase 3 + Phase 6 lazy-load split — phase3-plan.md (515→109-line index + 7 group files), phase6-execute.md (619→130-line index + 8 group files). Steps 3.2 + 3.7 + 6.7 migrated to shared trace scripts (phase-trace-start.sh + phase-finalize.sh). Critical INLINE preserved: 3.4 CDG-11, 6.3 CDG, 6.4 Agent spawn. Smoke tests: phase3 35/35 + phase6 40/40 PASS. Per-group context -85% vs monolithic."
+    }
+  ]
+}

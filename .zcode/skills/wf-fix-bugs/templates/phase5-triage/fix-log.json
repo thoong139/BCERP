@@ -1,0 +1,19 @@
+{
+  "$schema": "fix-log-v2",
+  "_template_notes": "fix-log.json — Per-fix execution log. Schema: fix-log-v2. Init by wf-fix-triage (Phase 5) tạo file rỗng với entries=[]. Appended by wf-fix-execute (Phase 6) mỗi lần sửa 1 issue. KHÔNG WRITE template thẳng vào output — sẽ tạo entry giả.",
+  "_entry_schema_example": {
+    "_description": "Mỗi entry ghi lại 1 lần thực hiện sửa cho 1 issue. issue_id phải khớp với issue-registry.json.",
+    "issue_id": "ISS-YYYYMMDD-NNN",
+    "timestamp": "ISO-8601",
+    "action": "fix_attempt | skip | defer | cdg_blocked | manual_required",
+    "result": "success | failed | partial | pending",
+    "dimension": "QD1 | QD2 | ... | QD11",
+    "file_changed": "relative/path/to/file.ts",
+    "duration_sec": 0,
+    "retry_count": 0,
+    "error_code": "E060 | E061 | null",
+    "notes": "Mô tả ngắn gọn về những gì đã làm hoặc lý do thất bại"
+  },
+  "session_id": "{{SESSION_ID}}",
+  "entries": []
+}

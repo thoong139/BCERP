@@ -1,0 +1,19 @@
+{
+  "_template_notes": "Per-FEAT seed manifest. Tạo thủ công hoặc bởi wf-e2e-finding P2.",
+  "$schema": "seed-requirements-v1",
+  "feat_id": "",
+  "description": "Seed data requirements cho FEAT-ID testing",
+  "entities": [
+    {
+      "entity": "EntityName",
+      "table": "entity_name",
+      "min_records": 5,
+      "states_required": [],
+      "cross_module_fixture": false,
+      "description": "Mô tả tại sao cần các records này"
+    }
+  ],
+  "seed_script": "prisma/seed.ts",
+  "seed_command": "npx prisma db seed",
+  "notes": ""
+}

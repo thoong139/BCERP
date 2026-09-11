@@ -1,0 +1,103 @@
+{
+  "skill": "wf-e2e-unblock",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "TC-F3-001",
+      "name": "Group 1+2 auto-unblock — Data + Infra fixes",
+      "input": {
+        "command": "/wf-e2e-unblock FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1400",
+        "context": "block-test.json có 2 entries: BLK-001 (missing_seed_data, Group 1) + BLK-002 (backend_not_running, Group 2). Cả 2 ở status=blocked."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass (block-test có entries)",
+        "BLK-001: run seed SQL → verify count > 0 → status=unblocked, retest_result=PASS",
+        "BLK-002: docker compose up eureka-api → wait health 200 → status=unblocked, retest_result=PASS",
+        "Write unblock-report.md với 2 rows PASS",
+        "Update block-test.json summary: unblocked=2"
+      ],
+      "assertions": [
+        "jq '.blocked_tests[] | select(.id==\"BLK-001\") | .status' block-test.json == \"unblocked\"",
+        "jq '.blocked_tests[] | select(.id==\"BLK-002\") | .status' block-test.json == \"unblocked\"",
+        "jq '.summary.unblocked' block-test.json == 2",
+        "unblock-report.md có bảng kết quả với 2 rows PASS"
+      ]
+    },
+    {
+      "id": "TC-F3-002",
+      "name": "Group 3 SKIP — defer to F4",
+      "input": {
+        "command": "/wf-e2e-unblock FEAT-EW-FIN-008 --session=FEAT-EW-FIN-008-20260513-1500",
+        "context": "block-test.json có 1 entry BLK-003 (feature_not_implemented, Group 3) + related implement-required.json IMPL-REQ-001."
+      },
+      "expected_behavior": [
+        "BLK-003 Group 3: KHÔNG attempt unblock, append unblock_attempts[]={action:'skip — delegate to F4', result:'deferred'}",
+        "status giữ nguyên 'blocked'",
+        "unblock-report.md có section 'Cần Implement (Group 3)' với link IMPL-REQ-001"
+      ],
+      "assertions": [
+        "jq '.blocked_tests[] | select(.id==\"BLK-003\") | .status' block-test.json == \"blocked\"",
+        "jq '.blocked_tests[] | select(.id==\"BLK-003\") | .unblock_attempts | length' >= 1",
+        "jq '.blocked_tests[] | select(.id==\"BLK-003\") | .unblock_attempts[0].action' contains 'delegate to F4'",
+        "unblock-report.md có chứa 'IMPL-REQ-001'"
+      ]
+    },
+    {
+      "id": "TC-F3-003",
+      "name": "Group 4 verify code PASS → manual.json append",
+      "input": {
+        "command": "/wf-e2e-unblock FEAT-EW-FIN-008 --session=FEAT-EW-FIN-008-20260513-1500",
+        "context": "block-test.json có BLK-007 (requires_real_payment, Group 4). Code VNPayService.HandleCallback tồn tại + đúng logic."
+      },
+      "expected_behavior": [
+        "BLK-007 Group 4: static_code_review VNPayService → PASS",
+        "DUAL-WRITE: block-test.json BLK-007 status=resolved + retest_result=SKIPPED + related_manual_id=MAN-001",
+        "APPEND manual.json MAN-001 với code_verification.result=PASS + recommended_test_steps[]",
+        "unblock-report.md có section 'Cần Người (Group 4)' với link MAN-001"
+      ],
+      "assertions": [
+        "jq '.blocked_tests[] | select(.id==\"BLK-007\") | .status' block-test.json == \"resolved\"",
+        "jq '.blocked_tests[] | select(.id==\"BLK-007\") | .related_manual_id' block-test.json == \"MAN-001\"",
+        "jq '.entries[] | select(.id==\"MAN-001\") | .code_verification.verification_result' manual.json == \"PASS\"",
+        "jq '.entries[] | select(.id==\"MAN-001\") | .related_blk_id' manual.json == \"BLK-007\"",
+        "jq '.entries[] | select(.id==\"MAN-001\") | .recommended_test_steps | length' >= 3"
+      ]
+    },
+    {
+      "id": "TC-F3-004",
+      "name": "Group 4 code FAIL → escalate to issue, không ghi manual",
+      "input": {
+        "command": "/wf-e2e-unblock FEAT-EW-WMS-005 --session=FEAT-EW-WMS-005-20260513-1600",
+        "context": "BLK-010 Group 4 requires_visual_inspection. Code review phát hiện component thiếu loading state."
+      },
+      "expected_behavior": [
+        "Code FAIL → APPEND issues.json với ISS-NNN (severity high, type code-bug)",
+        "block-test.json BLK-010: status=blocked, resolution_note='Code FAIL — see ISS-NNN', related_iss_id=ISS-NNN",
+        "KHÔNG append manual.json (code bug, không phải hard-to-test)",
+        "E034 logged"
+      ],
+      "assertions": [
+        "jq '.blocked_tests[] | select(.id==\"BLK-010\") | .status' block-test.json == \"blocked\"",
+        "jq '.signals[] | select(.related_blk_id==\"BLK-010\") | .severity' issues.json == \"high\"",
+        "jq '.entries[] | select(.related_blk_id==\"BLK-010\")' manual.json == \"\" (no entry)"
+      ]
+    },
+    {
+      "id": "TC-F3-005",
+      "name": "Standalone require --session error",
+      "input": {
+        "command": "/wf-e2e-unblock FEAT-EW-CRM-001",
+        "context": "Không có --session flag"
+      },
+      "expected_behavior": [
+        "Detect missing --session → E031",
+        "STOP, hỏi user cung cấp --session từ orchestrator hoặc F1"
+      ],
+      "assertions": [
+        "Output có chứa 'E031'",
+        "Output có chứa '--session' hoặc 'session required'",
+        "Không có file mới được tạo"
+      ]
+    }
+  ]
+}

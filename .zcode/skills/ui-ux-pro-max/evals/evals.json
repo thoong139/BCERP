@@ -1,0 +1,50 @@
+{
+  "skill_name": "ui-ux-pro-max",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/ui-ux-pro-max \"SaaS dashboard cho he thong quan ly kho\"",
+      "expected_output": "Tra ve design recommendations voi style, color palette, typography, component patterns cho SaaS dashboard",
+      "assertions": [
+        {"text": "Kiem tra Python 3 va data/*.csv ton tai truoc khi chay", "type": "behavior"},
+        {"text": "Tra ve it nhat 1 style recommendation phu hop voi SaaS dashboard", "type": "output_contains"},
+        {"text": "Tra ve color palette voi hex codes", "type": "output_contains"},
+        {"text": "Tra ve font pairing recommendations", "type": "output_contains"},
+        {"text": "De xuat tech stack phu hop (React/Vue/etc)", "type": "output_contains"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/ui-ux-pro-max --design-system --domain=ecommerce --stack=react",
+      "expected_output": "Generate design system day du cho e-commerce React app",
+      "assertions": [
+        {"text": "Output bao gom design tokens (colors, spacing, typography)", "type": "output_contains"},
+        {"text": "Component library recommendations cho React", "type": "output_contains"},
+        {"text": "E-commerce specific patterns (product cards, cart, checkout)", "type": "output_contains"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/ui-ux-pro-max \"glassmorphism login form\"",
+      "expected_output": "Design recommendations cho glassmorphism style login form",
+      "assertions": [
+        {"text": "Glassmorphism style duoc identify va recommend", "type": "output_contains"},
+        {"text": "CSS properties cho glassmorphism (backdrop-filter, transparency)", "type": "output_contains"},
+        {"text": "Accessibility considerations cho glassmorphism", "type": "output_contains"}
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "/ui-ux-pro-max (Python khong cai dat)",
+      "expected_output": "Error handling — thong bao can Python 3",
+      "assertions": [
+        {"text": "Phat hien Python khong co va thong bao ro rang", "type": "behavior"},
+        {"text": "Huong dan cai dat Python", "type": "output_contains"}
+      ],
+      "files": []
+    }
+  ]
+}

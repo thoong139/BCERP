@@ -1,0 +1,43 @@
+{
+  "$schema": "impact-graph-v1",
+  "_template_notes": "Skeleton tu Phase A.6 — schema canonical tu 04-data-model.md §2.2. Phase F Impact+Incremental populate.",
+  "synthesis_mode": "full+insights",
+  "generated_at": "{{GENERATED_AT_ISO8601}}",
+  "session_id": "{{SESSION_ID}}",
+  "nodes": [
+    {
+      "id": "{{MODULE_ID}}",
+      "type": "module",
+      "files_count": 0,
+      "feat_ids": [],
+      "domain": "{{DOMAIN_NAME}}",
+      "coupling_score": 0.0
+    }
+  ],
+  "edges": [
+    {
+      "from": "{{FROM_MODULE}}",
+      "to": "{{TO_MODULE}}",
+      "relation": "code_import",
+      "evidence": "{{EVIDENCE}}",
+      "strength": 0.0,
+      "probe_source": "{{PROBE_SOURCE}}"
+    }
+  ],
+  "relation_types_allowed": [
+    "code_import",
+    "data_dependency",
+    "event_subscription",
+    "api_call",
+    "req_cross_ref",
+    "entity_reference"
+  ],
+  "circular_dependencies": [],
+  "orphan_modules": [],
+  "summary": {
+    "total_nodes": 0,
+    "total_edges": 0,
+    "avg_fanout": 0.0,
+    "max_fanout": 0
+  }
+}

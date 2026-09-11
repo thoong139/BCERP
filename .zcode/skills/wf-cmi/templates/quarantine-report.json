@@ -1,0 +1,55 @@
+{
+  "_template_notes": {
+    "delete_before_write": true,
+    "purpose": "Ghi khi scenario bị quarantine do flaky (pre-flight 5x ≤3/5 PASS), lint_fail (lint-scenario.sh không pass), hoặc persistent_fail (≥3 lần FAIL liên tiếp cross-session). 1 file per session aggregate (KHÔNG 1 file per scenario như wf-e2e-scenario legacy).",
+    "rendered_by": "procedures/phase9-e2e-execute.md Step 9.4 (pre-flight quarantine) + Step 9.6 (persistent-fail quarantine)",
+    "consumed_by": [
+      "procedures/phase9-e2e-execute.md Step 9.9 (cross-ref quarantined section trong e2e-execution-report.md)",
+      "procedures/phase10-e2e-resolution.md Step 10.1 (SKIP quarantined entries — không classify)",
+      "procedures/phase8-report.md Step 8.4 (count quarantined vào integrity-impact-v3.e2e_execution_summary.quarantined_count)"
+    ],
+    "schema_id": "quarantine-report-v1",
+    "schema_notes": {
+      "session_id": "Session ID hiện tại — cross-ref với scenarios-manifest",
+      "quarantined_scenarios[]": {
+        "scenario_id": "Pattern CMI-SC-{NNN}",
+        "scenario_file": "Relative path tới scenario .md",
+        "quarantined_at": "ISO 8601",
+        "reason": "flaky | lint_fail | persistent_fail | manual_override",
+        "fail_stats": {
+          "runs": "Số lần pre-flight execute (thường 5)",
+          "pass": "Số lần PASS",
+          "fail": "Số lần FAIL",
+          "flaky": "boolean — true nếu pass < runs nhưng > 0"
+        },
+        "diagnostic_bundle": {
+          "dom_diff": "DOM snapshot diff giữa các run (text or path)",
+          "network_trace": "Console aggregate (text or path)",
+          "console_errors": "JS errors across runs",
+          "screenshots": "Array paths của screenshots failed runs",
+          "timing_analysis": "Object {min_ms, max_ms, avg_ms, std_dev_ms} — flaky thường có std_dev cao"
+        },
+        "fix_proposal_path": "Path tới analysis file của qa-lead + frontend-developer (CDG E152 spawn nếu user accept)",
+        "status": "quarantined | re_verify_pending | unquarantined",
+        "experts_assigned": "Default ['qa-lead', 'frontend-developer'] — extensible",
+        "auto_fix_dispatched": "boolean — true nếu Phase 10 spawn agent xử lý"
+      }
+    },
+    "policy": "Quarantined scenarios SKIP Phase 9 execute + Phase 10 resolution. Re-verify thủ công qua --scenarios-only --force-stable-check sau khi fix."
+  },
+  "$schema": "quarantine-report-v1",
+  "session_id": "{SESSION_ID}",
+  "lane_source": "CD41",
+  "generated_at": "{ISO_TIMESTAMP}",
+  "quarantined_scenarios": [],
+  "metadata": {
+    "total_quarantined": 0,
+    "by_reason": {
+      "flaky": 0,
+      "lint_fail": 0,
+      "persistent_fail": 0,
+      "manual_override": 0
+    },
+    "total_dispatched_for_fix": 0
+  }
+}

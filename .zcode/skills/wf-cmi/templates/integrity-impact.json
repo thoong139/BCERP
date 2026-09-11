@@ -1,0 +1,243 @@
+{
+  "_template_notes": {
+    "purpose": "Cross-skill artifact PRIMARY (CORE-036). Phase 8 output. Consumed bởi 4 skills downstream qua --from-cmi: wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment. v3.0 schema bump (2026-05-16): thêm e2e_execution_summary + scenarios_artifacts[] cho Phase 9-10 E2E Scenario Engine — giữ ALL fields v1 + v2 (lanes_v2, wave_breakdown, group_breakdown, logistics_critical_signals_count, violations, regression_scope, gap_artifacts_suggested, consumers_recommended_actions, summary, audit_chain) cho backward-compat consumer fallback. PHẢI có $schema='integrity-impact-v3' + audit_chain.source + audit_chain.checksum + git_commit + git_branch + author. Tham chiếu v3.0-e2e-integration-plan.md §4.4 + §6.",
+    "populate": [
+      "scope: scope từ session (type + modules[])",
+      "profile: profile từ session",
+      "lanes_v2.active: 27 CD IDs đã dispatch (26 v2 + CD41 nếu profile=deep|exhaustive)",
+      "lanes_v2.skipped: 9 CD IDs SKIPPED (CD8, CD10, CD12, CD14, CD19-22, CD27)",
+      "lanes_v2.skeleton: 5 CD IDs v3-deferred (CD32-CD36) — KHÔNG dispatch v2/v3",
+      "wave_breakdown.wave_X: {lane_count, pass_count, fail_count, timeout_count, overall_pct, gate_status} per wave từ wave-status.json (wave 3 deep mở rộng 6→7 lanes với CD41)",
+      "group_breakdown.{core,frontend,backend,ux,logistics,compliance,implementation,e2e_synth}: {lane_ids[], avg_coverage_pct, status, violations_count} — v3 thêm 'e2e_synth' group cho CD41",
+      "logistics_critical_signals_count: signals từ CD28/CD30/CD31/CD37/CD38/CD39/CD40 — ★★★ logistics-critical aggregate",
+      "schema_version_compat.readable_by: ['integrity-impact-v1','integrity-impact-v2','integrity-impact-v3'] — hint cho consumer detect logic",
+      "coverage_matrix_summary: rút gọn từ coverage-matrix.json — {overall_pct, below_threshold_dims[], status}",
+      "violations[]: top 10 violations severity-weighted (MUST=4, HIGH=3, MEDIUM=2, LOW=1) từ Phase 5 aggregation — {id (CMI-V-XXX), dim, invariant_id, severity, rule, affected_modules[], affected_files[], suggested_fix_ref}",
+      "regression_scope: rút gọn từ regression-map.json — {changed_files_count, predicted_affected_modules[], test_plan_count, mode}",
+      "gap_artifacts_suggested[]: từ gap-suggestions.json post-CDG — {kind, id, status=accepted|rejected|pending_user_accept, path, target, reason?} — v3 thêm kind='e2e_scenario_fix' từ Phase 10 loop-back",
+      "consumers_recommended_actions: 4 keys cho 4 consumers — string mô tả action recommended cho mỗi consumer (tính dựa final_status + must_violations + overall_pct + profile + e2e_execution_summary)",
+      "e2e_execution_summary (NEW v3): null nếu KHÔNG --exec-scenarios. Populated bởi Phase 9 + Phase 10 nếu execute Playwright — {exec_enabled, scenarios_synthesized, scenarios_executed, pass_count, auto_corrected_count, fail_count, quarantined_count, cross_module_count, phase9_duration_ms, phase10_duration_ms, loop_back_suggestions_count, top_failure_types[]}",
+      "scenarios_artifacts[] (NEW v3): [] nếu KHÔNG --exec-scenarios. Populated với 1 entry per scenario — {scenario_id, scenario_file, feat_id_inferred, modules_involved, cross_module, source_violation_ids, source_invariant_id, execution_status, screenshot_paths[], resolution_path}",
+      "audit_chain.source: path tới integrity-status.json (SSOT)",
+      "audit_chain.checksum: sha256 của artifact này",
+      "audit_chain.git_commit: HEAD commit SHA",
+      "audit_chain.git_branch: current branch",
+      "audit_chain.author: {email, name} từ git config"
+    ],
+    "delete_before_write": true,
+    "backward_compat_contract": "Consumer skills (wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment) PHẢI detect $schema field: nếu = 'integrity-impact-v1' → đọc bằng v1 reader (chỉ truy cập fields v1); nếu = 'integrity-impact-v2' → đọc bằng v1 reader HOẶC v2 reader (truy cập thêm lanes_v2/wave_breakdown/group_breakdown/logistics_critical_signals_count); nếu = 'integrity-impact-v3' → đọc bằng v1/v2/v3 reader (v3 thêm e2e_execution_summary + scenarios_artifacts — v1/v2 readers ignore 2 fields này). Producer wf-cmi v3 LUÔN ghi $schema='integrity-impact-v3' + đầy đủ fields v1 + v2 + v3. Khi KHÔNG có --exec-scenarios → e2e_execution_summary=null + scenarios_artifacts=[] để consumer biết exec không chạy.",
+    "version_bump_coordination": "v2→v3 bump (2026-05-16): KHÔNG break — 4 consumers vẫn read được bằng v1/v2 reader (fields v1+v2 100% preserved). Nếu consumer muốn opt-in v3 features (e2e_execution_summary, scenarios_artifacts) → update consumer reader logic + _contract.json mention v3 schema. Tham chiếu Stage 3 §G3.3 backward-compat mock test (v1/v2/v3 reader ALL pass đọc v3 artifact)."
+  },
+  "$schema": "integrity-impact-v3",
+  "skill": "wf-cmi",
+  "skill_version": "3.0.0",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "profile": "{{PROFILE}}",
+  "final_status": "PENDING",
+  "schema_version_compat": {
+    "current": "integrity-impact-v3",
+    "readable_by": ["integrity-impact-v1", "integrity-impact-v2", "integrity-impact-v3"],
+    "v1_compat_note": "All v1 fields preserved — v1 readers ignore lanes_v2/wave_breakdown/group_breakdown/logistics_critical_signals_count/e2e_execution_summary/scenarios_artifacts. Consumer detect via $schema field.",
+    "v2_compat_note": "All v2 fields preserved — v2 readers ignore e2e_execution_summary/scenarios_artifacts. Consumer detect via $schema field.",
+    "v3_new_fields": ["e2e_execution_summary", "scenarios_artifacts"],
+    "v3_compat_note": "v3 fields are nullable. When --exec-scenarios=off: e2e_execution_summary=null + scenarios_artifacts=[]. Consumer downstream can safely consume v3 artifact với v1/v2 reader logic — KHÔNG break."
+  },
+  "lanes_v2": {
+    "active": [],
+    "skipped": [],
+    "skeleton": [],
+    "total_active_count": 0,
+    "total_skipped_count": 0,
+    "total_skeleton_count": 0
+  },
+  "wave_breakdown": {
+    "wave_1": {
+      "lane_count": 0,
+      "pass_count": 0,
+      "fail_count": 0,
+      "timeout_count": 0,
+      "skip_count": 0,
+      "overall_pct": 0,
+      "gate_status": "PENDING",
+      "description": "Wave 1 — Graphs (10 lanes max: CD1-CD7, CD11, CD16, CD17)"
+    },
+    "wave_2": {
+      "lane_count": 0,
+      "pass_count": 0,
+      "fail_count": 0,
+      "timeout_count": 0,
+      "skip_count": 0,
+      "overall_pct": 0,
+      "gate_status": "PENDING",
+      "description": "Wave 2 — Cross-layer (10 lanes max: CD13, CD15, CD18, CD23-CD25, CD28, CD30, CD31, CD37)"
+    },
+    "wave_3": {
+      "lane_count": 0,
+      "pass_count": 0,
+      "fail_count": 0,
+      "timeout_count": 0,
+      "skip_count": 0,
+      "overall_pct": 0,
+      "gate_status": "PENDING",
+      "description": "Wave 3 — Final cross-ref (6 lanes: CD9, CD26, CD29, CD38, CD39, CD40)"
+    }
+  },
+  "group_breakdown": {
+    "core": {
+      "lane_ids": ["CD1", "CD2", "CD3", "CD4", "CD5", "CD6", "CD7", "CD9"],
+      "lane_count": 8,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0
+    },
+    "frontend": {
+      "lane_ids": ["CD11", "CD13", "CD15"],
+      "lane_count": 3,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0
+    },
+    "backend": {
+      "lane_ids": ["CD16", "CD17", "CD18"],
+      "lane_count": 3,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0
+    },
+    "ux": {
+      "lane_ids": ["CD23", "CD24", "CD25", "CD26"],
+      "lane_count": 4,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0
+    },
+    "logistics": {
+      "lane_ids": ["CD28", "CD30", "CD31"],
+      "lane_count": 3,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0,
+      "critical": true,
+      "marker": "★★★"
+    },
+    "compliance": {
+      "lane_ids": ["CD29", "CD37"],
+      "lane_count": 2,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0,
+      "critical": true,
+      "marker": "★★★"
+    },
+    "implementation": {
+      "lane_ids": ["CD38", "CD39", "CD40"],
+      "lane_count": 3,
+      "avg_coverage_pct": 0,
+      "status": "PENDING",
+      "violations_count": 0,
+      "marker": "★"
+    }
+  },
+  "logistics_critical_signals_count": {
+    "total": 0,
+    "by_lane": {
+      "CD28": 0,
+      "CD30": 0,
+      "CD31": 0,
+      "CD37": 0,
+      "CD38": 0,
+      "CD39": 0,
+      "CD40": 0
+    },
+    "must_severity_count": 0,
+    "note": "Aggregate signals từ 7 logistics-critical lanes (CD28 MDM + CD30 Time&Numbering + CD31 Money&Tax + CD37 Regulatory + CD38 UI Implementation + CD39 Error UX + CD40 Print&Export). wf-prepare-deployment dùng cờ này để block release nếu must_severity_count > 0."
+  },
+  "coverage_matrix_summary": {
+    "overall_pct": 0,
+    "below_threshold_dims": [],
+    "status": "PENDING",
+    "threshold_per_dim_pct": 80,
+    "threshold_overall_pct_per_profile": {
+      "quick": 60,
+      "standard": 80,
+      "deep": 95,
+      "exhaustive": 100
+    }
+  },
+  "violations": [],
+  "regression_scope": {
+    "changed_files_count": 0,
+    "predicted_affected_modules": [],
+    "test_plan_count": 0,
+    "mode": null,
+    "since_ref": null
+  },
+  "gap_artifacts_suggested": [],
+  "consumers_recommended_actions": {
+    "wf-verify-sync": "Re-run --from-cmi để validate impl_status vs invariants mới và regression-affected modules. Đọc lanes_v2.active để biết coverage dims đã đo. v3 thêm: nếu e2e_execution_summary.fail_count > 0 → re-validate REQ-ID của scenarios_artifacts[].source_invariant_id. (v1 reader: chỉ cần đọc violations[] + regression_scope)",
+    "wf-fix-bugs": "Seed Phase 1 với violations[] MUST severity — ưu tiên logistics_critical_signals_count.must_severity_count cao. v3 thêm: scenarios_artifacts[execution_status='FAIL'] làm seed lane QD1/QD5 (UI bugs từ runtime verify). (v1 reader: chỉ đọc violations[] MUST severity)",
+    "wf-implement-feature": "Warn nếu touch entities/modules trong violations[].affected_modules — review business-invariants.json trước khi code. v3 thêm: warn nếu touch modules có scenarios_artifacts[execution_status='FAIL'] — review resolution-report.md trước khi code. (v1 reader: chỉ check violations[].affected_modules)",
+    "wf-prepare-deployment": "v3 logic: BLOCK release nếu (a) logistics_critical_signals_count.must_severity_count > 0 HOẶC (b) wave_breakdown.wave_X.gate_status == 'FAIL_THRESHOLD' HOẶC (c) coverage < threshold_overall_pct_per_profile[profile] HOẶC (d v3 NEW) e2e_execution_summary.fail_count > 0. (v1 reader: BLOCK nếu coverage_matrix_summary.status == 'FAIL')"
+  },
+  "e2e_execution_summary": null,
+  "_e2e_execution_summary_template": {
+    "_comment": "REFERENCE ONLY — Phase 8 Step 8.4 sẽ populate field 'e2e_execution_summary' từ object này (xóa _e2e_execution_summary_template). Nếu --exec-scenarios=off → giữ e2e_execution_summary=null.",
+    "exec_enabled": false,
+    "scenarios_synthesized": 0,
+    "scenarios_executed": 0,
+    "pass_count": 0,
+    "auto_corrected_count": 0,
+    "fail_count": 0,
+    "quarantined_count": 0,
+    "cross_module_count": 0,
+    "phase9_duration_ms": 0,
+    "phase10_duration_ms": 0,
+    "loop_back_suggestions_count": 0,
+    "top_failure_types": []
+  },
+  "scenarios_artifacts": [],
+  "_scenarios_artifacts_template_entry": {
+    "_comment": "REFERENCE ONLY — Phase 8 Step 8.4 sẽ APPEND vào 'scenarios_artifacts[]' từ object này. 1 entry per scenario CD41 sinh (kể cả NOT_EXECUTED nếu Phase 9 SKIP).",
+    "scenario_id": "CMI-SC-001",
+    "scenario_file": "phase4-coverage/lanes/CD41-e2e-synth/scenarios/test-scenario-CMI-001-foo.md",
+    "feat_id_inferred": "FEAT-XXX-001",
+    "modules_involved": [],
+    "cross_module": false,
+    "source_violation_ids": [],
+    "source_invariant_id": null,
+    "source_dim": "CD11",
+    "severity": "HIGH",
+    "execution_status": "NOT_EXECUTED",
+    "screenshot_paths": [],
+    "resolution_path": null
+  },
+  "summary": {
+    "violations_count": 0,
+    "must_violations_count": 0,
+    "high_violations_count": 0,
+    "medium_violations_count": 0,
+    "low_violations_count": 0,
+    "suggestions_count": 0,
+    "accepted_suggestions_count": 0,
+    "rejected_suggestions_count": 0,
+    "modules_with_issues": []
+  },
+  "audit_chain": {
+    "source": "{{SESSION_DIR}}/integrity-status.json",
+    "checksum": "{{ARTIFACT_CHECKSUM}}",
+    "git_commit": "{{GIT_COMMIT}}",
+    "git_branch": "{{GIT_BRANCH}}",
+    "author": {
+      "email": "{{GIT_USER_EMAIL}}",
+      "name": "{{GIT_USER_NAME}}"
+    },
+    "scanned_files": [],
+    "since_ref": null,
+    "skipped_phases": []
+  }
+}

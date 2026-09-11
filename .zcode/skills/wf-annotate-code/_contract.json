@@ -1,0 +1,183 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-annotate-code",
+  "version": "2.1.0",
+  "phase": "post-phase3",
+  "description": "Inject REQ-ID comments vào existing code files để thiết lập traceability — v2.1.0: fix BUG-01 checkpoint resume guard, BUG-02 division-by-zero, BUG-03 language-specific insert position (Go/Python), BUG-04 checkpoint freshness check, BUG-05 E046 batch-confirm, BUG-06 E042 in-memory backup, BUG-07 trigger string standardize, BUG-08 gap-categories.json conditional prereq, BUG-09 APPEND_NEW option, ARCH-03 timing warning, ARCH-04 Phase 1 intermediate checkpoint",
+  "procedure": ["procedures/phase0-context.md"],
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      ".mc-data/work/legacy-scan/module-code-mapping.json",
+      ".mc-data/work/legacy-scan/gap-report.md",
+      ".mc-data/work/legacy-scan/ledger.json",
+      ".mc-data/work/legacy-scan/legacy-scan-status.json"
+    ],
+    "registry_fields": [
+      "features"
+    ],
+    "notes": "gap_analysis stage phải completed trong ledger. req-registry.json phải có features[] (length > 0, forensic check per CORE-011). Dùng cho dự án legacy sau khi /wf-design (legacy flow — gap analysis) hoàn thành"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry với features[] và REQ-IDs — READ-ONLY, skill này KHÔNG ghi vào registry",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+      "description": "Module-to-code-project mapping từ wf-legacy-extract (Stage 3.5)",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/gap-report.md",
+      "description": "Gap analysis report từ wf-design (legacy flow) — xác định annotation gaps cần xử lý. Expected section heading: '## Annotation Gaps' (Phase 1 Step 1.7 dùng heading này để ưu tiên confidence; nếu heading khác hoặc thiếu — Phase 1 vẫn chạy nhưng bỏ qua confidence boost từ gap prioritization)",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/ledger.json",
+      "description": "Pipeline ledger — dùng check gap_analysis.status và maturity.level",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/legacy-scan-status.json",
+      "description": "Shared pipeline status — update stages.annotate",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-profile.json",
+      "description": "Tech stack info để detect comment format theo language",
+      "required": false,
+      "condition": "Nếu tồn tại → populate $TECH_STACK, nếu không → fallback theo file extension"
+    },
+    {
+      "path": "<source-code-files>",
+      "description": "Code files trong project (xác định qua module-code-mapping.json directories)",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions từ wf-brainstorm — loại files thuộc DEPRECATED modules khỏi scope (CORE-022, graceful degradation)",
+      "required": false,
+      "condition": "LEGACY_MODE only — nếu không tồn tại → không filter DEPRECATE"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/gap-categories.json",
+      "description": "Gap categories với status per file (diverged/aligned/missing) — produced bởi wf-legacy-classify hoặc wf-design (legacy flow). BẮT BUỘC khi ledger.maturity.level = 'NEAR_COMPLETE' để filter diverged_only annotation scope. Phase 0 Mode Check validate file này khi $ANNOTATION_MODE = 'diverged_only'.",
+      "required": false,
+      "condition": "Required khi ledger.maturity.level = 'NEAR_COMPLETE'. Optional otherwise. Không tồn tại + NEAR_COMPLETE → E001 STOP."
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/annotate-checkpoint.json",
+      "description": "Checkpoint để resume Phase 3 — dùng khi --resume",
+      "required": false,
+      "condition": "Chỉ có khi đã chạy Phase 3 batch trước đó và session bị ngắt"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/legacy-scan/annotate-status.json",
+        "template": "templates/annotate-status.json",
+        "required": true,
+        "description": "Runtime status — khởi tạo Phase 0, update qua các phases"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/annotate-plan.md",
+        "template": "templates/annotate-plan.md",
+        "required": true,
+        "description": "Execution plan — tạo Phase 0, finalize Phase 4"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/annotate-checkpoint.json",
+        "template": "templates/annotate-checkpoint.json",
+        "required": true,
+        "description": "Checkpoint — init Phase 0, update per batch Phase 3"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/annotation-map.json",
+        "template": null,
+        "note": "Inline schema defined in procedures/phase1-build-map.md — annotation map built dynamically from registry + gap analysis",
+        "required": true,
+        "description": "Annotation map: { file_path, req_ids[], feat_id, confidence, module, language } — tạo Phase 1, confirmed Phase 2"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/annotation-report.md",
+        "template": "templates/annotation-report.md",
+        "required": true,
+        "description": "Báo cáo kết quả annotation — Phase 4 (hoặc Phase 2 với DRY-RUN banner nếu --dry-run)"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/legacy-scan-status.json",
+        "template": null,
+        "note": "Shared pipeline status file — updated in-place, not created from template",
+        "required": true,
+        "description": "Shared pipeline status — update stages.annotate section (Phase 3 per batch, Phase 4 finalize)"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/ledger.json",
+        "template": null,
+        "note": "Pipeline ledger — updated in-place (shared by multiple skills), not created from template",
+        "required": true,
+        "description": "Pipeline ledger — update stages.annotate.status = 'completed' (Phase 4)"
+      },
+      {
+        "path": ".mc-data/work/wf-annotate-code/phase-summary.md",
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "required": true,
+        "description": "CORE-028: Phase summary cho non-specialist users — tạo Phase 4 Step 4.11"
+      },
+      {
+        "path": ".mc-data/work/_trace/session-log.json",
+        "template": ".claude/doc-framework/_meta/session-log.template.json",
+        "required": true,
+        "description": "CORE-026: Session trace — append START event Phase 0, COMPLETE event Phase 4"
+      }
+    ],
+    "registry": null,
+    "_notes": "Skill này GHI TRỰC TIẾP vào source code files (thêm REQ-ID/FEAT-ID comments qua Edit tool). KHÔNG ghi vào req-registry.json (READ-ONLY access)"
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "notes": "Skill này READ-ONLY đối với req-registry.json. KHÔNG update bất kỳ field nào trong registry. Chỉ đọc registry để lấy REQ-IDs và feature mappings"
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-plan-modules": [
+        "<annotated-source-code-files>",
+        ".mc-data/work/legacy-scan/annotation-report.md"
+      ]
+    },
+    "consumes_from": {
+      "wf-design": [
+        ".mc-data/work/legacy-scan/gap-report.md"
+      ],
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/project-profile.json",
+        ".mc-data/work/legacy-scan/ledger.json",
+        ".mc-data/work/legacy-scan/legacy-scan-status.json"
+      ]
+    }
+  },
+  "_procedures_metadata": {
+    "entry_point": "procedures/phase0-context.md",
+    "shared": "procedures/_shared.md",
+    "phases": [
+      { "id": "phase0", "file": "procedures/phase0-context.md", "purpose": "PRE-GATE, context loading, --status/--resume, maturity check, traceability baseline" },
+      { "id": "phase1", "file": "procedures/phase1-build-map.md", "purpose": "Scan code, build annotation-map.json" },
+      { "id": "phase2", "file": "procedures/phase2-review.md", "purpose": "User confirm map, --dry-run exit" },
+      { "id": "phase3", "file": "procedures/phase3-inject.md", "purpose": "Batched injection với existence check + verify + checkpoint" },
+      { "id": "phase4", "file": "procedures/phase4-verify-report.md", "purpose": "Verify + report + ledger/status finalize + phase-summary + session log" }
+    ]
+  }
+}

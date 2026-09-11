@@ -1,0 +1,48 @@
+{
+  "$schema": "diagram-status-v1",
+  "skill": "wf-diagram",
+  "version": "2.0.0",
+  "session_id": "",
+  "module": "",
+  "source_path": "",
+  "output_path": "",
+  "scope": "full",
+  "status": "in_progress",
+  "verdict": null,
+  "started_at": "",
+  "completed_at": null,
+  "phases": {
+    "phase_0": { "name": "Setup & Argument Validation", "status": "pending" },
+    "phase_1": { "name": "Pre-check Existing Diagrams", "status": "pending" },
+    "phase_2": { "name": "Source Code Analysis", "status": "pending" },
+    "phase_3": { "name": "Generation Plan", "status": "pending" },
+    "phase_4": { "name": "System-wide Diagrams", "status": "pending" },
+    "phase_5": { "name": "Module-scoped Diagrams", "status": "pending" },
+    "phase_6": { "name": "Detail Diagrams", "status": "pending" },
+    "phase_7": { "name": "Validation & Output", "status": "pending" }
+  },
+  "user_decisions": {
+    "module_conflict": null,
+    "system_overwrite": null
+  },
+  "generation_plan": {
+    "system_files": [],
+    "module_files": [],
+    "states": [],
+    "activities": [],
+    "sequences": [],
+    "skipped": []
+  },
+  "results": {
+    "modules_detected": 0,
+    "entities_detected": 0,
+    "endpoints_detected": 0,
+    "actors_detected": 0,
+    "components_detected": 0,
+    "states_diagrams_generated": 0,
+    "activities_diagrams_generated": 0,
+    "sequences_diagrams_generated": 0
+  },
+  "output_files": [],
+  "error_log": []
+}

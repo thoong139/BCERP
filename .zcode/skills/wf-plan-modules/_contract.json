@@ -1,0 +1,376 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-plan-modules",
+  "version": "3.3.0",
+  "phase": "phase5-implementation",
+  "description": "Dependency analysis, implementation plans và sprint planning — sinh Phase 5 implementation docs. v3.3.0: Quality improvement (synced với wf-implement-feature v5.1.0) — A2.5 Quality Requirements (5 checklists: Security, Data Integrity, i18n, Accessibility, Performance) + A2.6 Environment Notes auto-generated trong task files, Code Quality Scan (G1-G5) trong Phase 1.5 cho COMPLETE_EXISTING features, Domain-Specific Checklist injection (12 domains: E-commerce, Finance, Logistics, HR, CRM, Healthcare, Insurance, Real Estate, Education, Manufacturing, Procurement, Retail). v3.2.0: Multi-Session Parallel Safety — Cross-Process Registry Mutex (Phase 7 7.4-LOCK), A2.4 Scope Files BẮT BUỘC trong task files, parallel-safe-groups.md generation (Step 7.5.7), Phase 7a 7a.13 quality gate. v3.1.0: A6-EXT Quality Gate (Phase 7a check 7a.12) + structured A6-EXT template để bảo đảm wf-implement-feature đọc spec đầy đủ. v3.0.0: ADR-OPT rollout (5 techniques) — Topological Lane Dispatch, Session Isolation, Workload Gate, Signal Aggregation, Atomic Write.",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase0-init.md",
+    "procedures/phase0.5-workload-gate.md",
+    "procedures/phase1-validate.md",
+    "procedures/phase1.5-legacy-impl.md",
+    "procedures/phase2-deps.md",
+    "procedures/phase3-cycles.md",
+    "procedures/phase4-topo.md",
+    "procedures/phase5-mvp.md",
+    "procedures/phase6-impact.md",
+    "procedures/phase7-outputs.md",
+    "procedures/phase7.5.0-orphan.md",
+    "procedures/phase7.5-tasks.md",
+    "procedures/phase7a-verify.md",
+    "procedures/phase7b-review.md",
+    "procedures/phase7c-summary.md"
+  ],
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase0-init.md",
+    "procedures/phase0.5-workload-gate.md",
+    "procedures/phase1-validate.md",
+    "procedures/phase1.5-legacy-impl.md",
+    "procedures/phase2-deps.md",
+    "procedures/phase3-cycles.md",
+    "procedures/phase4-topo.md",
+    "procedures/phase5-mvp.md",
+    "procedures/phase6-impact.md",
+    "procedures/phase7-outputs.md",
+    "procedures/phase7.5.0-orphan.md",
+    "procedures/phase7.5-tasks.md",
+    "procedures/phase7a-verify.md",
+    "procedures/phase7b-review.md",
+    "procedures/phase7c-summary.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      ".mc-data/docs/phase2-features/",
+      ".mc-data/docs/phase3-architecture/"
+    ],
+    "registry_fields": [
+      "modules"
+    ],
+    "notes": "PHẢI đọc req-registry.json (không parse Markdown). Requires Phase 2 features và Phase 3 architecture. Phase 4 UX required nếu interface_type != 'api-only' (CORE-007)."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry với modules[], features[], implementation_order — SSOT, KHÔNG parse Markdown (CORE-004)",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase2-features/**/**/*.md",
+      "description": "Feature specification docs từ wf-define-features",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+      "description": "Architecture overview — system structure, tech decisions",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-design/deferred-findings.md",
+      "description": "Deferred findings / blocking items từ wf-design Phase 4c (CORE-007)",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase4-ux/stakeholder-review.md",
+      "description": "UX stakeholder review (CORE-007)",
+      "required": false,
+      "condition": "interface_type != 'api-only'"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context (nếu LEGACY_MODE)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/action-items.json",
+      "description": "Machine-readable gap analysis từ wf-design legacy flow — priority input (CORE-007)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/gap-report.md",
+      "description": "Gap report từ wf-design legacy flow — priority input (CORE-007)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+      "description": "Module-code mapping — dùng cho CORE-019 feature-level code verification",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions từ brainstorm Phase 0.5 — DEPRECATE modules, divergence resolutions (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/docs/_meta/feature-briefs.json",
+      "description": "Feature briefs digest from wf-define-features",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/design-input-digest.json",
+      "description": "Design digest from wf-design",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/ux-input-digest.json",
+      "description": "UX digest from wf-design-ux (chỉ khi interface_type != 'api-only')",
+      "required": false,
+      "condition": "interface_type != 'api-only'"
+    },
+    {
+      "path": ".mc-data/docs/phase4-ux/design-system.md",
+      "description": "Design system context cho implementation planning (CORE-007)",
+      "required": false,
+      "condition": "interface_type != 'api-only'"
+    },
+    {
+      "path": ".mc-data/docs/phase4-ux/*/Navigation-*.md",
+      "description": "Navigation specs cho task breakdown (CORE-007)",
+      "required": false,
+      "condition": "interface_type != 'api-only'"
+    },
+    {
+      "path": ".mc-data/work/wf-define-features/ui-coverage-gaps.json",
+      "description": "UI coverage gaps từ wf-define-features Phase 2.7 — gap priority input",
+      "required": false,
+      "condition": null
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase5-implementation/module-plan.md",
+        "template": null,
+        "contract_key": "module-plan",
+        "required": true,
+        "notes": "Dependency matrix, module details, circular dependency resolution — tạo ở Phase 7. CORE-031 exception: Generated inline từ LAYERS data vì structure biến đổi theo project (số layers, modules, dependencies). Template cố định không phù hợp — dùng structured generation thay thế."
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/dependency-graph.md",
+        "template": ".claude/doc-framework/_meta/dependency-graph.md",
+        "contract_key": "dependency-graph",
+        "required": false,
+        "condition": "MODULE_COUNT >= 3 (Simple mode với 1-2 modules KHÔNG tạo file này — Phase 2-3 bị skip, không có dependency data để vẽ graph)",
+        "notes": "Mermaid diagram các layers — tạo ở Phase 7. Không tạo ở Simple mode (1 module) hoặc Lite mode (2 modules) vì không có dependencies để phân tích. Phase 7a check 7a.2 skip file này nếu MODULE_COUNT < 3."
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md",
+        "template": ".claude/doc-framework/phase5-implementation/P5-00-implementation-roadmap.md",
+        "contract_key": "P5-00-implementation-roadmap",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/sprints/S[NN]-[name].md",
+        "template": ".claude/doc-framework/phase5-implementation/sprints/S01-sprint-template.md",
+        "contract_key": "sprint-plan",
+        "required": true,
+        "notes": "One file per sprint, named S[NN]-[name].md (e.g. S01-foundation.md). Tất cả sprint/remediation/security plan files PHẢI nằm trong thư mục sprints/ — KHÔNG tạo ở root level phase5-implementation/."
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/sprints/_index.md",
+        "template": ".claude/doc-framework/phase5-implementation/sprints/_index.md",
+        "contract_key": "sprints-index",
+        "required": false,
+        "notes": "Sprint index overview — optional, generated khi có nhiều sprints"
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/tasks/[sys-slug]/[mod-slug]/[feat-slug]-impl.md",
+        "template": ".claude/doc-framework/phase5-implementation/tasks/[system]/[module]/[feature]-impl.md",
+        "contract_key": "feature-impl",
+        "required": true,
+        "notes": "One impl file per feature — path: tasks/[sys-slug]/[mod-slug]/[feat-slug]-impl.md. CORE-019: phải xác định implementation_strategy per feature từ code thực tế. A6-EXT section PHẢI POPULATE từ template `.claude/doc-framework/_meta/a6-ext-fragment.md` (architect agent ở Phase 7.5) — verified bởi Phase 7a check 7a.12 (A6-EXT Quality Gate: ≥200 từ, ≥1 file spec, no placeholders, Coverage Summary đầy đủ)."
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/tasks/[sys-slug]/_NO-FEATURES.md",
+        "template": "templates/orphan-no-features.md.tpl",
+        "contract_key": "orphan-placeholder",
+        "required": false,
+        "condition": "coverage_strategy == 'placeholders' AND len(orphan_systems) > 0",
+        "notes": "Placeholder cho orphan systems (systems trong registry.systems[] nhưng không có modules/features). Ngăn 'silent skip' trong Phase 5 planning. Phase 1.7 + CQG-10.3."
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/stakeholder-review.md",
+        "template": ".claude/doc-framework/phase5-implementation/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase5-implementation/parallel-safe-groups.md",
+        "template": ".claude/doc-framework/phase5-implementation/parallel-safe-groups.md",
+        "contract_key": "parallel-safe-groups",
+        "required": true,
+        "notes": "v3.2.0 — Hướng dẫn user chạy multi-session wf-implement-feature an toàn. Tạo ở Phase 7.5 step 7.5.7 từ A2.4 Scope Files của tất cả task files. Aggregation logic: group features theo Layer (từ $LAYERS), detect EXCLUSIVE_WRITE conflicts giữa cặp features → mark SAFE_PARALLEL hoặc SEQUENTIAL_REQUIRED. Verified bởi Phase 7a check 7a.13."
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-plan-modules/planmod-status.json",
+        "template": "templates/planmod-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/planmod-plan.md",
+        "template": "templates/planmod-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/phase-summary.md",
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "required": true,
+        "notes": "Phase Summary — CORE-028. Tạo ở Phase 7c sau POST-GATE."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/feature-impl-map.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only",
+        "notes": "A6-H1 fix — persist FEATURE_IMPL_MAP từ Phase 1.5 để survive context reset. Consumer: Phase 7.5 task generation. Schema inline (features[].implementation_strategy + existing_code_refs + gaps_identified)."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/deprecated-snapshot.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE + CDG accept (downgrade done→skipped)",
+        "notes": "A3-H2 fix audit trail — snapshot trạng thái impl_status TRƯỚC khi downgrade. Cho phép user manual-restore nếu cần. Generated only khi user ACCEPT CDG-03/04 tại Phase 7.4."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/cdg-tokens.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE with CDG-03/04 triggered",
+        "notes": "CDG decision log (Protocol 16). Append-only — ghi mỗi lần user accept/reject CDG trong Phase 7.4 Registry Update."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/sessions/{id}/session-state.json",
+        "template": ".claude/skills/workflow/_shared/templates/session-state.json",
+        "required": true,
+        "notes": "Session isolation (ADR-OPT-02). Tạo ở Phase 0 step 0.2b. Cập nhật liên tục xuyên suốt execution. latest pointer: .mc-data/work/wf-plan-modules/latest"
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/sessions/{id}/workload-report.md",
+        "template": ".claude/skills/workflow/_shared/templates/workload-report.md",
+        "required": true,
+        "notes": "Workload gate report (ADR-OPT-03). Tạo ở Phase 0.5 step 0.5.5."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/sessions/{id}/lanes/{L}/{module-slug}/signals.json",
+        "template": ".claude/skills/workflow/_shared/templates/lane-signal.json",
+        "required": true,
+        "notes": "Per-lane output từ Topological Lane Dispatch (ADR-OPT-01). Tạo ở Phase 7.5 per lane. lane_type='module', dedup_key='task_id'."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/sessions/{id}/aggregation-result.json",
+        "template": ".claude/skills/workflow/_shared/templates/aggregation-result.json",
+        "required": true,
+        "notes": "Aggregated signals từ tất cả lanes (ADR-OPT-04). Tạo ở Phase 7a step 7a.0. conflicts[] non-empty → flag cho user review."
+      },
+      {
+        "path": ".mc-data/work/wf-plan-modules/latest",
+        "template": null,
+        "required": true,
+        "notes": "Latest session pointer — ghi path của session directory hiện tại. Dùng bởi --resume và --status handlers."
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cập nhật implementation_order và impl_status (chỉ set 'skipped' cho features thuộc $DEPRECATED_MODULES)"
+    }
+  },
+  "registry_scope": {
+    "write_role": "PRIMARY",
+    "write_role_by_field": {
+      "implementation_order": "PRIMARY",
+      "impl_status": "SAFE-UPDATE"
+    },
+    "fields_owned": [
+      "implementation_order",
+      "impl_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "implementation_order = PRIMARY owner. impl_status = SAFE-UPDATE, chỉ được set 'skipped' cho features thuộc $DEPRECATED_MODULES. Không ghi đè fields của skill khác. Atomic write theo Safe-Write Protocol."
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase5-implementation/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-implement-feature": [
+        ".mc-data/docs/phase5-implementation/module-plan.md",
+        ".mc-data/docs/phase5-implementation/dependency-graph.md",
+        ".mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md",
+        ".mc-data/docs/phase5-implementation/sprints/S[NN]-[name].md",
+        ".mc-data/docs/phase5-implementation/tasks/[sys-slug]/[mod-slug]/[feat-slug]-impl.md",
+        ".mc-data/docs/phase5-implementation/stakeholder-review.md"
+      ]
+    },
+    "consumes_from": {
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/_meta/feature-briefs.json",
+        ".mc-data/work/wf-define-features/ui-coverage-gaps.json"
+      ],
+      "wf-design": [
+        ".mc-data/work/wf-design/deferred-findings.md",
+        ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/design-input-digest.json"
+      ],
+      "wf-design-ux": [
+        ".mc-data/docs/phase4-ux/stakeholder-review.md",
+        ".mc-data/docs/phase4-ux/design-system.md",
+        ".mc-data/docs/phase4-ux/*/Navigation-*.md",
+        ".mc-data/docs/_meta/ux-input-digest.json"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/project-context.md"
+      ],
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ],
+      "wf-annotate-code": [
+        ".mc-data/work/legacy-scan/annotation-report.md"
+      ]
+    }
+  },
+
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "dependency_analysis",
+    "pattern": "PRE-GATE detection (Na/Nb) + CI-ROUTE Phase 0 dependency analysis",
+    "tools_used": [
+      "gitnexus_impact",
+      "gitnexus_clusters",
+      "serena_get_symbols_overview"
+    ],
+    "ci_tasks": [
+      "impact_analysis (Phase 0: GitNexus impact cross-module dependencies, upstream, depth=2)",
+      "project_structure (Phase 0: GitNexus clusters + Serena get_symbols_overview)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep/Glob. Tool unavailable → manual analysis. Zero regression.",
+    "notes": "Freshness caveat: if index behind HEAD, results based on older index. Dependency analysis auto-populates per-module dependency data."
+  }
+}

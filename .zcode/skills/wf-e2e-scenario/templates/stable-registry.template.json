@@ -1,0 +1,5 @@
+{
+  "_template_notes": "Schema stable-registry-v1. Track scenarios da verify stable 5/5 trong pre-flight check (G1.3). Hash la sha256 cua scenario file. Moi entry co TTL 30 ngay — sau do phai re-verify.",
+  "$schema": "stable-registry-v1",
+  "scenarios": []
+}

@@ -1,0 +1,82 @@
+{
+  "skill": "wf-e2e-fix",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "TC-F6-001",
+      "name": "Happy path — 3 open issues, all fixed first attempt",
+      "input": {
+        "command": "/wf-e2e-fix FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1700 --auto",
+        "context": "issues.json có 3 entries status=open (API validation, UI loading state, DB constraint). All fix-able trong 1 round."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass",
+        "Round 1: 3 issues fixed via Serena → spawn F5 retest 3 lần → all PASS",
+        "issues.json: 3 entries status=fixed, fixed_at set, fix_attempts[] có 1 entry each",
+        "fix-log.json: round 1 với 3 issues fixed",
+        "DONE — 0 open remaining"
+      ],
+      "assertions": [
+        "jq '.summary.open' issues.json == 0",
+        "jq '.summary.fixed' issues.json == 3",
+        "jq '.rounds | length' fix-log.json == 1",
+        "jq '.rounds[0].issues_fixed' fix-log.json == 3"
+      ]
+    },
+    {
+      "id": "TC-F6-002",
+      "name": "Retry budget — 1 issue fail 3 retries → still_fail",
+      "input": {
+        "command": "/wf-e2e-fix FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1800 --auto",
+        "context": "issues.json có 1 entry ISS-005 status=open. Fix luôn fail (vd: requires architectural change, F6 không thể fix surgical)"
+      },
+      "expected_behavior": [
+        "Round 1: attempt 0 → fix applied → retest FAIL → status=open + retry",
+        "Round 2: attempt 1 → fix applied (strategy=replace_symbol_body) → retest FAIL → retry",
+        "Round 3: attempt 2 → spawn developer agent → fix attempt → retest FAIL → retry",
+        "Round 4: detect fix_attempts.length=3 → MARK status=still_fail → SKIP",
+        "DONE — 0 actionable remaining"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.id==\"ISS-005\") | .status' issues.json == \"still_fail\"",
+        "jq '.signals[] | select(.id==\"ISS-005\") | .fix_attempts | length' issues.json >= 3",
+        "jq '.summary.still_fail' issues.json == 1"
+      ]
+    },
+    {
+      "id": "TC-F6-003",
+      "name": "Lock contention — defer issue → status=deferred-locked",
+      "input": {
+        "command": "/wf-e2e-fix FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1900 --auto",
+        "context": "ISS-008 location file đang bị acquire bởi session khác (parallel orchestrator session). Lock timeout 30s."
+      },
+      "expected_behavior": [
+        "F6 attempt acquire source-{hash}.lock → timeout 30s → DEFER",
+        "issues.json ISS-008: status=deferred-locked, locked_by=<session-id>",
+        "fix_attempts không tăng (lock contention không consume budget)",
+        "F6 tiếp tục issues khác, không loop"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.id==\"ISS-008\") | .status' issues.json == \"deferred-locked\"",
+        "jq '.signals[] | select(.id==\"ISS-008\") | .locked_by' issues.json — non-null",
+        "jq '.signals[] | select(.id==\"ISS-008\") | .fix_attempts | length' issues.json == 0"
+      ]
+    },
+    {
+      "id": "TC-F6-004",
+      "name": "Standalone require --session error",
+      "input": {
+        "command": "/wf-e2e-fix FEAT-EW-CRM-001",
+        "context": "Không có --session"
+      },
+      "expected_behavior": [
+        "E061 \"--session missing\" → STOP",
+        "Suggest user run via orchestrator hoặc cung cấp --session"
+      ],
+      "assertions": [
+        "Output contains 'E061' or '--session'",
+        "No files created"
+      ]
+    }
+  ]
+}

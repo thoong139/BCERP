@@ -1,0 +1,53 @@
+{
+  "$schema": "legacy-scan-doc-quality-map-v1",
+
+  "generated_at": "",
+  "project_path": "",
+
+  "documents": [
+    {
+      "path": "",
+      "staleness_risk": "",
+      "last_modified_days": 0,
+      "code_doc_alignment": 0.0,
+      "trust_level": "",
+      "doc_type": "",
+      "recommended_action": ""
+    }
+  ],
+
+  "summary": {
+    "total_docs": 0,
+    "by_trust_level": {
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    },
+    "by_recommended_action": {
+      "USE_AS_IS": 0,
+      "VERIFY_AGAINST_CODE": 0,
+      "REFERENCE_ONLY": 0,
+      "DISCARD": 0
+    }
+  },
+
+  "_criteria": {
+    "staleness_risk": {
+      "HIGH": "> 6 thang truoc last code commit",
+      "MEDIUM": "1-6 thang truoc last commit",
+      "LOW": "< 1 thang truoc last commit"
+    },
+    "trust_level": {
+      "HIGH": "code_doc_alignment >= 0.8",
+      "MEDIUM": "code_doc_alignment 0.5-0.8",
+      "LOW": "code_doc_alignment < 0.5"
+    },
+    "doc_type_values": ["architecture-decision", "requirements", "roadmap", "notes", "api-spec", "guide"],
+    "recommended_action": {
+      "USE_AS_IS": "HIGH trust + LOW staleness",
+      "VERIFY_AGAINST_CODE": "MEDIUM trust",
+      "REFERENCE_ONLY": "LOW trust",
+      "DISCARD": "notes/meeting type"
+    }
+  }
+}

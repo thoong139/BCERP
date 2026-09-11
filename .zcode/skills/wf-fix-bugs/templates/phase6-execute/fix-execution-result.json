@@ -1,0 +1,36 @@
+{
+  "$schema": "fix-execution-result-v2",
+  "_template_notes": "fix-execution-result.json — Structured machine-readable execution result. Schema: fix-execution-result-v2 (v10.11.0). Backward-compatible: giữ nguyên field v1 top-level (fixed_total/deferred_total/failed_total/files_changed/files_changed_list/git_diff_summary/fix_report_path/docs_sync_report_path), bổ sung field v2 cho per-issue detail + audit_chain. Writer: scripts/wf-fix-bugs/verify-execute-outputs.sh (Phase 6 Step 6.7) — aggregate từ fix-log.json (structured per-issue) + git diff + extract counts. KHÔNG WRITE template thẳng — sẽ giữ {{...}} placeholders.",
+  "_schema_notes": "Required (v2): $schema, session_id, generated_at, execution_mode, aggregated, issues[], audit_chain. issues[] item schema: {issue_id, dimension, action, result, files_touched[], duration_sec, retry_count, error_code, notes}. action ∈ {fix_attempt, skip, defer, cdg_blocked, manual_required}. result ∈ {success, failed, partial, pending}. aggregated keys: fixed_total, deferred_total, failed_total, skipped_total, total_issues_targeted, files_changed_count, duration_total_sec. audit_chain.checksum_sha256 = sha256 của fix-log.json (source SSOT).",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "execution_mode": "{{EXECUTION_MODE}}",
+  "fixed_total": 0,
+  "deferred_total": 0,
+  "failed_total": 0,
+  "skipped_total": 0,
+  "total_issues_targeted": 0,
+  "duration_total_sec": 0,
+  "files_changed": 0,
+  "files_changed_list": [],
+  "git_diff_summary": "{{GIT_DIFF_SUMMARY}}",
+  "fix_report_path": "{{SESSION_DIR}}/phase6-execute/fix-report.md",
+  "docs_sync_report_path": "{{SESSION_DIR}}/phase6-execute/docs-sync-report.json",
+  "aggregated": {
+    "fixed_total": 0,
+    "deferred_total": 0,
+    "failed_total": 0,
+    "skipped_total": 0,
+    "total_issues_targeted": 0,
+    "files_changed_count": 0,
+    "duration_total_sec": 0,
+    "by_dimension": {},
+    "by_error_code": {}
+  },
+  "issues": [],
+  "audit_chain": {
+    "source": "{{SESSION_DIR}}/phase5-triage/fix-log.json",
+    "checksum_sha256": "{{AUDIT_SHA256}}",
+    "derived_by": "scripts/wf-fix-bugs/verify-execute-outputs.sh"
+  }
+}

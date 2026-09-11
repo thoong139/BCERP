@@ -1,0 +1,11 @@
+{
+  "$schema": "dimension-plan-v2",
+  "_template_notes": "dimension-plan.json — ISG refined dimensions + lane routing table. Schema: dimension-plan-v2 (v10.11.0 — align template với script output route-and-write.sh §3.6). Writer: scripts/wf-fix-bugs/route-and-write.sh.",
+  "_schema_notes": "Required: $schema, session_id, generated_at, isg_profile, execution_mode, total_dimensions, dimensions[]. dimensions[] item required schema: {id:string (QD1..QD11), lane_skill:string (wf-fix-functional|wf-fix-business|...), agent_type:string, probe_count:int, output_dir:string (lanes/QD{n}-{name}), needs_playwright:bool, playwright_priority:int (0=highest, 99=skip)}. CORE-025: output_dir PHẢI unique (script validate dup_count). Consumer: Phase 4 setup-lanes.sh (load needs_playwright per dim → PW_LANE_COUNT), Phase 4 Step 4.5 dispatch (1 lane = 1 agent).",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "isg_profile": "{{PROFILE}}",
+  "execution_mode": "{{EXECUTION_MODE}}",
+  "total_dimensions": 0,
+  "dimensions": []
+}

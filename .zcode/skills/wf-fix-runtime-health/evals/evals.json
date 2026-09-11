@@ -1,0 +1,123 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-runtime-health",
+  "version": "1.0.0",
+  "description": "Evals cho QD9 Runtime Health Verification Lane — kiem tra PRE-GATE skip conditions, probe signal emission cho browser errors, va POST-GATE evidence enforcement.",
+  "test_cases": [
+    {
+      "id": "TC-QD9-001",
+      "name": "PRE-GATE SKIP khi interface_type=api-only",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-runtime-health duoc spawn nhung fix-status.json co project_context.interface_type='api-only'",
+        "session_dir": "/tmp/test-session-qd9-001",
+        "profile": "standard",
+        "interface_type": "api-only"
+      },
+      "expected": {
+        "behavior": "SKIP lane — ghi lane-status.json voi status=skipped va skip_reason chua 'api-only'",
+        "no_browser_launched": true,
+        "no_signals_emitted": true,
+        "lane_status_value": "skipped"
+      },
+      "validation": "Lane phai SKIP ngay tai Step 8 PRE-GATE. Khong launch browser. Khong emit any signal. lane-status.json phai co status='skipped'. Execution tiep tuc tra ve cho orchestrator."
+    },
+    {
+      "id": "TC-QD9-002",
+      "name": "PRE-GATE SKIP khi --no-browser flag set",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-runtime-health spawn voi fix-status.json co flags.no_browser=true",
+        "session_dir": "/tmp/test-session-qd9-002",
+        "profile": "deep",
+        "no_browser": true
+      },
+      "expected": {
+        "behavior": "SKIP lane — lane-status.json status=skipped, skip_reason chua '--no-browser'",
+        "no_browser_launched": true,
+        "lane_status_value": "skipped"
+      },
+      "validation": "Lane phai SKIP tai Step 9 PRE-GATE khi flag no_browser=true. Khong chay bat ky probe nao. Orchestrator nhan skipped status va tiep tuc."
+    },
+    {
+      "id": "TC-QD9-003",
+      "name": "P-QD9-console-network-monitor emit signal MEDIUM cho console.error()",
+      "type": "stub",
+      "input": {
+        "scenario": "Trang /dashboard co JavaScript console.error('Failed to load user data') khi load. Browser capture duoc qua console_messages.",
+        "base_url": "http://localhost:3000",
+        "profile": "standard",
+        "injected_error": "console.error('Failed to load user data')"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "medium",
+        "signal_type": "runtime_console_error",
+        "probe_id": "P-QD9-console-network-monitor",
+        "evidence_type": "log_excerpt",
+        "screenshot_required": true
+      },
+      "validation": "Probe phat hien console.error() → emit signal MEDIUM voi log_excerpt evidence chua message 'Failed to load user data' + screenshot. POST-GATE T3.5 enforce evidence co mat."
+    },
+    {
+      "id": "TC-QD9-004",
+      "name": "P-QD9-console-network-monitor emit signal CRITICAL cho uncaught exception (pageerror)",
+      "type": "stub",
+      "input": {
+        "scenario": "Trang /crm/customers throw JavaScript exception 'TypeError: Cannot read property id of undefined' — uncaught.",
+        "base_url": "http://localhost:3000",
+        "profile": "standard",
+        "injected_error": "window.onerror: TypeError: Cannot read property id of undefined"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "critical",
+        "signal_type": "runtime_uncaught_exception",
+        "probe_id": "P-QD9-console-network-monitor",
+        "evidence_required": true
+      },
+      "validation": "pageerror (uncaught exception) phai emit severity=CRITICAL. POST-GATE T3.6 enforce: signal_type=runtime_uncaught_exception khong duoc co severity < high."
+    },
+    {
+      "id": "TC-QD9-005",
+      "name": "P-QD9-auth-aware-smoke emit signal HIGH khi login fail 2 lan",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-runtime-health chay voi --credentials='test@example.com:WrongPassword123'. Login attempt 1: page redirect ve /login lai. Login attempt 2: tuong tu.",
+        "base_url": "http://localhost:3000",
+        "profile": "standard",
+        "credentials": "test@example.com:WrongPassword123",
+        "login_fail_simulated": true
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "high",
+        "signal_type": "auth_login_failed",
+        "probe_id": "P-QD9-auth-aware-smoke",
+        "skip_subsequent_probes": true
+      },
+      "validation": "Auth fail 2 lan → emit signal HIGH 'auth_login_failed' → skip auth-dependent probes (feature-checklist-smoke, interactive-smoke se bi skip). Ghi ly do trong lane-status.json."
+    },
+    {
+      "id": "TC-QD9-006",
+      "name": "P-QD9-console-network-monitor emit signal HIGH cho HTTP 5xx response",
+      "type": "stub",
+      "input": {
+        "scenario": "Khi navigate toi /crm/customers, app gui request GET /api/customers tra ve HTTP 500 Internal Server Error.",
+        "base_url": "http://localhost:3000",
+        "profile": "standard",
+        "network_failure": {"url": "/api/customers", "status": 500}
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_severity": "high",
+        "signal_type": "runtime_network_failure",
+        "probe_id": "P-QD9-console-network-monitor",
+        "evidence_type": "network_trace",
+        "evidence_contains_url": "/api/customers",
+        "evidence_contains_status": 500
+      },
+      "validation": "HTTP 5xx → emit signal HIGH voi evidence type=network_trace chua url va status. POST-GATE T3.8 enforce: signal HIGH network failure phai co network_trace evidence."
+    }
+  ]
+}

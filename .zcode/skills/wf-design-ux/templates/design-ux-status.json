@@ -1,0 +1,213 @@
+{
+  "$schema": "design-ux-status-v1",
+  "version": "1.0",
+
+  "skill_id": "DESIGN-UX-YYYYMMDD-NNN",
+  "project": "",
+  "scope": "all | system-name",
+  "target": "[all systems | System Name]",
+
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "interface_type": null,
+  "ui_guard_passed": false,
+
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading & UI Check",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "interface_type_detected": null,
+      "ui_guard_result": "pending | passed | exit_api_only",
+      "error": null
+    },
+    "phase_1": {
+      "name": "Design System",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "ux-designer",
+      "output_file": "phase4-ux/design-system.md",
+      "sections_completed": 0,
+      "sections_required": 6,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Navigation Specs",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "ux-designer",
+      "systems_total": 0,
+      "systems_completed": 0,
+      "systems_detail": {},
+      "error": null
+    },
+    "phase_3": {
+      "name": "Screen Groups",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "ux-designer",
+      "modules_total": 0,
+      "modules_completed": 0,
+      "screen_groups_total": 0,
+      "screen_groups_completed": 0,
+      "current_system": null,
+      "current_module": null,
+      "systems_completed": [],
+      "error": null
+    },
+    "phase_4": {
+      "name": "Cross-Validation (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 8,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "validation_details": {
+        "4.1_feature_has_screen": "pending | passed | fixed | failed",
+        "4.2_ui_id_unique": "pending | passed | fixed | failed",
+        "4.3_screen_in_navigation": "pending | passed | fixed | failed",
+        "4.4_api_endpoints_valid": "pending | passed | fixed | failed",
+        "4.5_design_tokens_consistent": "pending | passed | fixed | failed",
+        "4.6_permission_matrix_sync": "pending | passed | fixed | failed",
+        "4.7_screen_files_exist": "pending | passed | fixed | failed",
+        "4.8_accessibility_check": "pending | passed | fixed | failed"
+      },
+      "error": null
+    },
+    "phase_5": {
+      "name": "Stakeholder Review (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agents": ["ux-designer", "architect"],
+      "output_file": "phase4-ux/stakeholder-review.md",
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "review_result": "pending | APPROVED | APPROVED_WITH_CONDITIONS | REJECTED",
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "resolved": 0,
+        "deferred": 0,
+        "pending": 0
+      },
+      "error": null
+    },
+    "phase_6": {
+      "name": "Update Registry",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "registry_field": "ux_design_status",
+      "registry_updated": false,
+      "error": null
+    }
+  },
+
+  "file_progress": {
+    "total_files": 0,
+    "completed_files": 0,
+    "files": {
+      "design-system.md": {
+        "phase": "phase_1",
+        "path": "phase4-ux/design-system.md",
+        "status": "pending",
+        "sections": 0,
+        "started_at": null,
+        "completed_at": null
+      },
+      "stakeholder-review.md": {
+        "phase": "phase_5",
+        "path": "phase4-ux/stakeholder-review.md",
+        "status": "pending",
+        "started_at": null,
+        "completed_at": null
+      }
+    }
+  },
+
+  "systems_progress": {
+    "total": 0,
+    "with_ui": 0,
+    "completed": 0,
+    "systems": {}
+  },
+
+  "ui_id_registry": {
+    "total": 0,
+    "unique": 0,
+    "duplicates": []
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_system": null,
+    "current_module": null,
+    "next_action": null,
+    "trigger_reason": null
+  },
+
+  "context_sources": {
+    "req_registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "found": false,
+      "interface_type": null,
+      "systems_count": 0,
+      "modules_count": 0
+    },
+    "architecture": {
+      "path": ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+      "found": false
+    },
+    "api_contract": {
+      "path": ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+      "found": false
+    },
+    "features": {
+      "path": ".mc-data/docs/phase2-features/features/",
+      "found": false,
+      "count": 0
+    }
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "total_files_created": 0,
+    "screen_groups_created": 0,
+    "navigation_files_created": 0,
+    "ui_ids_total": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "agents_spawned_count": 0,
+    "agents_spawned": []
+  },
+
+  "cross_validation_log": {
+    "iterations_run": 0,
+    "max_iterations": 3,
+    "iterations": []
+  }
+}

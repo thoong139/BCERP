@@ -1,0 +1,27 @@
+{
+  "$schema": "migrate-index-v1",
+  "version": "1.0",
+  "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+  "active_session": "MIG-YYYYMMDD-NNN",
+  "sessions": [
+    {
+      "migrate_id": "MIG-YYYYMMDD-NNN",
+      "created_at": "YYYY-MM-DDTHH:mm:ssZ",
+      "completed_at": null,
+      "status": "in_progress | completed | error | paused",
+      "source_module": "[ten module cu]",
+      "source_system": "[ten he thong cu]",
+      "target_system": "[TARGET_SYSTEM]",
+      "target_module": "[TARGET_MODULE]",
+      "scan_session_id": "[SCAN_SESSION_ID]",
+      "strategy": {
+        "total": 0,
+        "keep": 0,
+        "redesign": 0,
+        "deprecate": 0,
+        "merge": 0
+      },
+      "path": ".mc-data/work/wf-migrate-module/MIG-YYYYMMDD-NNN/"
+    }
+  ]
+}

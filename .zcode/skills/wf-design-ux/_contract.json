@@ -1,0 +1,224 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-design-ux",
+  "version": "4.0.0",
+  "phase": "phase4-ux",
+  "description": "UX/UI design — sinh Phase 4 design system, navigation và screen specs (conditional: skip nếu api-only). v4.0.0: Session Isolation (ADR-OPT-02), Workload Gate + api-only exit (ADR-OPT-03), Lane Dispatch per UI module (ADR-OPT-01), Signal Aggregation screen_id (ADR-OPT-04), Template Strip + Atomic Write (ADR-OPT-05).",
+  "procedure": "procedures/phase0-context.md",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/phase3-architecture/",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [],
+    "notes": "Requires completed Phase 3 architecture. Chỉ chạy khi interface_type != 'api-only' (CORE-007)."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/phase3-architecture/stakeholder-review.md",
+      "description": "Stakeholder review từ wf-design Phase 4b (CORE-007)",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+      "description": "Architecture overview — tech decisions, system diagram",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+      "description": "API contract — endpoints, response envelopes",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry — interface_type, features[], systems[]",
+      "required": true,
+      "condition": "interface_type != 'api-only'"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context (nếu LEGACY_MODE)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/ux-checkpoint.json",
+      "description": "UX checkpoint từ legacy flow — dùng để resume (CORE-007)",
+      "required": false,
+      "condition": "LEGACY_MODE resume only"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions từ brainstorm Phase 0.5 — DEPRECATE modules, divergence resolutions (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/docs/_meta/design-input-digest.json",
+      "description": "Design digest from wf-design",
+      "required": false,
+      "condition": null
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase4-ux/design-system.md",
+        "template": "phase4-ux/design-system.md",
+        "contract_key": "design-system",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase4-ux/*/Navigation-*.md",
+        "template": "phase4-ux/[system-name]/Navigation-[system].md",
+        "contract_key": "Navigation",
+        "required": true,
+        "notes": "One Navigation file per system — path: [system-name]/Navigation-[system].md"
+      },
+      {
+        "path": ".mc-data/docs/phase4-ux/*/*/screens-*.md",
+        "template": "phase4-ux/[system-name]/[module-name]/[screen-group].md",
+        "contract_key": "screen-group",
+        "required": true,
+        "notes": "One file per screen group — path: [system-name]/[module-name]/screens-[group].md"
+      },
+      {
+        "path": ".mc-data/docs/phase4-ux/stakeholder-review.md",
+        "template": "phase4-ux/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": true
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-design-ux/latest",
+        "template": null,
+        "required": true,
+        "notes": "Session ID pointer — ghi $SESSION_ID sau mỗi run (ADR-OPT-02)"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/session-state.json",
+        "template": null,
+        "required": true,
+        "notes": "Session-scoped runtime state — phases status, flags, created_at (ADR-OPT-02 CORE-030)"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/design-ux-status.json",
+        "template": "templates/design-ux-status.json",
+        "required": true,
+        "notes": "Session-scoped — metrics, agents_spawned, cross_validation_log"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/design-ux-plan.md",
+        "template": "templates/design-ux-plan.md",
+        "required": true,
+        "notes": "Execution plan (shared — không per-session)"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "notes": "Session-scoped checkpoint cho resume"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/workload-report.md",
+        "template": "../_shared/templates/workload-report.md",
+        "required": true,
+        "notes": "Workload gate output — ADR-OPT-03. Absent nếu api-only (session skipped)."
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/lanes/{module-slug}-screens/signals.json",
+        "template": "../_shared/templates/lane-signal.json",
+        "required": true,
+        "notes": "Lane output per UI module — ADR-OPT-01. One per UI module, lane_type=screen-group."
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/aggregation-result.json",
+        "template": null,
+        "required": true,
+        "notes": "Signal Aggregation result (ADR-OPT-04) — dedup_key=screen_id. Absent nếu api-only."
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/ux-input-digest.json",
+        "template": "_digests/ux-input-digest.template.json",
+        "required": true,
+        "notes": "Working copy post-strip (ADR-OPT-05) — synced canonical tới _meta/. Absent nếu api-only."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/ux-checkpoint.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only — v3.x resume checkpoint (backward compat)"
+      },
+      {
+        "path": ".mc-data/docs/phase4-ux/existing-ui-analysis.md",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only — existing UI analysis output (CORE-007)"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/cross-validation-report.md",
+        "template": null,
+        "required": false,
+        "notes": "Phase 4 auto-correction output — canonical (không per-session). schema: phase4-crossval.md §Validation Checks"
+      },
+      {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/phase-summary.md",
+        "template": "_meta/phase-summary.template.md",
+        "required": true,
+        "notes": "CORE-028 phase summary — tiếng Việt, non-specialist, <=15 dòng"
+      },
+      {
+        "path": ".mc-data/docs/_meta/ux-input-digest.json",
+        "template": "_digests/ux-input-digest.template.json",
+        "required": true,
+        "notes": "Canonical digest artifact cho downstream skills — synced từ session working copy (ADR-OPT-05). Absent nếu api-only."
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cập nhật ux_design_status"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "ux_design_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "Không ghi đè fields của skill khác. Skill này bị skip toàn bộ nếu interface_type = 'api-only'.",
+    "write_role": "PRIMARY"
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase4-ux/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-plan-modules": [
+        ".mc-data/docs/phase4-ux/stakeholder-review.md",
+        ".mc-data/docs/phase4-ux/design-system.md",
+        ".mc-data/docs/phase4-ux/*/Navigation-*.md",
+        ".mc-data/docs/_meta/ux-input-digest.json"
+      ],
+      "_notes": "Tất cả produces_for chỉ tồn tại khi interface_type != 'api-only'. Skill exits tại Phase 0 cho api-only projects — wf-plan-modules phải đọc trực tiếp từ /wf-design output khi api-only."
+    },
+    "consumes_from": {
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/stakeholder-review.md",
+        ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+        ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+        ".mc-data/docs/_meta/design-input-digest.json"
+      ],
+      "wf-annotate-code": [
+        "<annotated-source-code-files>"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/docs/phase4-ux/[sys]/[mod]/screens-[slug].md"
+      ]
+    }
+  }
+}

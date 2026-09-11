@@ -1,0 +1,286 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD6",
+  "dimension_name": "Data Integrity + Schema Drift",
+  "short_name": "Drift",
+  "owner_agent": "dba",
+  "version": "1.0.0",
+  "description": "Dimension QD6: Data Integrity + Schema Drift",
+  "probes": [
+    {
+      "id": "P-QD6-schema-drift-detect",
+      "name": "Schema Drift Detect",
+      "type": "static+runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD6-schema-drift-detect.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": true,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD6-migration-integrity",
+      "name": "Migration Integrity",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD6-migration-integrity.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": true,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      },
+      "cdg_triggers": [
+        "CDG-DELETE-DATA"
+      ]
+    },
+    {
+      "id": "P-QD6-constraint-violation",
+      "name": "Constraint Violation",
+      "type": "runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+jq",
+        "config": "probes/P-QD6-constraint-violation.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": true,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD6-data-type-mismatch",
+      "name": "Data Type Mismatch",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD6-data-type-mismatch.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD6-orm-model-sync",
+      "name": "ORM Model Sync",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD6-orm-model-sync.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD6-seed-data-audit",
+      "name": "Seed Data Audit",
+      "type": "static",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD6-seed-data-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD6-llm-analysis",
+      "name": "LLM-Augmented Data Integrity Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd6-data-integrity.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD6-schema-drift-detect",
+        "P-QD6-migration-integrity",
+        "P-QD6-constraint-violation"
+      ],
+      "max_signals_per_probe": 30
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD6-schema-drift-detect",
+        "P-QD6-migration-integrity",
+        "P-QD6-constraint-violation",
+        "P-QD6-data-type-mismatch",
+        "P-QD6-orm-model-sync"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "deep": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 100
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "Data loss risk",
+      "Migration khong co down()"
+    ],
+    "high_triggers": [
+      "ORM model khong dong bo",
+      "Missing constraint"
+    ],
+    "medium_triggers": [
+      "Data type mismatch",
+      "Seed data outdated"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "agents": [
+      "dba"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/QD6-data-report.md"
+  },
+  "execution_order": [
+    "P-QD6-schema-drift-detect",
+    "P-QD6-migration-integrity",
+    "P-QD6-constraint-violation",
+    "P-QD6-data-type-mismatch",
+    "P-QD6-orm-model-sync",
+    "P-QD6-seed-data-audit",
+    "P-QD6-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD6-schema-drift-detect",
+      "P-QD6-migration-integrity"
+    ],
+    [
+      "P-QD6-constraint-violation",
+      "P-QD6-data-type-mismatch",
+      "P-QD6-orm-model-sync",
+      "P-QD6-seed-data-audit"
+    ],
+    [
+      "P-QD6-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "migration integrity (CDG-DELETE-DATA gate) before schema/model checks"
+}

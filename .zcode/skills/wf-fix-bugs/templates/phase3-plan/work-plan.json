@@ -1,0 +1,34 @@
+{
+  "$schema": "work-plan-v2",
+  "_template_notes": "work-plan.json — Kế hoạch thực thi từ Phase 3 Plan. Schema: work-plan-v2 (v10.11.0 — align template với script output route-and-write.sh §3.9). Writer: scripts/wf-fix-bugs/route-and-write.sh.",
+  "_schema_notes": "Required: $schema, session_id, generated_at, execution_mode, profile, dimensions[], workload_count, agent_count_estimate, total_estimated_issues, playwright. execution_mode ∈ {inline, agent_dispatch}. profile ∈ {quick, standard, deep, exhaustive}. dimensions[] item: string (QD ID). dimensions_applied = dimensions sau ISG refinement. playwright {enabled:bool, mode:'none|headless|visible|mobile', order:string[], devices:string[]}. mobile_devices[] item: string (vd 'iPhone 14'). workload_ratio = workload_count / threshold (CDG-11). Consumer: Phase 4 lane dispatch (đọc dimensions + execution_mode + playwright config), Phase 7 reports.",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "phases": {
+    "1": {"name": "Init", "status": "completed"},
+    "2": {"name": "Scan", "status": "completed"},
+    "3": {"name": "Plan", "status": "in_progress"},
+    "4": {"name": "Find Bugs", "status": "pending"},
+    "5": {"name": "Triage", "status": "pending"},
+    "6": {"name": "Execute", "status": "pending"},
+    "7": {"name": "Verify", "status": "pending"}
+  },
+  "execution_mode": "{{EXECUTION_MODE}}",
+  "profile": "{{PROFILE}}",
+  "dimensions": [],
+  "dimensions_applied": [],
+  "agent_count_estimate": 0,
+  "workload_count": 0,
+  "total_estimated_issues": 0,
+  "estimated_issues": 0,
+  "workload_ratio": 0.0,
+  "workload_gate_decision": "",
+  "playwright_planned": false,
+  "playwright": {
+    "enabled": false,
+    "mode": "none",
+    "order": [],
+    "devices": []
+  },
+  "mobile_devices": []
+}

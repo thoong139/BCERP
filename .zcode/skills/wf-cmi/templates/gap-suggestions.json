@@ -1,0 +1,58 @@
+{
+  "_template_notes": {
+    "purpose": "Suggestions per kind (test_case, invariant_rule, api_contract, doc_snippet, validation_rule, e2e_scenario_fix) — Phase 7 GAP + CDG output. Status flow: proposed → accepted | rejected | deferred. Engine #7 + #8. Tham chiếu 03-phase-routing.md Phase 7. v3.0: thêm kind 'e2e_scenario_fix' cho Phase 10 loop-back (APPEND-only, KHÔNG bump schema version).",
+    "populate": [
+      "suggestions[]: 1 entry per gap suggestion — {kind, id (CMI-S-XXX hoặc SUGG-e2e_scenario_fix-NNN), status=proposed|accepted|rejected|deferred, target_path (file path hoặc registry path), content (artifact draft), confidence ∈ [0,1], source_signal_ids (signal_id hoặc invariant_id), reason (nếu rejected)}",
+      "suggestion kinds:",
+      "  - test_case: missing unit/integration test — target='tests/...', content='test code skeleton'",
+      "  - invariant_rule: new business rule — target='business-invariants.json', content='invariant JSON object'",
+      "  - api_contract: missing endpoint spec — target='phase3-architecture/api/...', content='OpenAPI snippet'",
+      "  - doc_snippet: missing documentation — target='phase2-features/[sys]/[mod]/[feat].md', content='markdown section'",
+      "  - validation_rule: missing FluentValidator — target='.../Commands/CreateXValidator.cs', content='C# validator code'",
+      "  - e2e_scenario_fix (v3.0 NEW): Phase 10 loop-back từ E2E auto-fix — target_path = file resolution sửa (source file hoặc scenario .md), source_signal_ids = [issue_id từ e2e-results.json], confidence = 0.30 (UNRESOLVED) | 0.50 (MANUAL_TRIAGE) | 0.85-0.95 (AUTO_CORRECTED). Linked fields: linked_invariant_id, source_dim, generated_by='wf-cmi/phase10-e2e-resolution v3.0'. APPEND-only, KHÔNG bump schema. Anti-loop guard: KHÔNG re-trigger CD41 synth.",
+      "suggestions[].cdg_decision: {decision_at, approver, rationale} — populate post-CDG",
+      "suggestions[].applied_at: ISO 8601 khi suggestion auto-applied (nếu Self-Healing v1 enabled)"
+    ],
+    "delete_before_write": true,
+    "self_healing_note": "v1 chỉ ĐỀ XUẤT (status=accepted/proposed), KHÔNG auto-apply (ADR-cmi-006). User vẫn phải manual implement hoặc dùng wf-implement-feature seed. v3.0 EXCEPTION: kind=e2e_scenario_fix có thể đã được Phase 10 auto-fix-source (--auto-fix-source + CDG E195) — trong trường hợp này .applied_at đã set bởi Phase 10, suggestion ở status='proposed' để user review.",
+    "v3_loop_back_guard": "kind=e2e_scenario_fix CHỈ append từ Phase 10. Phase 7 KHÔNG generate kind này. Anti-loop: per-session, scenario synth chỉ 1 lần ở Phase 4 Wave 3 — loop-back đi vào suggestions session sau, KHÔNG re-trigger CD41."
+  },
+  "$schema": "gap-suggestions-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "suggestions": [],
+  "metadata": {
+    "suggestion_count": 0,
+    "kind_breakdown": {
+      "test_case": 0,
+      "invariant_rule": 0,
+      "api_contract": 0,
+      "doc_snippet": 0,
+      "validation_rule": 0,
+      "e2e_scenario_fix": 0
+    },
+    "status_breakdown": {
+      "proposed": 0,
+      "accepted": 0,
+      "rejected": 0,
+      "deferred": 0
+    },
+    "confidence_distribution": {
+      "high_0_8_plus": 0,
+      "medium_0_5_to_0_8": 0,
+      "low_below_0_5": 0
+    },
+    "modules_with_suggestions": [],
+    "e2e_loop_back_summary": {
+      "_v3_note": "Populated bởi Phase 7 Step 7.11 sau khi đọc gap-suggestions với kind=e2e_scenario_fix. Schema vẫn gap-suggestions-v1 — chỉ thêm metadata field optional.",
+      "loop_back_count": 0,
+      "high_confidence_auto_corrected": 0,
+      "medium_manual_review": 0,
+      "low_unresolved": 0
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "$schema": "cross-module-gap-v1",
+  "feat_id": "",
+  "session_id": "",
+  "detected_at": "",
+  "gaps": [
+    {
+      "gap_id": "GAP-001",
+      "module_name": "",
+      "dependency_type": "entity | service | event",
+      "reason": "",
+      "target_feat_id": "",
+      "target_module": "",
+      "impl_status": "not_started | in_progress | skipped",
+      "decision": "block | mock | skip | implement_first",
+      "decision_at": "",
+      "decision_reason": "",
+      "mock_scope": "",
+      "severity": "CRITICAL | HIGH | MEDIUM",
+      "cdg_required": true
+    }
+  ],
+  "summary": {
+    "total_gaps": 0,
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "resolved": 0,
+    "mocked": 0,
+    "blocked": 0
+  },
+  "cdg_decision": {
+    "decision_id": "",
+    "presented_at": "",
+    "chosen_option": "",
+    "confirmed_by": "user | auto"
+  },
+  "audit_chain": ""
+}

@@ -1,0 +1,201 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-finding",
+  "version": "1.0.0",
+  "phase": "F0a — Business/DB/API/UI analysis only (FIND, NO live-test)",
+  "description": "Analysis-only phase: scan code → generate 8 finding files + init 4 SSOT JSONs. Consumed by wf-e2e-test (F1). Tách từ wf-e2e-test v1.0.0 (Tier 0 Foundation Refactor 2026-05-15).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase0-setup.md",
+    "procedures/phase1-business.md",
+    "procedures/phase2-db-mapping.md",
+    "procedures/phase3-api-mapping.md",
+    "procedures/phase4-ui-mapping.md",
+    "procedures/phase5-completion.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      "<feature spec path từ registry.features[].file>"
+    ],
+    "required_conditions": [
+      "FEAT-ID tồn tại trong req-registry.json",
+      "Feature spec file tồn tại + size > 500 bytes"
+    ],
+    "forensic_validation": "jq -e '.requirements | length > 0 and .features | length > 0' req-registry.json"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "required": true,
+      "description": "Registry SSOT — verify FEAT-ID, load feature metadata + req_ids"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID dạng FEAT-EW-{MOD}-{NNN}"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/business-understanding.md",
+        "required": true,
+        "template": "templates/business-understanding.template.md",
+        "description": "P1: Mục đích / Actors / Dữ liệu / Business flow / Business rules",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/business-rule-catalog.md",
+        "required": true,
+        "template": "templates/business-rule-catalog.template.md",
+        "description": "P1: BR-NNN catalog với Expected Error Code + HTTP status + CFV + CALC",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/state-machine.md",
+        "required": true,
+        "template": "templates/state-machine.template.md",
+        "description": "P1: valid/invalid transitions + side effects",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/cross-module-map.md",
+        "required": true,
+        "template": "templates/cross-module-map.template.md",
+        "description": "P1: domain events + consumer modules (LUÔN generate, N/A nếu không publish)",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/db-mapping.md",
+        "required": true,
+        "template": "templates/db-mapping.template.md",
+        "description": "P2: tables, schema, FK, relationships, CRUD ops, migration files",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/db-seed-data.md",
+        "required": true,
+        "template": "templates/db-seed-data.template.md",
+        "description": "P2: ~20 bản ghi SQL INSERT phủ happy/edge/state/FK",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/api-mapping.md",
+        "required": true,
+        "template": "templates/api-mapping.template.md",
+        "description": "P3: endpoint matrix (route/method/handler/validator/RBAC/dependencies/response)",
+        "phase": 3
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/ui-mapping.md",
+        "required": true,
+        "template": "templates/ui-mapping.template.md",
+        "description": "P4: pages, routes, hooks, components, Zustand stores, i18n keys",
+        "phase": 4
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/finding-summary.md",
+        "required": true,
+        "template": "templates/finding-summary.template.md",
+        "description": "P5: Tổng hợp trạng thái tất cả 8 finding files",
+        "phase": 5
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+        "required": true,
+        "template": ".claude/skills/workflow/wf-e2e-verify/templates/issues.template.json",
+        "description": "P5 init rỗng — F1 sẽ APPEND khi live-test",
+        "phase": 5
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+        "required": true,
+        "template": ".claude/skills/workflow/wf-e2e-verify/templates/block-test.template.json",
+        "description": "P5 init rỗng — F1 sẽ APPEND khi phân loại blocks",
+        "phase": 5
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/implement-required.json",
+        "required": true,
+        "template": ".claude/skills/workflow/wf-e2e-test/templates/implement-required.template.json",
+        "description": "P5 init rỗng — F1 Nhóm 3 DUAL-WRITE",
+        "phase": 5
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/manual.json",
+        "required": true,
+        "template": ".claude/skills/workflow/wf-e2e-test/templates/manual.template.json",
+        "description": "P5 init rỗng — F1 Nhóm 4 DUAL-WRITE",
+        "phase": 5
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/cross-module-gaps.json",
+        "required": false,
+        "template": ".claude/skills/workflow/wf-e2e-finding/templates/cross-module-gaps.template.json",
+        "description": "P1 B1: Cross-module gap detection khi phát hiện unimplemented dependencies (conditional — chỉ tạo khi có gaps)",
+        "phase": 1
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "note": "F0a chỉ đọc spec + code để analyze, không update registry."
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-test": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/business-understanding.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/business-rule-catalog.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/state-machine.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/cross-module-map.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/db-mapping.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/db-seed-data.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/api-mapping.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/ui-mapping.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/finding-summary.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/manual.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/cross-module-gaps.json"
+      ]
+    },
+    "consumes_from": {},
+    "spawned_by": "wf-e2e-verify orchestrator (F0a step) OR standalone user invocation"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E020-E029",
+    "description": "F0a finding analysis errors",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    },
+    "codes": {
+      "E020": "Feature spec không tồn tại hoặc content < 500 bytes",
+      "E021": "Cross-module gap critical — module phụ thuộc chưa implement",
+      "E022": "Business rule extraction thiếu — không tìm thấy BR trong spec",
+      "E023": "DB schema không tồn tại (migration files not found)",
+      "E024": "API endpoints không tìm thấy trong code",
+      "E025": "UI components không tìm thấy",
+      "E026": "finding-summary consolidation thất bại",
+      "E027": "SSOT JSON init thất bại (template không tồn tại)",
+      "E028": "Context budget > 80% sau F0a — force checkpoint",
+      "E029": "Phase transition blocked — PRE-GATE verify fail"
+    }
+  }
+}

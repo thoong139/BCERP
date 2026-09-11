@@ -1,0 +1,211 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-brainstorm",
+  "version": "8.1.0",
+  "phase": "phase0-brainstorm",
+  "description": "Entry point — chốt khung dự án và tạo Phase 0 docs",
+  "procedure": ["procedures/phase0-detect-route.md", "procedures/_shared.md"],
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase0-detect-route.md",
+    "procedures/phase0-5-legacy-snapshot.md",
+    "procedures/phase1-collect-basic.md",
+    "procedures/phase2-ba-departments.md",
+    "procedures/phase3-brainstorm-policy.md",
+    "procedures/phase4-write-docs.md",
+    "procedures/phase5-init-registry.md",
+    "procedures/phase6-generate-digest.md"
+  ],
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Entry point — không có prerequisites"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context (nếu LEGACY_MODE)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/doc-quality-map.json",
+      "description": "Doc quality trust levels for legacy snapshot display",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+        "template": "phase0-brainstorm/P0-01-brainstorm.md",
+        "contract_key": "P0-01-brainstorm",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+        "template": "phase0-brainstorm/P0-02-systems-users.md",
+        "contract_key": "P0-02-systems-users",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase0-brainstorm/policies/*.md",
+        "template": "phase0-brainstorm/policies/_policy-template.md",
+        "contract_key": "policy-file",
+        "required": false,
+        "condition": "STANDARD/ENTERPRISE complexity only"
+      },
+      {
+        "path": ".mc-data/docs/phase0-brainstorm/stakeholder-review.md",
+        "template": "phase0-brainstorm/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": false,
+        "condition": "Manual only — Phase 0 KHÔNG tự tạo, template available cho stakeholder review thủ công"
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-brainstorm/brainstorm-status.json",
+        "template": "templates/brainstorm-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/brainstorm-notes.md",
+        "template": null,
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/complexity-assessment.md",
+        "template": null,
+        "required": true,
+        "notes": "Ghi ở Phase 3 Step 3.3a cho TẤT CẢ complexity levels (SIMPLE/STANDARD/ENTERPRISE)"
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/crosscheck-report.md",
+        "template": null,
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/phase-summary.md",
+        "template": "_meta/phase-summary.template.md",
+        "required": true,
+        "notes": "CORE-028 BẮT BUỘC — tạo ở Phase 6 Step 6.4 (tiếng Việt cho non-specialist, ≤15 dòng)"
+      },
+      {
+        "path": ".mc-data/work/_trace/session-log.json",
+        "template": "_meta/session-log.template.json",
+        "required": true,
+        "notes": "CORE-026 BẮT BUỘC — append START (Phase 0 Step 0.4) + COMPLETE (Phase 6 Step 6.5). Output-only observability."
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/project-intent-digest.json",
+        "template": "templates/project-intent-digest.json",
+        "required": true,
+        "notes": "Working artifact nội bộ — Phase 5.2 handoff (pre-Phiên 6)"
+      },
+      {
+        "path": ".mc-data/docs/_meta/project-digest.json",
+        "template": "_digests/project-digest.template.json",
+        "required": true,
+        "notes": "Digest artifact cho downstream skills — Phase 3 POST-GATE (CORE-007 §4b)"
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only"
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/policy-analysis.md",
+        "template": null,
+        "required": false,
+        "condition": "STANDARD/ENTERPRISE complexity only"
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/user_intent.md",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only"
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/divergence-resolution.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE + strategy S5 only"
+      },
+      {
+        "path": ".mc-data/work/wf-brainstorm/vision-reconciliation.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE + strategy S6 only"
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "seed",
+      "description": "Tạo registry seed với project, departments, interface_type"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "project",
+      "departments",
+      "interface_type",
+      "systems"
+    ],
+    "write_role": "SEED",
+    "safe_write_rule": "CORE-006",
+    "notes": "Chỉ ghi 1 lần ở Phase 5.3 (initial seed). systems[] seed với user_roles+touchpoints+related_departments — wf-analyze-requirements Phase 8 (PRIMARY) sẽ enrich thêm module_ids[] sau. SCHEMA BUMP v1.1 (2026-05-10): registry schema bổ sung optional field cross_module_dependencies[] cho QD10 integration analysis — wf-brainstorm KHÔNG seed field này (phải author thủ công hoặc qua wf-detect-cross-module-deps.sh). Schema: .claude/schemas/req-registry-schema.json."
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase0-brainstorm/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-analyze-requirements": [
+        ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+        ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+        ".mc-data/docs/phase0-brainstorm/policies/",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/project-digest.json",
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-design": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-design-ux": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-plan-modules": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-add-scope": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-annotate-code": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-manage-change": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/extracted/{module}-divergences.json"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/doc-quality-map.json",
+        ".mc-data/work/legacy-scan/project-context.md"
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "_template_notes": {
+    "delete_before_write": true,
+    "purpose": "Track scenarios đã verify stable 5/5 trong pre-flight check (Phase 9 §G1.3). Hash là sha256 của scenario file content. Mỗi entry có TTL 30 ngày — sau đó phải re-verify. Stable hit cho phép skip 5x pre-flight → giảm thời gian Phase 9 đáng kể.",
+    "rendered_by": "procedures/phase9-e2e-execute.md Step 9.4 (READ/CHECK + UPDATE post pre-flight)",
+    "consumed_by": [
+      "procedures/phase9-e2e-execute.md Step 9.4 (READ — skip 5x check nếu hash + TTL hợp lệ)",
+      "procedures/phase9-e2e-execute.md Step 9.10 (WRITE — append scenarios newly verified stable)"
+    ],
+    "schema_id": "stable-registry-v1",
+    "schema_notes": {
+      "session_id_owner": "Session đầu tiên tạo entry (registry không session-scoped, shared cross-session)",
+      "ttl_days": "Hardcoded 30 ngày (clone từ wf-e2e-scenario default). Future bump qua MCV3_CMI_STABLE_REGISTRY_TTL env var.",
+      "scenarios[]": {
+        "scenario_id": "Pattern CMI-SC-{NNN}",
+        "scenario_file_hash": "sha256 của scenario .md content (frontmatter + body) — invalidate nếu scenario sửa",
+        "verified_at": "ISO 8601 lần verify cuối — TTL count từ đây",
+        "expires_at": "ISO 8601 (verified_at + 30 ngày) — pre-computed cho compare nhanh",
+        "pre_flight_runs": "Số lần 5x check đã pass (≥1, max 1 thường lệ)",
+        "pre_flight_pass_rate": "5/5 (constant cho stable, < 5/5 = không nên có trong registry)",
+        "source_violation_id": "Cross-ref (debug)",
+        "source_invariant_id": "Cross-ref (debug)",
+        "modules_involved": "Cross-ref (debug)",
+        "verified_by_session": "SESSION_ID lần verify cuối (debug)"
+      }
+    },
+    "cleanup_policy": "Phase 9 Step 9.10 cleanup expired entries (expires_at < now()). Atomic Write Pattern (CORE-035) khi update."
+  },
+  "$schema": "stable-registry-v1",
+  "lane_source": "CD41",
+  "registry_owner": "wf-cmi v3.0",
+  "generated_at": "{ISO_TIMESTAMP}",
+  "ttl_days": 30,
+  "scenarios": [],
+  "metadata": {
+    "total_entries": 0,
+    "active_entries": 0,
+    "expired_entries_pending_cleanup": 0,
+    "last_cleanup_at": null
+  }
+}

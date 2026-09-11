@@ -1,0 +1,50 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "ui-ux-pro-max",
+  "version": "1.0.0",
+  "phase": "utility",
+  "description": "Advanced UI/UX design system — 50+ styles, 97 palettes, typography, component recommendations theo design query",
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Standalone utility — không yêu cầu prerequisites. Nhận design query từ user."
+  },
+  "inputs": [
+    {
+      "path": "user_prompt",
+      "description": "Design query: loại sản phẩm, tone, target audience, preferences",
+      "required": true
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry context nếu thiết kế theo dự án cụ thể",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [],
+    "terminal_output": {
+      "description": "Design system recommendations hiển thị trong terminal: color palette (hex + semantic names), typography scale, component style suggestions, spacing ratios",
+      "format": "structured markdown với code blocks"
+    },
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Không cập nhật registry"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Read-only utility — không ghi bất cứ files nào"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-design-ux": [
+        "design system token recommendations (inline context)"
+      ]
+    },
+    "consumes_from": {}
+  }
+}

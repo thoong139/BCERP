@@ -1,0 +1,286 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-define-features",
+  "version": "3.2.0",
+  "phase": "phase2-features",
+  "description": "Map requirements to feature specs — sinh Phase 2 feature specification docs. v3.2.0: W4.7 Cross-Module Entity Detection (non-blocking check 3.8 in Phase 3 — detects MOD-XXX refs not declared in cross_module_dependencies[]).",
+  "procedure": "procedures/phase0-context.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase0-context.md",
+    "procedures/phase0.5-workload-gate.md",
+    "procedures/phase0.5-legacy-impl-seed.md",
+    "procedures/phase1-scope-mapping.md",
+    "procedures/phase2-create-specs.md",
+    "procedures/phase2.5-feat-mapping.md",
+    "procedures/phase2.7-ui-coverage.md",
+    "procedures/phase3-cross-validation.md",
+    "procedures/phase4-stakeholder-review.md",
+    "procedures/phase5-registry-update.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/phase1-business/P1-01-project-overview.md",
+      ".mc-data/docs/phase1-business/P1-02-business-workflow.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "requirements"
+    ],
+    "notes": "Requires completed Phase 1 business docs and populated requirements[] in registry"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/phase1-business/*.md",
+      "description": "Phase 1 business analysis documents",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry với requirements[] populated by wf-analyze-requirements",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase1-business/stakeholder-review.md",
+      "description": "Stakeholder review từ wf-analyze-requirements (CORE-007)",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+      "description": "Deferred issues từ wf-analyze-requirements Phase 6d (CORE-007)",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context (nếu LEGACY_MODE)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/impl-status-snapshot.json",
+      "description": "Seed impl_status từ legacy scan — dùng 1 lần duy nhất ở Phase 0.5 (CORE-007)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions từ brainstorm Phase 0.5 — DEPRECATE modules, divergence resolutions (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/feature-inventory.md",
+      "description": "Sprint 5 cross-skill — feature inventory từ wf-scan-target. Suggest-only (không auto-import). OPTIONAL.",
+      "required": false,
+      "condition": "--from-scan flag set"
+    },
+    {
+      "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json",
+      "description": "Sprint 5 cross-skill — target metadata từ wf-scan-target. Đọc consumer_hints + traceability. OPTIONAL.",
+      "required": false,
+      "condition": "--from-scan flag set"
+    },
+    {
+      "path": ".mc-data/docs/_meta/dept-digests.json",
+      "description": "Department analysis digests từ wf-analyze-requirements Phase 3 — PRE-GATE digest loading (CORE-007 §4b)",
+      "required": false,
+      "condition": "Nếu tồn tại → dùng thay vì đọc full phase1-business/; fallback sang full docs nếu không có"
+    },
+    {
+      "path": ".mc-data/docs/_meta/phase1-handoff.json",
+      "description": "Phase 1 handoff digest từ wf-analyze-requirements Phase 3 — PRE-GATE digest loading (CORE-007 §4b)",
+      "required": false,
+      "condition": "Nếu tồn tại → inject context vào flow; fallback sang full docs nếu không có"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/inventory/ui-manifest.json",
+      "description": "UI manifest từ wf-legacy-scan Stage 1 — dùng cho UI coverage cross-check (Phase 2.7)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase2-features/**/**/*.md",
+        "template": "phase2-features/[system-name]/[module-name]/[feature-name].md",
+        "contract_key": "feature-spec",
+        "required": true,
+        "notes": "One file per feature — path: [system]/[module]/[feature-name].md"
+      },
+      {
+        "path": ".mc-data/docs/phase2-features/stakeholder-review.md",
+        "template": "phase2-features/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": true
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-define-features/define-features-status.json",
+        "template": "templates/define-features-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/define-features-plan.md",
+        "template": "templates/define-features-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/sessions/{id}/session-state.json",
+        "template": "../_shared/templates/session-state.json",
+        "required": true,
+        "notes": "Primary 3-level checkpoint (ADR-OPT-02) — supersedes checkpoint.json"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/sessions/{id}/workload-report.md",
+        "template": "../_shared/templates/workload-report.md",
+        "required": true,
+        "notes": "Workload gate report (ADR-OPT-03) — tạo bởi Phase 0.5 workload"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/sessions/{id}/aggregation-result.json",
+        "template": "../_shared/templates/aggregation-result.json",
+        "required": true,
+        "notes": "Signal aggregation result (ADR-OPT-04) — tạo bởi Phase 3"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/sessions/{id}/lanes/{system}-{module}/signals.json",
+        "template": "../_shared/templates/lane-signal.json",
+        "required": true,
+        "notes": "Lane output per module (ADR-OPT-01) — tạo bởi Phase 2"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "notes": "Legacy checkpoint (backward-compat) — dual-written cùng session-state.json"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/feature-briefs.json",
+        "template": "templates/feature-briefs.json",
+        "required": true,
+        "notes": "Working artifact nội bộ — Phase 1 (pre-Phiên 6). Backward-compat copy."
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/sessions/{id}/feature-briefs.json",
+        "template": ".claude/doc-framework/_digests/feature-briefs.template.json",
+        "required": true,
+        "notes": "Session-scoped working copy (ADR-OPT-02) — source trước khi sync sang _meta/"
+      },
+      {
+        "path": ".mc-data/docs/_meta/feature-briefs.json",
+        "template": ".claude/doc-framework/_digests/feature-briefs.template.json",
+        "required": true,
+        "notes": "Canonical digest cho downstream skills (ADR-OPT-05 template-stripped + atomic) — Phase 5 sync từ session copy (CORE-007 §4b)"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/deferred-findings.md",
+        "template": ".claude/doc-framework/_meta/deferred-findings-template.md",
+        "required": false,
+        "notes": "Consumed by wf-design Phase 0 as optional input (CORE-007)"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/ui-coverage-gaps.json",
+        "template": "templates/ui-coverage-gaps.json",
+        "required": false,
+        "description": "UI coverage gaps report — chi tao khi LEGACY_MODE va co screens",
+        "condition": "LEGACY_MODE only"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/feat-mapping.json",
+        "template": null,
+        "required": false,
+        "notes": "Map FEAT-ID → { title, module, system, doc_path } — chỉ tạo khi LEGACY_MODE (phase2.5-feat-mapping.md). Inline schema trong phase file.",
+        "condition": "LEGACY_MODE only"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/cross-validation-report.md",
+        "template": null,
+        "required": false,
+        "notes": "Cross-validation results — inline schema trong flow-new.md Phase 3"
+      },
+      {
+        "path": ".mc-data/work/wf-define-features/define-features-report.md",
+        "template": null,
+        "required": true,
+        "notes": "Final report — inline schema trong flow-new.md Phase 5.6"
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cập nhật features[] và impl_status (chỉ set 'skipped' cho features thuộc module DEPRECATE)"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "features",
+      "features.impl_status",
+      "impl_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "features[] + nested features[].impl_status + top-level per-REQ-ID impl_status (chỉ 'skipped' cho features thuộc module DEPRECATE). Khớp CORE-006 §4a. producers_count: 4, consumers_count: 4.",
+    "write_role": "PRIMARY",
+    "exception_append_only": {
+      "field": "requirements",
+      "role": "APPEND",
+      "trigger": "flag --auto-stub-requirements",
+      "rule": "Chỉ append entries có auto_generated_by=\"wf-define-features\" + needs_user_review=true. KHÔNG modify/delete existing entries. Default behavior là BLOCK (E020) — buộc user fix qua wf-analyze-requirements / wf-manage-change.",
+      "since": "v3.1.0",
+      "rationale": "Root cause Finding #1 từ wf-implement-feature E2E (2026-04-28). Block referential integrity violation tại upstream để không propagate xuống wf-implement-feature."
+    }
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase2-features/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-design": [
+        ".mc-data/docs/phase2-features/**/**/*.md",
+        ".mc-data/work/wf-define-features/deferred-findings.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/feature-briefs.json"
+      ],
+      "wf-design-ux": [
+        ".mc-data/work/wf-define-features/ui-coverage-gaps.json"
+      ],
+      "wf-plan-modules": [
+        ".mc-data/docs/_meta/feature-briefs.json",
+        ".mc-data/work/wf-define-features/ui-coverage-gaps.json"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/docs/phase2-features/[sys-slug]/[mod-slug]/[feat-slug].md",
+        ".mc-data/docs/_meta/feature-briefs.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-analyze-requirements": [
+        ".mc-data/docs/phase1-business/stakeholder-review.md",
+        ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/dept-digests.json",
+        ".mc-data/docs/_meta/phase1-handoff.json"
+      ],
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/impl-status-snapshot.json",
+        ".mc-data/work/legacy-scan/inventory/ui-manifest.json"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-add-scope": [
+        ".mc-data/docs/phase2-features/[sys-slug]/[mod-slug]/[feat-slug].md"
+      ],
+      "wf-fix-execute": [
+        ".mc-data/docs/phase2-features/[sys]/[mod]/[slug].md",
+        ".mc-data/docs/phase2-features/[sys]/[mod]/flow-[slug].md"
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "$schema": "fix-workload-v1",
+  "_template_notes": "fix-workload.json — Per-workload partition plan. Schema: fix-workload-v1. Written to workloads/W{N}/fix-workload.json by partition planner (Phase 3 Step 3.3). Consumed by Workload Gate (Step 3.4).",
+  "session_id": "{{SESSION_ID}}",
+  "workload_id": "{{WORKLOAD_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "dimensions": [],
+  "estimated_issues": 0,
+  "estimated_time_min": 0,
+  "estimated_cost_usd": 0.0,
+  "agent_count": 0,
+  "playwright_slot_reserved": false
+}

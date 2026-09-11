@@ -1,0 +1,220 @@
+{
+  "$schema": "define-features-status-v1",
+  "version": "1.0",
+
+  "skill_id": "DEFINE-FEAT-YYYYMMDD-NNN",
+  "project": "",
+  "scope": "all | system-name | module-name",
+  "target": "[all / System Name / Module Name]",
+
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Scope & Feature Mapping",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "scope_parsed": null,
+      "feat_ids_assigned": 0,
+      "output_file": "define-features-plan.md",
+      "error": null
+    },
+    "phase_2": {
+      "name": "Create Feature Specs",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "business-analyst",
+      "systems_total": 0,
+      "systems_completed": 0,
+      "files_total": 0,
+      "files_completed": 0,
+      "current_system": null,
+      "current_module": null,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Cross-Validation (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 6,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "errors_escalated": 0,
+      "validation_details": {
+        "3.1_req_id_coverage": "pending | passed | fixed | failed",
+        "3.2_feat_id_unique": "pending | passed | fixed | failed",
+        "3.3_no_orphan_features": "pending | passed | fixed | failed",
+        "3.4_all_sections_complete": "pending | passed | fixed | failed",
+        "3.5_business_rules_reflected": "pending | passed | fixed | failed",
+        "3.6_permission_matrix_consistent": "pending | passed | fixed | failed"
+      },
+      "error": null
+    },
+    "phase_4": {
+      "name": "Stakeholder Review (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "agents": ["business-analyst", "product-expert"],
+      "execution": "parallel",
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "output_file": "phase2-features/stakeholder-review.md",
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "resolved": 0,
+        "deferred": 0,
+        "pending": 0
+      },
+      "overall_result": "APPROVED | APPROVED_WITH_CONDITIONS | REJECTED | pending",
+      "error": null
+    },
+    "phase_5": {
+      "name": "Update Registry",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "features_registered": 0,
+      "registry_updated": false,
+      "output_file": "define-features-report.md",
+      "error": null
+    }
+  },
+
+  "file_progress": {
+    "total_files": 0,
+    "completed_files": 0,
+    "files": {}
+  },
+
+  "feat_id_map": {
+    "total_feat_ids": 0,
+    "assigned": [],
+    "scheme": "FEAT-[SYS]-[MOD]-NNN"
+  },
+
+  "coverage": {
+    "total_req_ids": 0,
+    "mapped_req_ids": [],
+    "unmapped_req_ids": [],
+    "coverage_pct": 0
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_system": null,
+    "current_module": null,
+    "next_action": null,
+    "trigger_reason": null
+  },
+
+  "context_sources": {
+    "req_registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "found": false,
+      "requirements_count": 0,
+      "systems_count": 0,
+      "modules_count": 0
+    },
+    "dept_docs": {
+      "path": ".mc-data/docs/phase1-business/departments/",
+      "found": false,
+      "count": 0
+    },
+    "business_workflow": {
+      "path": ".mc-data/docs/phase1-business/P1-02-business-workflow.md",
+      "found": false
+    },
+    "deferred_issues": {
+      "path": ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+      "found": false
+    },
+    "phase1_handoff": {
+      "path": ".mc-data/work/wf-analyze-requirements/phase1-handoff.json",
+      "found": false
+    }
+  },
+
+  "artifacts": {
+    "feature_briefs": {
+      "path": ".mc-data/work/wf-define-features/feature-briefs.json",
+      "created": false,
+      "last_updated": null
+    }
+  },
+
+  "runtime_metrics": {
+    "runtime": {
+      "last_run_started_at": null,
+      "last_run_completed_at": null,
+      "total_seconds": 0,
+      "phase_seconds": {}
+    },
+    "hooks": {
+      "post_write_invocations": 0,
+      "incremental_contract_checks": 0,
+      "full_contract_checks": 0,
+      "sync_updates": 0,
+      "last_changed_file": null,
+      "last_changed_phase": null
+    },
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "artifacts": []
+    },
+    "validation": {
+      "iterations_total": 0,
+      "retries_total": 0,
+      "warnings_total": 0,
+      "errors_total": 0,
+      "last_scope": null
+    },
+    "parallelism": {
+      "agents_spawned": 0,
+      "parallel_groups_executed": 0
+    },
+    "source": {
+      "hook_metrics_file": ".mc-data/logs/hook-metrics.jsonl",
+      "last_metrics_sync_at": null
+    }
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "total_feature_files": 0,
+    "total_lines_written": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "agents_spawned": 0
+  }
+}

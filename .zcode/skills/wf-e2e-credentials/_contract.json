@@ -1,0 +1,46 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-credentials",
+  "version": "1.0.0",
+  "phase": "support",
+  "description": "Credential Vault cho e2e testing pipeline. OS keychain-backed. CDG required for all register/revoke.",
+  "registry_scope": {
+    "write_role": "NONE",
+    "fields_owned": []
+  },
+  "security": {
+    "never_log_values": true,
+    "never_inject_in_prompts": true,
+    "cdg_required_for": "any register or revoke operation, including --auto mode",
+    "plaintext_disk_storage": false
+  },
+  "outputs": {
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-credentials/{project}/credentials-manifest.json",
+        "template": ".claude/skills/workflow/wf-e2e-credentials/templates/credentials-manifest.template.json",
+        "description": "Registry of credential key names per FEAT (NO values stored)"
+      }
+    ]
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-verify": [
+        "credentials-manifest.json"
+      ],
+      "wf-e2e-batch": [
+        "credentials-manifest.json"
+      ]
+    },
+    "consumes_from": {}
+  },
+  "error_codes": {
+    "E070": "Invalid command",
+    "E071": "Missing required argument",
+    "E072": "Keychain backend unavailable",
+    "E073": "CDG rejected — credential not registered",
+    "E074": "Credential not found",
+    "E075": "Credential expired or revoked",
+    "E076": "FEAT not found in registry"
+  }
+}

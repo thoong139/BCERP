@@ -1,0 +1,312 @@
+{
+  "skill": "wf-add-scope",
+  "version": "3.0.0",
+  "description": "Incremental scope addition — safe-append modules + features vào registry đã có. v3.0.0: session isolation + dual lock + heartbeat + JSONL index + scope-impact cross-skill artifact.",
+  "evals": [
+    {
+      "id": "HAPPY_01",
+      "name": "LEGACY + from-mapping + dry-run",
+      "category": "happy_path",
+      "priority": "critical",
+      "prompt": "Dự án LEGACY có registry với 2 orphan systems (SYS-ERP-WEB). project-context.md tồn tại > 500 bytes. Chạy `/wf-add-scope --system=SYS-ERP-WEB --from-mapping --dry-run`",
+      "expected_output": "Skill detect LEGACY_MODE, session init tạo SESSION_DIR, đọc module-code-mapping.json, tạo scope-spec.json, in dry-run-diff.md, KHÔNG ghi registry",
+      "assertions": [
+        { "type": "behavior", "text": "Session Init SI.1-SI.7: SESSION_ID='YYYY-MM-DD-sys-erp-web', SESSION_DIR tạo, .session.lock acquired, heartbeat started, JSONL appended (in_progress)" },
+        { "type": "behavior", "text": "Phase 0: LEGACY_MODE detected = true (as-detect-legacy.sh: project-context.md > 500 bytes)" },
+        { "type": "registry_check", "text": "Phase 0: SYS-ERP-WEB validated trong registry.systems[]" },
+        { "type": "template_usage", "text": "Phase 0: READ templates/add-scope-status.json → POPULATE session_id=$SESSION_ID → WRITE $SESSION_DIR/add-scope-status.json (CORE-031)" },
+        { "type": "template_usage", "text": "Phase 0: READ templates/add-scope-plan.md → POPULATE → WRITE $SESSION_DIR/add-scope-plan.md (CORE-031)" },
+        { "type": "file_content", "text": "Phase 1: READ templates/scope-spec.json → POPULATE → WRITE $SESSION_DIR/scope-spec.json; source='from-mapping'; modules_to_add >= 2" },
+        { "type": "behavior", "text": "Phase 3: --dry-run=true → STOP sau Phase 3, Phase 4 bị SKIP" },
+        { "type": "file_exists", "text": "Phase 3: $SESSION_DIR/dry-run-diff.md tồn tại, hiển thị Will ADD / Will SKIP sections" },
+        { "type": "registry_check", "text": "Registry KHÔNG bị modify (--dry-run) — module count unchanged" },
+        { "type": "file_exists", "text": "Phase 6: $SESSION_DIR/phase-summary.md tồn tại (CORE-028, viết tiếng Việt)" },
+        { "type": "behavior", "text": "Phase 6: as-scope-impact-build.sh chạy → $SESSION_DIR/scope-impact.json valid (kể cả dry-run)" },
+        { "type": "behavior", "text": "Phase 6: as-index-append.sh chạy với status='dry_run' → sessions.jsonl 2 entries" },
+        { "type": "behavior", "text": "Phase 6: as-release-lock.sh session → .session.lock removed; heartbeat killed" }
+      ]
+    },
+    {
+      "id": "HAPPY_02",
+      "name": "NEW project + modules-list + interactive",
+      "category": "happy_path",
+      "priority": "critical",
+      "prompt": "Dự án NEW (không legacy) với 1 system SYS-CRM. Chạy `/wf-add-scope --system=SYS-CRM --modules=reports,analytics --interactive`",
+      "expected_output": "Session init, interactive mode, build scope-spec 2 modules, Phase 2 SKIP (NEW), Phase 5 SKIP (no features), Phase 6 report+scope-impact+JSONL+lock-release",
+      "assertions": [
+        { "type": "behavior", "text": "Session Init: SESSION_ID='YYYY-MM-DD-sys-crm', $SESSION_DIR created, lock acquired, heartbeat started" },
+        { "type": "behavior", "text": "Phase 0: LEGACY_MODE = false (project-context.md không tồn tại hoặc < 500 bytes)" },
+        { "type": "behavior", "text": "Phase 1: source='modules-list' + AskUserQuestion per module ($INTERACTIVE=true)" },
+        { "type": "content_check", "text": "Phase 1: modules_to_add = [{id:'MOD-CRM-REPORTS',...},{id:'MOD-CRM-ANALYTICS',...}] (2 entries)" },
+        { "type": "behavior", "text": "Phase 2: SKIPPED (LEGACY_MODE=false → không auto-generate features)" },
+        { "type": "file_exists", "text": "Phase 3: $SESSION_DIR/dry-run-diff.md generate cho user review" },
+        { "type": "registry_check", "text": "Phase 4: as-backup-registry.sh chạy TRƯỚC write → backup file tạo với checksum_pre" },
+        { "type": "registry_check", "text": "Phase 4: Registry appended: modules count += 2; as-validate-registry.sh PASS; audit_chain.checksum_post set" },
+        { "type": "registry_check", "text": "Phase 4: as-release-lock.sh registry → registry lock released sau write" },
+        { "type": "behavior", "text": "Phase 5: SKIPPED vì features_to_add rỗng (NEW project)" },
+        { "type": "file_exists", "text": "Phase 6: $SESSION_DIR/scope-impact.json tồn tại, schema '$schema'='scope-impact-v1'" },
+        { "type": "file_exists", "text": "Phase 6: $SESSION_DIR/phase-summary.md tồn tại, tiếng Việt, có next-step recommend /wf-define-features" },
+        { "type": "behavior", "text": "Phase 6: sessions.jsonl 2 entries: in_progress (init) + completed (phase 6)" }
+      ]
+    },
+    {
+      "id": "HAPPY_03",
+      "name": "Idempotent re-run — skip existing",
+      "category": "happy_path",
+      "priority": "high",
+      "prompt": "Re-run `/wf-add-scope --system=SYS-ERP-WEB --modules=crm,orders` khi MOD-ERPWEB-CRM đã tồn tại trong registry",
+      "expected_output": "MOD-ERPWEB-CRM SKIP (đã tồn tại), chỉ add MOD-ERPWEB-ORDERS. Không duplicate, không error.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 1: dedup logic detect MOD-ERPWEB-CRM exists → vào existing_conflicts[] với action='skip'" },
+        { "type": "content_check", "text": "Phase 1: modules_to_add chỉ có 1 entry: MOD-ERPWEB-ORDERS" },
+        { "type": "content_check", "text": "Phase 1: scope-spec.json summary.total_modules_skipped = 1" },
+        { "type": "file_content", "text": "Phase 3: dry-run-diff.md hiển thị 'Will ADD: 1' và 'Will SKIP: 1 (already exists)'" },
+        { "type": "registry_check", "text": "Phase 4: Registry append 1 module only, no duplicate MOD-ERPWEB-CRM" },
+        { "type": "registry_check", "text": "Post-write: count_after = count_before + 1 (exact); no duplicate IDs" },
+        { "type": "output_contains", "text": "Phase 6: Report: 'Modules added: 1, Skipped: 1' — clear cho user" },
+        { "type": "behavior", "text": "No error, exit code 0 — idempotent operation" }
+      ]
+    },
+    {
+      "id": "ERROR_01",
+      "name": "E001 — System ID not found",
+      "category": "error_handling",
+      "priority": "critical",
+      "prompt": "Chạy `/wf-add-scope --system=SYS-NOEXIST --modules=crm`",
+      "expected_output": "STOP E001 — hiển thị available systems. Session đã được tạo (session-init runs before system validation), nhưng registry KHÔNG bị modify.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 0: session-init SI.1-SI.7 runs first (creates SESSION_DIR, lock, JSONL entry), THEN Step 0.4 validate system → SYS-NOEXIST không tồn tại → STOP E001" },
+        { "type": "output_contains", "text": "Error message chứa available systems list từ registry.systems[]" },
+        { "type": "behavior", "text": "Registry KHÔNG bị modify" },
+        { "type": "behavior", "text": "Phase 6: runs for cleanup — releases session lock, kills heartbeat, appends FAIL trace to session-log.json" },
+        { "type": "behavior", "text": "Session artifacts exist ($SESSION_DIR, JSONL entry with status=error) but registry unchanged" }
+      ]
+    },
+    {
+      "id": "ERROR_02",
+      "name": "E004 — Registry JSON invalid",
+      "category": "error_handling",
+      "priority": "critical",
+      "prompt": "Registry JSON bị corrupt (invalid JSON). Chạy `/wf-add-scope --system=SYS-CRM --modules=crm`",
+      "expected_output": "PRE-GATE forensic check phát hiện registry invalid → STOP E004",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 0 PRE-GATE: jq -e '.systems | length > 0' registry fail → STOP E004" },
+        { "type": "output_contains", "text": "Error message hướng dẫn user fix registry manually hoặc chạy /wf-brainstorm" },
+        { "type": "behavior", "text": "Không có output artifacts tạo ra (session không init hoàn chỉnh)" }
+      ]
+    },
+    {
+      "id": "ERROR_03",
+      "name": "E005 — Post-write validation fail → rollback",
+      "category": "error_handling",
+      "priority": "critical",
+      "prompt": "Mô phỏng: as-validate-registry.sh trả về validation fail sau khi append",
+      "expected_output": "Phase 4: as-validate-registry.sh FAIL → rollback từ backup → STOP E005, registry restored",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 4 Step 4.5: VALIDATE_RESULT.status = 'fail' → TRIGGER rollback" },
+        { "type": "behavior", "text": "Phase 4 rollback: registry restored từ $BACKUP_PATH (pre-write content)" },
+        { "type": "behavior", "text": "Phase 4: as-release-lock.sh registry → lock released AFTER rollback" },
+        { "type": "registry_check", "text": "Registry state = pre-write state (count không đổi sau rollback)" },
+        { "type": "behavior", "text": "Phase 6: FAIL trace event + phase-summary ghi lỗi E005" }
+      ]
+    },
+    {
+      "id": "LOCK_01",
+      "name": "E010 — Concurrent block (same host alive PID)",
+      "category": "lock_safety",
+      "priority": "high",
+      "prompt": "Session đang chạy với PID alive cùng host. Dev B thử chạy /wf-add-scope cùng --system=SYS-ERP-WEB",
+      "expected_output": "as-acquire-lock.sh trả về error=lock_held_alive → STOP E010, hiển thị PID + host đang giữ lock",
+      "assertions": [
+        { "type": "behavior", "text": "Session Init SI.4: as-acquire-lock.sh session trả về status=lock_held_alive (PID alive, same host)" },
+        { "type": "behavior", "text": "STOP E010 — hiển thị lock holder PID + host" },
+        { "type": "output_contains", "text": "CDG prompt: [1] Chờ, [2] Force cancel" },
+        { "type": "behavior", "text": "Registry KHÔNG bị modify; không có conflicting session artifacts" }
+      ]
+    },
+    {
+      "id": "LOCK_02",
+      "name": "E011 — Cross-host lock conflict",
+      "category": "lock_safety",
+      "priority": "high",
+      "prompt": "Lock file có host=DEV-B (khác host hiện tại). Heartbeat còn fresh. Dev A thử acquire lock",
+      "expected_output": "as-acquire-lock.sh trả về error=lock_held_cross_host → STOP E011, KHÔNG auto-takeover",
+      "assertions": [
+        { "type": "behavior", "text": "as-acquire-lock.sh: detect different host, heartbeat fresh → status=lock_held_cross_host" },
+        { "type": "behavior", "text": "STOP E011 — hiển thị cross-host lock info + lock age" },
+        { "type": "output_contains", "text": "CDG prompt để user xác nhận có muốn CDG takeover không (nếu biết stale)" },
+        { "type": "behavior", "text": "KHÔNG auto-takeover cross-host (cross-host safety guarantee)" }
+      ]
+    },
+    {
+      "id": "LOCK_03",
+      "name": "Same-host dead PID → silent takeover",
+      "category": "lock_safety",
+      "priority": "medium",
+      "prompt": "Lock file có host=current-host, PID=99999 (dead). Heartbeat present nhưng stale (> 60 min)",
+      "expected_output": "as-acquire-lock.sh detect PID dead (same host) → silent takeover, WARN log, acquires lock successfully",
+      "assertions": [
+        { "type": "behavior", "text": "as-acquire-lock.sh: same host, PID not running → silent takeover, log WARN" },
+        { "type": "behavior", "text": "Lock acquired successfully — status='acquired'" },
+        { "type": "behavior", "text": "Session tiếp tục bình thường (không STOP)" }
+      ]
+    },
+    {
+      "id": "RESUME_01",
+      "name": "Resume from Phase 1 crash",
+      "category": "resume",
+      "priority": "high",
+      "prompt": "Session crash sau Phase 0 complete (status.json có phase_0=completed, phase_1=in_progress, không có scope-spec.json). Chạy `/wf-add-scope --resume`",
+      "expected_output": "resume-routing.md: discover session từ JSONL, re-acquire lock, restart heartbeat, route to Phase 1",
+      "assertions": [
+        { "type": "behavior", "text": "RR.1: Load resume-routing.md; discover sessions từ sessions.jsonl (tail | jq filter in_progress)" },
+        { "type": "behavior", "text": "RR.4: as-acquire-lock.sh session re-acquire (PID dead → takeover hoặc fresh acquire)" },
+        { "type": "behavior", "text": "RR.5: heartbeat daemon restart (nohup as-heartbeat.sh &)" },
+        { "type": "behavior", "text": "RR.6: routing table → current_phase=1 (phase_0=completed, phase_1=in_progress) → route to phase1-scope.md" },
+        { "type": "behavior", "text": "Phase 1 chạy lại từ đầu (scope-spec.json chưa tồn tại → tạo mới)" }
+      ]
+    },
+    {
+      "id": "RESUME_02",
+      "name": "Resume after Phase 4 write (skip duplicate write)",
+      "category": "resume",
+      "priority": "high",
+      "prompt": "Session crash sau Phase 4 (audit_chain.checksum_post đã set trong status.json). Chạy `--resume`",
+      "expected_output": "Resume routing detect Phase 4 đã complete → skip Phase 4, route to Phase 5",
+      "assertions": [
+        { "type": "behavior", "text": "RR.6: routing table detect audit_chain.checksum_post present → route to Phase 5" },
+        { "type": "behavior", "text": "Phase 4 KHÔNG chạy lại — tránh double-write vào registry" },
+        { "type": "behavior", "text": "Phase 5 chạy từ đầu (feature stubs tạo từ $SESSION_DIR/scope-spec.json)" }
+      ]
+    },
+    {
+      "id": "SCOPE_IMPACT_01",
+      "name": "scope-impact.json valid schema",
+      "category": "cross_skill",
+      "priority": "high",
+      "prompt": "Sau khi hoàn thành Phase 6 (normal flow). Kiểm tra scope-impact.json",
+      "expected_output": "$SESSION_DIR/scope-impact.json tồn tại với schema scope-impact-v1 đầy đủ",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 6 Step 6.1: as-scope-impact-build.sh chạy với $SESSION_DIR → creates scope-impact.json" },
+        { "type": "file_exists", "text": "$SESSION_DIR/scope-impact.json tồn tại" },
+        { "type": "content_check", "text": "scope-impact.json có $schema='scope-impact-v1', session_id, modules_added[], features_added[], risk_level (low|medium|high), audit_chain.checksum" },
+        { "type": "content_check", "text": "risk_level=low nếu < 10 features, medium nếu 10-30, high nếu > 30 (thresholds match as-scope-impact-build.sh implementation)" },
+        { "type": "behavior", "text": "Phase 6 Step 6.9: as-postgate-check.sh $SESSION_DIR/scope-impact.json json → T1/T2 PASS" }
+      ]
+    },
+    {
+      "id": "JSONL_01",
+      "name": "JSONL index — 2 entries per session",
+      "category": "session_isolation",
+      "priority": "high",
+      "prompt": "Chạy wf-add-scope đến hoàn thành. Kiểm tra _index/sessions.jsonl",
+      "expected_output": "sessions.jsonl có đúng 2 entries: in_progress (SI.6) + completed (Phase 6.6)",
+      "assertions": [
+        { "type": "behavior", "text": "Session Init SI.6: as-index-append.sh với status=in_progress → entry 1 trong sessions.jsonl" },
+        { "type": "behavior", "text": "Phase 6.6: as-index-append.sh với status=completed → entry 2 trong sessions.jsonl" },
+        { "type": "content_check", "text": "sessions.jsonl: 2 lines, mỗi line là valid JSON; entry 1 status=in_progress, entry 2 status=completed" },
+        { "type": "content_check", "text": "Mỗi entry có: session_id, timestamp, system_id, status, modules_added_count" }
+      ]
+    },
+    {
+      "id": "SESSION_01",
+      "name": "Session isolation — parallel systems",
+      "category": "session_isolation",
+      "priority": "high",
+      "prompt": "Chạy 2 sessions cho SYS-ERP-WEB và SYS-CRM trong cùng ngày (sequential, không concurrent)",
+      "expected_output": "Mỗi system có SESSION_DIR riêng; không override lẫn nhau",
+      "assertions": [
+        { "type": "behavior", "text": "SYS-ERP-WEB: SESSION_ID='YYYY-MM-DD-sys-erp-web'; SESSION_DIR=sessions/YYYY-MM-DD-sys-erp-web/" },
+        { "type": "behavior", "text": "SYS-CRM: SESSION_ID='YYYY-MM-DD-sys-crm'; SESSION_DIR=sessions/YYYY-MM-DD-sys-crm/" },
+        { "type": "behavior", "text": "Hai directories hoàn toàn độc lập; artifacts không conflict" },
+        { "type": "content_check", "text": "sessions.jsonl có 4 entries (2 per session)" }
+      ]
+    },
+    {
+      "id": "SESSION_02",
+      "name": "--status display từ JSONL",
+      "category": "session_isolation",
+      "priority": "medium",
+      "prompt": "Sau khi có 2 sessions completed. Chạy `/wf-add-scope --status`",
+      "expected_output": "Phase 0 Step 0.2: đọc sessions.jsonl → hiển thị table các sessions (ID, status, modules_added, timestamp)",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 0 Step 0.2: --status flag → tail sessions.jsonl | jq → display table" },
+        { "type": "output_contains", "text": "Table hiển thị: session_id, status, modules_added_count, timestamp" },
+        { "type": "behavior", "text": "STOP sau display — không chạy Phase 1+" }
+      ]
+    },
+    {
+      "id": "DRY_RUN_01",
+      "name": "--dry-run → no registry write, scope-impact built",
+      "category": "flags",
+      "priority": "high",
+      "prompt": "Chạy `/wf-add-scope --system=SYS-CRM --modules=reports --dry-run`",
+      "expected_output": "Phase 3 STOP, Phase 4 SKIP, Phase 5 SKIP. Phase 6 vẫn chạy: scope-impact built, lock released.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 3: --dry-run=true → CDG display dry-run diff → STOP (không prompt confirm)" },
+        { "type": "behavior", "text": "Phase 4: SKIPPED (DRY_RUN=true)" },
+        { "type": "behavior", "text": "Phase 5: SKIPPED (DRY_RUN=true → features_to_add chưa confirmed)" },
+        { "type": "registry_check", "text": "Registry KHÔNG bị modify (count unchanged)" },
+        { "type": "file_exists", "text": "Phase 6: $SESSION_DIR/scope-impact.json tồn tại (built từ scope-spec — dry run context)" },
+        { "type": "behavior", "text": "Phase 6: lock released, heartbeat killed — clean exit" }
+      ]
+    },
+    {
+      "id": "FLAGS_01",
+      "name": "--no-docs → skip Phase 5",
+      "category": "flags",
+      "priority": "medium",
+      "prompt": "LEGACY_MODE. Chạy `/wf-add-scope --system=SYS-ERP-WEB --from-mapping --no-docs`",
+      "expected_output": "Phase 4 chạy bình thường (registry updated), Phase 5 SKIP vì --no-docs",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 5 PRE-GATE: NO_DOCS=true → SKIP Phase 5 entirely" },
+        { "type": "behavior", "text": "Không có Phase 2 feature stub files tạo trong .mc-data/docs/phase2-features/" },
+        { "type": "registry_check", "text": "Phase 4: Registry append modules bình thường" },
+        { "type": "file_exists", "text": "$SESSION_DIR/add-scope-status.json.phases.phase_5.status = 'skipped (--no-docs)'" }
+      ]
+    },
+    {
+      "id": "LEGACY_01",
+      "name": "Legacy decisions — DEPRECATED modules filtered",
+      "category": "legacy",
+      "priority": "medium",
+      "prompt": "legacy-decisions.json có deprecated_modules=['MOD-ERPWEB-LEGACY']. User muốn add MOD-ERPWEB-LEGACY.",
+      "expected_output": "Phase 1: MOD-ERPWEB-LEGACY detected trong deprecated_modules → REMOVE from modules_to_add + LOG warning",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 1 (CORE-022): đọc legacy-decisions.json → deprecated_modules = ['MOD-ERPWEB-LEGACY']" },
+        { "type": "behavior", "text": "MOD-ERPWEB-LEGACY bị REMOVE từ modules_to_add" },
+        { "type": "output_contains", "text": "LOG: 'Module MOD-ERPWEB-LEGACY is DEPRECATED per legacy-decisions.json — skipped'" },
+        { "type": "registry_check", "text": "Registry KHÔNG có MOD-ERPWEB-LEGACY sau khi chạy" }
+      ]
+    },
+    {
+      "id": "POST_GATE_01",
+      "name": "T1→T4 POST-GATE pass sau completion",
+      "category": "quality_gate",
+      "priority": "high",
+      "prompt": "Normal completion (happy path). Verify Phase 6 POST-GATE",
+      "expected_output": "as-postgate-check.sh pass T1-T4 cho scope-impact.json (json) và phase-summary.md (md, 100 words, 'Kết quả', 'Bước tiếp theo')",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 6 Step 6.9: as-postgate-check.sh $SESSION_DIR/scope-impact.json json → T1 (exists), T2 (valid json)" },
+        { "type": "behavior", "text": "Phase 6 Step 6.9: as-postgate-check.sh $SESSION_DIR/phase-summary.md md 100 'Kết quả' 'Bước tiếp theo' → T1-T4 PASS" },
+        { "type": "behavior", "text": "Nếu FAIL → WARN (không block) + CORE-026 WARN trace event" }
+      ]
+    },
+    {
+      "id": "TEMPLATE_01",
+      "name": "Template Usage Rule (CORE-031) compliance",
+      "category": "quality_gate",
+      "priority": "high",
+      "prompt": "Kiểm tra tất cả output files trong session đều tạo từ template theo pattern READ→POPULATE→WRITE",
+      "expected_output": "100% compliance — không có output file nào tạo ad-hoc",
+      "assertions": [
+        { "type": "template_usage", "text": "add-scope-status.json: READ templates/add-scope-status.json → POPULATE session_id, host, lock{} → WRITE $SESSION_DIR/add-scope-status.json" },
+        { "type": "template_usage", "text": "add-scope-plan.md: READ templates/add-scope-plan.md → POPULATE → WRITE $SESSION_DIR/add-scope-plan.md" },
+        { "type": "template_usage", "text": "scope-spec.json: READ templates/scope-spec.json → POPULATE → WRITE $SESSION_DIR/scope-spec.json" },
+        { "type": "template_usage", "text": "scope-impact.json: as-scope-impact-build.sh builds using jq -n (template serves as schema reference — documented exception in _shared.md §2)" },
+        { "type": "template_usage", "text": "phase-summary.md: READ doc-framework/_meta/phase-summary.template.md → POPULATE → WRITE $SESSION_DIR/phase-summary.md" },
+        { "type": "behavior", "text": "dry-run-diff.md: generate inline (KHÔNG có template — documented exception in _shared.md §2)" }
+      ]
+    }
+  ]
+}

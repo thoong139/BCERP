@@ -1,0 +1,51 @@
+{
+  "$schema": "affected-artifacts-v1",
+  "version": "1.0",
+  "created_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "change_type_confirmed": "MODIFY_FEATURE",
+  "change_summary": "[Mo ta ngan gon nhung gi can thay doi]",
+
+  "docs_affected": [
+    {
+      "path": "[.mc-data/docs/...]",
+      "reason": "[Ly do anh huong]",
+      "action": "UPDATE | CREATE | DELETE",
+      "sections_to_update": []
+    }
+  ],
+
+  "code_affected": [
+    {
+      "path": "[src/...]",
+      "reason": "[Ly do anh huong]",
+      "action": "MODIFY | CREATE | DELETE | VERIFY_ONLY",
+      "existing_req_ids": [],
+      "functions_affected": []
+    }
+  ],
+
+  "tests_affected": [
+    {
+      "path": "[tests/...]",
+      "reason": "[Ly do anh huong]",
+      "action": "UPDATE | CREATE"
+    }
+  ],
+
+  "registry_changes": {
+    "requirements_to_update": [],
+    "requirements_to_add": [],
+    "features_to_update": [],
+    "features_to_add": [],
+    "features_to_delete": [],
+    "modules_to_add": [],
+    "impl_status_updates": []
+  },
+
+  "cross_system_impacts": [
+    "[system/module → mo ta anh huong]"
+  ],
+
+  "risk_level": "LOW | MEDIUM | HIGH",
+  "risk_details": []
+}

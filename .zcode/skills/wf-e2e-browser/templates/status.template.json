@@ -1,0 +1,25 @@
+{
+  "session_id": "{FEAT-ID}-{YYYYMMDD-HHmm}",
+  "feat_id": "{FEAT-ID}",
+  "feat_name": "{feature name from registry}",
+  "spec_path": "{path to feature spec}",
+  "started_at": "{ISO8601 timestamp}",
+  "current_phase": 0,
+  "sub_state": "SETUP",
+  "context_estimate_pct": 0,
+  "phases": {
+    "phase_0_status": "in_progress",
+    "phase_1_status": "not_started",
+    "phase_1_bo_sung_count": 0,
+    "phase_1_verify_attempts": 0,
+    "phase_2_status": "not_started",
+    "phase_2_bo_sung_count": 0,
+    "phase_3_status": "not_started",
+    "phase_3_bo_sung_count": 0,
+    "phase_4_status": "not_started",
+    "phase_4_bo_sung_count": 0,
+    "phase_5_status": "not_started",
+    "phase_6_status": "not_started"
+  },
+  "notes": []
+}

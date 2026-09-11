@@ -1,0 +1,32 @@
+{
+  "$schema": "process-violations-v1",
+  "_template_notes": "process-violations.json — Process integrity check results (PI1-PI5). Schema: process-violations-v1. Written at Phase 5 Step 5.5.",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "violations": [],
+  "total_violations": 0,
+  "critical_count": 0,
+  "integrity_pass": true,
+  "checks": {
+    "PI1_step_completeness": {
+      "pass": true,
+      "violations": 0
+    },
+    "PI2_empty_result_recording": {
+      "pass": true,
+      "violations": 0
+    },
+    "PI3_signal_overwrite_detection": {
+      "pass": true,
+      "violations": 0
+    },
+    "PI4_dimension_execution_completeness": {
+      "pass": true,
+      "violations": 0
+    },
+    "PI5_cross_source_consistency": {
+      "pass": true,
+      "violations": 0
+    }
+  }
+}

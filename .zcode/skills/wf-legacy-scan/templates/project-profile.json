@@ -1,0 +1,102 @@
+{
+  "$schema": "legacy-scan-project-profile-v1",
+  "scan_timestamp": "",
+  "project_path": "",
+  "project_size": "",
+
+  "file_counts": {
+    "total": 0,
+    "source": 0,
+    "doc": 0,
+    "config": 0,
+    "test": 0,
+    "asset": 0
+  },
+
+  "languages": {
+    "primary": "",
+    "secondary": [],
+    "counts": {}
+  },
+
+  "frameworks": {
+    "backend": [],
+    "frontend": [],
+    "mobile": [],
+    "database": []
+  },
+
+  "structure": {
+    "type": "",
+    "is_monorepo": false,
+    "apps": []
+  },
+
+  "code_patterns": {
+    "router_files": 0,
+    "module_dirs": 0,
+    "api_route_files": 0,
+    "config_files": 0,
+    "test_dirs": 0
+  },
+
+  "doc_formats": {
+    "markdown": 0,
+    "openapi": 0,
+    "jsdoc": 0
+  },
+
+  "devkit": {
+    "has_mcdata": false,
+    "has_registry": false
+  },
+
+  "tech_stack_verified": false,
+  "verification_method": "",
+  "confidence_per_item": {
+    "backend": 0,
+    "frontend": 0,
+    "database": 0,
+    "auth": 0,
+    "infrastructure": 0
+  },
+  "infra_services": [],
+
+  "doc_maturity": {
+    "level": "",
+    "registry_stats": {
+      "systems": 0,
+      "modules": 0,
+      "requirements": 0,
+      "features": 0,
+      "impl_done": 0,
+      "impl_done_pct": 0
+    },
+    "phase_status": {
+      "phase0": { "exists": false, "doc_count": 0 },
+      "phase1": { "exists": false, "doc_count": 0 },
+      "phase2": { "exists": false, "doc_count": 0 },
+      "phase3": { "exists": false, "doc_count": 0 }
+    },
+    "external_docs": {
+      "readme_files": 0,
+      "wiki_files": 0,
+      "openapi_specs": 0
+    },
+    "recommended_action": ""
+  },
+
+  "complexity": {
+    "estimated_systems": 0,
+    "estimated_modules": 0,
+    "lpm_triggered": false,
+    "estimated_sessions": 0
+  },
+
+  "domain_hints": {
+    "_notes": "v5.0 optional — FK ref to domain-hints.json. Populate summary sau khi IPS-A chay.",
+    "top_domain": "",
+    "top_confidence": 0,
+    "detected_count": 0
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "skill": "wf-e2e-implement",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "TC-F4-001",
+      "name": "Happy path — 3 implement-required entries, all delegate success",
+      "input": {
+        "command": "/wf-e2e-implement FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2000",
+        "context": "implement-required.json có 3 entries status=pending, priorities P0/P1/P1. Registry valid. wf-implement-feature available."
+      },
+      "expected_behavior": [
+        "Sort by priority (P0 first)",
+        "Spawn delegate IMPL-REQ-001 (P0) → success → update entry done + registry SAFE-UPDATE",
+        "Spawn delegate IMPL-REQ-002 (P1) → success → update entry done + registry",
+        "Spawn delegate IMPL-REQ-003 (P1) → success → update entry done + registry",
+        "Write impl-log.json với 3 entries result=success",
+        "POST-GATE pass"
+      ],
+      "assertions": [
+        "jq '[.entries[] | select(.status==\"done\")] | length' implement-required.json == 3",
+        "jq '[.entries[] | select(.status==\"done\") | .req_id] | unique' — registry impl_status=done cho tất cả",
+        "jq '.summary.done' impl-log.json == 3",
+        "ls $F4_DIR/delegate-receipts/ | count == 3"
+      ]
+    },
+    {
+      "id": "TC-F4-002",
+      "name": "Delegate timeout — IMPL-REQ skipped",
+      "input": {
+        "command": "/wf-e2e-implement FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2100",
+        "context": "1 IMPL-REQ entry. Delegate spawn nhưng wf-implement-feature crashes hoặc timeout > 30 min."
+      },
+      "expected_behavior": [
+        "Spawn delegate → wait 30 min không có receipt",
+        "Mark entry status=skipped + note 'delegate_timeout'",
+        "APPEND issues.json: ISS-NNN type=integration severity=medium",
+        "Registry KHÔNG update (entry not done)",
+        "E044 logged"
+      ],
+      "assertions": [
+        "jq '.entries[] | select(.status==\"skipped\")' implement-required.json — non-empty",
+        "jq '.signals[] | select(.discovered_by_skill==\"wf-e2e-implement\")' issues.json — non-empty",
+        "jq '.requirements[] | select(.req_id==<REQ_ID>) | .impl_status' registry.json != \"done\""
+      ]
+    },
+    {
+      "id": "TC-F4-003",
+      "name": "VERIFY_ONLY fast-path — code đã tồn tại + đúng",
+      "input": {
+        "command": "/wf-e2e-implement FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2200",
+        "context": "IMPL-REQ-001 phát hiện code đã có + match expected_behavior. F4 nhận diện VERIFY_ONLY strategy."
+      },
+      "expected_behavior": [
+        "Search-existing-code via Serena/Grep → tìm thấy code match",
+        "Strategy = VERIFY_ONLY → KHÔNG delegate",
+        "Mark entry status=done + implementer='F4-verify-only'",
+        "Registry SAFE-UPDATE",
+        "impl-log.json entry result='verify_only'"
+      ],
+      "assertions": [
+        "jq '.entries[] | select(.implementer==\"F4-verify-only\")' implement-required.json — non-empty",
+        "ls $F4_DIR/delegate-receipts/ — empty (no delegate spawned)",
+        "jq '.summary.verify_only_count // 0' impl-log.json >= 1"
+      ]
+    },
+    {
+      "id": "TC-F4-004",
+      "name": "Registry SAFE-UPDATE refuse downgrade",
+      "input": {
+        "command": "/wf-e2e-implement FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2300",
+        "context": "Registry REQ-CRM-001 đã impl_status=done. Delegate trả về impl_status_after=in_progress (race condition)."
+      },
+      "expected_behavior": [
+        "F4 read receipt → impl_status_after=in_progress",
+        "registry_safe_update REQ-CRM-001 với new=in_progress",
+        "CORE-008: refuse downgrade từ done",
+        "Log WARN E045",
+        "Registry GIỮ NGUYÊN impl_status=done",
+        "implement-required.json entry status=in_progress (per receipt)"
+      ],
+      "assertions": [
+        "jq '.requirements[] | select(.req_id==\"REQ-CRM-001\") | .impl_status' registry.json == \"done\"",
+        "grep 'E045' impl-log.json — non-empty",
+        "jq '.entries[] | select(.id==\"IMPL-REQ-001\") | .status' implement-required.json == \"in_progress\""
+      ]
+    },
+    {
+      "id": "TC-F4-005",
+      "name": "Standalone require --session error",
+      "input": {
+        "command": "/wf-e2e-implement FEAT-EW-CRM-001",
+        "context": "Không có --session"
+      },
+      "expected_behavior": [
+        "E041 \"--session missing\" → STOP"
+      ],
+      "assertions": [
+        "Output contains 'E041' or '--session'",
+        "No files created"
+      ]
+    }
+  ]
+}

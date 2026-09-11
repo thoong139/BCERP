@@ -1,0 +1,738 @@
+{
+  "skill_name": "wf-preflight",
+  "version": "3.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-preflight — kiểm tra toàn bộ hệ thống có 8 systems, phát hiện missing impl plans (WARN)",
+      "expected_output": "Preflight report with verdict WARN, registry 100%, docs <100% due to missing impl plans, sync score reflecting partial implementation, all 8 systems checked",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Report identifies all 8 systems in scope (SYS-ERP, SYS-WEB, SYS-CRM, SYS-HR, SYS-INV, SYS-REPORT, SYS-AUTH, SYS-NOTIFY)"
+        },
+        {
+          "type": "content_check",
+          "text": "Registry integrity check passes with score >= 90% (no structural issues)"
+        },
+        {
+          "type": "content_check",
+          "text": "Document completeness check finds missing impl plans in phase5-implementation/tasks/"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 4 (Code-REQ Sync Check, Step 4.1-4.5): Scan apps/ directory voi regex REQ-ID pattern (REQ-[A-Z]+-\\d+), match target_reqs vs code_refs, categorize done/in_progress/not_started per Step 4.3"
+        },
+        {
+          "type": "content_check",
+          "text": "Verdict is WARN (not PASS, not FAIL) due to missing docs but no CRITICAL issues"
+        },
+        {
+          "type": "content_check",
+          "text": "Overall score is calculated using weighted formula: registry 20%, docs 25%, sync 30%, quality 25%"
+        },
+        {
+          "type": "file_exists",
+          "text": "Report is written to .mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-report.md (session-scoped v3.0+)"
+        },
+        {
+          "type": "file_content",
+          "text": "Issues section includes action links to specific skills for fixing (e.g. /wf-plan-modules for missing impl plans)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 2 (registry) and Phase 3 (docs) checks run in PARALLEL"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 4 (code scan) and Phase 5 (quality) checks run in PARALLEL"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-preflight --scope=system --name=SYS-ERP --fix — chỉ kiểm tra ERP system, auto-fix orphan files",
+      "expected_output": "Scoped check of SYS-ERP only (3 modules: FIN, ACC, PROC), finds orphan files in apps/erp/finance/utils/, auto-fixes by adding REQ-ID comments",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Scope resolves to SYS-ERP only: modules MOD-ERP-FIN, MOD-ERP-ACC, MOD-ERP-PROC"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 1 Step 1.5 scope resolution: target_modules chi lay registry.modules[? system_id == SYS-ERP].id — khong check modules/features thuoc systems khac (CRM, HR, v.v.)"
+        },
+        {
+          "type": "content_check",
+          "text": "Identifies orphan code files (no REQ-ID) in apps/erp/ directory"
+        },
+        {
+          "type": "behavior",
+          "text": "--fix auto-adds REQ-ID comments to orphan files (formatter.ts, validator.ts, report.service.ts)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 6 (--fix) KHONG auto-fix: missing docs (escalated), test failures (always escalated), type/compile errors (always escalated), duplicate IDs (user decision). Chi fix: registry_json_invalid, id_format_error, orphan_code_file"
+        },
+        {
+          "type": "file_content",
+          "text": "Auto-fixes section in report lists each file and what was fixed"
+        },
+        {
+          "type": "file_exists",
+          "text": "Report written to .mc-data/work/wf-preflight/sessions/{SESSION_ID}/preflight-report.md (session-scoped v3.0+)"
+        },
+        {
+          "type": "file_content",
+          "text": "preflight-status.json (session-scoped) written with scope reflecting SYS-ERP"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-preflight --scope=module --name=MOD-ERP-FIN — kiểm tra Finance module, registry OK, code sync partial",
+      "expected_output": "Scoped check of MOD-ERP-FIN only, registry integrity OK, code sync ~60% because REQ-FIN-003 is not_started",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Scope resolves to MOD-ERP-FIN only with features FEAT-ERP-FIN-001 and FEAT-ERP-FIN-002"
+        },
+        {
+          "type": "content_check",
+          "text": "Target requirements are REQ-FIN-001, REQ-FIN-002, REQ-FIN-003"
+        },
+        {
+          "type": "registry_check",
+          "text": "Registry integrity check for MOD-ERP-FIN scope passes (valid IDs, no duplicates)"
+        },
+        {
+          "type": "content_check",
+          "text": "Code-REQ sync identifies REQ-FIN-001 and REQ-FIN-002 as found in code, REQ-FIN-003 as missing"
+        },
+        {
+          "type": "content_check",
+          "text": "Sync score reflects partial implementation (approximately 60-67%)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 1 Step 1.5 scope resolution voi --scope=module --name=MOD-ERP-FIN: target_reqs chi lay requirements co module_id == MOD-ERP-FIN — Phase 2-5 khong report issues tu modules khac (ACC, PROC, CRM)"
+        },
+        {
+          "type": "file_content",
+          "text": "Report includes Next Steps recommending /wf-implement-feature for missing REQs"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-preflight --scope=feature --name=FEAT-ERP-FIN-001 --run-tests — kiểm tra 1 feature + chạy test suite",
+      "expected_output": "Feature-scoped check of FEAT-ERP-FIN-001 only, all checks pass, test suite runs and parses results",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Scope resolves to FEAT-ERP-FIN-001 only with req_ids REQ-FIN-001 and REQ-FIN-002"
+        },
+        {
+          "type": "file_exists",
+          "text": "Feature doc FEAT-ERP-FIN-001.md confirmed to exist in phase2-features/"
+        },
+        {
+          "type": "file_exists",
+          "text": "Impl plan FEAT-ERP-FIN-001-impl.md confirmed to exist in phase5-implementation/tasks/"
+        },
+        {
+          "type": "content_check",
+          "text": "Code scan finds both REQ-FIN-001 and REQ-FIN-002 in apps/erp/finance/ source files"
+        },
+        {
+          "type": "behavior",
+          "text": "--run-tests triggers test execution with scope filter for erp/finance or FEAT-ERP-FIN-001"
+        },
+        {
+          "type": "output_contains",
+          "text": "Test results are parsed and displayed (passed/failed counts)"
+        },
+        {
+          "type": "content_check",
+          "text": "Test score is displayed separately as BONUS (not in weighted overall score)"
+        },
+        {
+          "type": "content_check",
+          "text": "Verdict is PASS with high overall score (>= 80%)"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-preflight --scope=system --name=SYS-INVALID — phát hiện ID không hợp lệ, liệt kê valid system IDs rồi STOP",
+      "expected_output": "Immediately STOP with error E003, list all 8 valid system IDs, do not proceed with any checks",
+      "files": [],
+      "assertions": [
+        {
+          "type": "registry_check",
+          "text": "Detects SYS-INVALID is not in registry.systems[*].id"
+        },
+        {
+          "type": "behavior",
+          "text": "STOPs immediately — does NOT proceed to Phase 2, 3, 4, or 5"
+        },
+        {
+          "type": "output_contains",
+          "text": "Lists all 8 valid system IDs: SYS-ERP, SYS-WEB, SYS-CRM, SYS-HR, SYS-INV, SYS-REPORT, SYS-AUTH, SYS-NOTIFY"
+        },
+        {
+          "type": "output_contains",
+          "text": "Error message matches E003 pattern from skill error handling table"
+        },
+        {
+          "type": "behavior",
+          "text": "Does NOT create preflight-report.md (no check was performed)"
+        },
+        {
+          "type": "output_contains",
+          "text": "Provides example of correct usage (e.g. /wf-preflight --scope=system --name=SYS-ERP)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-preflight — registry JSON hoàn toàn invalid (E002), không parse được",
+      "expected_output": "STOP với hướng dẫn fix JSON syntax, không proceed sang Phase 2-7",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Detects req-registry.json is not valid JSON (jq parse fails)"
+        },
+        {
+          "type": "behavior",
+          "text": "STOPs immediately — does NOT proceed to Phase 2, 3, 4, 5, 5b, 6, or 7"
+        },
+        {
+          "type": "output_contains",
+          "text": "Error message matches E002 pattern: hướng dẫn fix JSON syntax"
+        },
+        {
+          "type": "behavior",
+          "text": "Does NOT create preflight-report.md (no check was performed)"
+        },
+        {
+          "type": "output_contains",
+          "text": "Suggests running /wf-brainstorm or /wf-analyze-requirements to regenerate registry"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-preflight — scope=all nhưng registry trống (E012), 0 systems và 0 modules",
+      "expected_output": "WARN + NOTE 'Registry empty — chạy /wf-analyze-requirements', proceed với score 0% cho registry/docs",
+      "files": [],
+      "assertions": [
+        {
+          "type": "registry_check",
+          "text": "Detects registry.systems length == 0 AND registry.modules length == 0"
+        },
+        {
+          "type": "output_contains",
+          "text": "WARNING: 'Registry empty — chạy /wf-analyze-requirements trước'"
+        },
+        {
+          "type": "behavior",
+          "text": "Does NOT STOP — continues with degraded checks (registry_score = 0, docs_score based on available)"
+        },
+        {
+          "type": "content_check",
+          "text": "Verdict is WARN or FAIL (not PASS) due to empty registry"
+        },
+        {
+          "type": "file_exists",
+          "text": "preflight-report.md IS created (unlike E002 which stops before report)"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-preflight --fix — Phase 6 auto-fix gây lỗi mới trong file (E010), rollback và escalate",
+      "expected_output": "Rollback file từ checkpoint file_snapshots, log 'Fix regression', escalate to user với diff trước/sau",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 6 attempts auto-fix on orphan_code_file, introduces new syntax error"
+        },
+        {
+          "type": "behavior",
+          "text": "Rollback protection triggers: file content is restored from checkpoint.partial_state.file_snapshots (NOT just metadata)"
+        },
+        {
+          "type": "output_contains",
+          "text": "Log contains 'Fix regression — rolled back [filename]'"
+        },
+        {
+          "type": "content_check",
+          "text": "Escalation section in report lists the rollback event with before/after diff"
+        },
+        {
+          "type": "file_content",
+          "text": "Rolled-back file content matches original (pre-fix) version exactly from file_snapshots"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 6 continues with remaining files in fix list after rollback — does NOT abort entire Phase 6"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-preflight --resume — resume từ checkpoint sau khi context bị interrupt tại Phase 5b",
+      "expected_output": "State được restore đầy đủ từ checkpoint session-scoped, Phase 5b tiếp tục và Phase 7 tạo report với đúng scores từ session trước",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 0 delegates to session-init.md RR.2-RR.5: discovers latest in_progress session from _index/sessions.jsonl"
+        },
+        {
+          "type": "behavior",
+          "text": "RR.5 restores env vars: $SESSION_ID, $SESSION_DIR, $SCOPE_TYPE, $SCOPE_NAME, $HAS_FIX_FLAG từ session-scoped preflight-status.json"
+        },
+        {
+          "type": "behavior",
+          "text": "Score restore từ checkpoint.partial_state.scores_snapshot: SCORE_REGISTRY, SCORE_DOCS, SCORE_SYNC, SCORE_QUALITY"
+        },
+        {
+          "type": "behavior",
+          "text": "Re-acquires session lock via pf-acquire-lock.sh, restarts heartbeat daemon"
+        },
+        {
+          "type": "behavior",
+          "text": "Execution continues from checkpoint.position.next_action (Phase 5b) — không re-run Phases 2, 3, 4, 5"
+        },
+        {
+          "type": "file_exists",
+          "text": "preflight-report.md IS created in same session dir after resume completes"
+        },
+        {
+          "type": "content_check",
+          "text": "Report scores match scores from checkpoint snapshot (not recalculated from scratch)"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-preflight — no src/ or apps/, no code tooling — sync_score và quality_score đều null, NULL redistribution tính đúng",
+      "expected_output": "Phase 4 và Phase 5 bị skip hợp lệ, overall_score tính từ registry (20%) và docs (25%) sau khi redistribute weights, verdict dựa trên 2 dimensions, report có disclaimer",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 4 PRE-GATE fails (no src/ or apps/) → sync_score = null, $SYNC_ISSUES = []"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 5 PRE-GATE fails (no code directory) → quality_score = null, $QUALITY_ISSUES = []"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 5b sets $CODE_NOT_CHECKED = true (sync + quality both null)"
+        },
+        {
+          "type": "content_check",
+          "text": "overall_score calculated using NULL redistribution: registry × 0.444 + docs × 0.556 (remaining = 0.45)"
+        },
+        {
+          "type": "content_check",
+          "text": "Report contains disclaimer: 'Code chưa được kiểm tra (không tìm thấy src/ hoặc tooling không khả dụng)'"
+        },
+        {
+          "type": "behavior",
+          "text": "quality_score is NOT set to 100 when skipped — must be null"
+        },
+        {
+          "type": "file_exists",
+          "text": "preflight-report.md IS created (degraded check, not STOP)"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "/wf-preflight --scope=all — tất cả checks pass, code clean, docs đầy đủ, registry hợp lệ → verdict PASS scope=all",
+      "expected_output": "Full system check across all 5 systems, all scores >= 80%, no CRITICAL or HIGH issues, verdict PASS với recommendation chạy /wf-verify-sync",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Scope resolves to all systems/modules/features/reqs (không hẹp scope)"
+        },
+        {
+          "type": "content_check",
+          "text": "registry_score >= 90% (no structural issues)"
+        },
+        {
+          "type": "content_check",
+          "text": "docs_score >= 80% (required docs present)"
+        },
+        {
+          "type": "content_check",
+          "text": "sync_score >= 80% (REQ-ID comments found in code for done/in_progress reqs)"
+        },
+        {
+          "type": "content_check",
+          "text": "quality_score = 100 (clean compile + lint run) hoặc null (no tooling — với disclaimer)"
+        },
+        {
+          "type": "content_check",
+          "text": "Verdict is PASS (not WARN, not FAIL) — overall_score >= 80% AND no CRITICAL AND no HIGH issues"
+        },
+        {
+          "type": "content_check",
+          "text": "Report recommendation includes: 'Tiếp tục: /wf-verify-sync' với note rằng PASS không thay thế wf-verify-sync"
+        },
+        {
+          "type": "file_exists",
+          "text": "sessions/{SESSION_ID}/preflight-report.md created with PASS verdict"
+        },
+        {
+          "type": "file_exists",
+          "text": "preflight-history.md updated with new PASS entry (flat path, backward compat)"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "/wf-preflight — second run cùng scope 'all' trong ngày hôm nay (session in_progress exists) → CDG duplicate run",
+      "expected_output": "CDG banner hiển thị với options (r) view existing, (n) new session, (q) cancel. User chọn (n) → new session tạo với NN counter tăng lên",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "session-init.md SI.6: detects existing session same scope today via _index/sessions.jsonl"
+        },
+        {
+          "type": "output_contains",
+          "text": "CDG banner hiển thị với thông tin session cũ (session_id, status, verdict nếu completed)"
+        },
+        {
+          "type": "behavior",
+          "text": "User chọn (n) new session → fresh session được tạo với NN counter = 02 (thay vì 01)"
+        },
+        {
+          "type": "behavior",
+          "text": "CI/CD bypass: MCV3_PREFLIGHT_DUPLICATE_OK=1 → skip CDG, proceed trực tiếp new session"
+        },
+        {
+          "type": "content_check",
+          "text": "Mỗi session có SESSION_DIR riêng biệt — không ghi đè session cũ (CORE-030)"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "/wf-preflight --scope=system --name=SYS-ERP — verify session ID format {YYYY-MM-DD}-{scope-slug}-{NN}",
+      "expected_output": "Session ID được tạo theo format chuẩn với scope slug 'sys-erp' và NN counter 2 chữ số",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "pf-generate-session-id.sh invoked với scope_type=system, scope_name=SYS-ERP"
+        },
+        {
+          "type": "output_contains",
+          "text": "SESSION_ID format: {YYYY-MM-DD}-sys-erp-{NN} — ví dụ '2026-05-03-sys-erp-01'"
+        },
+        {
+          "type": "behavior",
+          "text": "Scope slug rule: lowercase-kebab-case — SYS-ERP → sys-erp (không phải SYS-ERP hay sys_erp)"
+        },
+        {
+          "type": "behavior",
+          "text": "NN counter: đếm existing sessions cùng prefix {YYYY-MM-DD}-sys-erp → NN = existing_count + 1"
+        },
+        {
+          "type": "file_exists",
+          "text": "SESSION_DIR = .mc-data/work/wf-preflight/sessions/{SESSION_ID}/ được tạo"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/wf-preflight — session lock đang được giữ bởi alive process (PID khác) → lock collision detected",
+      "expected_output": "pf-acquire-lock.sh trả về {status:'lock_held_alive'}, skill KHÔNG proceed, hiển thị thông tin lock holder",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "pf-acquire-lock.sh phát hiện .session.lock tồn tại với PID của alive process (kill -0 thành công)"
+        },
+        {
+          "type": "behavior",
+          "text": "KHÔNG atomic-overwrite lock của session khác — return {status:'lock_held_alive', held_by_pid, held_by_host}"
+        },
+        {
+          "type": "output_contains",
+          "text": "Error thông báo lock đang được giữ, hiển thị PID và host của holder"
+        },
+        {
+          "type": "behavior",
+          "text": "Skill STOP sau lock collision — không tạo session, không proceed Phase 1"
+        },
+        {
+          "type": "output_contains",
+          "text": "Suggestion: kiểm tra process PID hoặc chờ session cũ kết thúc"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "/wf-preflight — session lock tồn tại nhưng stale (>60 phút không có heartbeat, PID dead) → stale takeover",
+      "expected_output": "pf-acquire-lock.sh phát hiện stale lock, override thành công, session mới bắt đầu bình thường",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "pf-acquire-lock.sh kiểm tra lock age: (NOW - heartbeat_at) > 60 phút → stale"
+        },
+        {
+          "type": "behavior",
+          "text": "Dead PID check: kill -0 {pid} trả về non-zero → confirm dead process"
+        },
+        {
+          "type": "behavior",
+          "text": "Stale lock takeover: ghi lock mới với PID hiện tại, override file cũ"
+        },
+        {
+          "type": "output_contains",
+          "text": "Log: 'WARN: stale lock detected (age: X min), taking over'"
+        },
+        {
+          "type": "behavior",
+          "text": "Session mới tiếp tục bình thường sau takeover — Phase 1 bắt đầu"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "/wf-preflight — flat v2 files tồn tại (.mc-data/work/wf-preflight/preflight-report.md + preflight-status.json) → auto-migrate",
+      "expected_output": "pf-migrate-flat-to-sessions.sh archive flat files vào sessions/_legacy-v2/{ts}/, new session tạo bình thường",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "session-init.md SI.2 gọi pf-migrate-flat-to-sessions.sh để kiểm tra v2 flat files"
+        },
+        {
+          "type": "behavior",
+          "text": "Migration idempotent: nếu sessions/_legacy-v2/ đã tồn tại → skip (không migrate lại)"
+        },
+        {
+          "type": "file_exists",
+          "text": "Flat files được archived sang .mc-data/work/wf-preflight/sessions/_legacy-v2/{timestamp}/"
+        },
+        {
+          "type": "behavior",
+          "text": "preflight-history.md KHÔNG bị migrate — giữ nguyên ở flat path (backward compat)"
+        },
+        {
+          "type": "behavior",
+          "text": "Migration log ghi vào _index/sessions.jsonl với event='legacy_v2_archived'"
+        },
+        {
+          "type": "behavior",
+          "text": "New v3.0 session được tạo bình thường sau migration thành công"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "/wf-preflight — complete run → verify sessions.jsonl có đúng 2 entries (in_progress + completed)",
+      "expected_output": "_index/sessions.jsonl có 2 entries: {event:'in_progress'} tại SI.9 và {event:'completed'} tại Phase 7.G với verdict và score",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "pf-index-append.sh được gọi tại SI.9 với entry {event:'in_progress', session_id, scope_type, scope_name, started_at, status:'in_progress'}"
+        },
+        {
+          "type": "behavior",
+          "text": "pf-index-append.sh được gọi tại Phase 7.G với entry {event:'completed', session_id, verdict, overall_score, issues_critical, issues_high, fix_applied, tests_run, status:'completed'}"
+        },
+        {
+          "type": "file_content",
+          "text": "_index/sessions.jsonl chứa đúng 2 JSON lines cho session này — không thêm, không thiếu"
+        },
+        {
+          "type": "content_check",
+          "text": "Entry 'completed' có tất cả required fields: session_id, scope_type, verdict, overall_score, completed_at"
+        },
+        {
+          "type": "behavior",
+          "text": "JSONL là append-only — mỗi line là valid JSON object độc lập (không phải JSON array)"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "/wf-preflight --fix với N_TOTAL=3 fixable issues — CDG Point 1 hiển thị, user respond 'yes' → proceed",
+      "expected_output": "CDG banner với N_REGISTRY + N_ORPHAN = 3 hiển thị, sau khi confirm 'yes' tất cả 3 fixes được attempt",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 6 CDG Point 1: đếm N_REGISTRY + N_ORPHAN = 3 (>0) → render CDG banner"
+        },
+        {
+          "type": "output_contains",
+          "text": "CDG banner hiển thị: Registry syntax fixes + Orphan file fixes + Tổng thay đổi + Registry backup path"
+        },
+        {
+          "type": "behavior",
+          "text": "User confirm 'yes' → Phase 6.0a: cp registry sang registry.snapshot.pre-fix, save file_snapshots vào checkpoint"
+        },
+        {
+          "type": "behavior",
+          "text": "CDG Point 2 (per-fix verify loop): sau mỗi fix, verify immediate (jq '.' hoặc grep REQ-ID)"
+        },
+        {
+          "type": "behavior",
+          "text": "CDG Point 3 (post-fix summary): hiển thị FIX_PASS_COUNT/N_TOTAL + score delta"
+        },
+        {
+          "type": "file_exists",
+          "text": "registry.snapshot.pre-fix tồn tại trong SESSION_DIR sau khi fix complete"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "/wf-preflight --fix với N_TOTAL=3 fixable issues — CDG Point 1 hiển thị, user respond 'no' → abort Phase 6",
+      "expected_output": "Phase 6 skip hoàn toàn, status.phases.phase_6.skip_reason='user declined', report không có Auto-fix section",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "CDG Point 1 hiển thị với N_TOTAL=3 → user respond 'no'"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 6 aborted: không tạo registry.snapshot.pre-fix, không modify bất kỳ file nào"
+        },
+        {
+          "type": "content_check",
+          "text": "preflight-status.json: phases.phase_6.status='skipped', phases.phase_6.skip_reason='user declined'"
+        },
+        {
+          "type": "content_check",
+          "text": "Report Phase 7 dùng original $SCORES (không có $POST_FIX_SCORES vì không có fix)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 7 vẫn generate report bình thường với scores từ Phases 2-5 (không block)"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "prompt": "/wf-preflight — complete run → verify preflight-impact.json có schema preflight-impact-v1 hợp lệ",
+      "expected_output": "pf-impact-build.sh tạo preflight-impact.json với tất cả required fields: schema, session_id, verdict, scores, issues_by_category, audit_chain",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 7.E: bash pf-impact-build.sh \"$SESSION_DIR\" được gọi, parse {status:'built', verdict, total_issues}"
+        },
+        {
+          "type": "file_exists",
+          "text": "sessions/{SESSION_ID}/preflight-impact.json tồn tại và non-empty"
+        },
+        {
+          "type": "file_content",
+          "text": "impact.json có field schema = 'preflight-impact-v1' (không phải giá trị khác)"
+        },
+        {
+          "type": "file_content",
+          "text": "audit_chain chứa registry_checksum_sha256 và report_checksum_sha256 (format: 'sha256:{hex}')"
+        },
+        {
+          "type": "file_content",
+          "text": "issues_by_category có 5 fields: critical, high, medium, low, total"
+        },
+        {
+          "type": "behavior",
+          "text": "Graceful fail: nếu pf-impact-build.sh fail → LOG WARN, tiếp tục Phase 7 (không block POST-GATE)"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "prompt": "/wf-preflight --status — display session history từ sessions.jsonl sau khi có 3 completed sessions",
+      "expected_output": "Table format hiển thị 3 sessions gần nhất với session_id, scope, verdict, score, thời gian. Tip lines ở cuối.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "session-init.md SI.3 (hoặc RR.6): đọc _index/sessions.jsonl, filter entries event='completed' hoặc 'failed'"
+        },
+        {
+          "type": "output_contains",
+          "text": "Header: '=== wf-preflight Session History ===' với column headers (Session ID, Scope, Verdict, Score, Thời gian)"
+        },
+        {
+          "type": "content_check",
+          "text": "Table hiển thị tối đa 10 sessions gần nhất (tail -10)"
+        },
+        {
+          "type": "output_contains",
+          "text": "Tip lines: '/wf-preflight --resume=SESSION_ID' và '/wf-preflight --resume'"
+        },
+        {
+          "type": "behavior",
+          "text": "EXIT sau khi display — không tạo session mới, không chạy phases"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "prompt": "/wf-preflight — E2E PASS scenario: registry clean, docs 100%, code sync 100%, no CRITICAL/HIGH → impact.json cho downstream consumers",
+      "expected_output": "Verdict PASS, preflight-impact.json với verdict=PASS và next_recommended_action='/wf-verify-sync', consumers wf-fix-bugs/wf-prepare-deployment/wf-verify-sync có thể consume via --from-preflight",
+      "files": [],
+      "assertions": [
+        {
+          "type": "content_check",
+          "text": "Verdict = PASS: overall_score >= 80% AND no CRITICAL AND no HIGH issues"
+        },
+        {
+          "type": "file_content",
+          "text": "preflight-impact.json: verdict='PASS', next_recommended_action='/wf-verify-sync'"
+        },
+        {
+          "type": "file_content",
+          "text": "preflight-impact.json: blocking_items=[] (empty — không có blockers cho downstream)"
+        },
+        {
+          "type": "behavior",
+          "text": "pf-index-append.sh Phase 7.G: entry completed có verdict='PASS' và overall_score"
+        },
+        {
+          "type": "content_check",
+          "text": "Report Phase 7.7: recommendation 'Tiếp tục: /wf-verify-sync' + NOTE xác nhận tính nhất quán cấu trúc"
+        },
+        {
+          "type": "file_exists",
+          "text": "preflight-history.md được append với dòng PASS entry (flat path, persistent)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 7.H: heartbeat daemon bị kill (kill $HEARTBEAT_PID 2>/dev/null || true)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 7.I: session lock released via pf-release-lock.sh session $SESSION_DIR"
+        }
+      ]
+    }
+  ]
+}

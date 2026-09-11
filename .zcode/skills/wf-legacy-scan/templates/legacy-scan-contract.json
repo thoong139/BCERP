@@ -1,0 +1,74 @@
+{
+  "$schema": "legacy-scan-contract-v1",
+  "description": "Contract cho wf-legacy-scan output validation (Stage 0-1 ONLY). Validate output cua work/legacy-scan/ cho stages thuoc scope cua skill nay.",
+  "version": "2.0.0",
+  "work_directory": ".mc-data/work/legacy-scan/",
+  "note": "Stages 2-5 contracts da chuyen sang legacy-pipeline-contract.json — moi downstream skill tu validate theo contract rieng.",
+  "required_files": {
+    "stage_0": {
+      "project-profile.json": {
+        "required": true,
+        "format": "json",
+        "required_fields": ["scan_timestamp", "project_path", "file_counts", "languages", "frameworks", "structure", "complexity", "doc_maturity"],
+        "validation": "file_counts.total > 0 AND doc_maturity.level IN ('CODE_ONLY','CODE_PLUS_EXTERNAL_DOCS','CODE_PLUS_DEVKIT_PARTIAL','CODE_PLUS_DEVKIT_COMPLETE','NEAR_COMPLETE','DOCS_ONLY')"
+      },
+      "assessment-report.json": {
+        "required": true,
+        "format": "json",
+        "required_fields": ["assess_timestamp", "project_path", "scores", "strategy", "stage_modes"],
+        "validation": "scores.code_quality AND scores.doc_quality AND scores.alignment AND strategy.id != ''"
+      }
+    },
+    "stage_0_5": {
+      "description": "Maturity Validation — chi chay khi doc_maturity.level la DEVKIT_PARTIAL, DEVKIT_COMPLETE, hoac NEAR_COMPLETE",
+      "skip_condition": "doc_maturity.level IN ('CODE_ONLY', 'CODE_PLUS_EXTERNAL_DOCS', 'DOCS_ONLY')",
+      "maturity_validation": {
+        "required": true,
+        "validation": "Moi phase co trong .mc-data/docs/ phai duoc validate against doc-framework contract tuong ung. Ket qua ghi vao doc_maturity.phase_status[].contract_pass"
+      },
+      "user_confirmation": {
+        "required": true,
+        "validation": "AskUserQuestion xac nhan recommended_action truoc khi tiep tuc pipeline"
+      }
+    },
+    "stage_1": {
+      "inventory/screens.json": {
+        "required": true,
+        "format": "json",
+        "validation": "Array format, co the empty"
+      },
+      "inventory/api-endpoints.json": {
+        "required": true,
+        "format": "json",
+        "validation": "Array format, co the empty"
+      },
+      "inventory/doc-files.json": {
+        "required": true,
+        "format": "json",
+        "validation": "Array format"
+      },
+      "inventory/source-files.json": {
+        "required": true,
+        "format": "json",
+        "validation": "Array format. Co the empty khi DOCS_ONLY (source_count == 0)"
+      },
+      "inventory/doc-classified.json": {
+        "required": false,
+        "format": "json",
+        "condition": "Chi required khi maturity_level == DOCS_ONLY",
+        "validation": "is_docs_only == true AND count > 0 AND moi item co doc_type"
+      },
+      "inventory/dependency-graph.json": {
+        "required": true,
+        "format": "json",
+        "validation": "Object format"
+      },
+      "ledger.json": {
+        "required": true,
+        "format": "json",
+        "required_fields": ["$schema", "project", "pipeline_status", "summary", "stages"],
+        "validation": "summary.total_items > 0 AND summary.total_items == sum(stages.inventory.file_counts)"
+      }
+    }
+  }
+}

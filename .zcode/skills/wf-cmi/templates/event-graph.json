@@ -1,0 +1,46 @@
+{
+  "_template_notes": {
+    "purpose": "Event propagation graph — Discovery #5. Domain events + integration events + producers/consumers + broker config (RabbitMQ + SignalR cho EUREKA). Source: GitNexus cypher + Serena find_referencing_symbols / fallback Grep IntegrationEvent|DomainEvent.",
+    "populate": [
+      "events[]: 1 entry per event — {id, name (vd OrderCreatedIntegrationEvent), type=domain|integration|signalr, module, payload_schema}",
+      "producers[]: {event_id, module, handler_class, trigger_command|trigger_action}",
+      "consumers[]: {event_id, module, handler_class, action_taken, side_effects[]}",
+      "propagation_paths[]: chain from initial trigger → final consumers — {event_chain, modules_traversed, latency_estimate?}",
+      "broker_config: {rabbitmq: {exchanges, queues, dead_letter}, signalr: {hubs, groups, methods}}",
+      "metadata.orphan_events: producer không có consumer (potential dead event)",
+      "metadata.unhandled_events: consumer reference event không có producer (broken contract)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "event-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "events": [],
+  "producers": [],
+  "consumers": [],
+  "propagation_paths": [],
+  "broker_config": {
+    "rabbitmq": {
+      "exchanges": [],
+      "queues": [],
+      "dead_letter": []
+    },
+    "signalr": {
+      "hubs": [],
+      "groups": [],
+      "methods": []
+    }
+  },
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "source_method": "{{SOURCE_METHOD}}",
+    "event_count": 0,
+    "modules_covered": [],
+    "orphan_events": [],
+    "unhandled_events": []
+  }
+}

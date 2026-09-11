@@ -1,0 +1,62 @@
+{
+  "wf_id": "WF-L1-01",
+  "wf_slug": "marketing-to-lead",
+  "session_id": "YYYY-MM-DD-WF-L1-01-01",
+  "status": "done",
+  "completed_at": "ISO8601",
+  "phase1": {
+    "status": "done",
+    "duration_s": 0,
+    "analysis_path": ".mc-data/work/wf-test-business-workflow/sessions/{SESSION_ID}/workflows/WF-L1-01-analysis.md"
+  },
+  "phase2": {
+    "status": "pass",
+    "duration_s": 0,
+    "screenshots": [],
+    "bugs_found": 0,
+    "bugs_fixed": 0,
+    "fix_attempts": 0,
+    "fixed_files": []
+  },
+  "phase3": {
+    "status": "done",
+    "duration_s": 0,
+    "presentation_path": ".mc-data/docs/phase1-business/workflows/_presentations/WF-L1-01-marketing-to-lead.presentation.md"
+  },
+  "blocked_reason": null,
+  "issues_path": null,
+
+  "_comment_steps_completed": "Mỗi step BẮT BUỘC phải được đánh dấu true/false. false = skipped hoặc incomplete. Dùng cho Step 4.0 completeness audit.",
+  "steps_completed": {
+    "1.1_parse_spec":        true,
+    "1.2_run_parse_script":  true,
+    "1.3_resolve_accounts":  true,
+    "1.4_naming_gap_check":  true,
+    "1.5_write_analysis":    true,
+    "2.1_write_spec":        true,
+    "2.2_first_run":         true,
+    "2.3_fix_loop":          true,
+    "2.4_mcp_verify":        true,
+    "2.5_record_results":    true,
+    "3.1_map_agent":         true,
+    "3.2_spawn_agents":      true,
+    "3.3_compose_presentation": true,
+    "3.4_update_readme":     true
+  },
+  "steps_skipped": [],
+  "skip_reasons": {},
+
+  "_comment_tc_results": "result: PASS | FAIL | SKIP | PARTIAL | DEFERRED. fixed: true=đã fix trong session, false=deferred/chưa fix, null=không áp dụng. deferred_reason bắt buộc khi fixed=false.",
+  "tc_results": {
+    "TC-WF-001": {
+      "result": "PASS",
+      "fixed": null,
+      "deferred_reason": null
+    },
+    "TC-WF-002": {
+      "result": "DEFERRED",
+      "fixed": false,
+      "deferred_reason": "Endpoint chưa implement — cần domain design, không thể fix trong session"
+    }
+  }
+}

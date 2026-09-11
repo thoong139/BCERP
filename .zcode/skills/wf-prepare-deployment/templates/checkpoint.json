@@ -1,0 +1,70 @@
+{
+  "$schema": "prepare-deployment-checkpoint-v1",
+  "checkpoint_id": "CHK-DEPLOY-YYYYMMDD-NNN",
+  "skill_id": "DEPLOY-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | user_request | phase_complete | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": null,
+    "current_phase_name": null,
+    "current_step": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "docs_created": [],
+    "so_files_created": []
+  },
+
+  "context_summary": {
+    "project_name": null,
+    "scope": "all",
+    "sync_rate": null,
+    "architecture_loaded": false,
+    "infra_loaded": false
+  },
+
+  "partial_state": {
+    "current_doc_output": null,
+    "pending_phases": [],
+    "intermediate_data": {}
+  },
+
+  "context_digest": {
+    "deployment_session_summary": null,
+    "deployment_decisions": [],
+    "docs_generated": {
+      "deployment_guide_sections": [],
+      "user_guide_status": null,
+      "runbook_status": null,
+      "stakeholder_review_status": null
+    },
+    "key_architecture_context": {
+      "tech_stack": null,
+      "environments": [],
+      "deployment_topology": null
+    },
+    "gotchas_and_warnings": []
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      ".mc-data/work/wf-prepare-deployment/prepare-deployment-status.json",
+      ".mc-data/docs/phase6-deployment/deployment-guide.md",
+      ".mc-data/docs/phase6-deployment/user-guide.md",
+      ".mc-data/docs/phase6-deployment/stakeholder-review.md"
+    ],
+    "resume_from_phase": null,
+    "user_message": "Resume message to display to user"
+  }
+}

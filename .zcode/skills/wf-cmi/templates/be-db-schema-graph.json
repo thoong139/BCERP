@@ -1,0 +1,70 @@
+{
+  "_template_notes": {
+    "purpose": "Backend Database Schema graph — Discovery Plugin #12 (v2.0 Gói C++ Stage 2.2). Parse EF Core Migrations + DbContext OnModelCreating để extract tables, columns, foreign keys, indexes, unique constraints, sequences. Source: Grep EF Migration files (`*.Designer.cs` + Up()/Down() trong Migrations/) + DbContext OnModelCreating EntityTypeBuilder calls. Consumed by lane CD17 (Persistence Consistency) qua graph_dependency — phát hiện schema drift, missing FK, orphan columns.",
+    "populate": [
+      "tables[]: 1 entry per CREATE TABLE từ migrations — {id, name, module, schema?, file_path, line, primary_key{columns[], constraint_name?}, columns[], indexes[], foreign_keys[], unique_constraints[]}",
+      "  id format: '{module_short}.{table_name}' vd 'CRM.Customer' (deterministic per module+table)",
+      "  module: extracted from migration file path (Eureka.Modules.{Name}.Infrastructure.Persistence.Migrations)",
+      "columns[]: 1 entry per column — {name, sql_type, csharp_type?, nullable, max_length?, default_value?, is_identity?}",
+      "  sql_type: PostgreSQL native types vd 'varchar(255)', 'uuid', 'jsonb', 'timestamp with time zone'",
+      "  csharp_type: inferred từ AddColumn<TType>() generic argument trong Up() body (vd 'string', 'Guid', 'DateTime?')",
+      "foreign_keys[]: 1 entry per FK — {name, columns[], references_table, references_columns[], on_delete: 'Cascade|Restrict|SetNull|NoAction', on_update?}",
+      "indexes[]: 1 entry per index — {name, columns[], is_unique, filter?}",
+      "unique_constraints[]: 1 entry per UQ — {name, columns[]}",
+      "edges[]: cross-table relationships — {from_table_id, to_table_id, kind: 'fk|index_shared|inheritance', via: column_name?, on_delete?}",
+      "metadata.build_at: ISO 8601 timestamp khi graph built",
+      "metadata.scope_root: 'apps/backend' (v2.0 chỉ scan main backend)",
+      "metadata.source_method: 'ef_migration_parse|dbcontext_parse|grep_fallback' (priority order)",
+      "metadata.parser_version: '1.0' (Grep + line-based EF Migration parser). v2.1 → `dotnet ef dbcontext info` JSON output cho full type resolution + Roslyn syntax tree for OnModelCreating analysis.",
+      "metadata.migration_count: tổng số .cs files trong */Migrations/ scanned",
+      "metadata.modules_covered: list of module short names có migrations",
+      "metadata.cumulative_view: true|false (true = aggregate qua tất cả migrations để có schema state cuối; false = chỉ list từng migration)",
+      "metadata.kinds_distribution: count per object kind cho quick overview",
+      "metadata.last_migration_per_module: {module: last_migration_name} cho schema age tracking"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/backend/ → SKIP, write empty graph với skipped:true (lane CD17 sẽ fallback Grep với E134 WARN)",
+      "Tech stack backend != .NET → SKIP, log E137 WARN (parser chỉ support EF Core C# migrations)",
+      "Không tìm thấy */Migrations/ subdir trong any apps/backend/* → SKIP, log E137 WARN (project có thể dùng raw SQL hoặc Dapper)",
+      "Không parse được bất kỳ CREATE TABLE nào → write tables=[] với skipped:false + WARN E139 (downstream lane Grep fallback)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "be-db-schema-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/backend",
+    "migrations_pattern": "**/Migrations/*.cs"
+  },
+  "tables": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/backend",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "migration_count": 0,
+    "skipped_files": [],
+    "table_count": 0,
+    "column_count": 0,
+    "fk_count": 0,
+    "index_count": 0,
+    "unique_constraint_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "cumulative_view": true,
+    "kinds_distribution": {
+      "tables": 0,
+      "columns": 0,
+      "foreign_keys": 0,
+      "indexes": 0,
+      "unique_constraints": 0
+    },
+    "last_migration_per_module": {},
+    "skipped": false,
+    "skip_reason": null
+  }
+}

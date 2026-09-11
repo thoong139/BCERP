@@ -1,0 +1,300 @@
+{
+  "skill": "wf-e2e-scenario",
+  "version": "1.3.0",
+  "test_cases": [
+    {
+      "id": "TC-F7-001",
+      "name": "Happy path — 5 scenarios, all PASS",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2000",
+        "context": "test-scenario.md có 5 scenarios (happy + validation + BR + state + cross-module). FE running, Playwright MCP available."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass",
+        "Acquire browser-mcp.lock",
+        "Login sysadmin → screenshot login-result.png",
+        "Execute 5 scenarios sequential",
+        "Each scenario: navigate → fill steps → snapshot → verify → screenshot",
+        "Cross-module scenario: navigate qua 2 modules, capture 2 screenshots",
+        "Update test-scenario.md: 5 rows filled Pass/Fail (all ✅)",
+        "Write scenario-test-report.md",
+        "Release lock"
+      ],
+      "assertions": [
+        "ls $SCREENSHOTS/ | grep -c 'scenario-' >= 5",
+        "ls $SCREENSHOTS/login-result.png — exists",
+        "grep -c '✅ PASS' $SCENARIO >= 5",
+        "grep -c '^### Kịch bản' $REPORT >= 5"
+      ]
+    },
+    {
+      "id": "TC-F7-002",
+      "name": "FAIL detection — scenario fail → append issues.json",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2100",
+        "context": "test-scenario.md có 3 scenarios. Scenario 2 'duplicate email validation' sẽ fail (backend không trả error)."
+      },
+      "expected_behavior": [
+        "Scenario 1, 3: PASS",
+        "Scenario 2: FAIL — verify expected error toast, got success",
+        "APPEND issues.json: ISS-NNN với severity=high, type=ui-runtime, evidence=screenshot path",
+        "test-scenario.md row 2: '❌ FAIL (ISS-NNN)'",
+        "scenario-test-report.md có 'Failed: 1' + chi tiết Kịch bản 2"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.discovered_by_skill==\"wf-e2e-scenario\") | length' issues.json >= 1",
+        "grep '❌ FAIL' $SCENARIO | wc -l == 1",
+        "ls $SCREENSHOTS/scenario-02*error.png — exists"
+      ]
+    },
+    {
+      "id": "TC-F7-003",
+      "name": "Lock conflict — F2 đang giữ browser-mcp.lock",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2200",
+        "context": "F2 wf-e2e-browser đang chạy, đã acquire browser-mcp.lock 5 phút trước."
+      },
+      "expected_behavior": [
+        "F7 attempt acquire lock → conflict",
+        "WAIT 10s poll × 5 lần = 50s",
+        "IF F2 release trong khoảng đó → F7 acquire → continue",
+        "IF F2 vẫn giữ sau 50s → E074 ESCALATE → STOP"
+      ],
+      "assertions": [
+        "Either F7 acquire OR E074 logged",
+        "No deadlock"
+      ]
+    },
+    {
+      "id": "TC-F7-004",
+      "name": "--resume sau crash giữa scenario 4",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-2300 --resume",
+        "context": "Session đã có 6 scenarios. Scenarios 1-3 đã pass + screenshots. Scenario 4 đang execute thì crash. F7 status.json current_scenario_idx=4."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass",
+        "Acquire lock (stale auto-release nếu cần)",
+        "Skip scenarios 1-3 (đã có screenshot + Pass/Fail)",
+        "Re-execute scenario 4 từ đầu (chưa complete)",
+        "Execute scenarios 5, 6",
+        "Final: 6/6 scenarios executed"
+      ],
+      "assertions": [
+        "Scenarios 1-3 mtime không đổi",
+        "Scenarios 4-6 mtime > scenarios 1-3 mtime",
+        "All 6 scenarios có Pass/Fail filled"
+      ]
+    },
+    {
+      "id": "TC-F7-005",
+      "name": "Failure analysis — NETWORK_ERROR classification",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1000",
+        "context": "test-scenario.md có 2 scenarios. Scenario 1 PASS. Scenario 2 'Tạo đơn hàng mới' FAIL do API POST /api/orders trả về 500. Playwright network log có entry: {method:POST, url:/api/orders, status:500}."
+      },
+      "expected_behavior": [
+        "Scenario 1: PASS bình thường",
+        "Scenario 2: FAIL → APPEND issues.json ISS-NNN cơ bản",
+        "failure-analyzer được load (lazy)",
+        "Console + network + DOM evidence thu thập được",
+        "failure_type = NETWORK_ERROR (network có /api/ 5xx)",
+        "affected_layer = backend",
+        "suggested_owner = developer",
+        "resolution_direction chứa 'API POST /api/orders trả về 500'",
+        "issues.json ISS-NNN được enrich với failure_type, resolution_direction, evidence_refs",
+        "resolution-report.md được tạo trong F7-scenario/",
+        "scenario-test-report.md có section 'Hướng Giải Quyết' với 1 row"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.failure_type==\"NETWORK_ERROR\") | length' issues.json >= 1",
+        "jq '.signals[] | select(.affected_layer==\"backend\") | length' issues.json >= 1",
+        "jq '.signals[] | select(.suggested_owner==\"developer\") | length' issues.json >= 1",
+        "jq '.signals[] | .resolution_direction | test(\"/api/orders\")' issues.json == true",
+        "ls $F7_DIR/resolution-report.md — exists",
+        "grep 'NETWORK_ERROR' $F7_DIR/resolution-report.md",
+        "grep 'Hướng Giải Quyết' $REPORT"
+      ]
+    },
+    {
+      "id": "TC-F7-006",
+      "name": "Failure analysis — UNKNOWN với E080 warning",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1100",
+        "context": "Scenario FAIL nhưng console sạch, network sạch, DOM snapshot blank không có text nhận biết. Không match bất kỳ pattern nào."
+      },
+      "expected_behavior": [
+        "Scenario FAIL → failure-analyzer chạy",
+        "Không match NETWORK_ERROR, AUTH_FAILURE, DATA_MISSING, TEST_SELECTOR, UI_BUG, BUSINESS_RULE",
+        "failure_type = UNKNOWN",
+        "E080 được log vào error-ledger.json với severity=medium",
+        "Skill KHÔNG dừng — tiếp tục scenario tiếp theo",
+        "issues.json có resolution_direction chứa hướng dẫn debug thủ công",
+        "resolution-report.md có row với UNKNOWN"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.failure_type==\"UNKNOWN\") | length' issues.json >= 1",
+        "grep 'E080' $SESSION_DIR/error-ledger.json",
+        "ls $F7_DIR/resolution-report.md — exists",
+        "Skill không crash, tiếp tục đến POST-GATE"
+      ]
+    },
+    {
+      "id": "TC-F7-007",
+      "name": "Auto-fix — TEST_SELECTOR selector fallback thành công",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1200",
+        "context": "Scenario 'Tạo Customer' FAIL ở bước click: selector 'button.create-customer' không tìm thấy (DOM đã đổi sang button[data-testid=tao-customer]). Playwright báo 'Element not found'."
+      },
+      "expected_behavior": [
+        "Scenario FAIL ban đầu → failure-analyzer load",
+        "failure_type = TEST_SELECTOR (error message chứa 'Element not found')",
+        "Bước 7 Auto-Fix: Strategy A — thử Variant 1 (text=) → fail; Variant 2 (data-testid=tao-customer) → success",
+        "Step re-execute với selector mới → verify expected result → PASS",
+        "AUTO_FIX_RESULT = PASS",
+        "Scenario đánh dấu: ✅ PASS (auto-corrected)",
+        "issues.json ISS-NNN có auto_fix.result=pass, auto_fix.variant_used=2, auto_fix.selector_worked",
+        "resolution-report.md KHÔNG được tạo (vì không còn FAIL nào)",
+        "AUTO_FIX_COUNT = 1 trong status.json",
+        "scenario-test-report.md: Passed=1, Auto-corrected=1, Failed=0"
+      ],
+      "assertions": [
+        "grep '✅ PASS (auto-corrected)' $SCENARIO",
+        "jq '.signals[] | select(.auto_fix.result==\"pass\") | length' issues.json >= 1",
+        "jq '.signals[] | .auto_fix.variant_used' issues.json == 2",
+        "! ls $F7_DIR/resolution-report.md 2>/dev/null — file không tồn tại",
+        "grep 'Auto-corrected.*1' $REPORT"
+      ]
+    },
+    {
+      "id": "TC-F7-008",
+      "name": "Auto-fix — AUTH_FAILURE re-login thành công",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1300",
+        "context": "Scenario 'Xem báo cáo' FAIL: API trả về 401 (session expired sau idle dài). Playwright network log có {url: /api/reports, status: 401}."
+      },
+      "expected_behavior": [
+        "failure_type = AUTH_FAILURE (401 trong network)",
+        "Bước 7 Auto-Fix: Strategy B — navigate /login → re-fill credentials → login success → retry scenario",
+        "Retry scenario: API /api/reports trả về 200",
+        "AUTO_FIX_RESULT = PASS",
+        "issues.json ISS-NNN: auto_fix.strategy=session_refresh, auto_fix.result=pass",
+        "Scenario: ✅ PASS (auto-corrected)"
+      ],
+      "assertions": [
+        "grep '✅ PASS (auto-corrected)' $SCENARIO",
+        "jq '.signals[] | select(.auto_fix.strategy==\"session_refresh\") | .auto_fix.result' issues.json == \"pass\""
+      ]
+    },
+    {
+      "id": "TC-F7-009",
+      "name": "Auto-fix — UI_BUG không fix được → escalate đúng",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1400",
+        "context": "Scenario FAIL: Console có 'TypeError: Cannot read properties of undefined (reading id)'. Network sạch."
+      },
+      "expected_behavior": [
+        "failure_type = UI_BUG (console TypeError)",
+        "Bước 7 Auto-Fix: AUTO_FIX_RESULT = SKIP (UI_BUG không auto-fixable)",
+        "Giữ FAIL gốc",
+        "issues.json: auto_fix.attempted=false, auto_fix.reason chứa 'wf-fix-bugs --dims=QD1,QD5'",
+        "resolution-report.md được tạo với row: UI_BUG | frontend | frontend-developer",
+        "scenario-test-report.md: Failed=1, Auto-corrected=0"
+      ],
+      "assertions": [
+        "grep '❌ FAIL' $SCENARIO",
+        "jq '.signals[] | .auto_fix.attempted' issues.json == false",
+        "jq '.signals[] | .auto_fix.reason | test(\"wf-fix-bugs\")' issues.json == true",
+        "ls $F7_DIR/resolution-report.md — exists",
+        "grep 'UI_BUG' $F7_DIR/resolution-report.md"
+      ]
+    },
+    {
+      "id": "TC-F7-010",
+      "name": "Auto-fix — UI_BUG page reload clear transient error",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1500",
+        "context": "Scenario FAIL: Console có 'TypeError: Cannot read id of undefined'. Sau page reload, console sạch và component load đúng (data fetch async lần đầu race condition)."
+      },
+      "expected_behavior": [
+        "failure_type = UI_BUG",
+        "Bước 7 Strategy D: reload page → wait → check console → sạch",
+        "Retry scenario → PASS",
+        "AUTO_FIX_RESULT = PASS",
+        "issues.json: auto_fix.strategy=page_reload_retry, result=pass",
+        "Scenario: ✅ PASS (auto-fixed: page reload)"
+      ],
+      "assertions": [
+        "grep '✅ PASS (auto-fixed' $SCENARIO",
+        "jq '.signals[] | select(.auto_fix.strategy==\"page_reload_retry\") | .auto_fix.result' issues.json == \"pass\""
+      ]
+    },
+    {
+      "id": "TC-F7-011",
+      "name": "Auto-fix — DATA_MISSING tạo data qua UI thành công",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1600",
+        "context": "Scenario 'Xem hóa đơn #001' FAIL: API GET /api/invoices/001 → 404. Precondition ghi 'Invoice 001 phải tồn tại'. Create form có tại /invoices/new."
+      },
+      "expected_behavior": [
+        "failure_type = DATA_MISSING (404 trong network)",
+        "Bước 7 Strategy E: đọc precondition → navigate /invoices/new → fill form → submit → success",
+        "Retry scenario → GET /api/invoices/001 → 200 → PASS",
+        "AUTO_FIX_RESULT = PASS",
+        "issues.json: auto_fix.strategy=create_prerequisite_data, created_at=/invoices/new, result=pass",
+        "Scenario: ✅ PASS (auto-fixed: prerequisite data created)"
+      ],
+      "assertions": [
+        "grep '✅ PASS (auto-fixed' $SCENARIO",
+        "jq '.signals[] | select(.auto_fix.strategy==\"create_prerequisite_data\") | .auto_fix.result' issues.json == \"pass\""
+      ]
+    },
+    {
+      "id": "TC-F7-012",
+      "name": "Auto-fix Phase 2 — UI_BUG spawn frontend-developer fix source code",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1700",
+        "context": "Scenario FAIL: Console 'TypeError: Cannot read properties of undefined (reading id)' tại CustomerForm.tsx:42. Sau page reload (Phase 1), console vẫn còn lỗi → Phase 1 fail → Phase 2 spawn frontend-developer."
+      },
+      "expected_behavior": [
+        "Phase 1 P1-D: page reload → console vẫn TypeError → P1_RESULT=FAIL",
+        "Phase 2: spawn frontend-developer agent",
+        "Agent đọc CustomerForm.tsx, tìm dòng 42, thêm null check customer?.id",
+        "Agent ghi files_modified=['src/components/CustomerForm.tsx'], confidence_level=high",
+        "Post-fix: wait 5s HMR → reload browser → re-run scenario → PASS",
+        "AUTO_FIX_RESULT=PASS",
+        "issues.json: phase2_agent=frontend-developer, phase2_files_modified có CustomerForm.tsx, final_result=pass",
+        "Scenario: ✅ PASS (auto-fixed: source-code / frontend-developer)"
+      ],
+      "assertions": [
+        "grep '✅ PASS (auto-fixed' $SCENARIO",
+        "jq '.signals[] | .auto_fix.phase2_agent' issues.json == \"frontend-developer\"",
+        "jq '.signals[] | .auto_fix.phase2_result' issues.json == \"pass\"",
+        "jq '.signals[] | .auto_fix.final_result' issues.json == \"pass\""
+      ]
+    },
+    {
+      "id": "TC-F7-013",
+      "name": "Auto-fix Phase 2 — BUSINESS_RULE spawn developer + domain expert",
+      "input": {
+        "command": "/wf-e2e-scenario FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260514-1800",
+        "context": "Scenario 'Tính hoa hồng sales' FAIL: UI hiển thị 10% nhưng expected 15%. Không có JS error, không có network error. failure_type=BUSINESS_RULE. Module URL: /sales/commissions."
+      },
+      "expected_behavior": [
+        "failure_type = BUSINESS_RULE (không match các pattern trên, DOM có content)",
+        "Phase 1 skip (không có browser fix cho BUSINESS_RULE)",
+        "Phase 2: spawn developer + sales-expert (vì URL /sales/)",
+        "Agents đọc commission service/usecase, tìm bug tính hoa hồng 10% thay vì 15%",
+        "Sửa business logic trong CommissionService.ts",
+        "Post-fix reload → re-run → UI hiển thị 15% → PASS",
+        "issues.json: phase2_agent=developer, co_agent=sales-expert, final_result=pass"
+      ],
+      "assertions": [
+        "grep '✅ PASS (auto-fixed' $SCENARIO",
+        "jq '.signals[] | .auto_fix.phase1_attempted' issues.json == false",
+        "jq '.signals[] | .auto_fix.phase2_agent' issues.json == \"developer\"",
+        "jq '.signals[] | .auto_fix.final_result' issues.json == \"pass\""
+      ]
+    }
+  ]
+}

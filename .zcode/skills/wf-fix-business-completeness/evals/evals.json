@@ -1,0 +1,115 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-business-completeness",
+  "version": "1.0.0",
+  "description": "Evals cho QD11 Business Completeness & Enhancement Lane — kiem tra skip conditions, 3-pass LLM signal emission, va CDG gate cho enhancement suggestions.",
+  "test_cases": [
+    {
+      "id": "TC-QD11-001",
+      "name": "Multi-module project → QD11 emits MISSING_FIELD signals (Pass 1 cross-module)",
+      "type": "stub",
+      "input": {
+        "scenario": "Project co 2 modules cung domain (CRM + Sales). Module CRM co CustomerForm voi field tax_id, module Sales co CustomerForm khong co tax_id.",
+        "registry_features": [
+          {"id": "FEAT-CRM-001", "impl_status": "done", "module": "crm"},
+          {"id": "FEAT-SALES-001", "impl_status": "done", "module": "sales"}
+        ],
+        "modules": ["crm", "sales"],
+        "cross_module_dependencies": [{"source": "crm", "target": "sales", "type": "shared_entity"}],
+        "profile": "standard"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "MISSING_FIELD",
+        "severity": "MEDIUM",
+        "probe_id": "P-QD11-cross-module-comparison",
+        "confidence": "HIGH",
+        "target_module": "sales",
+        "reference_module": "crm"
+      },
+      "validation": "Pass 1 phat hien CustomerForm trong module sales thieu field tax_id so voi CRM. Severity MEDIUM (MISSING_FIELD). Confidence HIGH (so sanh cung entity type)."
+    },
+    {
+      "id": "TC-QD11-002",
+      "name": "Single-module project → QD11 skips",
+      "type": "stub",
+      "input": {
+        "scenario": "Project chi co 1 module duy nhat. Khong co module khac de cross-reference.",
+        "registry_features": [
+          {"id": "FEAT-APP-001", "impl_status": "done"}
+        ],
+        "modules": ["app"],
+        "profile": "standard"
+      },
+      "expected": {
+        "skip": true,
+        "skip_reason": "single_module",
+        "no_signals_emitted": true
+      },
+      "validation": "QD11 PRE-GATE detect single_module → skip. KHONG emit signals. Ghi lane-status.json voi status=skipped, reason=single_module."
+    },
+    {
+      "id": "TC-QD11-003",
+      "name": "API-only project → QD11 skips",
+      "type": "stub",
+      "input": {
+        "scenario": "Project la API-only backend, khong co form/UI module de so sanh business pattern.",
+        "interface_type": "api-only",
+        "registry_features": [
+          {"id": "FEAT-API-001", "impl_status": "done"},
+          {"id": "FEAT-API-002", "impl_status": "done"}
+        ],
+        "profile": "standard"
+      },
+      "expected": {
+        "skip": true,
+        "skip_reason": "api_only",
+        "no_signals_emitted": true
+      },
+      "validation": "QD11 PRE-GATE detect interface_type=api-only → skip. KHONG emit signals. Ghi lane-status.json voi status=skipped, reason=api_only."
+    },
+    {
+      "id": "TC-QD11-004",
+      "name": "Pass 2 domain heuristic phat hien MISSING_DOMAIN_FIELD (Healthcare)",
+      "type": "stub",
+      "input": {
+        "scenario": "Healthcare module co Patient entity nhung thieu MRN (Medical Record Number). Domain rules trong .claude/references/team-expert/healthcare/ yeu cau MRN cho moi patient record.",
+        "domain": "healthcare",
+        "code_file": "src/modules/patient/patient.entity.ts",
+        "profile": "deep"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "MISSING_DOMAIN_FIELD",
+        "severity": "HIGH",
+        "probe_id": "P-QD11-domain-heuristic",
+        "confidence": "MEDIUM",
+        "domain": "healthcare"
+      },
+      "validation": "Pass 2 phat hien Patient entity thieu MRN field theo healthcare domain rules. Severity HIGH (mandatory clinical field). Confidence MEDIUM (best practice, khong phai hard code requirement)."
+    },
+    {
+      "id": "TC-QD11-005",
+      "name": "Pass 3 registry gap phat hien UNIMPLEMENTED_REQ (req in registry but no code)",
+      "type": "stub",
+      "input": {
+        "scenario": "req-registry.json co requirement REQ-CRM-005 voi impl_status=not_started nhung related scope modules da duoc implement. Requirement lien quan den tinh nang export reports.",
+        "requirements": [
+          {"id": "REQ-CRM-005", "impl_status": "not_started", "description": "Export customer reports to PDF"},
+          {"id": "REQ-CRM-001", "impl_status": "done"},
+          {"id": "REQ-CRM-002", "impl_status": "done"}
+        ],
+        "profile": "standard"
+      },
+      "expected": {
+        "signals_count_min": 1,
+        "signal_type": "UNIMPLEMENTED_REQ",
+        "severity": "HIGH",
+        "probe_id": "P-QD11-registry-gap",
+        "confidence": "HIGHEST",
+        "req_id": "REQ-CRM-005"
+      },
+      "validation": "Pass 3 phat hien REQ-CRM-005 trong registry voi impl_status=not_started nhung cac REQ lien quan da done → suggest day la gap can duoc implement. Severity HIGH (missing feature). Confidence HIGHEST (registry SSOT)."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "change-checkpoint-v1",
+  "checkpoint_id": "CHK-CHG-YYYYMMDD-NNN",
+  "change_id": "CHG-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | phase_complete | user_request | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": "phase0 | phase1 | phase2 | phase3 | phase4a | phase4b | phase4c | phase5 | phase6",
+    "current_phase_name": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "docs_updated": [],
+    "code_updated": [],
+    "tests_updated": [],
+    "tasks_completed_count": 0,
+    "tasks_remaining_count": 0
+  },
+
+  "context_summary": {
+    "user_prompt": null,
+    "change_type": null,
+    "project_maturity": null,
+    "risk_level": null
+  },
+
+  "context_digest": {
+    "change_summary": null,
+    "decisions_made": [],
+    "artifacts_affected_count": 0,
+    "patterns_in_use": {
+      "approach": null,
+      "doc_order": null,
+      "code_conventions": null
+    },
+    "gotchas_and_warnings": []
+  },
+
+  "partial_state": {
+    "execute_group_progress": {
+      "current_group": null,
+      "current_task_index": 0,
+      "tasks_in_group": 0,
+      "completed_in_group": 0
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      "$SESSION_DIR/change-status.json",
+      "$SESSION_DIR/change-intake.json",
+      "$SESSION_DIR/change-plan.md",
+      "$SESSION_DIR/affected-artifacts.json",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "resume_from_phase": null,
+    "next_action": "Resume change process",
+    "user_message": "Resume message to display to user"
+  }
+}

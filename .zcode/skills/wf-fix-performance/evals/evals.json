@@ -1,0 +1,189 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-performance",
+  "version": "1.0.0",
+  "description": "Evals cho QD4 Performance Bottlenecks — stub",
+  "test_cases": [
+    {
+      "id": "TC-S11-schema-uniformity-QD4",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD4 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-performance voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD4-performance/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD4",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD4' + signals[*].dimension_id='QD4'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD4",
+      "name": "Probe lazy-load: SKILL.md routing table list 6 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD4 lane phai liet ke 6 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-performance voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-performance/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 6,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 6,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 6 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-P-QD4-bundle-size",
+      "name": "Bundle size audit detects oversized bundle",
+      "description": "P-QD4-bundle-size-audit probe phai phat hien bundle size > 500KB (gzip) va emit signal voi suggested_severity MEDIUM. Static probe, chay o tat ca profiles.",
+      "input": {
+        "scenario": "Spawn wf-fix-performance voi profile=standard, mock bundle-size.json trong static dir voi tong bundle gzip > 500KB (e.g., vendor=400KB, app=250KB). Probe doc file va tinh tong.",
+        "profile": "standard",
+        "mock_data": {
+          "bundle_size_kb_gzip": 650,
+          "threshold_medium_kb": 500,
+          "threshold_low_kb": 250
+        }
+      },
+      "expected": {
+        "detected": true,
+        "signal_count": ">=1",
+        "suggested_severity": "MEDIUM",
+        "bundle_size_kb_gzip_actual": 650
+      },
+      "validation": "signals.json co signal tu P-QD4-bundle-size-audit voi suggested_severity=MEDIUM, evidence chua bundle size numeric value. Edge: bundle=200KB (below threshold) → severity=INFO hoac khong emit signal.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-P-QD4-api-latency",
+      "name": "API latency probe detects slow endpoint",
+      "description": "P-QD4-api-latency-probe phai phat hien API endpoint co p95 > 1000ms va emit signal voi suggested_severity HIGH. Runtime probe, chay o standard/deep.",
+      "input": {
+        "scenario": "Spawn wf-fix-performance voi profile=standard, --base-url=http://localhost:3000. Mock API endpoint tra ve latency p95=2500ms, p99=4500ms.",
+        "profile": "standard",
+        "base_url": "http://localhost:3000",
+        "mock_latency_ms": {
+          "p50": 800,
+          "p95": 2500,
+          "p99": 4500
+        }
+      },
+      "expected": {
+        "detected": true,
+        "signal_count": ">=1",
+        "suggested_severity": "HIGH",
+        "latency_p95_ms": ">1000"
+      },
+      "validation": "signals.json co signal tu P-QD4-api-latency-probe voi suggested_severity >= HIGH, evidence chua p95/p99 values. Edge: p95 < 200ms → severity=INFO, khong emit issue.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-P-QD4-db-n-plus-one",
+      "name": "DB query analysis detects N+1 pattern",
+      "description": "P-QD4-db-query-analysis phai phat hien N+1 query pattern trong endpoint hot va emit signal voi suggested_severity HIGH. Static+runtime probe.",
+      "input": {
+        "scenario": "Spawn wf-fix-performance voi profile=deep. Mock source code co ORM loop query trong endpoint user listing: User.find() trong loop cho moi permission -> N+1 deo.",
+        "profile": "deep",
+        "mock_pattern": "N+1 ORM loop trong vong lap for/forEach, query trong loop body khong batch"
+      },
+      "expected": {
+        "detected": true,
+        "signal_count": ">=1",
+        "suggested_severity": "HIGH",
+        "n_plus_one_confirmed": true
+      },
+      "validation": "signals.json co signal tu P-QD4-db-query-analysis voi suggested_severity >= HIGH, evidence chua call stack/N+1 evidence. Edge: code dung eager loading (JOIN/INCLUDE) → khong emit false positive.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD4-001",
+      "name": "D4 audit: CDG routing broken — bash emits CDG-DEPS-DOWN nhung dim.json cdg=false",
+      "description": "Phase 2 D4 CRITICAL: wf-fix-probe-static-perf.sh (bash) tai line 210 emit signal voi cdg_flags: ['CDG-DEPS-DOWN'] khi performance dependency down. Nhung dim.json co cdg=false → CDG handler khong duoc dang ky → CDG flag bi IGNORE boi orchestrator → data loss khi dependencies down. IMP-QD4-004 (P0): fix cdg=true trong dim.json hoac xoa CDG emit tu bash.",
+      "type": "stub",
+      "input": {
+        "scenario": "P-QD4 bash probe detect performance dependency down (metrics server unavailable). Probe emit signal voi cdg_flags=['CDG-DEPS-DOWN']. dim.json co cdg=false.",
+        "bash_probe": ".claude/scripts/wf-fix-probe-static-perf.sh",
+        "dim_json_cdg": false,
+        "mock_dependency_status": "metrics_server_down"
+      },
+      "expected": {
+        "current_behavior": "CDG flag emitted by bash but ignored by orchestrator (cdg=false in dim.json) → silent miss",
+        "expected_after_IMP_QD4_004_option_a": "dim.json cdg=true → orchestrator registers CDG handler → CDG flag processed",
+        "expected_after_IMP_QD4_004_option_b": "bash probe REMOVES cdg_flags emit → consistent with dim.json cdg=false",
+        "risk": "Performance issues during dependency outage silently undetected"
+      },
+      "validation": "TRUOC IMP-QD4-004: cdg_flags='CDG-DEPS-DOWN' trong signal nhung orchestrator skip vi dim.json cdg=false → inconsistency. SAU IMP-QD4-004: phai chon 1 trong 2: (A) dim.json cdg=true + CDG handler dang ky, hoac (B) bash probe khong emit cdg_flags. IMP-024 CDG Governance (5-dim) merge cluster.",
+      "audit_ref": "05-qd4-performance-audit.md Phase 2 D4 + wf-fix-probe-static-perf.sh line 210 + IMP-QD4-004",
+      "imp_target": "IMP-QD4-004",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD4-002",
+      "name": "D12 audit: --probe flag cosmetic — tat ca probes chay bat ke --probe value",
+      "description": "Phase 2 D12: wf-fix-probe-static-perf.sh co --probe argument (line 33 default + line 43 cosmetic parse) nhung Steps 1-3 (lines 100-217) deu unconditional — KHONG filter theo probe value. Nhap --probe=P-QD4-bundle-size nhung P-QD4-db-query-analysis van chay. IMP-QD4-012 (P2): implement actual probe filter trong bash scripts.",
+      "type": "stub",
+      "input": {
+        "scenario": "Spawn wf-fix-performance voi flag --probe=P-QD4-bundle-size. Ky vong chi bundle-size probe chay, con lai skip.",
+        "flag": "--probe=P-QD4-bundle-size",
+        "profile": "standard"
+      },
+      "expected": {
+        "current_behavior": "ALL 6 probes run regardless of --probe flag (flag is cosmetic/ignored)",
+        "expected_after_IMP_QD4_012": "Only P-QD4-bundle-size runs; other probes skip with note 'filtered by --probe'",
+        "probes_expected_to_run_pre_fix": 6,
+        "probes_expected_to_run_post_fix": 1
+      },
+      "validation": "TRUOC IMP-QD4-012: lane chay 6 probes bat ke --probe value → token waste + slow. SAU IMP-QD4-012: --probe filter duoc honor, chi chay probe duoc chi dinh. DEVKIT-wide pattern: QD2/QD3/QD6 cung co cung D (--probe cosmetic).",
+      "audit_ref": "05-qd4-performance-audit.md Phase 2 D12 + wf-fix-probe-static-perf.sh line 33-43+100-217",
+      "imp_target": "IMP-QD4-012",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD4-003",
+      "name": "SPEC_GAP audit: api-latency probe goi lambda thay vi do HTTP thuc",
+      "description": "Phase 3 SPEC_GAP: P-QD4-api-latency-probe SKILL.md mo ta 'measure real HTTP p50/p95/p99 latency'. Nhung Phase 2 xac nhan probe chi call lambda function (no actual HTTP request) → p95 value la fictional/mocked. IMP-QD4-007 (P1): implement actual HTTP measurement hoac document gap ro rang.",
+      "type": "stub",
+      "input": {
+        "scenario": "Project co endpoint GET /api/customers co latency thuc te p95=3000ms. P-QD4-api-latency duoc spawn voi BASE_URL=http://localhost:3000. Profile=standard.",
+        "base_url": "http://localhost:3000",
+        "actual_latency_p95_ms": 3000,
+        "profile": "standard",
+        "probe": "P-QD4-api-latency-probe"
+      },
+      "expected": {
+        "current_behavior": "Probe reports fictional latency from lambda call (NOT real HTTP). Actual 3000ms NOT detected.",
+        "expected_after_IMP_QD4_007": "Probe makes real HTTP request to BASE_URL + measures actual p95, reports 3000ms HIGH signal",
+        "measurement_method_current": "lambda (fictional)",
+        "measurement_method_target": "real HTTP curl/wrk/k6"
+      },
+      "validation": "TRUOC IMP-QD4-007: probe latency = fictional (lambda return value, not measured). SAU IMP-QD4-007: probe PHAI do HTTP latency thuc te qua curl/k6/wrk va report so that. Fixture: fixtures/qd4-test/ accuracy-report.md SPEC_GAP api-latency documentation.",
+      "audit_ref": "05-qd4-performance-audit.md Phase 3 SPEC_GAP api-latency + Phase 2 D-api-latency runtime-only",
+      "imp_target": "IMP-QD4-007",
+      "status": "stub"
+    }
+  ]
+}

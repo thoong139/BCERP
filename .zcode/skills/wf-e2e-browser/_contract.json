@@ -1,0 +1,174 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-browser",
+  "version": "1.0.0",
+  "phase": "F2 — Pre-scan F1 outputs + execute browser-only tests qua Playwright MCP",
+  "description": "F2 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 pre-scan + browser execution). Pre-scan F1 reports → tìm tests cần browser execution → execute qua Playwright MCP → block classification 4 nhóm với DUAL-WRITE. KHÔNG chạy test-scenario.md (F7) hoặc user-guide (F8). v1.0.0 (2026-05-13).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/pre-scan.md",
+    "procedures/browser-execute.md",
+    "procedures/block-classification.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/ui-test-report.md",
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/integration-test-report.md",
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/test-scenario.md"
+    ],
+    "required_conditions": [
+      "Session tồn tại + F1 đã complete",
+      "Playwright MCP available + FE running",
+      "--session=<id>"
+    ]
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/",
+      "required": true,
+      "description": "F1 findings (ui + integration reports)"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/test-scenario.md",
+      "required": true,
+      "description": "Context — KHÔNG execute"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+      "required": false,
+      "description": "Existing blocks để dedupe"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+      "required": false,
+      "description": "Existing issues để dedupe"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    },
+    {
+      "path": "--session=<id> arg",
+      "required": true,
+      "description": "Session ID"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F2-browser/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F2 state — tests_total, tests_executed, current_test_idx"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F2-browser/pre-scan-report.md",
+        "required": true,
+        "template": null,
+        "description": "Pre-scan output: list tests cần browser + priority + lý do"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F2-browser/browser-test-report.md",
+        "required": true,
+        "template": null,
+        "description": "Execution results per browser test + evidence"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+        "required": false,
+        "template": "templates/block-test.template.json",
+        "description": "APPEND new BLK entries (4 nhóm classification)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/implement-required.json",
+        "required": false,
+        "template": "templates/implement-required.template.json",
+        "description": "APPEND khi Nhóm 3 phát hiện (dual-write với block-test)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/manual.json",
+        "required": false,
+        "template": "templates/manual.template.json",
+        "description": "APPEND khi Nhóm 4 verify code PASS (dual-write với block-test)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+        "required": false,
+        "template": "templates/issues.template.json",
+        "description": "APPEND ui-runtime bugs phát hiện"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/screenshots/",
+        "required": true,
+        "template": null,
+        "description": "browser-{slug}.png + login-result.png"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F2-browser/Phase-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 F2 summary"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-unblock": [".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json (more entries)"],
+      "wf-e2e-implement": [".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json (more entries)"],
+      "wf-e2e-fix": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json (ui-runtime bugs)"]
+    },
+    "consumes_from": {
+      "wf-e2e-test": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/ui-test-report.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/integration-test-report.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/outputs/test-scenario.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json"
+      ]
+    },
+    "shares_lock_with": ["wf-e2e-scenario", "wf-e2e-demo"],
+    "lock_name": "browser-mcp.lock",
+    "spawned_by": "wf-e2e-verify orchestrator (sau F1)"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E020-E029",
+    "description": "F2 Playwright browser pre-scan + execute",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E020-E029",
+    "specific": {
+      "E020": "F1 outputs không đủ",
+      "E021": "Playwright/FE not running",
+      "E022": "--session thiếu",
+      "E023": "Browser lock conflict",
+      "E024": "Login fail",
+      "E025": "Navigate fail",
+      "E026": "Snapshot mismatch → ISSUE",
+      "E027": "Screenshot fail",
+      "E028": "POST-GATE cross-ref fail",
+      "E029": "Atomic write fail"
+    }
+  }
+}

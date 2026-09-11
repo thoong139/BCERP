@@ -1,0 +1,212 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-diagram",
+  "version": "2.0.0",
+  "description": "Eval cases cho /wf-diagram skill v2.0 — sinh sơ đồ UML + ERD từ source code có sẵn. 8 cases: full scope, system-only, error handling (missing module + missing source-path), idempotent re-run, filter rules, resume in-progress session, large module 10 entities.",
+  "evals": [
+    {
+      "id": "EVAL-001",
+      "name": "Full scope cho module có vòng đời phức tạp",
+      "input": {
+        "module": "order",
+        "source_path": ".",
+        "output_path": "./docs/diagrams",
+        "scope": "full"
+      },
+      "expected_session": {
+        "session_id_format": "{YYYY-MM-DD}-order",
+        "session_dir": ".mc-data/work/wf-diagram/sessions/{session_id}/"
+      },
+      "expected_outputs": {
+        "_system/context.md": {
+          "must_contain": ["flowchart", "%% Context Diagram", "classDef system"],
+          "must_be_non_empty": true
+        },
+        "_system/component.md": {
+          "must_contain": ["flowchart", "%% Component Diagram"]
+        },
+        "_system/database.dbml": {
+          "must_contain": ["Project", "Table", "Ref:"]
+        },
+        "_system/actors.md": {
+          "must_contain": ["| Actor |", "| Mô tả |", "| Module liên quan |"]
+        },
+        "modules/order/usecases/": {
+          "must_have_at_least": 1,
+          "file_pattern": "*.md",
+          "rationale": "Module order có endpoints → ít nhất 1 usecase group file"
+        },
+        "modules/order/class.md": {
+          "must_contain": ["classDiagram", "Order"]
+        },
+        "modules/order/erd.dbml": {
+          "must_contain": ["Project order_module", "Table"]
+        },
+        "modules/order/states/": {
+          "must_have_at_least": 1,
+          "file_pattern": "*.md",
+          "rationale": "Order entity phải có >= 3 states (pending, confirmed, paid, shipped, delivered, cancelled)"
+        }
+      },
+      "expected_session_files": {
+        "diagram-status.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "scope": "full",
+            "module": "order",
+            "status": "completed"
+          }
+        },
+        "phase-summary.md": {
+          "must_contain": ["Tóm Tắt", "Đã làm gì", "Bước tiếp theo"]
+        }
+      },
+      "expected_behavior": "Phase 0-7 hoàn thành. Phase 2 gọi wf-diagram-source-scan.sh → analysis.json. Phase 4 sinh 5 _system/* files (PARALLEL). Phase 5 sinh modules/order/{usecases/,class,erd} files. Phase 6 sinh state diagram cho Order entity (>= 3 states), activity diagram cho >= 1 process (>= 3 bước), sequence diagram cho >= 1 scenario phức tạp. Phase 7 T1-T4 PASS qua validators."
+    },
+    {
+      "id": "EVAL-002",
+      "name": "Scope=system-only — không cần --module",
+      "input": {
+        "scope": "system-only",
+        "source_path": ".",
+        "output_path": "./docs/diagrams"
+      },
+      "expected_session": {
+        "session_id_format": "{YYYY-MM-DD}-system-only"
+      },
+      "expected_outputs": {
+        "_system/context.md": { "must_be_non_empty": true },
+        "_system/component.md": { "must_be_non_empty": true },
+        "_system/erd-context-map.md": { "must_be_non_empty": true },
+        "_system/actors.md": { "must_be_non_empty": true },
+        "_system/database.dbml": { "must_be_non_empty": true }
+      },
+      "expected_session_files": {
+        "diagram-status.json": {
+          "field_check": {
+            "scope": "system-only",
+            "phases.phase_5.status": "skipped",
+            "phases.phase_6.status": "skipped"
+          }
+        }
+      },
+      "must_not_exist": ["modules/"],
+      "expected_behavior": "Phase 0.2 PASS dù `--module` không cung cấp (scope=system-only). Phase 4 sinh đủ 5 _system/* files. Phase 5+6 SKIP (không có module). diagram-status.json: scope='system-only', phase_5/6='skipped'."
+    },
+    {
+      "id": "EVAL-003",
+      "name": "Error handling — missing --module với scope=full (default)",
+      "input": {},
+      "expected_behavior": "Phase 0.2 detect missing --module + scope != system-only. STOP với E001, hiển thị message chính xác: 'Workflow yêu cầu tên module. Vui lòng cung cấp --module=<tên> hoặc dùng --scope=system-only nếu chỉ muốn sinh sơ đồ tổng thể.' KHÔNG tạo session dir, KHÔNG ghi file. Exit clean."
+    },
+    {
+      "id": "EVAL-004",
+      "name": "Re-run idempotent với CDG-02 — Cập nhật phần thiếu",
+      "input": {
+        "scenario": "Run 1: /wf-diagram --module=order (sinh full output). Run 2: cùng args, xóa modules/order/states/order.md, chọn 'Cập nhật phần thiếu' khi CDG-02 hỏi.",
+        "module": "order",
+        "scope": "full",
+        "output_path": "./docs/diagrams"
+      },
+      "expected_outputs": {
+        "modules/order/usecases/order-management.md": { "must_be_unchanged": true, "rationale": "Đã có, không ghi đè" },
+        "modules/order/class.md": { "must_be_unchanged": true },
+        "modules/order/erd.dbml": { "must_be_unchanged": true },
+        "modules/order/states/order.md": { "must_be_recreated": true, "rationale": "File bị xóa, sinh lại" }
+      },
+      "expected_session_files": {
+        "diagram-status.json": {
+          "field_check": {
+            "user_decisions.module_conflict": "update_missing"
+          }
+        }
+      },
+      "expected_behavior": "Phase 1.3 detect modules/order/ đã tồn tại → CDG-02 (Protocol 16). User chọn 'Cập nhật phần thiếu' (option c). Phase 5+6 chỉ sinh files chưa tồn tại (states/order.md), KHÔNG ghi đè usecase/class/erd. Idempotent — KHÔNG ghi đè file đang tốt."
+    },
+    {
+      "id": "EVAL-005",
+      "name": "Filter rules — bỏ qua activity/state/sequence không đủ điều kiện",
+      "input": {
+        "module": "user-profile",
+        "scope": "module-only",
+        "output_path": "./docs/diagrams",
+        "scenario": "Module user-profile chỉ có CRUD đơn giản: 1 entity (UserProfile) với 2 trạng thái (active/inactive), 4 endpoint CRUD (controller -> service -> repo -> DB), 0 process phức tạp."
+      },
+      "expected_outputs": {
+        "modules/user-profile/usecases/user-profile-management.md": { "must_be_non_empty": true },
+        "modules/user-profile/class.md": { "must_be_non_empty": true },
+        "modules/user-profile/erd.dbml": { "must_be_non_empty": true }
+      },
+      "must_not_exist": [
+        "modules/user-profile/states/",
+        "modules/user-profile/activities/",
+        "modules/user-profile/sequences/"
+      ],
+      "expected_session_files": {
+        "phase-summary.md": {
+          "must_contain": ["Đã bỏ qua", "quy tắc lọc"]
+        },
+        "diagram-status.json": {
+          "field_check": {
+            "generation_plan.skipped[].length": "> 0"
+          }
+        }
+      },
+      "expected_behavior": "Phase 3 apply quy tắc lọc từ SKILL.md. Phase 6 KHÔNG sinh state/activity/sequence. diagram-status.json.generation_plan.skipped[] ghi đầy đủ lý do từng file bị skip. phase-summary.md.'Cần lưu ý' ghi rõ 'Đã bỏ qua [N] diagrams vì module quá đơn giản'. Không sinh diagram thừa → BHV-002 (Simplicity First)."
+    },
+    {
+      "id": "EVAL-006",
+      "name": "Resume in-progress session — route tới đúng phase",
+      "input": {
+        "command": "/wf-diagram --resume",
+        "precondition": "Có 1 session status=in_progress tại phase_3 cho module=order, session_id=2026-05-03-order"
+      },
+      "expected_behavior": "resume-routing.md CASE B (có session in_progress). Skill đọc checkpoint.json → phases.phase_3.status='pending' → route tới phase3-plan.md. KHÔNG tạo session mới. KHÔNG reset session_id. Tiếp tục với session_id=2026-05-03-order từ next_action.phase='phase_3'. Nếu có 2+ sessions in_progress → hiển thị danh sách cho user chọn (CASE B sub-case).",
+      "verify": {
+        "no_new_session_created": true,
+        "session_id_preserved": "2026-05-03-order",
+        "routing_target": "phase3-plan.md"
+      }
+    },
+    {
+      "id": "EVAL-007",
+      "name": "Large module — 10+ entities không bị truncate",
+      "input": {
+        "module": "inventory",
+        "source_path": ".",
+        "output_path": "./docs/diagrams",
+        "scope": "module-only",
+        "scenario": "Module inventory có 10 entities: Product, Category, Warehouse, Stock, Movement, Adjustment, Supplier, PurchaseOrder, Location, Bin"
+      },
+      "expected_outputs": {
+        "modules/inventory/erd.dbml": {
+          "must_contain_all_entities": ["products", "categories", "warehouses", "stock", "movements", "adjustments", "suppliers", "purchase_orders", "locations", "bins"],
+          "rationale": "Tất cả 10 entities phải xuất hiện trong ERD — không truncate"
+        },
+        "modules/inventory/class.md": {
+          "must_contain_all_entities": ["Product", "Category", "Warehouse", "Stock", "Movement", "Adjustment", "Supplier", "PurchaseOrder", "Location", "Bin"],
+          "rationale": "Tất cả 10 classes phải xuất hiện trong class diagram"
+        }
+      },
+      "expected_behavior": "Phase 2 wf-diagram-source-scan.sh detect đủ 10 entities vào analysis.json. Phase 5 sinh class.md + erd.dbml với đủ 10 classes/tables — KHÔNG truncate. Entity count trong output >= entity count trong analysis.json. Phase 7 T1-T4 PASS qua validators.",
+      "verify": {
+        "entity_count_in_output": ">= entity_count_in_analysis_json"
+      }
+    },
+    {
+      "id": "EVAL-008",
+      "name": "Error handling — source-path không tồn tại",
+      "input": {
+        "module": "order",
+        "source_path": "/nonexistent/path/to/project"
+      },
+      "expected_behavior": "Phase 1 PRE-GATE T1: test -d '$source_path' FAIL → error code E002. STOP cleanly với message: 'Source path không tồn tại: /nonexistent/path/to/project'. KHÔNG tạo session dir. KHÔNG ghi bất kỳ file partial nào. KHÔNG gọi wf-diagram-source-scan.sh.",
+      "verify": {
+        "no_session_dir_created": true,
+        "no_partial_output": true,
+        "error_code": "E002",
+        "error_message_contains": "Source path không tồn tại"
+      }
+    }
+  ]
+}

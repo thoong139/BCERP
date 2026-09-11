@@ -9,7 +9,7 @@ Repo này dùng DEVKIT (MCV3) để xây **BCERP** — hệ thống ERP nội b�
 - **Ngành nghề:** Trung gian quản lý tài khoản quảng cáo đa nền tảng (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) + Facebook/TikTok/Google marketing, SEO, thiết kế web/đồ họa.
 - **Khách hàng mục tiêu của BC Agency:** doanh nghiệp FMCG, F&B, Retail, Beauty, B2B (1.000+ khách hàng toàn cầu, 2.600+ tài khoản quảng cáo active, 8+ năm kinh nghiệm).
 - **Đối tác chính thức:** Google, TikTok, Yandex.
-- **Ưu tiên domain expert khi phân tích nghiệp vụ:** `paid-media-expert` (trung tâm), `marketing-expert`, `sales-expert`, `finance-expert`, `customer-expert`, `compliance-expert` — ngoài `business-analyst` mặc định.
+- **Ưu tiên domain expert khi phân tích nghiệp vụ:** `paid-media-expert` (trung tâm), `marketing-expert (trung tâm)`, `sales-expert`, `finance-expert`, `customer-expert`, `compliance-expert` — ngoài `business-analyst` mặc định.
 
 **Chi tiết đầy đủ + hàm ý thiết kế module:** [`docs/00-overview/00-company-context.md`](docs/00-overview/00-company-context.md) — ĐỌC file này trước khi chạy `/wf-brainstorm` hoặc bất kỳ phân tích nghiệp vụ nào. KHÔNG tự suy diễn ngành nghề/mô hình kinh doanh khác với thông tin đã xác nhận ở đó.
 
@@ -52,12 +52,12 @@ Nếu chất lượng và tốc độ xung đột → chất lượng thắng. T
 
 ## Phân Lớp Thay Đổi
 
-| Loại | Vị trí |
-|------|--------|
-| Workflow | `.claude/skills/workflow/[skill]/` |
-| Agent behavior | `.claude/agents/[team]/[agent].md` + `procedures/` |
-| Validation | `.claude/hooks/` hoặc `.claude/rules/` |
-| Output template | `.claude/doc-framework/` |
+| Loại           | Vị trí                                               |
+| --------------- | ------------------------------------------------------ |
+| Workflow        | `.claude/skills/workflow/[skill]/`                   |
+| Agent behavior  | `.claude/agents/[team]/[agent].md` + `procedures/` |
+| Validation      | `.claude/hooks/` hoặc `.claude/rules/`            |
+| Output template | `.claude/doc-framework/`                             |
 
 Khi sửa skill: giữ nguyên output paths, gate markers và contract với `.mc-data/` trừ khi đổi workflow có chủ đích. Khi sửa agent: kiểm tra chéo tên file, path procedures và tài liệu tham chiếu liên quan.
 
@@ -83,6 +83,7 @@ Nếu thay đổi không có automated test, nêu rõ rằng verify chỉ dừng
 - Bắt đầu task bằng cách đọc `CLAUDE.md` và chỉ nạp thêm tài liệu đúng với phạm vi task.
 
 <!-- gitnexus:start -->
+
 # GitNexus — Code Intelligence
 
 This project is indexed by GitNexus as **MCV3** (5030 symbols, 5584 relationships, 6 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
@@ -106,22 +107,22 @@ This project is indexed by GitNexus as **MCV3** (5030 symbols, 5584 relationship
 
 ## Resources
 
-| Resource | Use for |
-|----------|---------|
-| `gitnexus://repo/MCV3/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/MCV3/clusters` | All functional areas |
-| `gitnexus://repo/MCV3/processes` | All execution flows |
-| `gitnexus://repo/MCV3/process/{name}` | Step-by-step execution trace |
+| Resource                                | Use for                                  |
+| --------------------------------------- | ---------------------------------------- |
+| `gitnexus://repo/MCV3/context`        | Codebase overview, check index freshness |
+| `gitnexus://repo/MCV3/clusters`       | All functional areas                     |
+| `gitnexus://repo/MCV3/processes`      | All execution flows                      |
+| `gitnexus://repo/MCV3/process/{name}` | Step-by-step execution trace             |
 
 ## CLI
 
-| Task | Read this skill file |
-|------|---------------------|
-| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md` |
-| Blast radius / "What breaks if I change X?" | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
-| Trace bugs / "Why is X failing?" | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md` |
-| Rename / extract / split / refactor | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md` |
-| Tools, resources, schema reference | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md` |
-| Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
+| Task                                         | Read this skill file                                          |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| Understand architecture / "How does X work?" | `.claude/skills/gitnexus/gitnexus-exploring/SKILL.md`       |
+| Blast radius / "What breaks if I change X?"  | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md` |
+| Trace bugs / "Why is X failing?"             | `.claude/skills/gitnexus/gitnexus-debugging/SKILL.md`       |
+| Rename / extract / split / refactor          | `.claude/skills/gitnexus/gitnexus-refactoring/SKILL.md`     |
+| Tools, resources, schema reference           | `.claude/skills/gitnexus/gitnexus-guide/SKILL.md`           |
+| Index, status, clean, wiki CLI commands      | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md`             |
 
 <!-- gitnexus:end -->

@@ -1,0 +1,393 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD9",
+  "dimension_name": "Runtime Health Verification",
+  "short_name": "Runtime Health",
+  "owner_agent": "qa-lead",
+  "version": "1.0.0",
+  "description": "Phat hien loi xay ra tren browser runtime: console errors, network failures, uncaught exceptions, broken auth flows, SPA routes unreachable, interactive CTAs khong hoat dong, form validation thieu. Lane chay browser-only via Playwright MCP — KHONG static analysis. Tat ca probes la runtime, sequential do browser singleton (cache=skip).",
+  "probes": [
+    {
+      "id": "P-QD9-dev-server-bootstrap",
+      "name": "Dev Server Bootstrap Check",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+process",
+        "config": "procedures/probes/P-QD9-dev-server-bootstrap.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal",
+        "dev-server-state.json"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 800
+      }
+    },
+    {
+      "id": "P-QD9-console-network-monitor",
+      "name": "Console + Network Listener",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-console-network-monitor.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "dev-server-state"
+      ],
+      "outputs": [
+        "signal",
+        "screenshot",
+        "console-trace"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 2500
+      }
+    },
+    {
+      "id": "P-QD9-auth-aware-smoke",
+      "name": "Auth-Aware Smoke Test",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-auth-aware-smoke.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "credentials_optional"
+      ],
+      "outputs": [
+        "signal",
+        "auth-session.json"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD9-feature-checklist-smoke",
+      "name": "Feature Checklist Smoke (impl_status=done)",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-feature-checklist-smoke.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "registry",
+        "auth-session"
+      ],
+      "outputs": [
+        "signal",
+        "flow-unreliable.json"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD9-interactive-smoke",
+      "name": "Interactive CTA Smoke",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-interactive-smoke.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "auth-session"
+      ],
+      "outputs": [
+        "signal",
+        "screenshot"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD9-disabled-cta-check",
+      "name": "Disabled/Obstructed CTA Detection (v10.2)",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-disabled-cta-check.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 2500
+      }
+    },
+    {
+      "id": "P-QD9-spa-route-coverage",
+      "name": "SPA Route Coverage",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-spa-route-coverage.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "auth-session"
+      ],
+      "outputs": [
+        "signal",
+        "spa-routes.json"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 150,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD9-form-validation-smoke",
+      "name": "Form Validation Smoke (negative test)",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright+mcp",
+        "config": "procedures/probes/P-QD9-form-validation-smoke.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "auth-session"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 3500
+      }
+    },
+    {
+      "id": "P-QD9-llm-analysis",
+      "name": "LLM-Augmented Runtime Health Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd9-runtime-health.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [],
+      "max_signals_per_probe": 0,
+      "notes": "QD9 SKIP hoan toan trong quick profile — khong co browser execution overhead. Lane status = skipped + ly do."
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD9-dev-server-bootstrap",
+        "P-QD9-console-network-monitor",
+        "P-QD9-auth-aware-smoke",
+        "P-QD9-interactive-smoke",
+        "P-QD9-spa-route-coverage",
+        "P-QD9-disabled-cta-check"
+      ],
+      "max_signals_per_probe": 50,
+      "notes": "v10.2: 6 probes (3 core + 3 promoted v10.2) — bao phu console errors, network failures, auth flow, interactive CTAs, SPA routes, disabled CTA detection"
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD9-dev-server-bootstrap",
+        "P-QD9-console-network-monitor",
+        "P-QD9-auth-aware-smoke",
+        "P-QD9-feature-checklist-smoke",
+        "P-QD9-interactive-smoke",
+        "P-QD9-spa-route-coverage",
+        "P-QD9-disabled-cta-check",
+        "P-QD9-form-validation-smoke",
+        "P-QD9-llm-analysis"
+      ],
+      "max_signals_per_probe": 100,
+      "notes": "v10.2: All 9 probes — bao phu interactive CTAs + SPA routes + form validation + disabled CTA + LLM"
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300,
+      "notes": "v10.2: All 9 probes voi extended limits (max_routes=300, max_features=ALL, max_forms=ALL)"
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "Uncaught JavaScript exception (pageerror) — application broken at runtime",
+      "Dev server crash sau khi bootstrap (server died trong qua trinh probe)"
+    ],
+    "high_triggers": [
+      "Dev server khong start sau 30s timeout",
+      "Auth login fail 2 lan lien tiep voi credentials valid",
+      "Network 5xx khi navigate route (server error)",
+      "Feature co impl_status=done nhung UI route broken (404/blank/crash)"
+    ],
+    "medium_triggers": [
+      "Console.error() khi load trang (non-blocking nhung visible to user)",
+      "Network 4xx tren non-auth route (missing resource)",
+      "SPA route dinh nghia trong router nhung khong navigate duoc",
+      "Primary CTA khong co phan ung sau click (no state change, no navigation)",
+      "Form gui khong co validation error khi nhap input invalid"
+    ],
+    "low_triggers": [
+      "Network 4xx tren auth-protected route khi chua login (expected)",
+      "Console.warn() khi load trang"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [
+      "playwright",
+      "node",
+      "curl"
+    ],
+    "agents": [
+      "qa-lead",
+      "frontend-developer"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/QD9-runtime-health-report.md",
+    "coordination_files": [
+      "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/dev-server-state.json",
+      "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/auth-session.json",
+      "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/flow-unreliable.json",
+      "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/spa-routes.json"
+    ]
+  },
+  "execution_order": [
+    "P-QD9-dev-server-bootstrap",
+    "P-QD9-console-network-monitor",
+    "P-QD9-auth-aware-smoke",
+    "P-QD9-spa-route-coverage",
+    "P-QD9-feature-checklist-smoke",
+    "P-QD9-interactive-smoke",
+    "P-QD9-disabled-cta-check",
+    "P-QD9-form-validation-smoke",
+    "P-QD9-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD9-dev-server-bootstrap"
+    ],
+    [
+      "P-QD9-console-network-monitor"
+    ],
+    [
+      "P-QD9-auth-aware-smoke"
+    ],
+    [
+      "P-QD9-spa-route-coverage"
+    ],
+    [
+      "P-QD9-feature-checklist-smoke"
+    ],
+    [
+      "P-QD9-interactive-smoke"
+    ],
+    [
+      "P-QD9-disabled-cta-check"
+    ],
+    [
+      "P-QD9-form-validation-smoke"
+    ],
+    [
+      "P-QD9-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "TAT CA QD9 probes chay SEQUENTIAL — browser singleton constraint (chi 1 Playwright MCP browser instance global). Dev server bootstrap chay TRUOC (cung cap dev-server-state.json cho cac probes sau). Auth-aware-smoke chay sau console-network-monitor de tach console errors anonymous vs authenticated. Feature checklist + interactive smoke can auth session — chay sau auth-aware-smoke. Disabled CTA check (v10.2) chay sau interactive-smoke vi can biet cac CTA visible truoc khi check trang thai disabled. Form validation chay cuoi cung (modify nhieu form state)."
+}
