@@ -1,0 +1,122 @@
+{
+  "$schema": "define-features-checkpoint-v1",
+  "checkpoint_id": "CP-DEFINE-FEAT-YYYYMMDD-NNN",
+  "skill_id": "DEFINE-FEAT-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | system_complete | user_request | phase_complete | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "system_completed": null,
+    "error_details": null
+  },
+
+  "scope": {
+    "type": "all | system-name | module-name",
+    "target": "[all / System Name / Module Name]"
+  },
+
+  "position": {
+    "current_phase": null,
+    "current_phase_name": null,
+    "current_step": null,
+    "current_system": null,
+    "current_module": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "current_phase": {
+      "id": null,
+      "name": null,
+      "status": null,
+      "progress_pct": 0
+    },
+    "pending_phases": [],
+    "files_completed": [],
+    "file_in_progress": {
+      "feat_id": null,
+      "name": null,
+      "path": null,
+      "lines_written": 0,
+      "sections_completed": [],
+      "sections_pending": [
+        "Heading",
+        "Metadata blockquotes",
+        "Bang Thong Tin Chung",
+        "Mo Ta Tinh Nang",
+        "Luong Nguoi Dung",
+        "Quy Tac Nghiep Vu",
+        "Phan Quyen",
+        "Truong Hop Dac Biet",
+        "Tai Lieu Ki Thuat Lien Quan"
+      ],
+      "progress_pct": 0
+    }
+  },
+
+  "feat_id_state": {
+    "total_assigned": 0,
+    "assigned_ids": [],
+    "pending_ids": []
+  },
+
+  "coverage_state": {
+    "total_req_ids": 0,
+    "mapped_req_ids": [],
+    "unmapped_req_ids": [],
+    "coverage_pct": 0
+  },
+
+  "systems_state": {
+    "total": 0,
+    "completed": [],
+    "in_progress": null,
+    "pending": []
+  },
+
+  "files_state": {
+    "completed": [],
+    "in_progress": null,
+    "pending": []
+  },
+
+  "validation_state": {
+    "phase_3_iterations": 0,
+    "phase_3_errors_remaining": 0,
+    "phase_4_iterations": 0,
+    "phase_4_findings_pending": 0,
+    "phase_4_result": null
+  },
+
+  "next_action": {
+    "description": null,
+    "phase": null,
+    "step": null,
+    "system": null,
+    "module": null,
+    "file": null,
+    "context_needed": []
+  },
+
+  "resume_instructions": {
+    "command": "/wf-define-features --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-define-features/define-features-status.json",
+      ".mc-data/work/wf-define-features/define-features-plan.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "context_recovery": [
+      "Doc define-features-status.json de lay current state",
+      "Doc define-features-plan.md de lay feat-id map va file list",
+      "Doc reg-registry.json de lay requirements[]",
+      "Tiep tuc tu next_action.step trong checkpoint"
+    ]
+  },
+
+  "notes": null
+}

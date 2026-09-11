@@ -1,0 +1,12 @@
+{
+  "$schema": "issue-registry-v2",
+  "_template_notes": "issue-registry.json — Aggregated + deduplicated issues from all lane signals. Schema: issue-registry-v2 (v10.11.0 — enrich _schema_notes cho issues[] item shape). Writer: scripts/wf-fix-bugs/aggregate-and-spot-check.sh (Phase 5 Step 5.3), enriched by wf-fix-triage agent (Step 5.5).",
+  "_schema_notes": "Required: $schema, session_id, generated_at, total_issues, total_signals_raw, dedup_merge_count, dimensions_covered[], issues[]. issues[] item required: {id:string (ISS-YYYYMMDD-NNN), fingerprint:string (sha256 dedup key), dimension_id:string (QD1..QD11), probe_id:string, severity:enum (critical|high|medium|low|info), fixability:enum (auto_fix|agent_fix|escalate|skip), title:string, location:{file:string, line:int|null}, source:string (static|runtime|llm), related_signals:string[] (signal IDs merged). Optional: req_ids[], feat_ids[], cdg_flags[] (CDG-01..CDG-08), recommended_action:string, evidence_paths[]}. Consumer: wf-fix-triage agent (read issues[], output bug-triage.md/fix-plan.md), Phase 6 wf-fix-execute (sửa từng issue theo issue_id), Phase 7 CQG-2 (verify QD9/QD10 coverage qua dimensions_covered).",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "total_issues": 0,
+  "total_signals_raw": 0,
+  "dedup_merge_count": 0,
+  "dimensions_covered": [],
+  "issues": []
+}

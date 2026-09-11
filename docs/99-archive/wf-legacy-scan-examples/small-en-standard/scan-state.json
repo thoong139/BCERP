@@ -1,0 +1,32 @@
+{
+  "$schema": "scan-state-v1",
+  "session": {
+    "id": "2026-04-22T08-00-00Z-a1b2c3d4",
+    "created": "2026-04-22T08:00:00Z",
+    "project_path": "/projects/sample-todo-app",
+    "profile": "standard",
+    "strategy": "S1",
+    "maturity_level": "GREENFIELD"
+  },
+  "depth_map": {
+    "L1": "full",
+    "L2": "full",
+    "L3": "full",
+    "L4": "standard",
+    "L5": "standard",
+    "L6": "full"
+  },
+  "synthesis_mode": "full",
+  "layers": {
+    "L1": { "status": "completed" },
+    "L2": { "status": "completed" },
+    "L3": { "status": "completed" },
+    "L4": { "status": "completed", "depth": "standard" },
+    "L5": { "status": "completed", "depth": "standard" },
+    "L6": { "status": "completed" }
+  },
+  "status": "completed",
+  "last_completed": "L6",
+  "error_log": [],
+  "resume_hint": null
+}

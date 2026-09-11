@@ -1,0 +1,124 @@
+{
+  "skill": "feature-addition",
+  "version": "4.0.0",
+  "evals": [
+    {
+      "id": "eval-1-basic-feature-existing-module",
+      "description": "Them feature moi vao module da co trong registry",
+      "input": "/feature-addition payment-gateway",
+      "expected_behavior": "Load registry, skip wf-add-scope (module da co), define feature, update architecture, plan, implement, preflight, verify",
+      "pass_criteria": [
+        "PRE-GATE validate registry content bang jq (CORE-011)",
+        "Detect module da ton tai → skip Phase 1 (wf-add-scope)",
+        "Chay wf-define-features cho feature moi",
+        "Update req-registry.json voi feature moi",
+        "Chay wf-preflight truoc verify",
+        "Chay verify sync sau implement"
+      ]
+    },
+    {
+      "id": "eval-2-new-module",
+      "description": "Them feature moi vao module chua co trong registry — can wf-add-scope",
+      "input": "/feature-addition notification-system",
+      "expected_behavior": "Detect module moi → goi wf-add-scope → sau do wf-define-features → ... → verify",
+      "pass_criteria": [
+        "Detect module chua ton tai trong registry",
+        "Hoi user xac nhan module moi",
+        "Goi wf-add-scope de safe-append module vao registry",
+        "Module moi xuat hien trong registry.modules[]",
+        "Tiep tuc wf-define-features binh thuong",
+        "Status file ghi module_scope_added: true"
+      ]
+    },
+    {
+      "id": "eval-3-resume",
+      "description": "Resume feature addition tu checkpoint",
+      "input": "/feature-addition --resume",
+      "expected_behavior": "Doc status file, tiep tuc tu buoc dang do",
+      "pass_criteria": [
+        "Doc feature-addition-status.json",
+        "Validate current_phase hop le",
+        "Tiep tuc tu current_phase dung",
+        "Khong lap lai phases da hoan thanh",
+        "Cross-validate voi file system truoc khi tiep tuc"
+      ]
+    },
+    {
+      "id": "eval-4-from-phase",
+      "description": "Bat dau tu phase cu the",
+      "input": "/feature-addition --from-phase 5a",
+      "expected_behavior": "Nhay den Phase 5a (Plan Modules)",
+      "pass_criteria": [
+        "Kiem tra feature specs ton tai",
+        "Bat dau wf-plan-modules",
+        "Ghi checkpoint"
+      ]
+    },
+    {
+      "id": "eval-5-legacy-mode",
+      "description": "Feature addition voi LEGACY_MODE — respect deprecated modules",
+      "input": "/feature-addition old-module-feature",
+      "expected_behavior": "Detect LEGACY_MODE, doc legacy-decisions.json, block feature vao deprecated module",
+      "pass_criteria": [
+        "Detect LEGACY_MODE (project-context.md > 500 bytes)",
+        "Doc legacy-decisions.json",
+        "Neu module bi DEPRECATE → STOP voi E013",
+        "Status file ghi legacy_mode: true va deprecated_modules",
+        "Khong them feature vao deprecated module"
+      ]
+    },
+    {
+      "id": "eval-6-preflight-in-flow",
+      "description": "Preflight chay giua implement va verify",
+      "input": "/feature-addition report-generator",
+      "expected_behavior": "Sau Phase 5b, chay wf-preflight truoc khi chay wf-verify-sync",
+      "pass_criteria": [
+        "Phase 5b hoan thanh truoc khi vao Preflight",
+        "Goi wf-preflight truoc wf-verify-sync",
+        "Preflight report ton tai tai .mc-data/work/wf-preflight/preflight-report.md",
+        "Neu preflight FAIL → hien thi recovery path day du: buoc 1 chay /wf-fix-bugs, buoc 2 chay --resume",
+        "Verify chi chay sau preflight (PASS hoac user confirm sau WARN)"
+      ]
+    },
+    {
+      "id": "eval-7-duplicate-feature-name",
+      "description": "Feature name trung voi feature da ton tai trong registry",
+      "input": "/feature-addition payment-gateway (khi FEAT-PAYMENT-GATEWAY da co trong registry voi impl_status: done)",
+      "expected_behavior": "Phase 2 (wf-define-features) xu ly duplicate → fix rule doi ten them suffix, hoi user xac nhan",
+      "pass_criteria": [
+        "wf-define-features phat hien feature da ton tai (id hoac name trung)",
+        "Fix Rule: de xuat ten moi voi suffix (v2, extended, ...) thay vi silent overwrite",
+        "Hoi user xac nhan ten moi truoc khi tiep tuc",
+        "Neu user tu choi → STOP Phase 2 an toan (khong tao duplicate)",
+        "Neu user xac nhan → tao feature moi voi ten da doi, ghi dung vao registry"
+      ]
+    },
+    {
+      "id": "eval-8-resume-mixed-state",
+      "description": "Resume voi trang thai hon hop trong Phase 5b: mot so feature da done, mot so skip, mot so chua chay",
+      "input": "/feature-addition --resume (status: phase5b dang do, FEAT-A: done, FEAT-B: skip, FEAT-C: chua chay)",
+      "expected_behavior": "Doc STATUS_FILE, re-validate voi registry, chi implement FEAT-C (chua co impl_status done), bao qua FEAT-A va FEAT-B",
+      "pass_criteria": [
+        "PENDING_FEATURES chi chua FEAT-C (loc dung impl_status != done)",
+        "FEAT-A khong bi implement lai (da done trong registry — CORE-020)",
+        "FEAT-B khong bi implement lai (user da skip trong session truoc)",
+        "new_feature_ids re-validated tu registry tai thoi diem resume (buoc 4b)",
+        "Status file cap nhat dung sau khi FEAT-C hoan thanh",
+        "Final report hien thi dung: 1/3 implemented, 1 skipped, 1 da done tu session truoc"
+      ]
+    },
+    {
+      "id": "eval-9-from-phase-5b-empty-pending",
+      "description": "from-phase 5b khi tat ca features trong new_feature_ids da co impl_status done",
+      "input": "/feature-addition --from-phase 5b (tat ca features trong new_feature_ids da done tu session truoc)",
+      "expected_behavior": "PENDING_FEATURES rong → trigger E006 → skip Phase 5b, chuyen thang sang Preflight",
+      "pass_criteria": [
+        "Phase 5b.0 filter PENDING_FEATURES = [] (tat ca da done)",
+        "E006 duoc trigger: 'Tat ca features da implement'",
+        "Chuyen thang sang Preflight (Phase 6) ma khong hoi user implement gi them",
+        "STATUS_FILE ghi phase5b vao phases_completed (khong vao phases_skipped) vi features da done",
+        "Preflight nhan dung DONE_COUNT tu registry (khong phai 0)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-runtime-health",
+  "version": "1.1.0",
+  "phase": "lane",
+  "description": "QD9 Runtime Health Verification Lane — phat hien loi xay ra tren browser runtime: console errors, network failures, uncaught exceptions, auth flow broken, SPA routes unreachable, CTAs khong hoat dong (bao gom disabled/obstructed), form validation thieu. v1.0 (2026-05-10): QD9 moi (plan wf-fix-bugs-v9 Wave 1). v1.1 (2026-05-14, sync wf-fix-bugs v10.2): them P-QD9-disabled-cta-check (v10.2 NEW), promote interactive-smoke + spa-route-coverage vao standard profile. Owner agents: qa-lead + frontend-developer. 9 probes total: dev-server-bootstrap, console-network-monitor, auth-aware-smoke, interactive-smoke, spa-route-coverage, disabled-cta-check (standard) + feature-checklist-smoke, form-validation-smoke, llm-analysis (deep+). Profile gating: quick=SKIP, standard=6 probes, deep=9 probes, exhaustive=9 probes (extended limits). Node.js Playwright (bash-level, session-isolated qua playwright-session.js) + Serena + GitNexus.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Set by orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay. quick=SKIP (khong co browser), standard=6 probes (3 core + 3 promote v10.2), deep=9 probes, exhaustive=9 probes (extended max_routes/max_features)."
+    },
+    {
+      "name": "--base-url",
+      "type": "string",
+      "required": false,
+      "description": "Base URL cho probes runtime. Auto-detect qua wf-fix-detect-base-url.sh neu khong set."
+    },
+    {
+      "name": "--credentials",
+      "type": "string",
+      "required": false,
+      "description": "Credentials cho auth-aware-smoke: 'email:password' hoac 'cookie:NAME=VALUE'."
+    },
+    {
+      "name": "--login-url",
+      "type": "string",
+      "required": false,
+      "description": "Login page URL. Auto-detect neu khong set (tim /login, /auth/login, /signin)."
+    },
+    {
+      "name": "--no-browser",
+      "type": "flag",
+      "required": false,
+      "description": "SKIP lane hoan toan neu set."
+    }
+  ],
+  "procedure": [
+    "procedures/pre-gate.md",
+    "procedures/post-gate.md",
+    "procedures/probes/_shared.md",
+    "procedures/probes/P-QD9-dev-server-bootstrap.md",
+    "procedures/probes/P-QD9-console-network-monitor.md",
+    "procedures/probes/P-QD9-auth-aware-smoke.md",
+    "procedures/probes/P-QD9-feature-checklist-smoke.md",
+    "procedures/probes/P-QD9-interactive-smoke.md",
+    "procedures/probes/P-QD9-spa-route-coverage.md",
+    "procedures/probes/P-QD9-disabled-cta-check.md",
+    "procedures/probes/P-QD9-form-validation-smoke.md"
+  ],
+  "procedure_planned": [],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime probe signals (signal-v2). Evidence includes: screenshot path, console log excerpt, network trace. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/QD9-runtime-health-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output (JSONL)."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/dev-server-state.json",
+        "required": false,
+        "template": null,
+        "notes": "Dev server state (pid, url, framework). QD10 có thể đọc để reuse."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/flow-unreliable.json",
+        "required": false,
+        "template": null,
+        "notes": "Map feature_id → true cho features có UI broken. QD10 đọc để skip broken flows."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/auth-session.json",
+        "required": false,
+        "template": null,
+        "notes": "Auth session (cookies/tokens) sau login thành công. QD10 có thể reuse."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/spa-routes.json",
+        "required": false,
+        "template": null,
+        "notes": "Full route list trích xuất từ router config."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD9 Lane KHONG ghi req-registry.json. Role: NONE.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD9 trong selected_dims AND interface_type != api-only AND --no-browser khong set",
+      "receives": [
+        "--session-dir",
+        "--profile",
+        "--base-url",
+        "--credentials",
+        "--login-url",
+        "--no-browser"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD9 complete hoac SKIP",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/QD9-runtime-health-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/lane-status.json — orchestrator track lane progress"
+      ],
+      "wf-fix-integration": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/dev-server-state.json — QD10 reuse dev server",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/flow-unreliable.json — QD10 skip broken flows",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD9-runtime-health/auth-session.json — QD10 reuse auth session"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  }
+}

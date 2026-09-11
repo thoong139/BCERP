@@ -1,0 +1,254 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-analyze-requirements",
+  "version": "3.0.0",
+  "phase": "phase1-business",
+  "description": "Multi-agent requirements analysis — sinh Phase 1 business docs từ brainstorm output",
+  "procedure": "procedures/phase0-context.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/phase0-context.md",
+    "procedures/phase0.5-workload-gate.md",
+    "procedures/phase1-scope.md",
+    "procedures/phase2-plan.md",
+    "procedures/phase3-ba-parta.md",
+    "procedures/phase3.5-legacy.md",
+    "procedures/phase4-experts-partb.md",
+    "procedures/phase5-existing-docs.md",
+    "procedures/phase6-consolidate.md",
+    "procedures/phase6b-workflow.md",
+    "procedures/phase6c-stakeholder.md",
+    "procedures/phase6d-conflict.md",
+    "procedures/phase8-registry.md",
+    "procedures/phase8b-crossval.md",
+    "procedures/phase8c-handoff.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [],
+    "notes": "Requires completed Phase 0 brainstorm before analyzing requirements"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+      "description": "Project brainstorm — vision, goals, scope, departments",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+      "description": "Systems and users overview from brainstorm",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry seed from wf-brainstorm — project, departments, interface_type",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context (nếu LEGACY_MODE)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions từ brainstorm Phase 0.5 — DEPRECATE modules, divergence resolutions (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/docs/_meta/project-digest.json",
+      "description": "Project digest from wf-brainstorm Phase 3",
+      "required": false,
+      "condition": null
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase1-business/P1-01-project-overview.md",
+        "template": "phase1-business/P1-01-project-overview.md",
+        "contract_key": "P1-01-project-overview",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase1-business/P1-02-business-workflow.md",
+        "template": "phase1-business/P1-02-business-workflow.md",
+        "contract_key": "P1-02-business-workflow",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase1-business/departments/**/*.md",
+        "template": "phase1-business/departments/[dept-name]/[dept-name].md",
+        "contract_key": "departments-dept",
+        "required": true,
+        "notes": "One file per department — path: departments/[dept-name]/[dept-name].md"
+      },
+      {
+        "path": ".mc-data/docs/phase1-business/departments/_index.md",
+        "template": "phase1-business/departments/_index.md",
+        "contract_key": "departments-index",
+        "required": false,
+        "notes": "Department index overview — optional, generated khi có nhiều departments"
+      },
+      {
+        "path": ".mc-data/docs/phase1-business/stakeholder-review.md",
+        "template": "phase1-business/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": true
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/analyze-status.json",
+        "template": "templates/analyze-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/analyze-plan.md",
+        "template": "templates/analyze-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/department-digests.json",
+        "template": "templates/department-digests.json",
+        "required": true,
+        "notes": "Working artifact nội bộ — Phase 2.2 POST-GATE (pre-Phiên 6)"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/phase1-handoff.json",
+        "template": "templates/phase1-handoff.json",
+        "required": true,
+        "notes": "Working artifact nội bộ — Phase 2.2 (pre-Phiên 6)"
+      },
+      {
+        "path": ".mc-data/docs/_meta/dept-digests.json",
+        "template": "_digests/dept-digests.template.json",
+        "required": true,
+        "notes": "Digest artifact cho downstream skills — Phase 3 POST-GATE (CORE-007 §4b)"
+      },
+      {
+        "path": ".mc-data/docs/_meta/phase1-handoff.json",
+        "template": "_digests/phase1-handoff.template.json",
+        "required": true,
+        "notes": "Handoff digest cho wf-define-features — Phase 3 POST-GATE (CORE-007 §4b)"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/execution-plan.md",
+        "template": null,
+        "required": true,
+        "notes": "Protocol 9 template tại .claude/skills/templates/execution-plan.template.md — không dùng trực tiếp vì path nằm ngoài skill templates/"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/analyze-report.md",
+        "template": null,
+        "required": true,
+        "notes": "Report ad-hoc sinh từ _shared.md §Output Report Template — không có JSON template riêng, format Markdown inline"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+        "template": "_meta/deferred-issues-template.md",
+        "required": false,
+        "notes": "Consumed by wf-define-features Phase 0 (CORE-007)"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/phase-summary.md",
+        "template": "_meta/phase-summary.template.md",
+        "required": true,
+        "notes": "CORE-028 phase summary (tiếng Việt) — ghi đè final summary ở Phase 8c"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/sessions/{id}/session-state.json",
+        "template": "../_shared/templates/session-state.json",
+        "required": true,
+        "notes": "Session isolation state machine (ADR-OPT-02) — 3-level checkpoint: L1 phase, L2 dept-batch, L3 req-item. Path convention: ../_shared/ resolves to .claude/skills/workflow/_shared/"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/sessions/{id}/workload-report.md",
+        "template": "../_shared/templates/workload-report.md",
+        "required": true,
+        "notes": "Workload gate estimate report (ADR-OPT-03) — tạo ở Phase 0.5. Path convention: ../_shared/ resolves to .claude/skills/workflow/_shared/"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/sessions/{id}/aggregation-result.json",
+        "template": "../_shared/templates/aggregation-result.json",
+        "required": true,
+        "notes": "Signal aggregation dedup result (ADR-OPT-04) — dedup REQ-ID giữa dept-lanes ở Phase 6. Path convention: ../_shared/ resolves to .claude/skills/workflow/_shared/"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/sessions/{id}/lanes/{dept-key}/signals.json",
+        "template": "../_shared/templates/lane-signal.json",
+        "required": true,
+        "notes": "Per-dept lane output (ADR-OPT-01) — mỗi dept-expert viết vào lane riêng ở Phase 4. Path convention: ../_shared/ resolves to .claude/skills/workflow/_shared/"
+      },
+      {
+        "path": ".mc-data/work/wf-analyze-requirements/latest",
+        "template": null,
+        "required": true,
+        "notes": "Pointer file (text content = session dir path) cho backward-compat — downstream consumers resolve qua latest"
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cập nhật systems, modules, departments, requirements, interface_type"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "systems",
+      "systems.module_ids",
+      "modules",
+      "modules.system",
+      "modules.department_ids",
+      "departments",
+      "requirements",
+      "requirements.systems",
+      "requirements.primary_module",
+      "interface_type"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "PRIMARY role. Enrich systems[] (giữ user_roles/touchpoints/related_departments/phase đã seed bởi brainstorm, chỉ bổ sung module_ids[]). Set modules[].system + modules[].department_ids. Set requirements[].systems[] (BẮT BUỘC ≥ 1 system, fan-out theo multi-touchpoint) + requirements[].primary_module. Không ghi đè fields của skill khác (project, features, design_status, ux_design_status, implementation_order, impl_status).",
+    "write_role": "PRIMARY"
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase1-business/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-define-features": [
+        ".mc-data/docs/phase1-business/stakeholder-review.md",
+        ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/dept-digests.json",
+        ".mc-data/docs/_meta/phase1-handoff.json"
+      ],
+      "wf-add-scope": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-brainstorm": [
+        ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+        ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+        ".mc-data/docs/phase0-brainstorm/policies/",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/project-digest.json",
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json",
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ]
+    }
+  }
+}

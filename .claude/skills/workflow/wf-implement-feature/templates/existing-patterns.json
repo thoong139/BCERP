@@ -1,0 +1,214 @@
+{
+  "$schema": "existing-patterns-v1",
+  "analysis_id": "ANALYSIS-YYYYMMDD-NNN",
+  "impl_id": "IMPL-YYYYMMDD-NNN",
+  "feature": {
+    "req_id": "REQ-XXX-NNN",
+    "name": "[Feature Name]",
+    "scenario": "extend | modify"
+  },
+
+  "analysis_timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+
+  "files_analyzed": [
+    {
+      "path": "src/modules/[module]/entities/[Entity].ts",
+      "type": "entity",
+      "lines": 150,
+      "relevance": "high | medium | low"
+    }
+  ],
+
+  "patterns": {
+    "naming": {
+      "entities": "PascalCase singular noun (e.g., Customer, Order)",
+      "services": "PascalCase with Service suffix (e.g., CustomerService)",
+      "repositories": "PascalCase with Repository suffix",
+      "controllers": "PascalCase with Controller suffix",
+      "files": "kebab-case (e.g., customer.service.ts)",
+      "variables": "camelCase",
+      "constants": "SCREAMING_SNAKE_CASE",
+      "interfaces": "PascalCase with I prefix (optional)"
+    },
+
+    "file_structure": {
+      "base_path": "src/modules/[module]/",
+      "entities": "entities/",
+      "repositories": "repositories/",
+      "services": "services/",
+      "controllers": "controllers/",
+      "dto": "dto/",
+      "tests": "__tests__/"
+    },
+
+    "imports": {
+      "order": [
+        "1. Built-in Node.js modules",
+        "2. External packages",
+        "3. Internal absolute paths (@/ alias)",
+        "4. Relative imports"
+      ],
+      "alias": "@/ for src/",
+      "example": "import { LoggerService } from '@/shared/logger';"
+    },
+
+    "code_style": {
+      "indentation": "2 spaces",
+      "quotes": "single",
+      "semicolons": true,
+      "trailing_comma": "es5",
+      "max_line_length": 100,
+      "bracket_spacing": true
+    },
+
+    "entity_patterns": {
+      "base_class": "BaseEntity or similar",
+      "decorators": ["@Entity()", "@Column()", "@PrimaryGeneratedColumn()"],
+      "timestamps": "createdAt, updatedAt as Date",
+      "soft_delete": "deletedAt as Date | null",
+      "id_type": "UUID or number"
+    },
+
+    "service_patterns": {
+      "dependency_injection": "Constructor injection",
+      "error_handling": "try-catch with custom errors",
+      "logging": "LoggerService with context",
+      "transactions": "Transactional decorator or manual"
+    },
+
+    "repository_patterns": {
+      "base_methods": ["findById", "findAll", "create", "update", "delete"],
+      "pagination": "offset/limit based",
+      "filtering": "query builder or ORM methods",
+      "soft_delete": "deletedAt IS NULL filter"
+    },
+
+    "controller_patterns": {
+      "decorators": ["@Controller()", "@Get()", "@Post()", "@Body()", "@Param()"],
+      "validation": "class-validator with DTOs",
+      "response_format": "{ success: boolean, data: any, error?: string }",
+      "error_mapping": "Exception filters"
+    },
+
+    "test_patterns": {
+      "framework": "Jest | Vitest | Mocha",
+      "structure": "describe/it pattern",
+      "mocking": "jest.mock() or similar",
+      "coverage_target": "80%",
+      "naming": "*.spec.ts or *.test.ts"
+    }
+  },
+
+  "existing_code_references": [
+    {
+      "type": "entity",
+      "path": "src/modules/[module]/entities/Example.ts",
+      "purpose": "Reference for entity structure",
+      "patterns_to_follow": ["decorators", "columns", "relations"]
+    },
+    {
+      "type": "service",
+      "path": "src/modules/[module]/services/ExampleService.ts",
+      "purpose": "Reference for service patterns",
+      "patterns_to_follow": ["DI", "error handling", "logging"]
+    }
+  ],
+
+  "consistency_checklist": [
+    "[ ] Follow existing naming conventions",
+    "[ ] Match file structure pattern",
+    "[ ] Use same import order",
+    "[ ] Apply same code style",
+    "[ ] Match entity patterns (decorators, columns)",
+    "[ ] Follow service patterns (DI, error handling)",
+    "[ ] Match repository patterns (methods, soft delete)",
+    "[ ] Follow controller patterns (validation, response)",
+    "[ ] Match test patterns (framework, structure)"
+  ],
+
+  "recommendations": [
+    {
+      "area": "naming",
+      "recommendation": "Use [pattern] for consistency with [existing file]",
+      "priority": "high"
+    }
+  ],
+
+  "impact_analysis": {
+    "_comment": "Chỉ dùng cho scenario MODIFY — phân tích tác động khi sửa code hiện có",
+    "enabled": false,
+    "modification_type": "refactor | bug_fix | enhancement",
+    "risk_level": "low | medium | high",
+    "breaking_changes": false,
+
+    "direct_modifications": [
+      {
+        "file": "path/to/file1.ts",
+        "type": "service",
+        "changes": "[Description]",
+        "risk": "low | medium | high",
+        "tests_required": true
+      }
+    ],
+
+    "indirect_impact": [
+      {
+        "file": "path/to/dependent1.ts",
+        "depends_on": "file1.ts",
+        "impact_type": "import_change | interface_change | behavior_change",
+        "action_required": "[Description]"
+      }
+    ],
+
+    "dependency_graph": [
+      "[Modified File] → [Dependent 1] → [Dependent 1.1]",
+      "[Modified File] → [Dependent 2]"
+    ],
+
+    "api_changes": {
+      "breaking": [
+        {
+          "endpoint": "GET /api/v1/resource",
+          "change": "[Description]",
+          "migration_required": true
+        }
+      ],
+      "non_breaking": [
+        {
+          "endpoint": "POST /api/v1/resource",
+          "change": "[Description]",
+          "backward_compatible": true
+        }
+      ]
+    },
+
+    "database_changes": [
+      {
+        "table": "[table_name]",
+        "change": "[Description]",
+        "migration_file": "YYYYMMDD-[description].ts"
+      }
+    ],
+
+    "risks": [
+      {
+        "risk": "[Description]",
+        "probability": "low | medium | high",
+        "impact": "low | medium | high | critical",
+        "mitigation": "[Description]"
+      }
+    ],
+
+    "testing_strategy": {
+      "unit_tests": { "files": [], "priority": "high" },
+      "integration_tests": { "files": [], "priority": "high" },
+      "regression_tests": { "files": [], "priority": "medium" }
+    },
+
+    "rollback_plan": {
+      "code": "git revert [commit-hash]",
+      "database": "Run migration down",
+      "config": "Restore previous config"
+    }
+  }
+}

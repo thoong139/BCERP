@@ -1,0 +1,19 @@
+{
+  "$schema": "docs-sync-report-v2",
+  "_template_notes": "docs-sync-report.json — Documentation synchronization report from Phase 6 Execute. Schema: docs-sync-report-v2 (v10.11.0 — enrich item shapes + audit_chain cho cross-skill verify). Writer: wf-fix-execute sub-skill (Phase 6 Step 6.5).",
+  "_schema_notes": "Required: $schema, session_id, generated_at, files_synced, docs_updated[], registry_updated, impl_status_changes[], audit_chain. files_synced ≥ 0 (POST-GATE T3 check). docs_updated[] item: {path:string (relative .mc-data/docs/), phase:string, change_type:enum (created|modified|deleted), req_ids_added:string[], req_ids_removed:string[], summary:string}. impl_status_changes[] item: {req_id:string, feat_id:string|null, old_status:enum (not_started|in_progress|done|skipped), new_status:enum, reason:string, timestamp:ISO-8601}. CORE-008: KHÔNG downgrade impl_status=done. CORE-010: 4 status values only. audit_chain: {source:string (registry path), checksum_before:sha256, checksum_after:sha256, applied_by:string (wf-fix-execute), atomic_write:bool}. errors[] item: {code:string (E060|E061), message:string, file:string|null}.",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "files_synced": 0,
+  "docs_updated": [],
+  "registry_updated": false,
+  "impl_status_changes": [],
+  "audit_chain": {
+    "source": "{{REGISTRY_PATH}}",
+    "checksum_before": "",
+    "checksum_after": "",
+    "applied_by": "wf-fix-execute",
+    "atomic_write": true
+  },
+  "errors": []
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "scan-state-v1",
+  "session": {
+    "id": "2026-04-22T09-00-00Z-e5f6g7h8",
+    "created": "2026-04-22T09:00:00Z",
+    "project_path": "/projects/quan-ly-nhan-su",
+    "profile": "standard",
+    "strategy": "S3",
+    "maturity_level": "ACTIVE"
+  },
+  "depth_map": {
+    "L1": "full",
+    "L2": "full",
+    "L3": "full",
+    "L4": "standard",
+    "L5": "standard",
+    "L6": "full"
+  },
+  "synthesis_mode": "full",
+  "layers": {
+    "L1": { "status": "completed" },
+    "L2": { "status": "completed" },
+    "L3": { "status": "completed" },
+    "L4": { "status": "completed", "depth": "standard" },
+    "L5": { "status": "completed", "depth": "standard" },
+    "L6": { "status": "completed" }
+  },
+  "status": "completed",
+  "last_completed": "L6",
+  "error_log": [],
+  "resume_hint": null
+}

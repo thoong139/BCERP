@@ -1,0 +1,431 @@
+{
+  "$schema": "mdm-canonical-entities-v1",
+  "project": "EUREKA-2026",
+  "version": "1.0.0-template",
+  "last_updated": "2026-05-16",
+  "description": "Template SSOT cho CD28 (MDM Consistency). Định nghĩa master entities, ownership rules, sync patterns, canonical key fields, conflict detection. Mọi entity master trong EUREKA-2026 có ĐÚNG 1 owner module — các module khác đọc-only qua read model hoặc API. Người chạy /wf-cmi cần copy file này vào .mc-data/docs/_meta/ và điều chỉnh theo thực tế project.",
+  "_template_notes": "PHẢI xóa các field bắt đầu bằng _ trước khi commit. Đây là TEMPLATE — không phải runtime config.",
+
+  "_instructions": {
+    "how_to_use": "1) Copy file này vào .mc-data/docs/_meta/mdm-canonical-entities.json. 2) Strip metadata fields (_template_notes, _instructions, _comment). 3) Update theo thực tế EUREKA backend code (17 modules). 4) Chạy /wf-cmi --dims=CD28 để verify.",
+    "default_behavior": "Entity KHÔNG được declare trong file này → bị classify mặc định là 'transactional' (KHÔNG check MDM). Tức là nếu entity được nhiều module dùng nhưng KHÔNG declare → có thể bị duplicate ngầm. Khuyến nghị: explicit declaration cho mọi entity shared ≥2 modules.",
+    "conflict_resolution": "Khi 2 module cùng define 1 entity master không qua read model → flag MDM_OWNERSHIP_CONFLICT (severity CRITICAL). Khi data sync chậm → flag MDM_SYNC_DRIFT (severity HIGH)."
+  },
+
+  "config": {
+    "default_entity_classification": "transactional",
+    "fail_on_undeclared_shared_entity": true,
+    "sync_drift_threshold_minutes": 15,
+    "max_canonical_key_age_days": 365,
+    "enforce_immutable_canonical_keys": true,
+    "_comment_default": "Entity không declare → mặc định transactional. fail_on_undeclared_shared=true → cảnh báo nếu 2+ module dùng entity chưa declare.",
+    "_comment_sync_drift": "Read model lag > 15 phút so với owner → MDM_SYNC_DRIFT violation.",
+    "_comment_immutable": "Canonical key (vd CustomerId) KHÔNG được đổi sau khi tạo. Nếu cần đổi → tạo entity mới + migration."
+  },
+
+  "master_entities": {
+    "description": "Entity master với owner module rõ ràng. Mọi module khác PHẢI đọc qua read model hoặc API của owner, KHÔNG tự define table riêng.",
+
+    "Customer": {
+      "owner_module": "CRM",
+      "canonical_key": "CustomerId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["TaxCode", "CustomerCode"],
+      "natural_key_unique_scope": "tenant",
+      "consumers": [
+        {"module": "Orders", "access_pattern": "read_via_api", "api_endpoint": "GET /api/v1/crm/customers/{id}"},
+        {"module": "Quotation", "access_pattern": "read_via_api", "api_endpoint": "GET /api/v1/crm/customers/{id}"},
+        {"module": "Finance", "access_pattern": "read_via_view", "view_name": "v_customer_finance_read"},
+        {"module": "TMS", "access_pattern": "read_via_api"},
+        {"module": "WMS", "access_pattern": "read_via_api"},
+        {"module": "Marketing", "access_pattern": "read_via_event_projection", "event_topic": "crm.customer.changed"},
+        {"module": "Tax", "access_pattern": "read_via_view", "view_name": "v_customer_tax_read"},
+        {"module": "Compliance", "access_pattern": "read_via_api"}
+      ],
+      "mandatory_fields": ["Id", "Name", "TaxCode", "CountryCode", "PrimaryContactEmail", "TenantId"],
+      "soft_delete": true,
+      "audit_required": true,
+      "compliance_tags": ["PII", "GDPR", "VN-PDPL"]
+    },
+
+    "Order": {
+      "owner_module": "Orders",
+      "canonical_key": "OrderId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["OrderNumber"],
+      "natural_key_unique_scope": "tenant",
+      "consumers": [
+        {"module": "Quotation", "access_pattern": "back_reference", "fk_field": "ConvertedFromQuotationId"},
+        {"module": "TMS", "access_pattern": "read_via_api", "api_endpoint": "GET /api/v1/orders/{id}"},
+        {"module": "WMS", "access_pattern": "read_via_api"},
+        {"module": "Customs", "access_pattern": "read_via_api"},
+        {"module": "Finance", "access_pattern": "read_via_event_projection", "event_topic": "orders.order.invoiced"},
+        {"module": "BI", "access_pattern": "read_via_etl"}
+      ],
+      "mandatory_fields": ["Id", "OrderNumber", "CustomerId", "QuotationId", "Status", "TotalAmount", "Currency", "TenantId"],
+      "soft_delete": false,
+      "audit_required": true,
+      "_comment": "Order KHÔNG soft delete — chỉ cancel với reason."
+    },
+
+    "Shipment": {
+      "owner_module": "TMS",
+      "canonical_key": "ShipmentId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["BookingNumber", "BillOfLadingNumber"],
+      "natural_key_unique_scope": "tenant",
+      "consumers": [
+        {"module": "Orders", "access_pattern": "back_reference", "fk_field": "ShipmentId"},
+        {"module": "WMS", "access_pattern": "read_via_api"},
+        {"module": "Customs", "access_pattern": "read_via_api"},
+        {"module": "Finance", "access_pattern": "read_via_event_projection", "event_topic": "tms.shipment.delivered"},
+        {"module": "CRM", "access_pattern": "read_via_view", "view_name": "v_customer_shipment_history"},
+        {"module": "QC", "access_pattern": "read_via_api"}
+      ],
+      "mandatory_fields": ["Id", "BookingNumber", "CustomerId", "OriginPortId", "DestinationPortId", "CarrierId", "Status", "TenantId"],
+      "audit_required": true,
+      "compliance_tags": ["customs-declarable"]
+    },
+
+    "Invoice": {
+      "owner_module": "Finance",
+      "canonical_key": "InvoiceId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["InvoiceNumber", "EInvoiceCode"],
+      "natural_key_unique_scope": "tenant",
+      "consumers": [
+        {"module": "Orders", "access_pattern": "back_reference"},
+        {"module": "CRM", "access_pattern": "read_via_view", "view_name": "v_customer_invoice_history"},
+        {"module": "Tax", "access_pattern": "read_via_event_projection", "event_topic": "finance.invoice.issued"},
+        {"module": "Compliance", "access_pattern": "read_via_api"},
+        {"module": "BI", "access_pattern": "read_via_etl"}
+      ],
+      "mandatory_fields": ["Id", "InvoiceNumber", "CustomerId", "TotalAmount", "Currency", "Status", "IssuedAt", "TenantId"],
+      "soft_delete": false,
+      "audit_required": true,
+      "compliance_tags": ["VN-TT78-eInvoice", "audit-immutable"],
+      "_comment": "Invoice immutable sau khi issue (TT78/2021). Chỉ tạo credit note để đối chỉnh."
+    },
+
+    "Quotation": {
+      "owner_module": "Quotation",
+      "canonical_key": "QuotationId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["QuotationNumber"],
+      "consumers": [
+        {"module": "Orders", "access_pattern": "convert_to", "fk_field": "ConvertedFromQuotationId"},
+        {"module": "CRM", "access_pattern": "read_via_view"},
+        {"module": "Sales", "access_pattern": "read_via_api"}
+      ],
+      "mandatory_fields": ["Id", "QuotationNumber", "CustomerId", "TotalAmount", "Currency", "ValidUntil", "Status", "TenantId"]
+    },
+
+    "Carrier": {
+      "owner_module": "TMS",
+      "canonical_key": "CarrierId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["CarrierCode", "SCAC", "TaxCode"],
+      "natural_key_unique_scope": "global",
+      "consumers": [
+        {"module": "Quotation", "access_pattern": "read_via_api"},
+        {"module": "Customs", "access_pattern": "read_via_api"},
+        {"module": "Sourcing", "access_pattern": "read_via_api"},
+        {"module": "Compliance", "access_pattern": "read_via_api"}
+      ],
+      "mandatory_fields": ["Id", "Name", "CarrierCode", "Country", "CarrierType"],
+      "compliance_tags": ["KYC-required"]
+    },
+
+    "Vendor": {
+      "owner_module": "Sourcing",
+      "canonical_key": "VendorId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["VendorCode", "TaxCode"],
+      "consumers": [
+        {"module": "Finance", "access_pattern": "read_via_view", "view_name": "v_vendor_payable"},
+        {"module": "Compliance", "access_pattern": "read_via_api"},
+        {"module": "Tax", "access_pattern": "read_via_view"}
+      ],
+      "mandatory_fields": ["Id", "Name", "VendorCode", "TaxCode", "PaymentTerms", "Currency"],
+      "compliance_tags": ["KYC-required", "PII"]
+    },
+
+    "Employee": {
+      "owner_module": "HRM",
+      "canonical_key": "EmployeeId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["EmployeeCode", "NationalId", "Email"],
+      "natural_key_unique_scope": "tenant",
+      "consumers": [
+        {"module": "Settings", "access_pattern": "back_reference", "fk_field": "AuthUserId"},
+        {"module": "CRM", "access_pattern": "read_via_view", "view_name": "v_sales_owner"},
+        {"module": "TMS", "access_pattern": "read_via_view", "view_name": "v_driver_assignment"},
+        {"module": "Approval", "access_pattern": "read_via_api"}
+      ],
+      "mandatory_fields": ["Id", "EmployeeCode", "FullName", "DepartmentId", "PositionId", "Status", "TenantId"],
+      "compliance_tags": ["PII", "GDPR", "VN-PDPL"]
+    },
+
+    "Product": {
+      "owner_module": "Settings",
+      "canonical_key": "ProductId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["SKU", "Barcode"],
+      "natural_key_unique_scope": "tenant",
+      "consumers": [
+        {"module": "Orders", "access_pattern": "read_via_api"},
+        {"module": "WMS", "access_pattern": "read_via_api"},
+        {"module": "Quotation", "access_pattern": "read_via_api"},
+        {"module": "Sourcing", "access_pattern": "read_via_api"}
+      ],
+      "mandatory_fields": ["Id", "SKU", "Name", "UnitOfMeasure", "Currency", "TenantId"],
+      "_comment": "Product/Service catalog. Trong logistics: services = freight, handling, customs broker, document fees."
+    },
+
+    "Tariff": {
+      "owner_module": "TMS",
+      "canonical_key": "TariffId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["TariffCode", "EffectiveDate+RouteHash"],
+      "consumers": [
+        {"module": "Quotation", "access_pattern": "read_via_api"},
+        {"module": "Orders", "access_pattern": "read_via_api"},
+        {"module": "Finance", "access_pattern": "read_via_view"}
+      ],
+      "mandatory_fields": ["Id", "TariffCode", "EffectiveDate", "ExpiryDate", "OriginPortId", "DestinationPortId", "BasePrice", "Currency"],
+      "version_control": "effective_date_based",
+      "_comment": "Tariff có hiệu lực theo effective_date. Không edit in-place — tạo phiên bản mới."
+    },
+
+    "Tenant": {
+      "owner_module": "Settings",
+      "canonical_key": "TenantId",
+      "canonical_key_format": "GUID",
+      "natural_keys": ["TenantCode", "Domain"],
+      "natural_key_unique_scope": "global",
+      "consumers": [
+        {"module": "*", "access_pattern": "row_level_security", "_comment": "Mọi module dùng TenantId làm RLS filter"}
+      ],
+      "mandatory_fields": ["Id", "TenantCode", "Name", "Domain", "Status", "CreatedAt"],
+      "compliance_tags": ["multi-tenant-isolation"]
+    }
+  },
+
+  "reference_data": {
+    "description": "Reference data ít thay đổi (countries, currencies, units, hs_codes...). Owner = Settings hoặc Customs cho domain-specific. Mọi module truy cập qua Settings API cache.",
+
+    "Country": {
+      "owner_module": "Settings",
+      "canonical_key": "CountryCode",
+      "canonical_key_format": "ISO-3166-1 alpha-2",
+      "consumers": "all",
+      "update_frequency": "rare",
+      "_comment": "VN, CN, US, etc."
+    },
+
+    "Currency": {
+      "owner_module": "Settings",
+      "canonical_key": "CurrencyCode",
+      "canonical_key_format": "ISO-4217",
+      "consumers": "all",
+      "active_codes": ["VND", "CNY", "USD", "EUR", "JPY", "KRW", "SGD", "THB"],
+      "_comment": "Primary VND/CNY/USD cho logistics Việt-Trung."
+    },
+
+    "ExchangeRate": {
+      "owner_module": "Finance",
+      "canonical_key": "BaseCurrency+QuoteCurrency+EffectiveDate",
+      "consumers": ["Quotation", "Orders", "TMS", "Finance", "Tax", "Sourcing"],
+      "update_frequency": "daily",
+      "source": "SBV (VN) + PBoC (CN) + ECB cross-rate"
+    },
+
+    "Port": {
+      "owner_module": "TMS",
+      "canonical_key": "UNLOCODE",
+      "canonical_key_format": "UN/LOCODE 5-char",
+      "consumers": ["Customs", "Orders", "Quotation", "WMS"],
+      "_comment": "VNHPH (Hai Phong), VNHCM (HCMC), CNSHA (Shanghai), CNYTN (Yantian)..."
+    },
+
+    "HSCode": {
+      "owner_module": "Customs",
+      "canonical_key": "HSCode",
+      "canonical_key_format": "HS 2022 8-digit (VN) hoặc 10-digit (CN)",
+      "consumers": ["Orders", "Quotation", "Tax", "Compliance"],
+      "update_frequency": "annual",
+      "compliance_tags": ["VN-HS2022", "CN-HS2022"]
+    },
+
+    "ContainerType": {
+      "owner_module": "TMS",
+      "canonical_key": "ContainerTypeCode",
+      "consumers": ["Quotation", "Orders", "WMS"],
+      "active_codes": ["20GP", "40GP", "40HC", "20RF", "40RF", "20OT", "40OT"]
+    },
+
+    "UnitOfMeasure": {
+      "owner_module": "Settings",
+      "canonical_key": "UomCode",
+      "consumers": "all",
+      "active_codes": ["KG", "TONNE", "M3", "PCS", "BOX", "PALLET", "CTN", "TEU"]
+    },
+
+    "TaxCode": {
+      "owner_module": "Tax",
+      "canonical_key": "TaxCode",
+      "consumers": ["Finance", "Orders", "Quotation", "Sourcing"],
+      "_comment": "VN VAT 0%/5%/8%/10%, CN VAT 6%/9%/13%"
+    }
+  },
+
+  "ownership_rules": {
+    "description": "Rules enforcing single owner per entity.",
+    "rules": [
+      {
+        "id": "MDM-OWNER-001",
+        "name": "single_owner_per_entity",
+        "description": "Mỗi entity master CHỈ có 1 owner module. Nhiều module cùng có write access → MDM_OWNERSHIP_CONFLICT.",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "MDM-OWNER-002",
+        "name": "consumer_must_use_read_pattern",
+        "description": "Consumer module PHẢI dùng read_via_api / read_via_view / read_via_event_projection. KHÔNG được tạo bảng riêng cho entity đã có owner.",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "MDM-OWNER-003",
+        "name": "canonical_key_immutable",
+        "description": "Canonical key (vd CustomerId) KHÔNG được đổi sau khi tạo. Migration đổi key → MDM_KEY_MUTATION (severity CRITICAL).",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "MDM-OWNER-004",
+        "name": "natural_key_uniqueness_enforced",
+        "description": "Natural key (vd TaxCode, SKU) PHẢI unique trong scope đã declare (tenant hoặc global). Duplicate → MDM_NATURAL_KEY_DUP.",
+        "severity": "HIGH"
+      }
+    ]
+  },
+
+  "sync_rules": {
+    "description": "Rules cho data sync giữa owner và consumer.",
+    "rules": [
+      {
+        "id": "MDM-SYNC-001",
+        "name": "read_model_freshness",
+        "description": "Read model (view, event projection, cache) PHẢI fresh trong threshold sync_drift_threshold_minutes (default 15p). Quá → MDM_SYNC_DRIFT.",
+        "severity": "HIGH"
+      },
+      {
+        "id": "MDM-SYNC-002",
+        "name": "event_propagation_required",
+        "description": "Owner update entity → PHẢI publish event vào RabbitMQ topic 'mdm.{entity}.changed'. Consumer dùng event_projection PHẢI subscribe.",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "MDM-SYNC-003",
+        "name": "no_direct_db_write_by_consumer",
+        "description": "Consumer KHÔNG được INSERT/UPDATE/DELETE table của owner. Vi phạm → MDM_DIRECT_WRITE.",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "MDM-SYNC-004",
+        "name": "fk_must_reference_owner_table",
+        "description": "Foreign key cross-module PHẢI reference table của owner module (qua schema reference hoặc replicated read table có constraint).",
+        "severity": "HIGH"
+      }
+    ]
+  },
+
+  "conflict_detection": {
+    "description": "Patterns cho phát hiện MDM conflicts.",
+    "patterns": [
+      {
+        "id": "PATTERN-DUP-TABLE",
+        "name": "duplicate_entity_table",
+        "description": "2 module có bảng cùng tên entity (vd Orders.dbo.Customer và CRM.dbo.Customer) → MDM_DUPLICATE_TABLE",
+        "severity": "CRITICAL",
+        "remediation": "Drop bảng ở consumer, tạo read view tham chiếu owner schema"
+      },
+      {
+        "id": "PATTERN-DRIFT-FIELD",
+        "name": "schema_drift_between_owner_and_consumer",
+        "description": "Field 'name', 'email' trong consumer table khác với owner table → MDM_SCHEMA_DRIFT",
+        "severity": "HIGH",
+        "remediation": "Sync schema từ owner, hoặc convert sang read pattern"
+      },
+      {
+        "id": "PATTERN-DENORMALIZE-STALE",
+        "name": "denormalized_field_stale",
+        "description": "Consumer cache 'CustomerName' (denormalized) cũ hơn owner → MDM_DENORMALIZED_STALE",
+        "severity": "MEDIUM",
+        "remediation": "Subscribe event 'mdm.customer.renamed' để invalidate cache"
+      }
+    ]
+  },
+
+  "exclusions": {
+    "description": "Entities explicitly excluded khỏi CD28 check.",
+    "entity_exclusions": [
+      {"entity": "AuditLog", "reason": "Per-module log, không phải master entity"},
+      {"entity": "EventLog", "reason": "Infrastructure"},
+      {"entity": "OutboxMessage", "reason": "Infrastructure"},
+      {"entity": "MigrationHistory", "reason": "Infrastructure"},
+      {"entity": "TempUploadFile", "reason": "Transient"}
+    ],
+    "table_pattern_exclusions": [
+      {"pattern": "*_log", "reason": "Per-module logs"},
+      {"pattern": "*_archive", "reason": "Historical snapshots"},
+      {"pattern": "tmp_*", "reason": "Temporary tables"}
+    ]
+  },
+
+  "validation_rules": {
+    "description": "Top-level rules cho CD28 validation.",
+    "rules": [
+      {
+        "id": "RULE-CD28-001",
+        "name": "every_master_entity_has_owner",
+        "description": "Entity được declare là master PHẢI có owner_module trong 17 modules EUREKA",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD28-002",
+        "name": "consumer_module_listed_for_cross_module",
+        "description": "Nếu entity được dùng ngoài owner_module → PHẢI có consumers[] list",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD28-003",
+        "name": "canonical_key_format_valid",
+        "description": "canonical_key_format PHẢI thuộc: GUID, ISO-3166-1, ISO-4217, UN/LOCODE, HS-2022, hoặc composite",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "RULE-CD28-004",
+        "name": "compliance_tags_recognized",
+        "description": "compliance_tags PHẢI thuộc whitelist: PII, GDPR, VN-PDPL, VN-TT78-eInvoice, VN-HS2022, CN-HS2022, KYC-required, audit-immutable, customs-declarable, multi-tenant-isolation",
+        "severity": "MEDIUM"
+      }
+    ]
+  },
+
+  "_appendix": {
+    "_changelog": [
+      {
+        "version": "1.0.0-template",
+        "date": "2026-05-16",
+        "changes": "Initial template cho EUREKA-2026. 11 master entities + 8 reference data + 4 ownership rules + 4 sync rules + 3 conflict patterns."
+      }
+    ],
+    "_references": [
+      ".claude/skills/workflow/wf-cmi/SKILL.md (CD28 spec)",
+      "docs/04-skill-design/wf-cmi/04-file-contract.md",
+      "EUREKA-2026/docs-archive/architecture/ADR-001-unified-dbcontext.md",
+      "EUREKA-2026/apps/backend/Eureka.Modules.*/Domain/Entities/*.cs"
+    ],
+    "_maintenance": "Update file này mỗi khi: (a) thêm master entity mới (b) thay đổi ownership (c) thêm consumer module (d) thay đổi compliance tags. Có thể auto-generate seed từ EF Core entity scan + cross-reference cross-module FK."
+  }
+}

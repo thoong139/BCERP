@@ -1,0 +1,59 @@
+{
+  "$schema": "phase1-handoff-schema-v1.0",
+  "description": "Decisions, deferred issues, scope boundaries từ Phase 1. Purpose: cho Phase 2 feature designer biết những gì đã chốt, những gì pending, và scope boundaries.",
+  "template": {
+    "key_decisions": [
+      {
+        "decision_id": "string — định danh (ví dụ: 'DEC-001')",
+        "topic": "string — chủ đề (ví dụ: 'Authentication Strategy', 'Data Retention Policy')",
+        "decision": "string — quyết định cụ thể",
+        "rationale": "string — lý do quyết định này",
+        "impacts": [
+          "string — tác động tới feature/module nào"
+        ]
+      }
+    ],
+    "scope_boundaries": {
+      "in_scope": [
+        "string — tính năng/hệ thống được đưa vào scope"
+      ],
+      "out_of_scope": [
+        "string — tính năng/yêu cầu được loại khỏi Phase 1 (có thể trong Phase 2+)"
+      ],
+      "future_considerations": [
+        "string — ý tưởng cho iteration sau"
+      ]
+    },
+    "deferred_issues": [
+      {
+        "issue_id": "string — định danh (ví dụ: 'DEFER-001')",
+        "description": "string — mô tả issue",
+        "reason_deferred": "string — tại sao defer (ví dụ: 'Awaiting legal review', 'Blocked by vendor')",
+        "target_resolution": "string — khi nào sẽ resolve"
+      }
+    ],
+    "stakeholder_concerns": [
+      {
+        "stakeholder": "string — tên hoặc role",
+        "concern": "string — concern cụ thể",
+        "mitigation": "string — cách mitigates"
+      }
+    ],
+    "handoff_notes": "string — ghi chú tổng hợp cho feature designer (ví dụ: 'Beware of legacy system integration gotchas', 'Compliance review required before launch')"
+  },
+  "validation": {
+    "required_fields": [
+      "key_decisions",
+      "scope_boundaries"
+    ],
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-analyze-requirements (Phase 1 POST-GATE)",
+    "consumed_by": [
+      "wf-define-features (Phase 1 PRE-GATE)"
+    ],
+    "location": ".mc-data/docs/_meta/phase1-handoff.json",
+    "fallback": "Nếu digest không tồn tại, consumer skill đọc deferred-issues.md + stakeholder-review.md"
+  }
+}

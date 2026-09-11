@@ -1,0 +1,65 @@
+{
+  "$schema": "annotate-checkpoint-v1",
+  "checkpoint_id": "CHK-ANNOTATE-YYYYMMDD-NNN",
+  "annotate_id": "ANNOTATE-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | batch_completed | user_request | error",
+    "context_used_pct": 0,
+    "batch_index": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": "phase_0 | phase_1 | phase_2 | phase_3 | phase_4",
+    "current_phase_name": null,
+    "current_batch": null,
+    "next_batch": null,
+    "next_batch_start_index": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "batches_completed": [],
+    "files_annotated": [],
+    "files_pending": [],
+    "files_error": [],
+    "files_skipped": []
+  },
+
+  "context_summary": {
+    "project_name": null,
+    "maturity_level": null,
+    "total_files_in_map": 0,
+    "batch_size": 50,
+    "total_batches": 0,
+    "module_filter": null
+  },
+
+  "partial_state": {
+    "annotation_map_path": ".mc-data/work/legacy-scan/annotation-map.json",
+    "user_confirmed": false,
+    "traceability_score_before": 0,
+    "features_count": 0,
+    "annotation_stats_snapshot": {
+      "files_annotated": 0,
+      "req_ids_injected": 0,
+      "feat_ids_injected": 0
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      ".mc-data/work/legacy-scan/ledger.json",
+      ".mc-data/work/legacy-scan/legacy-scan-status.json",
+      ".mc-data/work/legacy-scan/annotation-map.json"
+    ],
+    "resume_from_batch": null,
+    "skip_phases": [],
+    "next_action": "Resume annotation injection from next batch",
+    "user_message": "Resume message to display to user"
+  }
+}

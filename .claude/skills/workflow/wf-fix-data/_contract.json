@@ -1,0 +1,152 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-data",
+  "version": "2.0.0-alpha.s4",
+  "phase": "lane",
+  "description": "QD6 Data Integrity + Schema Drift Lane — phat hien van de qua probes static + runtime + agent. v2.0 (S3): chuan hoa schema (lane-status-v1, signal-v2, lane-report-v1) qua _shared/lane/. Fix F9, F10.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Set by orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay."
+    },
+    {
+      "name": "--use-cache",
+      "type": "flag",
+      "required": false,
+      "description": "Opt-in scan cache cho static probes."
+    },
+    {
+      "name": "--base-url",
+      "type": "string",
+      "required": false,
+      "description": "Base URL cho probes runtime (vd P-QD6-constraint-violation)"
+    }
+  ],
+  "procedure": [
+    "procedures/probes/P-QD6-schema-drift-detect.md",
+    "procedures/probes/P-QD6-migration-integrity.md",
+    "procedures/probes/P-QD6-constraint-violation.md",
+    "procedures/probes/P-QD6-data-type-mismatch.md",
+    "procedures/probes/P-QD6-orm-model-sync.md",
+    "procedures/probes/P-QD6-seed-data-audit.md",
+    "procedures/probes/_shared.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/QD6-data-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/evidence/",
+        "required": false,
+        "template": null,
+        "notes": "HTTP traces, DB query results."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD6 Lane KHONG ghi req-registry.json.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD6 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD6 complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/QD6-data-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD6-data/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  }
+}

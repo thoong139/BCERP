@@ -1,0 +1,15 @@
+{
+  "$schema": "department-digests-v1",
+  "project": "",
+  "generated_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "departments": [
+    {
+      "department": "",
+      "req_ids": [],
+      "actors": [],
+      "business_rules": [],
+      "dependencies": [],
+      "summary": ""
+    }
+  ]
+}

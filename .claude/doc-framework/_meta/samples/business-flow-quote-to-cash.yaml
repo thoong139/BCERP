@@ -1,0 +1,345 @@
+# Business Flow Spec — Quote-to-Cash (Q2C)
+# Validates against: .claude/doc-framework/_meta/business-flow-spec-schema.json
+# Probe consumer: P-QD10-business-flow-runtime (Wave 4)
+# Deploy target: .mc-data/docs/phase3-architecture/business-flows/quote-to-cash.yaml
+#
+# Luong Q2C EUREKA: CRM (tao khach hang) → QUO (bao gia) → ORD (don hang) → FIN (hoa don + thanh toan)
+
+flow_id: quote-to-cash
+name: "Quote-to-Cash Flow"
+version: "1.0.0"
+description: "Luong nghiep vu chinh: Tu tao co hoi (CRM) → lap bao gia (QUOTATION) → xac nhan don hang (ORDER) → thu tien (FINANCE). Day la luong doanh thu chu dao cua EUREKA ERP."
+flow_type: q2c
+modules_involved:
+  - MOD-CRM
+  - MOD-QUOTATION
+  - MOD-ORDERS
+  - MOD-FINANCE
+timeout_minutes: 15
+
+prerequisites:
+  - description: "Product catalog phai co it nhat 1 san pham active"
+    module: MOD-ORDERS
+    check: "GET /api/products?status=active returns 200 with count > 0"
+    setup_if_missing: false
+
+  - description: "Finance account (COA) phai duoc cau hinh cho AR (Accounts Receivable)"
+    module: MOD-FINANCE
+    check: "GET /api/finance/accounts?type=AR returns 200 with count > 0"
+    setup_if_missing: false
+
+steps:
+  - id: create-customer
+    module: MOD-CRM
+    action: create_customer
+    actor: sales_rep
+    description: "Tao khach hang moi trong CRM cho flow test (dung du lieu fixture)"
+    api_endpoint: "POST /api/crm/customers"
+    fixture:
+      entity_type: Customer
+      data:
+        name: "Test Customer Q2C"
+        email: "test-q2c-${timestamp}@erktransport.com"
+        phone: "0901234567"
+        company: "Test Company Q2C"
+        customer_type: corporate
+      cleanup_after_flow: true
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 201
+        description: "API tra ve 201 Created"
+        severity_on_fail: CRITICAL
+      - field: "body.id"
+        operator: "exists"
+        description: "Customer ID phai co trong response"
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "active"
+        description: "Customer moi phai o trang thai active"
+        severity_on_fail: HIGH
+
+  - id: create-quotation
+    module: MOD-QUOTATION
+    action: create_quotation
+    actor: sales_rep
+    description: "Tao bao gia cho khach hang vua tao (trang thai ban dau: DRAFT)"
+    api_endpoint: "POST /api/quotations"
+    fixture:
+      entity_type: Quotation
+      data:
+        customer_id: "${create-customer.body.id}"
+        title: "Bao gia test Q2C"
+        items:
+          - product_code: "SVC-001"
+            quantity: 2
+            unit_price: 5000000
+          - product_code: "SVC-002"
+            quantity: 1
+            unit_price: 3000000
+        valid_days: 30
+        currency: VND
+      cleanup_after_flow: true
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 201
+        severity_on_fail: CRITICAL
+      - field: "body.id"
+        operator: "exists"
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "DRAFT"
+        description: "Bao gia moi phai o trang thai DRAFT"
+        severity_on_fail: HIGH
+      - field: "body.customer_id"
+        operator: "eq"
+        expected: "${create-customer.body.id}"
+        description: "customer_id phai khop voi customer vua tao"
+        severity_on_fail: HIGH
+    expected_state_change:
+      entity: Quotation
+      to: DRAFT
+      state_field: status
+
+  - id: submit-quotation
+    module: MOD-QUOTATION
+    action: submit_quotation
+    actor: sales_rep
+    description: "Gui bao gia cho khach hang (DRAFT → SENT)"
+    api_endpoint: "POST /api/quotations/${create-quotation.body.id}/submit"
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 200
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "SENT"
+        description: "Bao gia phai chuyen sang trang thai SENT"
+        severity_on_fail: CRITICAL
+      - field: "body.sent_at"
+        operator: "exists"
+        description: "sent_at phai duoc ghi nhan"
+        severity_on_fail: MEDIUM
+    expected_state_change:
+      entity: Quotation
+      from: DRAFT
+      to: SENT
+      state_field: status
+
+  - id: accept-quotation
+    module: MOD-QUOTATION
+    action: accept_quotation
+    actor: customer
+    description: "Khach hang chap nhan bao gia (SENT → ACCEPTED)"
+    api_endpoint: "POST /api/quotations/${create-quotation.body.id}/accept"
+    fixture:
+      entity_type: AcceptancePayload
+      data:
+        accepted_by: "${create-customer.body.id}"
+        note: "Dong y voi bao gia — Q2C test"
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 200
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "ACCEPTED"
+        description: "Bao gia phai chuyen sang ACCEPTED"
+        severity_on_fail: CRITICAL
+      - field: "body.accepted_at"
+        operator: "exists"
+        description: "accepted_at phai duoc ghi nhan"
+        severity_on_fail: HIGH
+      - field: "body.accepted_by"
+        operator: "exists"
+        description: "accepted_by phai duoc ghi nhan"
+        severity_on_fail: HIGH
+    expected_state_change:
+      entity: Quotation
+      from: SENT
+      to: ACCEPTED
+      state_field: status
+
+  - id: convert-to-order
+    module: MOD-QUOTATION
+    action: convert_to_order
+    actor: sales_rep
+    description: "Chuyen bao gia da duoc chap nhan thanh don hang (ACCEPTED → CONVERTED)"
+    api_endpoint: "POST /api/quotations/${create-quotation.body.id}/convert"
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 200
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "CONVERTED"
+        description: "Bao gia phai chuyen sang CONVERTED"
+        severity_on_fail: CRITICAL
+      - field: "body.order_id"
+        operator: "exists"
+        description: "order_id phai duoc tra ve (don hang da duoc tao)"
+        severity_on_fail: CRITICAL
+    expected_state_change:
+      entity: Quotation
+      from: ACCEPTED
+      to: CONVERTED
+      state_field: status
+
+  - id: verify-order-created
+    module: MOD-ORDERS
+    action: get_order
+    actor: sales_rep
+    description: "Kiem tra don hang duoc tao dung tu bao gia"
+    api_endpoint: "GET /api/orders/${convert-to-order.body.order_id}"
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 200
+        severity_on_fail: CRITICAL
+      - field: "body.quotation_id"
+        operator: "eq"
+        expected: "${create-quotation.body.id}"
+        description: "Don hang phai co tham chieu bao gia goc"
+        severity_on_fail: HIGH
+      - field: "body.customer_id"
+        operator: "eq"
+        expected: "${create-customer.body.id}"
+        description: "customer_id phai dong nhat giua bao gia va don hang"
+        severity_on_fail: HIGH
+      - field: "body.status"
+        operator: "eq"
+        expected: "DRAFT"
+        description: "Don hang moi phai o trang thai DRAFT"
+        severity_on_fail: MEDIUM
+      - field: "body.total_amount"
+        operator: "gt"
+        expected: 0
+        description: "Tong gia tri don hang phai > 0"
+        severity_on_fail: HIGH
+
+  - id: confirm-order
+    module: MOD-ORDERS
+    action: confirm_order
+    actor: sales_manager
+    description: "Sales manager xac nhan don hang (DRAFT → CONFIRMED)"
+    api_endpoint: "POST /api/orders/${convert-to-order.body.order_id}/confirm"
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 200
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "CONFIRMED"
+        description: "Don hang phai chuyen sang CONFIRMED"
+        severity_on_fail: CRITICAL
+      - field: "body.confirmed_at"
+        operator: "exists"
+        description: "confirmed_at phai duoc ghi nhan"
+        severity_on_fail: HIGH
+    expected_state_change:
+      entity: Order
+      from: DRAFT
+      to: CONFIRMED
+      state_field: status
+
+  - id: generate-invoice
+    module: MOD-FINANCE
+    action: create_invoice
+    actor: finance_officer
+    description: "Tao hoa don tu don hang da xac nhan"
+    api_endpoint: "POST /api/finance/invoices"
+    fixture:
+      entity_type: InvoicePayload
+      data:
+        order_id: "${convert-to-order.body.order_id}"
+        due_days: 30
+        payment_method: bank_transfer
+      cleanup_after_flow: true
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 201
+        severity_on_fail: CRITICAL
+      - field: "body.id"
+        operator: "exists"
+        description: "Invoice ID phai co"
+        severity_on_fail: CRITICAL
+      - field: "body.order_id"
+        operator: "eq"
+        expected: "${convert-to-order.body.order_id}"
+        description: "Invoice phai tham chieu dung don hang"
+        severity_on_fail: HIGH
+      - field: "body.amount"
+        operator: "eq"
+        expected: "${verify-order-created.body.total_amount}"
+        description: "So tien hoa don phai bang so tien don hang"
+        severity_on_fail: HIGH
+      - field: "body.status"
+        operator: "eq"
+        expected: "PENDING"
+        description: "Hoa don moi phai o trang thai PENDING"
+        severity_on_fail: MEDIUM
+    wait_for:
+      condition: "invoice.status != null"
+      timeout_seconds: 10
+      poll_interval_seconds: 2
+
+  - id: mark-invoice-paid
+    module: MOD-FINANCE
+    action: record_payment
+    actor: finance_officer
+    description: "Ghi nhan thanh toan hoa don (PENDING → PAID)"
+    api_endpoint: "POST /api/finance/invoices/${generate-invoice.body.id}/pay"
+    fixture:
+      entity_type: PaymentRecord
+      data:
+        amount: "${generate-invoice.body.amount}"
+        payment_date: "${today}"
+        reference: "BANK-TXN-Q2C-TEST"
+        payment_channel: bank_transfer
+    assert:
+      - field: "response.status"
+        operator: "eq"
+        expected: 200
+        severity_on_fail: CRITICAL
+      - field: "body.status"
+        operator: "eq"
+        expected: "PAID"
+        description: "Hoa don phai chuyen sang PAID"
+        severity_on_fail: CRITICAL
+      - field: "body.paid_at"
+        operator: "exists"
+        description: "paid_at phai duoc ghi nhan"
+        severity_on_fail: HIGH
+
+expected_invariants:
+  - description: "Bao gia va don hang phai co cung customer_id"
+    check: "quotation.customer_id == order.customer_id"
+    severity_on_fail: CRITICAL
+
+  - description: "So tien hoa don phai bang tong gia tri bao gia"
+    check: "invoice.amount == quotation.total_amount"
+    severity_on_fail: CRITICAL
+
+  - description: "Khong co record mo (orphan): don hang phai co tham chieu bao gia hop le"
+    check: "order.quotation_id must reference existing quotation"
+    severity_on_fail: HIGH
+
+  - description: "Hoa don phai co tham chieu don hang hop le"
+    check: "invoice.order_id must reference existing order"
+    severity_on_fail: HIGH
+
+  - description: "Trang thai cuoi cua bao gia phai la CONVERTED (khong phai REJECTED hoac EXPIRED)"
+    check: "quotation.status == CONVERTED after flow completion"
+    severity_on_fail: HIGH
+
+  - description: "Tong so tien chi tra khong duoc lon hon tong gia tri don hang"
+    check: "sum(payments.amount) <= order.total_amount at any point"
+    severity_on_fail: CRITICAL

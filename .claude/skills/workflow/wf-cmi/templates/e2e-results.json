@@ -1,0 +1,84 @@
+{
+  "_template_notes": {
+    "delete_before_write": true,
+    "purpose": "Phase 9 structured output — per-scenario execution result với evidence paths + timing + auto-fix outcome. Cross-skill artifact consumed by Phase 10 (resolution input) + Phase 8 (E2E Summary aggregation) + integrity-impact.json v3 scenarios_artifacts[].",
+    "rendered_by": "procedures/phase9-e2e-execute.md Step 9.6 (per scenario APPEND) + Step 9.10 (final aggregate)",
+    "consumed_by": [
+      "procedures/phase10-e2e-resolution.md Step 10.1 (load FAIL entries → classify)",
+      "procedures/phase8-report.md Step 8.4 (aggregate scenarios_artifacts[] vào integrity-impact-v3)",
+      "procedures/_failure-analyzer.md (cross-ref evidence paths)"
+    ],
+    "schema_id": "e2e-results-v1",
+    "schema_notes": {
+      "session_id": "Phải match SESSION_DIR pattern YYYY-MM-DD-{scope}-{slug}-{NN}",
+      "lane_source": "Constant 'CD41' — manifest đến từ CD41 lane",
+      "exec_mode": "browser (default Playwright MCP) | api-only (HTTP request fallback khi fe-route-graph skipped)",
+      "viewport": "desktop (1280x720) | mobile (375x667 iPhone SE)",
+      "scenarios[]": {
+        "scenario_id": "Pattern CMI-SC-{NNN} (link tới scenarios-manifest.json)",
+        "scenario_file": "Relative path từ session-dir (vd 'phase4-coverage/lanes/CD41-e2e-synth/scenarios/test-scenario-CMI-001-foo.md')",
+        "execution_status": "PASS | FAIL | AUTO_CORRECTED | QUARANTINED | BLOCKED | NOT_EXECUTED",
+        "started_at / completed_at": "ISO 8601",
+        "duration_ms": "Tổng thời gian execute (parse step + Playwright IO + verify expected)",
+        "steps_total / steps_passed / steps_failed_at": "Step counter (steps_failed_at=-1 nếu all pass)",
+        "evidence": {
+          "screenshot_path": "Relative path tới phase9-e2e-execute/screenshots/scenario-{NN}-{slug}.png",
+          "console_log_path": "Relative path tới phase9-e2e-execute/evidence/scenario-{NN}-console.log",
+          "network_log_path": "Relative path tới phase9-e2e-execute/evidence/scenario-{NN}-network.json",
+          "dom_snapshot_path": "Relative path tới phase9-e2e-execute/evidence/scenario-{NN}-dom.html",
+          "evidence_complete": "boolean — true nếu strict-evidence check pass"
+        },
+        "cross_module": "boolean — true nếu scenario walk xuyên ≥2 modules (inherit từ manifest)",
+        "modules_visited[]": "Modules thực sự navigate trong execution (subset của modules_involved)",
+        "source_violation_id / source_invariant_id / source_dim / severity": "Inherit từ manifest cho cross-ref",
+        "failure_detail": "Object hoặc null. Populated khi execution_status=FAIL: {step_num, expected, actual, error_message, failure_type_hint?}",
+        "auto_fix_attempts[]": "Array các retry browser-fix trong Phase 9 (max 3): {attempt, strategy, outcome}",
+        "phase10_resolution_ref": "string hoặc null — populated bởi Phase 10 với resolution ID"
+      },
+      "summary": {
+        "n_total / n_executed / n_pass / n_fail / n_auto_corrected / n_quarantined / n_blocked": "Counter aggregates",
+        "n_cross_module": "Subset executed có cross_module=true",
+        "phase9_duration_ms": "Tổng wall-clock từ Step 9.1 đến Step 9.11",
+        "stable_registry_hit_count": "Số scenarios skip 5x pre-flight do hash match TTL <30d"
+      },
+      "audit_chain.source": "Path tới scenarios-manifest.json",
+      "audit_chain.checksum": "sha256 của artifact này (pre-finalize)"
+    }
+  },
+  "$schema": "e2e-results-v1",
+  "session_id": "{SESSION_ID}",
+  "lane_source": "CD41",
+  "generated_at": "{ISO_TIMESTAMP}",
+  "exec_mode": "browser",
+  "viewport": "desktop",
+  "scenarios": [],
+  "summary": {
+    "n_total": 0,
+    "n_executed": 0,
+    "n_pass": 0,
+    "n_fail": 0,
+    "n_auto_corrected": 0,
+    "n_quarantined": 0,
+    "n_blocked": 0,
+    "n_cross_module": 0,
+    "phase9_duration_ms": 0,
+    "stable_registry_hit_count": 0,
+    "top_failure_types": []
+  },
+  "environment": {
+    "playwright_available": false,
+    "playwright_version": "",
+    "fe_base_url": "",
+    "fe_running": false,
+    "be_health_status": "unknown",
+    "login_actor": "",
+    "login_role": "",
+    "browser_mcp_lock_acquired_at": null,
+    "browser_mcp_lock_released_at": null,
+    "strict_evidence": false
+  },
+  "audit_chain": {
+    "source": "{SCENARIOS_MANIFEST_PATH}",
+    "checksum": "{ARTIFACT_CHECKSUM}"
+  }
+}

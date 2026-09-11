@@ -1,0 +1,62 @@
+{
+  "$schema": "diagram-checkpoint-v1",
+  "_template_notes": "Checkpoint cho /wf-diagram --resume. Phase 0 dispatch logic đọc file này để route. Tất cả runtime values populate trong sessions/{id}/checkpoint.json — KHÔNG modify template gốc.",
+  "checkpoint_id": "{{CHECKPOINT_ID}}",
+  "session_id": "{{SESSION_ID}}",
+  "skill_version": "2.0.0",
+  "module": "{{MODULE}}",
+  "scope": "{{SCOPE}}",
+  "created_at": "{{CREATED_AT_ISO8601}}",
+  "updated_at": "{{UPDATED_AT_ISO8601}}",
+  "trigger": {
+    "reason": "context_limit",
+    "context_used_pct": null,
+    "phase_completed": null,
+    "notes": null
+  },
+  "phase_states": {
+    "phase_0": "pending",
+    "phase_1": "pending",
+    "phase_2": "pending",
+    "phase_3": "pending",
+    "phase_4": "pending",
+    "phase_5": "pending",
+    "phase_6": "pending",
+    "phase_7": "pending"
+  },
+  "intermediate_outputs": {
+    "analysis_json": null,
+    "system_files_done": [],
+    "module_files_done": [],
+    "states_done": [],
+    "activities_done": [],
+    "sequences_done": []
+  },
+  "next_action": {
+    "phase": null,
+    "step": null,
+    "context_needed": []
+  },
+  "args_snapshot": {
+    "module": "",
+    "source_path": ".",
+    "output_path": ".mc-data/docs/diagrams",
+    "scope": "full"
+  },
+  "resume_instructions": {
+    "command": "/wf-diagram --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-diagram/sessions/{{SESSION_ID}}/diagram-status.json",
+      ".mc-data/work/wf-diagram/sessions/{{SESSION_ID}}/checkpoint.json",
+      ".mc-data/work/wf-diagram/sessions/{{SESSION_ID}}/analysis.json"
+    ],
+    "context_recovery": [
+      "Đọc diagram-status.json để biết phase_states (overview)",
+      "Đọc checkpoint.json để biết next_action chi tiết",
+      "Đọc analysis.json để có dữ liệu source đã phân tích",
+      "Verify args_snapshot khớp với args hiện tại — nếu khác thì CDG hỏi user",
+      "Tiếp tục từ next_action.phase với step tương ứng"
+    ]
+  },
+  "notes": null
+}

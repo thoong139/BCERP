@@ -1,0 +1,122 @@
+{
+  "$schema": "lane-signals-v1",
+  "dimension_id": "QD7",
+  "fixture_version": "0.1.0",
+  "generated_at": "2026-05-08",
+  "description": "Expected signals for QD7 Phase 3 — wf-fix-probe-static-deprecated.sh (only live bash probe in QD7; covers 3 signal categories: deprecated_api, deprecated_css, deprecated_pkg). 4/5 audit-spec probes are SPEC_GAP (runtime-only or D15 broken heredoc).",
+  "live_probe": "P-QD7-deprecated-api-usage",
+  "spec_gap_probes": [
+    "P-QD7-browser-compat-check",
+    "P-QD7-api-version-compat",
+    "P-QD7-polyfill-coverage",
+    "P-QD7-device-breakpoint-test"
+  ],
+  "fingerprint_note": "D17: probe uses 6-token SHA256 input 'QD7|file|line|probe_id|signal_type|label' vs signal-emit.md 5-token spec. Format output is still sha256:<64-hex>.",
+  "signals": [
+    {
+      "id": "exp-qd7-001",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-01-deprecated-execcommand.tsx",
+      "match_pattern": "deprecated_api",
+      "fingerprint_format": "sha256:<64-hex> from 6-token 'QD7|file|line|probe_id|deprecated_api|document.execCommand(\\'copy\\')' (D17)",
+      "note": "document.execCommand('copy') on line with el.select() → HIGH deprecated_api. Regex: document\\.execCommand\\(\\s*['\"]copy['\"]. Replacement: navigator.clipboard.writeText"
+    },
+    {
+      "id": "exp-qd7-002",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-02-componentwillmount.tsx",
+      "match_pattern": "deprecated_api",
+      "fingerprint_format": "sha256:<64-hex> from 6-token 'QD7|file|line|probe_id|deprecated_api|componentWillMount' (D17)",
+      "note": "componentWillMount() React class lifecycle → HIGH deprecated_api. Regex: componentWillMount\\b. Replacement: useEffect or componentDidMount"
+    },
+    {
+      "id": "exp-qd7-003",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": "low",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-03-zoom-css.css",
+      "match_pattern": "deprecated_css",
+      "fingerprint_format": "sha256:<64-hex> from 6-token 'QD7|file|line|probe_id|deprecated_css|zoom CSS' (D17)",
+      "note": "zoom: 1.5 CSS property (at least 1 match) → LOW deprecated_css. Regex: ^[[:space:]]*zoom[[:space:]]*:. Replacement: transform: scale()"
+    },
+    {
+      "id": "exp-qd7-004",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": "critical",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-04-new-buffer.ts",
+      "match_pattern": "deprecated_api",
+      "fingerprint_format": "sha256:<64-hex> from 6-token 'QD7|file|line|probe_id|deprecated_api|new Buffer()' (D17)",
+      "note": "new Buffer(data) Node.js API → CRITICAL deprecated_api (uninitialized memory risk). Regex: new Buffer\\(. Replacement: Buffer.alloc / Buffer.from"
+    },
+    {
+      "id": "exp-qd7-005",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": "medium",
+      "expected_type": "live_detectable",
+      "source_file": "positive/package.json",
+      "match_pattern": "deprecated_pkg",
+      "fingerprint_format": "sha256:<64-hex> from 6-token 'QD7|package.json|0|probe_id|deprecated_pkg|moment' (D17)",
+      "note": "moment package in dependencies → MEDIUM deprecated_pkg. cdg_flags: ['CDG-DEPS-DOWN'] (D10). Replacement: date-fns or dayjs"
+    },
+    {
+      "id": "exp-qd7-006",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-01-modern-clipboard.ts",
+      "match_pattern": null,
+      "note": "TN-QD7-001: uses navigator.clipboard.writeText — no document.execCommand pattern → 0 deprecated_api signals from this file"
+    },
+    {
+      "id": "exp-qd7-007",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-02-modern-hooks.tsx",
+      "match_pattern": null,
+      "note": "TN-QD7-002: uses useEffect hook — no componentWillMount/componentWillReceiveProps/componentWillUpdate pattern → 0 deprecated_api signals"
+    },
+    {
+      "id": "exp-qd7-008",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-03-transform-css.css",
+      "match_pattern": null,
+      "note": "TN-QD7-003: uses transform: scale() — no zoom: CSS property pattern → 0 deprecated_css signals. overflow-wrap: anywhere (not word-break: break-word) → 0 additional signals"
+    },
+    {
+      "id": "exp-qd7-009",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-04-buffer-alloc.ts",
+      "match_pattern": null,
+      "note": "TN-QD7-004: uses Buffer.alloc() and Buffer.from() — no new Buffer( pattern → 0 deprecated_api signals"
+    },
+    {
+      "id": "exp-qd7-010",
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/package.json",
+      "match_pattern": null,
+      "note": "TN-QD7-005: negative/package.json uses date-fns + axios — neither is in deprecated packages list (moment/request/node-uuid/jade/babel-preset-es2015/tslint/core-js@2) → 0 deprecated_pkg signals"
+    }
+  ]
+}

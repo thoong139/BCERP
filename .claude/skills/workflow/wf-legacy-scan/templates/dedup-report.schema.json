@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "legacy-scan-dedup-report-v1",
+  "title": "Dedup Report",
+  "description": "Reference schema cho dedup-report.json (owner: /wf-legacy-extract Stage 3.5, path: .mc-data/work/legacy-scan/extracted/dedup-report.json). Template nay chi la schema reference — wf-legacy-extract own runtime population.",
+  "type": "object",
+  "required": ["duplicates_merged", "total_candidates", "strategy"],
+  "properties": {
+    "duplicates_merged": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "So entries bi merge do trung lap sau dedup pass"
+    },
+    "total_candidates": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tong so requirements/features candidate vao dedup"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": ["exact_match", "fuzzy_levenshtein", "semantic_embedding"],
+      "description": "Dedup strategy applied"
+    },
+    "threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "merge_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["merged_id", "kept_id", "similarity"],
+        "properties": {
+          "merged_id": { "type": "string" },
+          "kept_id": { "type": "string" },
+          "similarity": { "type": "number" }
+        }
+      }
+    }
+  }
+}

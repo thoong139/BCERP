@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory-doc-files-v1",
+  "title": "Inventory: Documentation Files",
+  "description": "Documentation files (md, txt, pdf, docx, v.v.) detected during legacy scan Stage 1. Output: .mc-data/work/legacy-scan/inventory/doc-files.json",
+  "type": "object",
+  "required": ["count", "items"],
+  "properties": {
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng số doc files"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "name", "size_bytes"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path từ project root"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tên file"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Kích thước file tính bằng bytes"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "fix-workload-v1",
+  "_template_notes": "Skeleton tu Phase A.6 — schema canonical tu 04-data-model.md §8. DEFERRED v5.1 implementation, pre-wire skeleton o v5.0.",
+  "workload_id": "{{WORKLOAD_ID}}",
+  "skill": "wf-legacy-scan",
+  "strategy": "by-module",
+  "target_scope": {
+    "project_path": "{{PROJECT_PATH}}"
+  },
+  "dims": null,
+  "profile": "deep",
+  "created_by": "{{CREATED_BY}}",
+  "created_at": "{{CREATED_AT_ISO8601}}",
+  "chunks": [
+    {
+      "chunk_id": "{{CHUNK_ID}}",
+      "label": "{{CHUNK_LABEL}}",
+      "scope": {
+        "modules": []
+      },
+      "est_time_minutes": 0,
+      "dependencies": [],
+      "status": "pending",
+      "assigned_to": null,
+      "session_dir": null,
+      "started_at": null,
+      "completed_at": null,
+      "output_hash": null
+    }
+  ],
+  "chunk_state_machine": {
+    "states": ["pending", "in_progress", "done", "failed", "stale"],
+    "transitions": [
+      "pending -> in_progress (acquire lock)",
+      "in_progress -> done",
+      "in_progress -> failed (retry or escalate)",
+      "in_progress -> stale (timeout 2x est_time — release for pick)"
+    ]
+  },
+  "aggregate": {
+    "status": "pending",
+    "started_at": null,
+    "completed_at": null,
+    "output_dir": null
+  },
+  "coverage_target": "100%",
+  "dedup_key_strategy": "tmp_req_hash_v1"
+}

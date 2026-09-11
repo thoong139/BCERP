@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "evals-v1",
+  "title": "MCV3 Eval Test Cases",
+  "description": "Schema cho evals.json files — test cases cho moi skill",
+  "type": "object",
+  "required": ["skill_name", "evals"],
+  "additionalProperties": false,
+  "properties": {
+    "skill_name": {
+      "type": "string",
+      "description": "Skill name matching SKILL.md"
+    },
+    "evals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/evalCase"
+      }
+    }
+  },
+  "$defs": {
+    "evalCase": {
+      "type": "object",
+      "required": ["id", "prompt", "expected_output"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prompt": {
+          "type": "string",
+          "description": "Input prompt to test"
+        },
+        "expected_output": {
+          "type": "string",
+          "description": "Expected behavior description"
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assertion"
+          },
+          "description": "Assertions to verify"
+        },
+        "expectations": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Expected behaviors (alternative to assertions)"
+        },
+        "files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files needed for this test case"
+        }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "required": ["text", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "What to check"
+        },
+        "type": {
+          "type": "string",
+          "description": "Assertion type"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,336 @@
+{
+  "skill_name": "audit-devkit-fix",
+  "skill_version": "1.3.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "TC1-live-fix-all",
+      "prompt": "/audit-devkit-fix — auto-fix verified findings với per-fix verification loop, chạy live mode với severity=ALL",
+      "expected_output": "Reads audit-verified-result.json + audit-index.json. Filters AUTO findings, sorts by dependency order. For each fix: Read → Edit → Grep verify (old gone, new exists, cross-ref check). If verify fail → Revert to original. Creates fix-log.json with per-fix status (FIXED_VERIFIED/REVERTED/SKIPPED). Creates fix-status.json. Runs targeted re-scan on changed files via agents. Computes post-fix verdict. Creates NEW report at audit-devkit-fix/reports/ (NOT edits verify's report). Writes Execution Trace COMPLETE + Phase Summary.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-fix/[session]/fix-log.json is created with $schema: 'fix-log-v1'"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-fix/[session]/fix-status.json is created with status: 'completed'"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] has status: FIXED_VERIFIED or REVERTED or SKIPPED for each finding"
+        },
+        {
+          "type": "file_content",
+          "text": "Each fix in fixes[] has verify_steps[] array with check results"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json summary.fixed_verified + reverted + skipped + dry_run = summary.attempted"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json has verdict_pre_fix and verdict_post_fix fields"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json post_fix_counts reflects actual remaining findings after fix"
+        },
+        {
+          "type": "file_content",
+          "text": "Manual findings are listed in manual_issues[] not in fixes[]"
+        },
+        {
+          "type": "behavior",
+          "text": "Re-scan agents spawned for FIXED_VERIFIED files only (not REVERTED/SKIPPED)"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-fix/reports/devkit-audit-fix-[date].md created (NEW report, NOT in verify directory)"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-fix/[session]/phase-summary.md exists (Protocol §14)"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-status.json updated to status: 'completed' at end"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "TC2-dry-run",
+      "prompt": "/audit-devkit-fix --dry-run — chạy dry-run mode, không thực sự Edit files",
+      "expected_output": "Loads verified findings, sorts by dependency order. For each fix: Read file, log fix proposal, status=DRY_RUN — KHÔNG Edit file. All files remain unchanged. fix-log.json has mode: 'dry-run'. All fixes have status: 'DRY_RUN'. No re-scan agents spawned (no changed files). Summary shows 0 fixed_verified, all dry_run.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "fix-log.json has mode: 'dry-run'"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] all have status: 'DRY_RUN'"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json summary.dry_run equals summary.attempted"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json summary.fixed_verified = 0"
+        },
+        {
+          "type": "behavior",
+          "text": "No .claude/ files are modified (all changes are proposals only)"
+        },
+        {
+          "type": "behavior",
+          "text": "No re-scan agents spawned"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-status.json has mode: 'dry-run'"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "TC3-critical-only",
+      "prompt": "/audit-devkit-fix --severity=CRITICAL — chỉ fix findings có severity CRITICAL, skip MAJOR và MINOR",
+      "expected_output": "Loads verified findings, filters chỉ CRITICAL findings (skip MAJOR/MINOR). Fix queue chỉ chứa CRITICAL items. Per-fix verification loop runs for CRITICAL findings only. fix-log.json severity_filter: 'CRITICAL'. post_fix_counts reflects CRITICAL reduced, MAJOR/MINOR unchanged.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "fix-log.json has severity_filter: 'CRITICAL'"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] chỉ contains findings with severity: 'CRITICAL'"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json post_fix_counts.critical reflects only CRITICAL fixes applied"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json post_fix_counts.major unchanged from original"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json post_fix_counts.minor unchanged from original"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-status.json severity_filter: 'CRITICAL'"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "TC4-resume",
+      "prompt": "/audit-devkit-fix --resume — tiếp tục từ checkpoint khi session trước bị gián đoạn giữa Phase 1",
+      "expected_output": "Reads fix-status.json, identifies processed findings. Loads partial fix-log.json. Continues from next unprocessed finding in fix_queue. Does not re-run completed fixes. Final fix-log includes both old and new fix entries.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Skill reads .mc-data/work/audit-devkit-fix/[session]/fix-status.json to determine progress"
+        },
+        {
+          "type": "behavior",
+          "text": "Already-processed findings (in partial fix-log.json) are NOT re-run"
+        },
+        {
+          "type": "file_content",
+          "text": "Fix continues from next unprocessed finding in queue"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-status.json is updated progressively as fixes complete"
+        },
+        {
+          "type": "file_content",
+          "text": "Final fix-log.json includes entries from both previous and current session"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-status.json updated to status: 'completed' at end"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "TC5-pregate-fail",
+      "prompt": "/audit-devkit-fix — chạy nhưng verified prerequisites không tồn tại (audit-verified-result.json missing)",
+      "expected_output": "PRE-GATE fails. Stops immediately. Hiển thị error E001: 'PRE-GATE fail — audit-verified-result.json không tồn tại. STOP — chạy /audit-devkit-verify trước.' Không tạo fix-log.json. Không tiếp tục phases.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Skill detects missing audit-verified-result.json during Phase 0 PRE-GATE"
+        },
+        {
+          "type": "file_content",
+          "text": "Error E001 is displayed to user with clear instruction to run /audit-devkit-verify first"
+        },
+        {
+          "type": "behavior",
+          "text": "No fix-log.json created"
+        },
+        {
+          "type": "behavior",
+          "text": "Skill does NOT attempt to continue to Phase 1 or later phases"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "TC6-revert-on-verify-fail",
+      "prompt": "/audit-devkit-fix — fix 1 finding nhưng verify step 3b phát hiện new_value KHÔNG tồn tại sau edit",
+      "expected_output": "Phase 1 per-fix loop: Read original → Edit → Verify FAIL (new_value not found) → Revert file về original_content → Verify revert thành công → Log status=REVERTED với reason='new_value not found after edit' → Move finding sang manual_issues[]. Fix-log has 1 REVERTED entry. fix-status updated. File content unchanged so file is NOT included in re-scan.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Original file content is saved before edit attempt"
+        },
+        {
+          "type": "behavior",
+          "text": "File is reverted to original content after verify failure"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] has entry with status: 'REVERTED' and reason field"
+        },
+        {
+          "type": "file_content",
+          "text": "Finding is moved to manual_issues[] array"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json summary.reverted = 1, summary.fixed_verified = 0"
+        },
+        {
+          "type": "behavior",
+          "text": "REVERTED file is NOT included in Phase 2 re-scan (only FIXED_VERIFIED files)"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "TC7-rescan-regression",
+      "prompt": "/audit-devkit-fix — fix 3 findings thành công, nhưng Phase 2 re-scan phát hiện 1 regression (new finding introduced by fix)",
+      "expected_output": "Phase 1: 3 findings FIXED_VERIFIED. Phase 2: re-scan agents spawned cho 3 changed files. Agent reports 1 new finding not in original scan → tagged as regression. fix-log.json regressions[] has 1 entry. Phase 3 report includes regression WARNING. fix-status.json completed. User được hiển thị regression detail.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Re-scan agents are spawned for FIXED_VERIFIED files only"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json regressions[] has 1 entry with source: 'post-fix-rescan'"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json summary.regressions_detected = 1"
+        },
+        {
+          "type": "behavior",
+          "text": "Regression is logged as WARNING but NOT reverted (per E012)"
+        },
+        {
+          "type": "file_content",
+          "text": "Report displays regression details for user review"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "TC8-E004-revert-fail",
+      "prompt": "/audit-devkit-fix — fix finding nhưng revert fails (file bị lock hoặc content không thể restore)",
+      "expected_output": "Phase 1: Read → Edit → Verify FAIL → Attempt revert → Revert FAIL. CRITICAL WARNING E004 triggered. STOP processing file này. Log CRITICAL warning với file path + original content. Finding stays in current (broken) state. fix-log records the failure. User must manually inspect.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "E004 CRITICAL WARNING is triggered when revert fails"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log documents the revert failure with file path and reason"
+        },
+        {
+          "type": "behavior",
+          "text": "Skill stops processing the affected file after E004"
+        },
+        {
+          "type": "behavior",
+          "text": "Other findings in queue may still be processed (unless user intervenes)"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "TC9-false-positive-skip",
+      "prompt": "/audit-devkit-fix — Phase 1 phát hiện finding là false positive (file already has correct content, scan used stale data)",
+      "expected_output": "Phase 1 per-fix loop: Read file → Grep old_value → old_value NOT found in file (already fixed). Status=SKIPPED với reason='stale: old_value not present'. Fix-log has SKIPPED entry. File not included in re-scan. No edit performed.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Skill reads file and checks if old_value still exists before attempting fix"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] has entry with status: 'SKIPPED'"
+        },
+        {
+          "type": "behavior",
+          "text": "No Edit operation is performed on the file"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json summary.skipped = 1"
+        },
+        {
+          "type": "behavior",
+          "text": "SKIPPED file is NOT included in Phase 2 re-scan"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "TC10-additive-edit-verify",
+      "prompt": "/audit-devkit-fix — fix ADDITIVE finding (e.g., FP2: thêm context_digest vào checkpoint-schema.json). Verify must NOT check that old_value is gone.",
+      "expected_output": "Phase 1: Read → Edit (additive) → Verify 3a SKIPPED (ADDITIVE edit_type, old_value is context kept intact) → Verify 3b: Grep new_value → found ✓ → Verify 3d: SKIP (STRUCTURAL) → PASS → status=FIXED_VERIFIED. fix-log verify_steps[] shows step 3a was skipped for ADDITIVE.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Verify step 3a (Grep old_value = 0) is SKIPPED for ADDITIVE edits"
+        },
+        {
+          "type": "behavior",
+          "text": "Verify step 3b (Grep new_value ≥ 1) still runs for ADDITIVE edits"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] has verify_steps[] showing 3a was not applied or skipped"
+        },
+        {
+          "type": "file_content",
+          "text": "fix-log.json fixes[] entry has status: 'FIXED_VERIFIED'"
+        },
+        {
+          "type": "behavior",
+          "text": "Original context around the additive insertion is preserved intact"
+        }
+      ]
+    }
+  ]
+}

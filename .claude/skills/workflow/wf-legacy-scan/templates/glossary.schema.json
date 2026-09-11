@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "legacy-scan-glossary-v1",
+  "title": "Classified Glossary",
+  "description": "Reference schema cho classified/glossary.json (owner: /wf-legacy-classify Phase 2). Glossary la map term → definition + metadata. POST-GATE Phase 2 T3.10 check `length > 0` coi glossary la OBJECT-with-keys.",
+  "type": "object",
+  "additionalProperties": {
+    "type": "object",
+    "description": "Key = term (normalized lowercase-kebab-case). Value = definition entry.",
+    "required": ["definition", "source"],
+    "properties": {
+      "definition": { "type": "string", "minLength": 10 },
+      "source": {
+        "type": "string",
+        "enum": ["code", "docs", "comments", "ai_inferred"]
+      },
+      "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+      "domain": { "type": "string" },
+      "aliases": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "occurrences": { "type": "integer", "minimum": 1 }
+    }
+  }
+}

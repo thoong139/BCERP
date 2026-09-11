@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aggregation-result-v1",
+  "title": "Aggregation Result",
+  "description": "Schema cho kết quả aggregation từ nhiều lanes",
+  "type": "object",
+  "required": ["total_input", "total_output", "duplicates", "conflicts", "items"],
+  "properties": {
+    "total_input": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng items đầu vào"
+    },
+    "total_output": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng items sau dedup"
+    },
+    "duplicates": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Số items bị loại do duplicate"
+    },
+    "conflicts": {
+      "type": "array",
+      "description": "Danh sách conflicts",
+      "items": {
+        "type": "object",
+        "required": ["key", "sources", "items"],
+        "properties": {
+          "key": { "type": "string" },
+          "sources": { "type": "array", "items": { "type": "string" } },
+          "items": { "type": "array", "items": { "type": "object" } }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "description": "Items cuối cùng sau dedup",
+      "items": { "type": "object" }
+    }
+  }
+}

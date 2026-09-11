@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory-source-files-v1",
+  "title": "Inventory: Source Files",
+  "description": "Source code files detected during legacy scan Stage 1. Output: .mc-data/work/legacy-scan/inventory/source-files.json. Empty array khi maturity == DOCS_ONLY.",
+  "type": "object",
+  "required": ["count", "items"],
+  "properties": {
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng số source files. 0 khi DOCS_ONLY maturity."
+    },
+    "items": {
+      "type": "array",
+      "description": "Empty khi maturity == DOCS_ONLY",
+      "items": {
+        "type": "object",
+        "required": ["path", "name", "extension", "size_bytes", "last_modified"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path từ project root"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tên file"
+          },
+          "extension": {
+            "type": "string",
+            "description": "File extension không có dấu chấm — vd: ts, js, py, cs, go, java"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Kích thước file tính bằng bytes"
+          },
+          "last_modified": {
+            "type": "integer",
+            "description": "Unix timestamp lần sửa cuối"
+          }
+        }
+      }
+    }
+  }
+}

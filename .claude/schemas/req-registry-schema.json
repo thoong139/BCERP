@@ -1,0 +1,269 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "req-registry-schema-v1",
+  "title": "MCV3 Requirement Registry Schema v1",
+  "description": "Schema cho req-registry.json — nguồn chân lý duy nhất của mọi REQ-ID, FEAT-ID và trạng thái triển khai. Version 1.1 bổ sung cross_module_dependencies[] cho QD10 integration analysis.",
+  "type": "object",
+  "required": ["schema_version", "project", "interface_type"],
+  "additionalProperties": true,
+
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "description": "Registry schema version (e.g. req-registry-v1)",
+      "examples": ["req-registry-v1"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Registry data version (semantic, e.g. 1.1)"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "ISO 8601 timestamp khi registry được generate"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Skill + phase tạo registry (e.g. wf-analyze-requirements@phase8)"
+    },
+    "project_type": {
+      "type": "string",
+      "enum": ["new", "legacy", "existing"],
+      "description": "Loại dự án"
+    },
+    "legacy_mode": {
+      "type": "boolean",
+      "description": "true nếu dự án được scan bằng wf-legacy-scan"
+    },
+    "scan_strategy": {
+      "type": "string",
+      "description": "Legacy scan strategy (S1-S6)"
+    },
+    "id_format": {
+      "type": "object",
+      "description": "Convention cho các ID types",
+      "additionalProperties": true,
+      "properties": {
+        "req": { "type": "string" },
+        "feat": { "type": "string" },
+        "module": { "type": "string" },
+        "system": { "type": "string" },
+        "department": { "type": "string" }
+      }
+    },
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "description": "Thông tin cơ bản của dự án",
+      "properties": {
+        "name": { "type": "string" },
+        "name_short": { "type": "string" },
+        "company": { "type": "string" },
+        "industry": { "type": "string" },
+        "company_size": { "type": "string", "enum": ["startup", "small", "mid-size", "enterprise"] },
+        "company_size_range": { "type": "string" },
+        "business_model": { "type": "string" },
+        "project_complexity": { "type": "string", "enum": ["SIMPLE", "STANDARD", "ENTERPRISE"] },
+        "phase": { "type": "string" }
+      }
+    },
+    "interface_type": {
+      "type": "string",
+      "description": "Loại giao diện dự án",
+      "examples": ["web", "mobile", "api-only", "web+mobile", "web+mobile+api"]
+    },
+    "departments": {
+      "type": "array",
+      "description": "Danh sách phòng ban nghiệp vụ",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "pattern": "^DEPT-" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "active": { "type": "boolean" },
+          "modules": { "type": "array", "items": { "type": "string" } },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "systems": {
+      "type": "array",
+      "description": "Danh sách systems/apps trong dự án",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "pattern": "^SYS-" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "app_path": { "type": "string" },
+          "type": { "type": "string", "enum": ["web", "mobile", "api-only", "desktop", "embedded"] },
+          "tech_stack": { "type": "string" },
+          "status": { "type": "string", "enum": ["active", "deprecated", "planned"] },
+          "completion_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+          "impl_strategy": { "type": "string" },
+          "phase": { "type": "string" },
+          "user_roles": { "type": "array", "items": { "type": "string" } },
+          "touchpoints": { "type": "array", "items": { "type": "string" } },
+          "related_departments": { "type": "array", "items": { "type": "string" } },
+          "module_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "modules": {
+      "type": "array",
+      "description": "Danh sách modules nghiệp vụ",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "pattern": "^MOD-" },
+          "name": { "type": "string" },
+          "name_en": { "type": "string" },
+          "slug": { "type": "string" },
+          "system_id": { "type": "string" },
+          "department_ids": { "type": "array", "items": { "type": "string" } },
+          "phase": { "type": "string" },
+          "priority": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+          "status": { "type": "string" },
+          "completion_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+          "impl_strategy": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "requirements": {
+      "type": "array",
+      "description": "Danh sách REQ-IDs",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "pattern": "^REQ-" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "module_id": { "type": "string" },
+          "department_id": { "type": "string" },
+          "priority": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+          "impl_status": {
+            "type": "string",
+            "enum": ["not_started", "in_progress", "done", "skipped"],
+            "description": "CORE-010: 4 giá trị hợp lệ. KHÔNG downgrade từ done → giá trị khác (CORE-008)"
+          },
+          "feature_ids": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "features": {
+      "type": "array",
+      "description": "Danh sách FEAT-IDs",
+      "items": {
+        "type": "object",
+        "required": ["id"],
+        "additionalProperties": true,
+        "properties": {
+          "id": { "type": "string", "pattern": "^FEAT-" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "req_ids": { "type": "array", "items": { "type": "string" } },
+          "module_id": { "type": "string" },
+          "impl_status": {
+            "type": "string",
+            "enum": ["not_started", "in_progress", "done", "skipped"]
+          },
+          "priority": { "type": "string", "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "cross_module_dependencies": {
+      "type": "array",
+      "description": "SCHEMA BUMP v1.1 — Cross-module dependencies cho QD10 integration analysis (wf-fix-bugs v9). Mỗi entry mô tả quan hệ consumer→provider cho một entity cụ thể.",
+      "items": {
+        "type": "object",
+        "required": ["id", "consumer_module", "provider_module", "entity", "binding_type"],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID duy nhất cho dependency (e.g. DEP-CRM-QUO-001)",
+            "pattern": "^DEP-"
+          },
+          "consumer_module": {
+            "type": "string",
+            "description": "Module tiêu thụ dữ liệu (e.g. MOD-QUOTATION)",
+            "pattern": "^MOD-"
+          },
+          "provider_module": {
+            "type": "string",
+            "description": "Module cung cấp dữ liệu (e.g. MOD-CRM)",
+            "pattern": "^MOD-"
+          },
+          "entity": {
+            "type": "string",
+            "description": "Entity được chia sẻ (e.g. Customer, Product)"
+          },
+          "binding_type": {
+            "type": "string",
+            "enum": ["foreign_key", "api", "event", "denormalized_copy"],
+            "description": "Cơ chế liên kết: foreign_key (DB JOIN), api (REST/GraphQL call), event (event-driven), denormalized_copy (data copied)"
+          },
+          "required_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Fields BẮT BUỘC consumer phải tiêu thụ từ provider"
+          },
+          "optional_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Fields TÙY CHỌN consumer có thể dùng"
+          },
+          "lifecycle_rules": {
+            "type": "object",
+            "description": "Quy tắc lifecycle khi provider thay đổi",
+            "additionalProperties": true,
+            "properties": {
+              "on_provider_delete": {
+                "type": "string",
+                "description": "Hành động khi provider entity bị xóa (e.g. cascade, set_null, restrict, notify)"
+              },
+              "on_provider_update": {
+                "type": "string",
+                "description": "Hành động khi provider entity được cập nhật (e.g. sync_immediately, sync_async, read_through)"
+              }
+            }
+          },
+          "events_subscribed": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Event names consumer subscribe từ provider (dùng khi binding_type=event)"
+          },
+          "consumer_features": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "FEAT-IDs trong consumer module sử dụng dependency này"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Ghi chú thêm về dependency"
+          }
+        }
+      }
+    }
+  },
+
+  "$defs": {
+    "impl_status": {
+      "type": "string",
+      "enum": ["not_started", "in_progress", "done", "skipped"],
+      "description": "CORE-010: 4 giá trị hợp lệ. KHÔNG downgrade từ done (CORE-008)"
+    }
+  }
+}

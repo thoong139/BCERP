@@ -1,0 +1,31 @@
+{
+  "$schema": "id-mapping-v1",
+  "_template_notes": [
+    "Template cho id-mapping.json — bridge giữa 3 ID schemes trong wf-fix-bugs session (Wave 3 G4).",
+    "Sinh bởi build-id-mapping.sh — input: issue-registry.json + fix-plan.md + fix-report.md.",
+    "Logic match: title fuzzy + severity + dimension + file path → assign canonical_id = registry_id (most stable).",
+    "Strip _template_notes + _schema_notes khi populate (CORE-031)."
+  ],
+  "_schema_notes": {
+    "canonical_id": "ID chuẩn để cross-reference giữa skills (= registry_id)",
+    "registry_id": "ID từ issue-registry.json (QDx-XX-NNN hoặc SIG-QDx-NNN)",
+    "plan_id": "ID từ fix-plan.md (ISS-YYYYMMDD-NNN); null nếu không có row tương ứng",
+    "report_id": "ID từ fix-report.md (ISS-NNN hoặc ISS-YYYYMMDD-NNN); null nếu không match",
+    "unmapped": "true nếu registry issue không match được plan hoặc report",
+    "match_method": "file_path | title_fuzzy | severity_dim | unmapped"
+  },
+  "session_id": "<SESSION_ID>",
+  "generated_at": "<ISO_TIMESTAMP>",
+  "source_files": {
+    "registry": "phase5-triage/issue-registry.json",
+    "plan": "phase5-triage/fix-plan.md",
+    "report": "phase6-execute/fix-report.md"
+  },
+  "summary": {
+    "total_registry": 0,
+    "matched_to_plan": 0,
+    "matched_to_report": 0,
+    "unmapped_count": 0
+  },
+  "mappings": []
+}

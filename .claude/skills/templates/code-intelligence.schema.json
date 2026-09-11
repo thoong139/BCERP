@@ -1,0 +1,100 @@
+{
+  "$schema": "code-intelligence-v2",
+  "title": "Code Intelligence Cache Schema",
+  "description": "Cache schema cho kết quả detection GitNexus + Serena. v2: per-tool checked_at + ttl_hours + index_commit + repo. schema_version dùng cho auto-migration detection.",
+  "type": "object",
+  "required": ["gitnexus", "serena", "scanned_at", "schema_version"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "description": "Cache schema version. v1=no per-tool TTL, v2=per-tool checked_at+ttl_hours+index_commit+repo. Used for auto-migration detection (F26)."
+    },
+    "gitnexus": {
+      "type": "object",
+      "required": ["available", "checked_at", "ttl_hours"],
+      "description": "GitNexus code intelligence tool (graph-based code analysis)",
+      "properties": {
+        "available": {
+          "type": "boolean",
+          "description": "GitNexus có available trên project này không (indexed + repo matched)"
+        },
+        "repo": {
+          "type": "string",
+          "description": "GitNexus repo name matching this project. Resolved via git remote get-url origin → match gitnexus_list_repos(). Dùng cho mọi gitnexus_*() calls sau này."
+        },
+        "symbols": {
+          "type": "integer",
+          "description": "Total indexed symbols (from gitnexus context or 0 if unavailable)"
+        },
+        "relationships": {
+          "type": "integer",
+          "description": "Total indexed relationships (from gitnexus context or 0 if unavailable)"
+        },
+        "execution_flows": {
+          "type": "integer",
+          "description": "Total execution flows (from gitnexus context or 0 if unavailable)"
+        },
+        "index_commit": {
+          "type": "string",
+          "description": "Git SHA của commit mà index dựa trên. Dùng cho freshness check (git rev-list --count index_commit..HEAD)."
+        },
+        "indexed_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Thời điểm GitNexus index được tạo (ISO 8601)"
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Lần cuối check availability (ISO 8601). Dùng cho per-tool TTL check."
+        },
+        "ttl_hours": {
+          "type": "integer",
+          "default": 24,
+          "description": "TTL in hours. 24 nếu available=true, 4 nếu available=false. Pure bash integer arithmetic (no bc)."
+        }
+      }
+    },
+    "serena": {
+      "type": "object",
+      "required": ["available", "checked_at", "ttl_hours"],
+      "description": "Serena LSP code intelligence tool (IDE-based symbol analysis)",
+      "properties": {
+        "available": {
+          "type": "boolean",
+          "description": "Serena có available trên project này không (onboarded + languages supported)"
+        },
+        "onboarded": {
+          "type": "boolean",
+          "description": "Serena onboarding đã hoàn tất (check_onboarding_performed returned true)"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Programming languages detected/supported by Serena LSP (e.g., ['csharp', 'typescript'])"
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Lần cuối check availability (ISO 8601). Dùng cho per-tool TTL check."
+        },
+        "ttl_hours": {
+          "type": "integer",
+          "default": 24,
+          "description": "TTL in hours. 24 nếu available=true, 1 nếu available=false."
+        }
+      }
+    },
+    "scanned_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Thời điểm cache được tạo/cập nhật (ISO 8601)"
+    },
+    "scan_duration_ms": {
+      "type": "integer",
+      "description": "Thời gian hoàn tất detection scan (milliseconds)"
+    }
+  }
+}

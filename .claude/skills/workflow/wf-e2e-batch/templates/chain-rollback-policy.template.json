@@ -1,0 +1,18 @@
+{
+  "$schema": "chain-rollback-policy-v1",
+  "_template_notes": "Populate tất cả placeholders. Xóa _template_notes khi output (CORE-031).",
+  "batch_id": "{batch_id}",
+  "decisions": [
+    {
+      "feat_b": "{dependent feat — feat bị fail}",
+      "feat_a": "{upstream feat — feat được depend}",
+      "dependency_type": "feat-to-feat",
+      "blocking_level": "hard | soft",
+      "min_completion": "test_passed | impl_done",
+      "feat_b_status": "failed",
+      "policy_applied": "MARK_A_SUSPECT | CONTINUE_A_STANDALONE | ROLLBACK_A",
+      "justification": "{giải thích tại sao chọn policy này}",
+      "executed_at": "{ISO-8601}"
+    }
+  ]
+}

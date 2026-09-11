@@ -1,0 +1,53 @@
+{
+  "_template_notes": "phase4-summary.json — Cross-lane rollup machine-readable cho downstream phases (5/6/7). Schema: phase4-summary-v1. Written by orchestrator script generate-phase4-report.sh (1 writer, CORE-025). STRIP _template_notes + _schema_notes trước khi write. Path: $SESSION_DIR/phase4-find-bugs/phase4-summary.json. Audit chain: sha256 của signals.json + lane-status.json (CORE-036).",
+  "_schema_notes": "Required: $schema, session_id, started_at, completed_at, dimensions[], aggregated. dimensions[].* trùng lane-status fields + breakdown. aggregated.by_severity keys = {critical,high,medium,low,info}. aggregated.by_fixability keys = {auto_fix,agent_fix,escalate,skip}. registry_coverage maps id→signal_count. cdg_decisions ghi structured E090/E090b accept/reject. evidence_index list tất cả files cross-lane (path tương đối từ $SESSION_DIR/phase4-find-bugs). audit_chain.signals_sha256 = sha256 sorted-concat của tất cả signals.json files.",
+  "$schema": "phase4-summary-v1",
+  "session_id": "[SESSION_ID]",
+  "phase": "phase4-find-bugs",
+  "status": "[STATUS_PASS_FAIL]",
+  "started_at": "[STARTED_AT]",
+  "completed_at": "[COMPLETED_AT]",
+  "duration_seconds": 0,
+  "profile": "[PROFILE]",
+  "scope": "[SCOPE]",
+  "interface_type": "[INTERFACE_TYPE]",
+  "playwright_used_count": 0,
+  "dimensions": [],
+  "aggregated": {
+    "total_signals": 0,
+    "by_source": {
+      "static": 0,
+      "runtime": 0,
+      "llm": 0
+    },
+    "by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "info": 0
+    },
+    "by_fixability": {
+      "auto_fix": 0,
+      "agent_fix": 0,
+      "escalate": 0,
+      "skip": 0
+    },
+    "by_dimension": {},
+    "by_probe": {},
+    "top_fingerprints": [],
+    "probe_failures_total": 0
+  },
+  "registry_coverage": {
+    "req_ids": {},
+    "feat_ids": {},
+    "module_ids": {}
+  },
+  "cdg_decisions": [],
+  "evidence_index": [],
+  "audit_chain": {
+    "signals_sha256": "",
+    "lane_status_sha256": "",
+    "generated_by": "scripts/wf-fix-bugs/generate-phase4-report.sh"
+  }
+}

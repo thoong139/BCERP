@@ -1,0 +1,12 @@
+{
+  "$schema": "signal-v2",
+  "_template_notes": "lane-signals.json — Per-dimension signal output. Schema: signal-v2. 1 file = 1 scan_type (static-scan, runtime, or llm-scan). Written by lane agent probes. STRIP _template_notes/_schema_notes before writing.",
+  "_schema_notes": "signal required fields: id, dimension_id, probe_id, severity, fixability, title, location.file, fingerprint, detected_at. severity ∈ {critical,high,medium,low,info}. fixability ∈ {auto_fix,agent_fix,escalate,skip}.",
+  "dimension_id": "{{DIM_ID}}",
+  "dimension_name": "{{DIM_NAME}}",
+  "scan_type": "{{SCAN_TYPE}}",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "agent_id": "{{AGENT_ID}}",
+  "signals": []
+}

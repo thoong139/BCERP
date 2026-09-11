@@ -1,0 +1,224 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-add-scope",
+  "version": "3.0.0",
+  "phase": "multi",
+  "description": "Incremental scope addition — safe-append modules + features vào registry đã có. v3.0.0: session isolation (sessions/{YYYY-MM-DD}-{sys-slug}/), dual lock (session lock + registry lock), heartbeat daemon, JSONL index, scope-impact.json cross-skill artifact, bash delegation (12 scripts, 76% token saving), v2→v3 migration. Giải quyết gap: wf-analyze-requirements và wf-define-features không có path incremental cho dự án đã active.",
+  "procedure": "procedures/phase0-context.md",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/session-init.md",
+    "procedures/resume-routing.md",
+    "procedures/phase0-context.md",
+    "procedures/phase1-scope.md",
+    "procedures/phase2-stubs.md",
+    "procedures/phase3-dryrun.md",
+    "procedures/phase4-append.md",
+    "procedures/phase5-docs.md",
+    "procedures/phase6-report.md"
+  ],
+  "session_isolation": {
+    "enabled": true,
+    "dir_pattern": "sessions/{YYYY-MM-DD}-{sys-slug}",
+    "session_id_format": "{YYYY-MM-DD}-{sys-slug}",
+    "base_dir": ".mc-data/work/wf-add-scope/sessions/",
+    "index_file": ".mc-data/work/wf-add-scope/_index/sessions.jsonl",
+    "lock_mechanism": "mkdir-guard + heartbeat",
+    "stale_threshold_minutes": 60,
+    "heartbeat_interval_seconds": 30,
+    "notes": "1 active session per (date, system). Re-run cùng ngày cùng system → CDG (resume vs replace vs cancel). v2→v3 migration: flat files → sessions/_legacy-v2/<timestamp>/."
+  },
+  "scripts": {
+    "dir": ".claude/scripts/wf-add-scope/",
+    "prefix": "as-",
+    "files": [
+      "as-common.sh",
+      "as-generate-session-id.sh",
+      "as-acquire-lock.sh",
+      "as-release-lock.sh",
+      "as-heartbeat.sh",
+      "as-backup-registry.sh",
+      "as-validate-registry.sh",
+      "as-index-append.sh",
+      "as-scope-impact-build.sh",
+      "as-postgate-check.sh",
+      "as-detect-legacy.sh",
+      "as-migrate-status-v2-to-v3.sh"
+    ]
+  },
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "systems"
+    ],
+    "notes": "Target system PHẢI tồn tại trong registry.systems[]. Skill KHÔNG tự tạo system mới. Nếu dùng --from-mapping → cần LEGACY_MODE + module-code-mapping.json."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry hiện có — SSOT. Skill chỉ SAFE-APPEND vào modules[] và features[].",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+      "description": "Module-code mapping từ legacy scan — dùng cho --from-mapping auto-detect",
+      "required": false,
+      "condition": "--from-mapping flag set"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context — dùng để detect LEGACY_MODE (CORE-021) qua as-detect-legacy.sh",
+      "required": false,
+      "condition": "LEGACY_MODE detection"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "Legacy decisions — respect DEPRECATE modules (CORE-022, qua as-detect-legacy.sh)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json",
+      "description": "Cross-skill — đọc consumer_hints['wf-add-scope'] + module_code_mapping để seed modules/features. OPTIONAL.",
+      "required": false,
+      "condition": "--from-scan flag set"
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase2-features/[sys-slug]/[mod-slug]/[feat-slug].md",
+        "template": "templates/feature-stub.md",
+        "contract_key": "feature-stub",
+        "required": false,
+        "condition": "--no-docs not set AND features_to_add > 0",
+        "notes": "Auto-generated feature stubs với banner '[STUB AUTO-GENERATED]'. User fill-in sau hoặc chạy /wf-define-features để flesh-out."
+      }
+    ],
+    "working": [
+      {
+        "path": "$SESSION_DIR/add-scope-status.json",
+        "template": "templates/add-scope-status.json",
+        "required": true,
+        "notes": "v3.0 schema: session_id, host, user, lock{}, audit_chain{}, modules_added[] (array)"
+      },
+      {
+        "path": "$SESSION_DIR/add-scope-plan.md",
+        "template": "templates/add-scope-plan.md",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/scope-spec.json",
+        "template": "templates/scope-spec.json",
+        "required": true
+      },
+      {
+        "path": "$SESSION_DIR/dry-run-diff.md",
+        "template": null,
+        "required": false,
+        "condition": "Phase 3 always (STOP nếu --dry-run)",
+        "notes": "Generate inline — no template"
+      },
+      {
+        "path": "$SESSION_DIR/scope-impact.json",
+        "template": "templates/scope-impact.json",
+        "required": true,
+        "condition": "Phase 6 always (via as-scope-impact-build.sh)",
+        "notes": "Cross-skill artifact (schema scope-impact-v1). Opt-in consumers via --from-add-scope: wf-verify-sync, wf-preflight. Default consumer: wf-implement-feature (scan N=3 recent sessions)."
+      },
+      {
+        "path": "$SESSION_DIR/phase-summary.md",
+        "template": "../../../doc-framework/_meta/phase-summary.template.md",
+        "required": true,
+        "notes": "CORE-028 — Tóm tắt kết quả tiếng Việt, non-specialist."
+      },
+      {
+        "path": "$SESSION_DIR/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": false,
+        "condition": "Only during checkpoint/resume"
+      },
+      {
+        "path": "$SESSION_DIR/.session.lock",
+        "template": null,
+        "required": true,
+        "notes": "Session lock — acquired at session-init SI.4, released at Phase 6.8"
+      },
+      {
+        "path": ".mc-data/work/wf-add-scope/_index/sessions.jsonl",
+        "template": null,
+        "required": true,
+        "notes": "Append-only JSONL index. APPEND trên session-init SI.6 (in_progress) và Phase 6.6 (completed/failed)."
+      },
+      {
+        "path": ".mc-data/work/_trace/session-log.json",
+        "template": "../../../doc-framework/_meta/session-log.template.json",
+        "required": true,
+        "notes": "CORE-026 — Execution trace. APPEND only."
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "append",
+      "description": "Safe-append chỉ vào fields 'modules' và 'features'. KHÔNG modify, KHÔNG delete, KHÔNG rename existing entries. v3.0: registry lock (as-acquire-lock.sh registry) + as-backup-registry.sh + as-validate-registry.sh + audit_chain checksum."
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "modules",
+      "features"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "APPEND-ONLY semantics: chỉ thêm entries mới, không modify/delete existing. Idempotent — re-run an toàn (skip duplicates). Validate post-write: count_after == count_before + count_added. v3.0: registry lock ensures concurrency safety.",
+    "write_role": "APPEND"
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/[sys-slug]/[mod-slug]/[feat-slug].md",
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-plan-modules": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-annotate-code": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-verify-sync": [
+        "$SESSION_DIR/scope-impact.json (opt-in via --from-add-scope[=<id>])"
+      ],
+      "wf-preflight": [
+        "$SESSION_DIR/scope-impact.json (opt-in via --from-add-scope[=<id>])"
+      ],
+      "wf-implement-feature": [
+        "$SESSION_DIR/scope-impact.json (default behavior, scan N=3 recent sessions)"
+      ]
+    },
+    "consumes_from": {
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/module-code-mapping.json",
+        ".mc-data/work/legacy-scan/project-context.md"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-scan-target": [
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json"
+      ]
+    }
+  },
+  "resume_routing": {
+    "file": "procedures/resume-routing.md",
+    "status_file": "$SESSION_DIR/add-scope-status.json",
+    "checkpoint_file": "$SESSION_DIR/checkpoint.json",
+    "index_file": ".mc-data/work/wf-add-scope/_index/sessions.jsonl",
+    "notes": "Discover sessions qua tail sessions.jsonl | jq filter in_progress. Re-acquire session lock + restart heartbeat trước khi resume."
+  }
+}

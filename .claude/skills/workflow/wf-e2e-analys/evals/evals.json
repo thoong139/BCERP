@@ -1,0 +1,96 @@
+{
+  "skill": "wf-e2e-analys",
+  "version": "1.0.0",
+  "test_cases": [
+    {
+      "id": "TC-F1-001",
+      "name": "Happy path — feature đủ info, chạy 6 phase không bổ sung",
+      "input": {
+        "command": "/wf-e2e-analys FEAT-EW-CRM-001",
+        "context": "Feature FEAT-EW-CRM-001 tồn tại trong registry. Spec đầy đủ, code đã implement. DB + BE chạy sẵn."
+      },
+      "expected_behavior": [
+        "Phase 0 SETUP: tạo session dir .mc-data/work/wf-e2e-verify/sessions/FEAT-EW-CRM-001-{YYYYMMDD-HHmm}/",
+        "Phase 1 BUSINESS: sinh 4 findings (business-understanding, business-rule-catalog, state-machine, cross-module-map). AskUserQuestion VERIFY blocking",
+        "Phase 2 DB: sinh 3 findings (db-mapping, db-seed-data ≥15 records, db-test-report). Live test pass constraint",
+        "Phase 3 API: sinh 2 findings (api-mapping, api-test-report). Live test happy + BR + state transition",
+        "Phase 4 UI: sinh 2 findings (ui-mapping, ui-test-report). Static analysis pass",
+        "Phase 5 INTEGRATION: sinh integration-test-report.md với 8 sections (cross-module LUÔN ON)",
+        "Phase 6 OUTPUT: sinh outputs/test-scenario.md (skeleton, ≥2 scenarios) + outputs/user-guide.md (Việt clear)",
+        "Tổng 12 finding/output files + 4 SSOT JSON (status, issues, block-test, implement-required, manual)"
+      ],
+      "assertions": [
+        "ls .mc-data/work/wf-e2e-verify/sessions/FEAT-EW-CRM-001-*/findings/ | count == 12",
+        "jq '.summary.total' implement-required.json >= 0",
+        "jq '.summary.total' manual.json >= 0",
+        "jq '.phases.phase_6_status' status.json == \"done\"",
+        "test-scenario.md có >= 2 scenarios (happy + validation)",
+        "user-guide.md có >= 1000 chars tiếng Việt"
+      ]
+    },
+    {
+      "id": "TC-F1-002",
+      "name": "Block classification — phát hiện Nhóm 3 + Nhóm 4 → DUAL-WRITE",
+      "input": {
+        "command": "/wf-e2e-analys FEAT-EW-FIN-008",
+        "context": "Feature FEAT-EW-FIN-008 có 1 endpoint chưa implement (Nhóm 3) + 1 test cần VNPay sandbox (Nhóm 4 verified-OK). DB + BE chạy sẵn."
+      },
+      "expected_behavior": [
+        "Phase 3 API: detect endpoint chưa implement → DUAL-WRITE block-test.json (BLK-001, blocking_reason=feature_not_implemented) + implement-required.json (IMPL-REQ-001, status=pending, related_blk_id=BLK-001)",
+        "Phase 5 INTEGRATION: detect VNPay test cần con người → verify code (static review PASS) → DUAL-WRITE block-test.json (BLK-002, status=resolved, retest_result=SKIPPED) + manual.json (MAN-001, code_verification.result=PASS, related_blk_id=BLK-002)",
+        "Phase 6 OUTPUT: test-scenario.md có scenarios bị block đánh dấu 'BLOCKED (xem block-test.json BLK-001)' + 'MANUAL (xem manual.json MAN-001)'"
+      ],
+      "assertions": [
+        "jq '.blocked_tests | length' block-test.json >= 2",
+        "jq '.entries | length' implement-required.json >= 1",
+        "jq '.entries | length' manual.json >= 1",
+        "jq '.entries[] | select(.related_blk_id)' implement-required.json — không null",
+        "jq '.entries[] | select(.code_verification.verification_result)' manual.json == \"PASS\"",
+        "jq '.blocked_tests[] | select(.related_impl_req_id)' block-test.json — link 2 chiều khớp"
+      ]
+    },
+    {
+      "id": "TC-F1-003",
+      "name": "Resume — tiếp Phase 3 sau P0-2 done",
+      "input": {
+        "command": "/wf-e2e-analys FEAT-EW-WMS-003 --resume",
+        "context": "Session FEAT-EW-WMS-003-20260513-1000 đã hoàn tất P0-2. status.json.current_phase=3, sub_state=ASSESS. Phase 1 4 findings + Phase 2 3 findings đã có. issues.json có 2 entries."
+      },
+      "expected_behavior": [
+        "Skip Phase 0-2 (đã done)",
+        "Confirm phase_0/1/2_status='done' trong status.json (không re-run)",
+        "Run Phase 3 từ sub_state=ASSESS → BỔ SUNG (nếu cần) → LIVE-TEST → FIX (nếu --auto) → RETEST",
+        "Run Phase 4-6 sau Phase 3 hoàn tất",
+        "KHÔNG ghi đè findings/business-understanding.md (Phase 1) hoặc findings/db-*.md (Phase 2)",
+        "KHÔNG reset issues.json — APPEND issues mới phát hiện"
+      ],
+      "assertions": [
+        "Phase 0-2 files không thay đổi mtime",
+        "Phase 3-6 files mtime > Phase 0-2 mtime",
+        "jq '.phases.phase_0_status' status.json == \"done\"",
+        "jq '.phases.phase_3_status' status.json == \"done\" (sau khi hoàn tất)",
+        "issues.json signals[] length >= 2 (không mất entries cũ)"
+      ]
+    },
+    {
+      "id": "TC-F1-004",
+      "name": "--status display + no execute",
+      "input": {
+        "command": "/wf-e2e-analys FEAT-EW-CRM-001 --status",
+        "context": "Session FEAT-EW-CRM-001-20260513-1100 đang chạy Phase 4, sub_state=BỔ SUNG. status.json + 4 SSOT JSON đã có."
+      },
+      "expected_behavior": [
+        "Đọc status.json + 4 SSOT JSON",
+        "Display dashboard 7-row table với phase status mỗi phase",
+        "Display SSOT counters: issues (open/fixed/total), block-test (blocked/resolved/unblocked), implement-required (pending/done), manual (pending/verified)",
+        "STOP — không advance phase"
+      ],
+      "assertions": [
+        "Không có file mới được tạo / sửa",
+        "status.json không thay đổi",
+        "Output text có chứa 'Phase Progress' table với 7 rows P0-P6",
+        "Output text có chứa 'SSOT Counters'"
+      ]
+    }
+  ]
+}

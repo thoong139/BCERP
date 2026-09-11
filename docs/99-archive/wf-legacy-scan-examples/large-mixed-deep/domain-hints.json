@@ -1,0 +1,57 @@
+{
+  "$schema": "domain-hints-v1",
+  "session_id": "2026-04-22T10-00-00Z-i9j0k1l2",
+  "generated_at": "2026-04-22T10:09:28Z",
+  "phase": "IPS-B",
+  "top_domains": [
+    {
+      "domain": "finance",
+      "confidence": 0.79,
+      "evidence": {
+        "keywords_en": ["invoice", "payment", "budget", "account", "ledger", "GL", "AP", "AR"],
+        "keywords_vn": ["hóa đơn", "thanh toán", "ngân sách", "kế toán", "tài khoản", "bút toán"],
+        "file_count": 234,
+        "sample_files": ["modules/ke-toan/", "modules/cong-no/", "modules/ngan-sach/"]
+      }
+    },
+    {
+      "domain": "hr",
+      "confidence": 0.62,
+      "evidence": {
+        "keywords_en": ["employee", "salary", "department", "attendance"],
+        "keywords_vn": ["nhân viên", "lương", "phòng ban", "chấm công"],
+        "file_count": 156,
+        "sample_files": ["modules/nhan-su/", "modules/luong/"]
+      }
+    },
+    {
+      "domain": "operations",
+      "confidence": 0.54,
+      "evidence": {
+        "keywords_en": ["inventory", "warehouse", "stock", "supply"],
+        "keywords_vn": ["kho hàng", "tồn kho", "nhập kho", "xuất kho"],
+        "file_count": 98,
+        "sample_files": ["modules/kho/", "modules/mua-hang/"]
+      }
+    }
+  ],
+  "primary_domain": "finance",
+  "primary_confidence": 0.79,
+  "threshold_used": 0.6,
+  "agent_routing": {
+    "L4": "code-reviewer",
+    "L5": {
+      "primary": "business-analyst",
+      "domain_expert": "finance-expert",
+      "routing_reason": "confidence 0.79 >= threshold 0.6",
+      "secondary_domain": "hr",
+      "secondary_expert": "hr-expert",
+      "secondary_routing_reason": "confidence 0.62 >= threshold 0.6 — deep profile enables dual expert"
+    }
+  },
+  "language_mix": {
+    "en_ratio": 0.45,
+    "vn_ratio": 0.55,
+    "detected_as": "mixed"
+  }
+}

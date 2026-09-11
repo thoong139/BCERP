@@ -1,0 +1,305 @@
+{
+  "skill_name": "audit-devkit-scan",
+  "skill_version": "3.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "TC1-full-scan",
+      "prompt": "/audit-devkit-scan — scan tất cả agents, skills, templates, rules. Output structured JSON",
+      "expected_output": "Creates .mc-data/work/audit-devkit-scan/[session]/audit-index.json (schema audit-index-v1), multiple findings-*.json files (schema audit-findings-v1), and audit-scan-result.json (schema audit-scan-result-v1). Business agents split into 2 sub-batches (1.1a + 1.1b). Batches ≤20 files each. Scripts scan (Wave 3.5) produces findings-scripts.json. Summary table displayed to user.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json is created with $schema: 'audit-index-v1'"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-index.json has counts.agents > 0 AND counts.skills > 0"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-index.json has counts.total equal to sum of all component counts"
+        },
+        {
+          "type": "file_exists",
+          "text": "findings-agents-business-a.json AND findings-agents-business-b.json both created (business team split into 2 batches)"
+        },
+        {
+          "type": "file_exists",
+          "text": "At least one findings-*.json file created in .mc-data/work/audit-devkit-scan/[session]/ with $schema: 'audit-findings-v1'"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json created with $schema: 'audit-scan-result-v1'"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-scan-result.json has summary.total = length of findings array"
+        },
+        {
+          "type": "file_content",
+          "text": "Output report displayed to user with breakdown by component and output file paths"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "TC2-agents-only",
+      "prompt": "/audit-devkit-scan --agents — chỉ scan agents directory",
+      "expected_output": "Scans only agent files (.claude/agents/**/*.md). Business agents split into 2 sub-batches. Creates audit-index.json showing only agents scanned, findings-agents-*.json files. Does NOT scan skills/templates/rules/hooks/scripts.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json is created"
+        },
+        {
+          "type": "file_content",
+          "text": "Only agent-related findings files are created (findings-agents-*.json)"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-skills-*.json or findings-templates.json or findings-scripts.json created"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'agents' (not 'all')"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "TC3-skills-only",
+      "prompt": "/audit-devkit-scan --skills — chỉ scan skill definitions",
+      "expected_output": "Scans only skill files (.claude/skills/**/SKILL.md). Creates audit-index.json with skills metadata, findings-skills-*.json files. Does NOT scan agents/templates/rules/hooks/scripts.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json is created with counts.skills > 0"
+        },
+        {
+          "type": "file_exists",
+          "text": "findings-skills-workflow.json and/or findings-skills-other.json are created"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-agents-*.json files created"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'skills' (not 'all')"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "TC4-resume",
+      "prompt": "/audit-devkit-scan --resume — tiếp tục từ checkpoint khi session trước bị gián đoạn giữa Phase 1",
+      "expected_output": "Reads existing scan-status.json từ .mc-data/work/audit-devkit-scan/[session]/, identifies completed batches, continues từ pending batches. Không re-scan completed batches. Loads existing audit-index.json thay vì rebuild.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Skill reads .mc-data/work/audit-devkit-scan/[session]/scan-status.json to determine progress"
+        },
+        {
+          "type": "behavior",
+          "text": "Completed batches are NOT re-run (no duplicate findings files)"
+        },
+        {
+          "type": "file_content",
+          "text": "Pending batches are executed and new findings-*.json files created"
+        },
+        {
+          "type": "file_content",
+          "text": "Final audit-scan-result.json includes findings from both old and new batches"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "TC5-master-plan-scan",
+      "prompt": "/audit-devkit-scan --all — scan toàn bộ bao gồm Wave 4 Master Plan components",
+      "expected_output": "Runs full scan including Wave 4 (MP-1 to MP-7). Populates master_plan_components in audit-index.json. Creates findings-masterplan-*.json files for deployed components. NOT_FOUND components do not create findings files.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "audit-index.json contains master_plan_components section with 7 groups (hook_2tier, baseline_metrics, checkpoint_digest, digest_pipeline, executable_spec_a6ext, micro_task_a7ext, parallel_execution)"
+        },
+        {
+          "type": "file_content",
+          "text": "Each master_plan_components field is populated: true, false, or 'NOT_FOUND'"
+        },
+        {
+          "type": "behavior",
+          "text": "Components with NOT_FOUND status do NOT generate findings files"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-scan-result.json source_files[] includes any findings-masterplan-*.json files created"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "TC6-templates-only",
+      "prompt": "/audit-devkit-scan --templates — chỉ scan template files",
+      "expected_output": "Scans only template files (.claude/doc-framework/**/*.md). Creates audit-index.json with templates metadata, findings-templates-*.json files. Does NOT scan agents/skills/rules/hooks/scripts.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json is created with counts.templates > 0"
+        },
+        {
+          "type": "file_exists",
+          "text": "findings-templates-a.json and/or findings-templates-b.json are created"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-agents-*.json or findings-skills-*.json files created"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'templates' (not 'all')"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "TC7-rules-only",
+      "prompt": "/audit-devkit-scan --rules — chỉ scan rule files",
+      "expected_output": "Scans only rule files (.claude/rules/*.md). Creates audit-index.json with rules metadata, findings-rules.json. Does NOT scan agents/skills/templates/hooks/scripts.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json is created with counts.rules > 0"
+        },
+        {
+          "type": "file_exists",
+          "text": "findings-rules.json is created"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-agents-*.json or findings-skills-*.json or findings-templates-*.json files created"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'rules' (not 'all')"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "TC8-hooks-only",
+      "prompt": "/audit-devkit-scan --hooks — chỉ scan hook scripts",
+      "expected_output": "Scans hook scripts (.claude/hooks/*.sh) excluding _hook-utils.sh. Bash verify: syntax check, path refs, executable permissions. Creates findings-hooks.json. Does NOT scan agents/skills/templates/rules/scripts.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json is created with counts.hooks > 0"
+        },
+        {
+          "type": "file_exists",
+          "text": "findings-hooks.json is created"
+        },
+        {
+          "type": "behavior",
+          "text": "_hook-utils.sh is NOT scanned as a regular hook (excluded per v1.2)"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-agents-*.json or findings-skills-*.json files created"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'hooks' (not 'all')"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "TC9-focused-skill-scan",
+      "prompt": "/audit-devkit-scan --skill=wf-design — chỉ scan skill wf-design cụ thể",
+      "expected_output": "Skip Wave 1 (agents), Wave 3 (templates/rules/hooks), Wave 3.5 (scripts), Wave 4 (master plan). Chỉ chạy Wave 2 focused: 1 skill-auditor agent cho wf-design/SKILL.md + _contract.json. Lightweight cross-ref: đọc cross_skill_contracts → verify downstream/upstream paths. Output: findings-skills-focused.json.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session]/findings-skills-focused.json is created with $schema: 'audit-findings-v1'"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-agents-*.json files created (Wave 1 skipped)"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-templates-*.json or findings-rules.json or findings-hooks.json created (Wave 3 skipped)"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-masterplan-*.json files created (Wave 4 skipped)"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'skill:wf-design'"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "TC10-delta-scan",
+      "prompt": "/audit-devkit-scan --since=abc1234 — delta scan chỉ files thay đổi từ commit abc1234",
+      "expected_output": "Run git diff --name-only abc1234..HEAD -- .claude/ to get changed files. Phân loại changed files vào batches. Chỉ scan batches chứa changed files. Unchanged batches skip (giữ findings cũ nếu có). Output chỉ chứa findings cho changed components.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "git diff --name-only abc1234..HEAD -- .claude/ is executed to get changed file list"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json has delta_scan field with source commit 'abc1234'"
+        },
+        {
+          "type": "behavior",
+          "text": "Batches with no changed files are NOT scanned (skipped)"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-scan-result.json includes only findings from changed file batches"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "TC11-component-alias-and-conflict",
+      "prompt": "/audit-devkit-scan --component=skills --agents — cả 2 formats, --component có priority cao hơn",
+      "expected_output": "Parse arguments: detect both --component=skills and --agents. --component=X has higher priority → scope set to 'skills'. Log WARNING ARGUMENT_CONFLICT. Behaves identically to --skills only: scans only skill files.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "WARNING log with error_code ARGUMENT_CONFLICT is displayed"
+        },
+        {
+          "type": "behavior",
+          "text": "Scope resolves to 'skills' (--component=skills takes precedence over --agents)"
+        },
+        {
+          "type": "file_content",
+          "text": "scan-status.json scope is set to 'skills' and invoked_as includes both arguments"
+        },
+        {
+          "type": "behavior",
+          "text": "No findings-agents-*.json files created (agents scope overridden)"
+        }
+      ]
+    }
+  ]
+}

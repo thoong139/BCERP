@@ -1,0 +1,122 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-business-completeness",
+  "version": "1.0.0",
+  "phase": "lane",
+  "description": "QD11 Business Completeness & Enhancement Lane — phat hien MISSING business logic qua 3-pass LLM analysis: cross-module pattern comparison, domain heuristic analysis, registry gap detection. v1.0 (2026-05-12): them dimension QD11 — Business Completeness & Enhancement. Owner agents: business-analyst + domain experts + architect. 3 probes: P-QD11-cross-module-comparison, P-QD11-domain-heuristic, P-QD11-registry-gap. 100% LLM. Skip: single module, api-only, profile=quick. CDG gate: user ACCEPT/REJECT enhancement suggestions.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Set by orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay. quick skipped (LLM-heavy analysis)."
+    }
+  ],
+  "procedure": [
+    "procedures/qd11-workflow.md",
+    "procedures/qd11-cdg-gate.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). WRITE toàn bộ bởi LLM probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/QD11-business-completeness-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report. Enhancement gaps summary by severity. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/enhancement-suggestions.json",
+        "required": true,
+        "template": null,
+        "notes": "Accepted enhancement suggestions sau CDG gate. Schema enhancement-suggestions-v1."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD11 Lane KHONG ghi req-registry.json.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD11 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD11 complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/QD11-business-completeness-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/lane-status.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/enhancement-suggestions.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/lane-status.json — orchestrator track lane progress",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/enhancement-suggestions.json — CDG-gated suggestions cho wf-fix-execute"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  }
+}

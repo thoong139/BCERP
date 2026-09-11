@@ -1,0 +1,30 @@
+{
+  "locale": "zh",
+  "description": "Chinese (Simplified) CTA (Call-To-Action) keyword patterns for UI probe detection",
+  "cta_patterns": [
+    {"text": "立即购买",     "category": "purchase",      "regex": "立即购买"},
+    {"text": "加入购物车",   "category": "purchase",      "regex": "加入购物车"},
+    {"text": "立即下单",     "category": "purchase",      "regex": "立即下单"},
+    {"text": "马上购买",     "category": "purchase",      "regex": "马上购买"},
+    {"text": "去结算",       "category": "purchase",      "regex": "去结算"},
+    {"text": "立即注册",     "category": "registration",  "regex": "立即注册"},
+    {"text": "创建账号",     "category": "registration",  "regex": "创建账[号户]"},
+    {"text": "立即开始",     "category": "registration",  "regex": "立即开始"},
+    {"text": "加入我们",     "category": "registration",  "regex": "加入我们"},
+    {"text": "登录",         "category": "auth",          "regex": "登[录錄]"},
+    {"text": "立即登录",     "category": "auth",          "regex": "立即登[录錄]"},
+    {"text": "了解更多",     "category": "discovery",     "regex": "了解更多"},
+    {"text": "查看更多",     "category": "discovery",     "regex": "查看更多"},
+    {"text": "探索",         "category": "discovery",     "regex": "探索"},
+    {"text": "免费试用",     "category": "subscription",  "regex": "免费试用"},
+    {"text": "立即预订",     "category": "booking",       "regex": "立即预[订訂]"},
+    {"text": "预约",         "category": "booking",       "regex": "预[约約]"},
+    {"text": "联系我们",     "category": "contact",       "regex": "联[系繫]我们"},
+    {"text": "获取报价",     "category": "contact",       "regex": "获取报价"},
+    {"text": "下载",         "category": "download",      "regex": "下载"},
+    {"text": "确认",         "category": "form",          "regex": "确认"},
+    {"text": "继续",         "category": "form",          "regex": "继续"},
+    {"text": "提交",         "category": "form",          "regex": "提交"},
+    {"text": "立即申请",     "category": "application",   "regex": "立即申请"}
+  ]
+}

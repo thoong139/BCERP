@@ -1,0 +1,168 @@
+{
+  "skill_name": "status",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/status",
+      "expected_output": "Đọc registry (bắt buộc) + roadmap (nếu có) + work/ + sync/, hiển thị dashboard tổng quan",
+      "assertions": [
+        {
+          "text": "Kiểm tra req-registry.json tồn tại trước khi làm bất cứ điều gì (PRE-GATE, E002 nếu thiếu)",
+          "type": "behavior"
+        },
+        {
+          "text": "Dashboard hiển thị đủ sections: Overview, Systems Progress, Sprint Status, Current Work, Implementation Coverage (nếu có verify-sync), Next Steps",
+          "type": "output_contains"
+        },
+        {
+          "text": "Progress percentages chính xác (Done + In Progress + Not Started + Paused + Blocked = Total Features)",
+          "type": "output_contains"
+        },
+        {
+          "text": "Current Work section hiển thị features đang in_progress và paused, không hiển thị done hay not_started",
+          "type": "behavior"
+        },
+        {
+          "text": "Đề xuất lệnh cụ thể: /implement-feature [feature] --resume hoặc /implement-feature [REQ-ID]",
+          "type": "output_contains"
+        },
+        {
+          "text": "Nếu roadmap không tồn tại → graceful degrade: limited dashboard chỉ từ registry (E001), không crash",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/status --sprint=S01",
+      "expected_output": "Đọc sprint file S01, hiển thị chi tiết sprint: features trong sprint với status từng feature",
+      "assertions": [
+        {
+          "text": "Tìm và đọc sprint file tương ứng S01 trong phase5-implementation/sprints/",
+          "type": "behavior"
+        },
+        {
+          "text": "Hiển thị sprint metrics: Features count, Done (%), In Progress, Not Started",
+          "type": "output_contains"
+        },
+        {
+          "text": "Liệt kê tất cả features trong sprint với REQ-ID, status icon, tasks done/total",
+          "type": "output_contains"
+        },
+        {
+          "text": "Nếu sprint ID không tồn tại → thông báo lỗi E006 với danh sách sprints có sẵn",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "dự án đang đến đâu rồi?",
+      "expected_output": "Trigger status từ natural language, hiển thị dashboard tổng quan như /status không có flags",
+      "assertions": [
+        {
+          "text": "Trigger skill status từ câu hỏi tiếng Việt tự nhiên, không cần lệnh /status",
+          "type": "behavior"
+        },
+        {
+          "text": "Hiển thị đúng dashboard format như /status mặc định",
+          "type": "output_contains"
+        },
+        {
+          "text": "Không thực thi, không thay đổi bất kỳ file nào — chỉ đọc và hiển thị",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "tc1-phase2-define-features",
+      "prompt": "Xem tiến độ dự án đang ở Phase 2 - đã có requirements, đang define features",
+      "expected_output": "Dashboard hiển thị đúng phase hiện tại (Phase 2), tất cả features có status not_started, Graceful degradation khi roadmap missing",
+      "assertions": [
+        {
+          "text": "Dashboard hiển thị section Overview với metrics",
+          "type": "output_contains"
+        },
+        {
+          "text": "Hiển thị đúng số lượng features (6)",
+          "type": "output_contains"
+        },
+        {
+          "text": "Tất cả features có status not_started vì đang ở Phase 2",
+          "type": "output_contains"
+        },
+        {
+          "text": "Hiển thị section Systems Progress",
+          "type": "output_contains"
+        },
+        {
+          "text": "Không hiển thị Sprint Status nếu chưa có roadmap (graceful degradation)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "tc2-implementing-3-done-sprint-2-4",
+      "prompt": "Status check cho project đang implement - 3/10 features done, sprint 2/4",
+      "expected_output": "Dashboard hiển thị 3 features done, features in_progress, sprint progress 2/4",
+      "assertions": [
+        {
+          "text": "Overview hiển thị đúng: 3 done, 1 in_progress, 6 not_started",
+          "type": "output_contains"
+        },
+        {
+          "text": "Sprint Status section hiển thị 4 sprints với progress",
+          "type": "output_contains"
+        },
+        {
+          "text": "Current Work section hiển thị features đang in_progress",
+          "type": "output_contains"
+        },
+        {
+          "text": "Hiển thị percentage chính xác (30% done, 10% in_progress, 60% not_started)",
+          "type": "output_contains"
+        },
+        {
+          "text": "Sprint 2 được đánh dấu là current sprint",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "tc3-near-complete-8-verified",
+      "prompt": "Kiểm tra progress khi project gần hoàn thành - chỉ còn 2 features chưa verify",
+      "expected_output": "Dashboard hiển thị 8/10 features done/verified, 2 remaining, sync rate 80%",
+      "assertions": [
+        {
+          "text": "Overview hiển thị 8 done, 1 in_progress, 1 not_started",
+          "type": "output_contains"
+        },
+        {
+          "text": "Implementation Coverage section hiển thị sync rate 80%",
+          "type": "output_contains"
+        },
+        {
+          "text": "Readiness assessment hiển thị threshold indicator (ready/almost/critical)",
+          "type": "output_contains"
+        },
+        {
+          "text": "Current Work section hiển thị feature đang in_progress",
+          "type": "output_contains"
+        },
+        {
+          "text": "Gaps được liệt kê rõ ràng (2 features chưa hoàn thành)",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

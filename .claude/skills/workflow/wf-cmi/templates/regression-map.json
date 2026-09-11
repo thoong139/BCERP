@@ -1,0 +1,50 @@
+{
+  "_template_notes": {
+    "purpose": "Predictive regression impact map — Engine #6 upgrade. Phase 6 output. Mode: predictive (GitNexus impact) hoặc diff-aware (git diff fallback). Skip nếu profile=quick HOẶC --since không set. Tham chiếu 04-file-contract.md §4.4.",
+    "populate": [
+      "since_ref: --since flag value (vd 'main', 'HEAD~5', 'feature/x')",
+      "changed_files[]: list relative paths đã đổi từ since_ref đến HEAD",
+      "predicted_impact.direct_callers[]: file gọi trực tiếp changed file — {file, confidence ∈ [0,1]}",
+      "predicted_impact.transitive_callers[]: file gọi gián tiếp (>1 hop) — {file, confidence, hops}",
+      "predicted_impact.affected_modules[]: modules có ≥1 file bị impact — {module, confidence, reason (FK chain, event chain, ...)}",
+      "predicted_impact.affected_workflows[]: business workflows bị impact — {workflow, confidence, broken_step?}",
+      "predicted_impact.test_plan[]: tests cần chạy lại — {test_id, priority=HIGH|MEDIUM|LOW, reason}",
+      "confidence_threshold: 0.7 default — filter impact dưới threshold",
+      "mode: 'predictive' (GitNexus available) hoặc 'diff-aware' (fallback)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "regression-map-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "since_ref": "{{SINCE_REF}}",
+  "mode": "{{REGRESSION_MODE}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "changed_files": [],
+  "predicted_impact": {
+    "direct_callers": [],
+    "transitive_callers": [],
+    "affected_modules": [],
+    "affected_workflows": [],
+    "test_plan": []
+  },
+  "confidence_threshold": 0.7,
+  "metadata": {
+    "changed_files_count": 0,
+    "direct_caller_count": 0,
+    "transitive_caller_count": 0,
+    "affected_module_count": 0,
+    "affected_workflow_count": 0,
+    "test_plan_count": 0,
+    "high_priority_tests": 0,
+    "ci_source": "{{CI_SOURCE}}"
+  },
+  "audit_chain": {
+    "source": "{{SOURCE_PATH}}",
+    "checksum": "{{REGRESSION_CHECKSUM}}",
+    "git_diff_command": "{{GIT_DIFF_COMMAND}}"
+  }
+}

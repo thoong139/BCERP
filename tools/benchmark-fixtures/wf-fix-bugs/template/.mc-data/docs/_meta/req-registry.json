@@ -1,0 +1,45 @@
+{
+  "$schema": "req-registry-v1",
+  "version": "1.0.0",
+  "generated_at": "2026-05-14T00:00:00Z",
+  "project_name": "mcv3-bench-wf-fix-bugs",
+  "project_type": "single-app",
+  "interface_type": "api-only",
+  "systems": [
+    {"system_id": "ERP", "name": "Enterprise Resource Planning", "modules": ["sales", "crm", "finance"]}
+  ],
+  "modules": [
+    {"module_id": "sales", "system_id": "ERP", "name": "Sales Management", "path": "src/sales"},
+    {"module_id": "crm", "system_id": "ERP", "name": "Customer Relationship", "path": "src/crm"},
+    {"module_id": "finance", "system_id": "ERP", "name": "Finance & Accounting", "path": "src/finance"}
+  ],
+  "features": [
+    {"feat_id": "FEAT-SALES-ORDER-001", "module_id": "sales", "name": "Order Management", "path": "src/sales/order.service.ts"},
+    {"feat_id": "FEAT-SALES-QUOT-001", "module_id": "sales", "name": "Quotation Management", "path": "src/sales/quotation.service.ts"},
+    {"feat_id": "FEAT-CRM-CUST-001", "module_id": "crm", "name": "Customer Management", "path": "src/crm/customer.service.ts"},
+    {"feat_id": "FEAT-CRM-LEAD-001", "module_id": "crm", "name": "Lead Tracking", "path": "src/crm/lead.service.ts"},
+    {"feat_id": "FEAT-FIN-INV-001", "module_id": "finance", "name": "Invoice Management", "path": "src/finance/invoice.service.ts"},
+    {"feat_id": "FEAT-FIN-PAY-001", "module_id": "finance", "name": "Payment Processing", "path": "src/finance/payment.service.ts"}
+  ],
+  "requirements": [
+    {"req_id": "REQ-SALES-001", "feat_id": "FEAT-SALES-ORDER-001", "description": "Tính tổng đơn hàng với thuế khách hàng", "impl_status": "done"},
+    {"req_id": "REQ-SALES-002", "feat_id": "FEAT-SALES-ORDER-001", "description": "Áp dụng chiết khấu theo phần trăm", "impl_status": "done"},
+    {"req_id": "REQ-SALES-003", "feat_id": "FEAT-SALES-ORDER-001", "description": "Hủy đơn hàng (chỉ khi PENDING)", "impl_status": "done"},
+    {"req_id": "REQ-SALES-004", "feat_id": "FEAT-SALES-QUOT-001", "description": "Tạo báo giá với customer reference", "impl_status": "done"},
+    {"req_id": "REQ-SALES-005", "feat_id": "FEAT-SALES-QUOT-001", "description": "Convert báo giá sang đơn hàng", "impl_status": "done"},
+    {"req_id": "REQ-CRM-001", "feat_id": "FEAT-CRM-CUST-001", "description": "Tạo customer với validation email", "impl_status": "done"},
+    {"req_id": "REQ-CRM-002", "feat_id": "FEAT-CRM-CUST-001", "description": "Lookup customer theo ID hoặc email", "impl_status": "done"},
+    {"req_id": "REQ-CRM-003", "feat_id": "FEAT-CRM-LEAD-001", "description": "Convert lead sang customer", "impl_status": "done"},
+    {"req_id": "REQ-CRM-004", "feat_id": "FEAT-CRM-LEAD-001", "description": "Track lead status (NEW, QUALIFIED, WON, LOST)", "impl_status": "done"},
+    {"req_id": "REQ-CRM-005", "feat_id": "FEAT-CRM-LEAD-001", "description": "Lead scoring (calc dựa trên activities)", "impl_status": "done"},
+    {"req_id": "REQ-FIN-001", "feat_id": "FEAT-FIN-INV-001", "description": "Generate invoice từ order", "impl_status": "done"},
+    {"req_id": "REQ-FIN-002", "feat_id": "FEAT-FIN-INV-001", "description": "Tính VAT 10% trên subtotal", "impl_status": "done"},
+    {"req_id": "REQ-FIN-003", "feat_id": "FEAT-FIN-PAY-001", "description": "Process payment với card hoặc bank transfer", "impl_status": "done"},
+    {"req_id": "REQ-FIN-004", "feat_id": "FEAT-FIN-PAY-001", "description": "Refund payment (chỉ trong 30 ngày)", "impl_status": "done"},
+    {"req_id": "REQ-FIN-005", "feat_id": "FEAT-FIN-PAY-001", "description": "Log audit trail cho mọi transaction", "impl_status": "done"}
+  ],
+  "cross_module_dependencies": [
+    {"from": "sales", "to": "crm", "type": "uses_customer_type"},
+    {"from": "finance", "to": "sales", "type": "generates_from_order"}
+  ]
+}

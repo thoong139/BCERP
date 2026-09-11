@@ -1,0 +1,255 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-execute",
+  "version": "3.8.0",
+  "phase": "phase5",
+  "description": "Execute + Report: sua loi (Batch 1-3) + docs sync + verification loop + final report. Phase 3 (CRITICAL→HIGH→MEDIUM), Phase 4 (Docs Sync + Stub Creation), Phase 5 (State Machine Verify Loop, max 3 iterations), Phase 6 (Report — dry-run cung chay day du). v3.0.0: tach thanh 10 procedure files + _shared.md (lazy loading, giam ~70% context load). v3.1.0: fix 5 bugs — VERIFY_INIT iteration owner, e2e-results.json UPDATE-only, stale ref, fix-status.json contract, CQG numeric verify. v3.2.0 (S3 wf-fix-bugs v7.0): fix-plan.md + fix-log.json templates di chuyen sang _shared/lane/templates/ (F3 fix). v3.3.0 (S8): Phase 4a hook docs-crossref check (soft warn — `wf-fix-docs-crossref.sh` → docs-sync-report.json), Phase 6 pre-POST-GATE CQG hard-enforce (`wf-fix-cqg-verify.sh` → cqg-verify.json, mismatch >5% → POST-GATE FAIL E001). v3.6.0 (Phase A v8 Honest Framing): Phase 6 Step 6.0c compute coverage-estimate.json qua `aggregate.coverage_estimator`; fix-report.md template them section Coverage Estimate voi blind-spots + recommendations + disclaimer KHONG dam bao 100% coverage.",
+  "prerequisites": {
+    "files": [
+      "$SESSION_DIR/issue-registry.json",
+      "$SESSION_DIR/fix-plan.md",
+      "$SESSION_DIR/fix-status.json"
+    ],
+    "optional_files": [
+      {
+        "path": "$SESSION_DIR/impact-graph.json",
+        "condition": "available khi wf-legacy-scan da chay (schema impact-graph.v1). Duoc tao boi Lane Dispatch QD1/QD2 khi co du lieu.",
+        "impact_if_missing": "Phase 5 skip Verify Ripple (step 5.1b) gracefully. LPM minimal mode (flags.lpm_minimal==true): luon optional."
+      }
+    ],
+    "notes": "3 files REQUIRED + 1 optional (impact-graph.json). issue-registry.json phai co severity set (da qua Phase 2 triage) + blast_radius field (ADR-22 rule 2). impact-graph.json (schema impact-graph.v1) — optional, can thiet cho Verify Ripple (step 5.1b) neu available. fix-status.json.phases.phase_2.status phai == 'completed'. Dry-run mode: SKIP Phase 3-5 (bao gom Verify Ripple), chay ngay Phase 6. v6 mode: detect via fix-status.json.engine_version == 'v6' — khi v6, issue-registry.json co v2 schema (dimensions_run, coverage, dedup_stats); execute van fix + verify binh thuong."
+  },
+  "inputs": [
+    {
+      "name": "session-dir",
+      "type": "directory-path",
+      "required": true,
+      "description": "SESSION_DIR duoc resolve boi wf-fix-bugs Lane Dispatch (Phase 0). Chua fix-status.json, issue-registry.json (sau triage), fix-plan.md."
+    },
+    {
+      "name": "--resume",
+      "type": "flag",
+      "required": false,
+      "description": "Resume session bi gian doan. Load checkpoint → continue tu phase/batch/verify-loop state."
+    },
+    {
+      "name": "--status",
+      "type": "flag",
+      "required": false,
+      "description": "Display status Phase 3-6 va thoat."
+    }
+  ],
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase3-batch1.md",
+    "procedures/phase3-batch2.md",
+    "procedures/phase3-batch3.md",
+    "procedures/phase4a-docs-sync.md",
+    "procedures/phase4b-stubs.md",
+    "procedures/phase5-scan.md",
+    "procedures/phase5-loop.md",
+    "procedures/phase5-final.md",
+    "procedures/phase6-report.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/fix-log.json",
+        "required": true,
+        "template": "../wf-fix-bugs/templates/phase5-triage/fix-log.json",
+        "schema": "fix-log-v2",
+        "notes": "Per-issue fix details. Schema fix-log-v2 (Sprint 3 XF-03). Owner init: wf-fix-triage Step 2.3c (entries=[]). wf-fix-execute APPEND-only theo tung batch + Phase 5 loop iterations (voi fallback: init tu template neu file missing). Dry-run: giu nguyen entries=[]. Canonical template path sau Sprint 3: wf-fix-bugs/templates/phase5-triage/fix-log.json."
+      },
+      {
+        "path": "$SESSION_DIR/issue-registry.json",
+        "required": true,
+        "template": null,
+        "notes": "UPDATE file da co tu wf-fix-bugs Lane Dispatch — them fix details (Phase 3) + verify results (Phase 5). KHONG overwrite, chi modify per-issue fields."
+      },
+      {
+        "path": "$SESSION_DIR/fix-status.json",
+        "required": true,
+        "template": null,
+        "notes": "UPDATE file da khoi tao boi wf-fix-bugs Lane Dispatch (Phase 0). wf-fix-execute CHI UPDATE per-phase theo contract trong procedures/_shared.md §fix-status.json Update Contract (Phase 3 BAT DAU, Sau Batch 1/2/3, Phase 4a/4b POST-GATE, Phase 5 LOOP START/LOOP/POST-GATE, Phase 6 POST-GATE). KHONG overwrite, chi merge fields. Atomic write per update."
+      },
+      {
+        "path": "$SESSION_DIR/e2e-results.json",
+        "required": false,
+        "template": "templates/e2e-results.json",
+        "condition": "wf-fix-execute Phase 5 self-create neu chay Playwright verify + file chua ton tai. APPEND verify_iterations[] per iteration neu file da co.",
+        "notes": "E2E results: wf-fix-execute Phase 5 = SOLE owner (CREATE + UPDATE). Neu Playwright unavailable hoac dry-run → skip gracefully, ghi summary vao fix-status.phases.phase_5.playwright_verify. CHI APPEND verify_iterations[], KHONG overwrite. Chi tiet: procedures/phase5-scan.md §Step 5.14b. Fix H2 (audit 2026-05-07): resolved ownership contradiction — wf-fix-bugs orchestrator does NOT create this file."
+      },
+      {
+        "path": "$SESSION_DIR/fix-report.md",
+        "required": true,
+        "template": "templates/fix-report.md",
+        "notes": "Final report o Phase 6. Dry-run: preview mode (metrics tu triage, khong co fixes). Fresh: actual metrics tu fix-log + issue-registry verify."
+      },
+      {
+        "path": ".mc-data/work/wf-fix-bugs/fix-history.md",
+        "required": true,
+        "template": "templates/fix-history.md",
+        "notes": "Cross-run append-only log. Phase 6: APPEND 1 dong moi hoac CREATE tu template lan dau. Dry-run: APPEND voi mode='DRY-RUN'."
+      },
+      {
+        "path": "$SESSION_DIR/phase-summary.md",
+        "required": true,
+        "template": null,
+        "notes": "Phase Summary (CORE-028). Inline template trong procedures/phase6-report.md §Phase Summary. Tieng Viet cho non-specialist."
+      },
+      {
+        "path": ".mc-data/work/_trace/session-log.json",
+        "required": true,
+        "template": "../../../doc-framework/_meta/session-log.template.json",
+        "notes": "Execution Trace (Protocol 15 / CORE-026). APPEND-ONLY output-only observability. wf-fix-execute ghi 3 entries: START (sau PRE-GATE pass, phase=phase_3), COMPLETE (sau POST-GATE Phase 6 final, kem agents_invoked/files_created/modified/decisions), FAIL (neu POST-GATE fail sau 3 iterations tai bat ky phase nao, kem errors+phase dung). Best-effort — fail khong block skill. KHONG dung file nay lam input/context cho skill khac (CORE-026). Chi tiet: procedures/_shared.md §Execution Trace Protocol."
+      },
+      {
+        "path": "$SESSION_DIR/docs-sync-report.json",
+        "required": false,
+        "template": null,
+        "notes": "v3.3.0 S8 — Bidirectional docs sync verification (schema docs-sync-report-v1). Generated by Phase 4a hook qua `bash scripts/wf-fix-docs-crossref.sh --session-dir $SESSION_DIR`. 2 mismatch types: missing_git_diff (fix-log claims update doc nhung git khong thay), orphan_git_change (git change feature/UX spec nhung khong co fix-log). SOFT WARNING — KHONG block POST-GATE (status: passed | warning | skipped). Consumed boi wf-verify-sync (--from-fix-bugs S9) cross-check Phase 5b UI coverage. Graceful exit 0 khi git unavailable hoac fix-log empty."
+      },
+      {
+        "path": "$SESSION_DIR/cqg-verify.json",
+        "required": true,
+        "template": null,
+        "notes": "v3.3.0 S8 — CQG numeric metric verification (schema wf-fix-cqg-verify-v1). Generated by Phase 6 pre-POST-GATE hook qua `bash scripts/wf-fix-cqg-verify.sh --session-dir $SESSION_DIR`. 3 metrics: issues_fixed_count, files_modified_count, coverage_pct (compare claims trong fix-report.md vs ground truth fix-log + issue-registry). Tolerance ±5% mac dinh, configurable qua env MCV3_FIX_CQG_TOLERANCE_PCT. HARD ENFORCE — script exit 3 (passed=false) → POST-GATE FAIL E001 (CQG_NUMERIC_MISMATCH). fail_required_cdg=true → render CDG (Protocol 16) hoi user accept|reject|modify. Reject → quay lai Phase 6 sua fix-report. Inline schema, runtime-computed."
+      },
+      {
+        "path": "$SESSION_DIR/coverage-estimate.json",
+        "required": true,
+        "template": null,
+        "notes": "v3.6.0 (Phase A v8 — Honest Framing). Schema coverage-estimate-v1. Generated by Phase 6 Step 6.0c qua `python3 -m aggregate.coverage_estimator --session $SESSION_DIR`. Fields: stack, profile, dimensions_enabled, llm_scan_enabled, components{stack_base_pct, profile_multiplier, dimension_coverage_pct, static_estimate_pct, llm_bonus_pct}, coverage_estimate_pct (capped 95%), confidence (high|medium|low), blind_spots[], recommendations[], disclaimer. Doc fix-status.json (profile, dimensions, flags.llm_scan) + optional stack-info.json (Phase B Stack-Aware). Consumed boi Step 6.1 Report Generation Detail de fill {{COVERAGE_*}} placeholders trong fix-report.md template. Module crash → log warning, KHONG fail Phase 6 (graceful degradation)."
+      }
+    ],
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase2-features/[sys]/[mod]/[feat].md",
+        "template": null,
+        "required": false,
+        "condition": "behavior_changed == true trong fix-log.json (not dry-run)",
+        "note": "UPDATE existing docs cho behavior changes. READ → MODIFY → WRITE."
+      },
+      {
+        "path": ".mc-data/docs/phase2-features/[sys]/[mod]/[slug].md",
+        "template": null,
+        "required": false,
+        "condition": "--deep flag AND ORPHAN_UI_ACTION/ORPHAN_UI_FLOW not empty (not dry-run)",
+        "note": "Stub docs only (status: stub). Full content created by /wf-define-features."
+      },
+      {
+        "path": ".mc-data/docs/phase4-ux/[sys]/[mod]/screens-[slug].md",
+        "template": null,
+        "required": false,
+        "condition": "--deep flag AND ORPHAN_UI_SCREEN not empty (not dry-run)",
+        "note": "Stub docs only (status: stub). Full content created by /wf-design-ux."
+      },
+      {
+        "path": ".mc-data/docs/phase2-features/[sys]/[mod]/flow-[slug].md",
+        "template": null,
+        "required": false,
+        "condition": "--deep flag AND ORPHAN_UI_FLOW not empty (not dry-run)",
+        "note": "Stub flow docs only (status: stub). Full content created by /wf-define-features."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "impl_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "Chi update impl_status — KHONG downgrade tu 'done'. Read-before-write. Atomic write. Phase 4a only. Dry-run: KHONG touch registry.",
+    "write_role": "SAFE-UPDATE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "After wf-fix-triage complete (final sub-skill in pipeline)",
+      "receives": [
+        "$SESSION_DIR path (chua fix-status.json + issue-registry.json + fix-plan.md)"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE Phase 6 complete",
+      "provides": [
+        "$SESSION_DIR/fix-log.json",
+        "updated $SESSION_DIR/issue-registry.json (final)",
+        "$SESSION_DIR/fix-report.md",
+        ".mc-data/work/wf-fix-bugs/fix-history.md",
+        "$SESSION_DIR/phase-summary.md"
+      ],
+      "via": "fix-status.json status='completed' + active_skill='wf-fix-bugs' + next_action='done'"
+    },
+    "consumes_from": [
+      {
+        "skill": "wf-fix-bugs (Lane Dispatch Phase 0-2)",
+        "files": [
+          "$SESSION_DIR/fix-status.json",
+          "$SESSION_DIR/issue-registry.json (initial)",
+          "$SESSION_DIR/checkpoint.json",
+          "$SESSION_DIR/e2e-results.json (conditional — Lane Dispatch CREATE owner)",
+          "$SESSION_DIR/impact-graph.json (QD1/QD2 probe output — schema impact-graph.v1, can cho Verify Ripple ADR-22 rule 2)",
+          "$SESSION_DIR/cdg-tokens.json (accept/reject tokens from CDG Handoff Step 2.5 — Phase 3 respects reject tokens. Optional: if missing, all changes proceed without CDG gate)"
+        ]
+      },
+      {
+        "skill": "wf-fix-triage",
+        "files": [
+          "$SESSION_DIR/issue-registry.json (enriched — severity + fixability)",
+          "$SESSION_DIR/fix-plan.md",
+          "$SESSION_DIR/fix-log.json (init, entries=[])",
+          "$SESSION_DIR/bug-triage.md"
+        ]
+      }
+    ],
+    "produces_for": [
+      {
+        "skill": "wf-verify-sync",
+        "files": [
+          "$SESSION_DIR/fix-report.md",
+          "updated $SESSION_DIR/issue-registry.json (final: verify results)",
+          ".mc-data/work/wf-fix-bugs/fix-history.md"
+        ]
+      },
+      {
+        "skill": "wf-define-features",
+        "files": [
+          ".mc-data/docs/phase2-features/[sys]/[mod]/[slug].md (stub only — Phase 4b --deep)",
+          ".mc-data/docs/phase2-features/[sys]/[mod]/flow-[slug].md (stub only — Phase 4b --deep)"
+        ],
+        "condition": "flags.deep == true AND ORPHAN_UI_ACTION/FLOW not empty"
+      },
+      {
+        "skill": "wf-design-ux",
+        "files": [
+          ".mc-data/docs/phase4-ux/[sys]/[mod]/screens-[slug].md (stub only — Phase 4b --deep)"
+        ],
+        "condition": "flags.deep == true AND ORPHAN_UI_SCREEN not empty"
+      }
+    ],
+    "uses_templates_from": [],
+    "provides_templates_to": [],
+    "_shared_templates_note": "S3 (wf-fix-bugs v7.0): fix-plan.md + fix-log.json di chuyen tu wf-fix-execute/templates/ sang _shared/lane/templates/ (F3 fix). wf-fix-execute consume tu shared location, wf-fix-triage cung consume tu shared location — khong con cross-skill template relative path fragility."
+  },
+
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "fix_execution",
+    "pattern": "PRE-GATE detection (Na/Nb/Nc) + CI-ROUTE Phase 3 fix execution (phase3-batch1/2/3.md)",
+    "tools_used": [
+      "gitnexus_impact",
+      "serena_find_references",
+      "gitnexus_detect_changes"
+    ],
+    "ci_tasks": [
+      "impact_analysis (Phase 3 Batch 1-3: GitNexus impact truoc khi sua — blast radius + CDG neu HIGH/CRITICAL)",
+      "find_references (Phase 3 Batch 1-3: Serena find_references de verify call sites)",
+      "pre_commit_check (Phase 3 Batch 1-3: GitNexus detect_changes sau khi fix)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → skip CI → fix normally. Freshness caveat → kem warning trong CDG. Zero regression.",
+    "notes": "Nhan CI context tu orchestrator (wf-fix-bugs) neu available; tu detect neu standalone --resume. CDG render khi HIGH/CRITICAL risk, kem freshness warning neu index stale."
+  }
+}

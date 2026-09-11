@@ -1,0 +1,17 @@
+{
+  "$schema": "cdg-tokens-v1",
+  "_template_notes": "cdg-tokens.json — CDG accept/reject tokens. Init bởi Phase 1 (stub), APPEND bởi Phase 4 Step 4.3 (E090/E090b browser CDG), APPEND bởi Phase 5 Step 5.7 (CDG Pre-Execute Handoff). Phase 6 PRE-GATE aggregate từ cả 3 paths (v10.10.0). Schema: cdg-tokens-v1.",
+  "_how_to_use": "APPEND token: `jq '.tokens += [{id, severity, prompt, options, decision, decided_at, decided_by}]' SRC > TMP && jq '.' TMP > /dev/null && mv TMP SRC` (atomic CORE-035). KHÔNG WRITE template thẳng — sẽ giữ {{SESSION_ID}} placeholder.",
+  "_entry_schema": {
+    "id": "CDG-{type}-{phase}-{NN} — vd CDG-E090-P4-01",
+    "severity": "critical | high | medium | low",
+    "prompt": "Câu hỏi gửi user qua AskUserQuestion",
+    "options": ["accept", "reject", "..."],
+    "decision": "accepted | rejected | pending",
+    "decided_at": "ISO-8601",
+    "decided_by": "user | auto",
+    "_optional_fields": "context, reason, retry_count"
+  },
+  "session_id": "{{SESSION_ID}}",
+  "tokens": []
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "feature-briefs-schema-v1.0",
+  "description": "Per-feature brief from Phase 2. ~100 words per feature. Purpose: đưa architect nhanh chóng lên tốc độ về feature behavior, acceptance criteria, dependencies.",
+  "template": {
+    "features": [
+      {
+        "feature_id": "string — FEAT-ID từ req-registry.json (ví dụ: 'FEAT-SALES-001')",
+        "req_id": "string — related REQ-ID",
+        "name": "string — tên feature",
+        "summary": "string — tóm tắt 1-2 câu (ví dụ: 'Allow users to create orders with multiple items and auto-calculate totals')",
+        "acceptance_criteria": [
+          "string — AC cụ thể (ví dụ: 'Given X, when Y, then Z')"
+        ],
+        "key_behaviors": [
+          "string — behavior chính (ví dụ: 'Soft-delete order items', 'Recalc grand total on price change')"
+        ],
+        "business_value": "string — why this feature matters (ví dụ: 'Enables 5x faster order processing')",
+        "technical_complexity": "string enum: 'simple' | 'moderate' | 'complex' | 'very_complex'",
+        "dependencies": [
+          {
+            "type": "string enum: 'feature' | 'system' | 'third_party' | 'data'",
+            "name": "string — tên dependency"
+          }
+        ],
+        "estimated_effort": "string — effort estimate (ví dụ: '3-5 days')",
+        "priority": "string enum: 'must_have' | 'should_have' | 'nice_to_have' | 'deferred'"
+      }
+    ]
+  },
+  "validation": {
+    "required_fields_per_feature": [
+      "feature_id",
+      "name",
+      "summary",
+      "acceptance_criteria"
+    ],
+    "max_words_per_feature": 100,
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-define-features (Phase 2 POST-GATE)",
+    "consumed_by": [
+      "wf-design (Phase 2 PRE-GATE)",
+      "wf-implement-feature (Phase 4 PRE-GATE)"
+    ],
+    "location": ".mc-data/docs/_meta/feature-briefs.json",
+    "fallback": "Nếu digest không tồn tại, consumer skill đọc phase2-features/[sys]/[mod]/[feat].md"
+  }
+}

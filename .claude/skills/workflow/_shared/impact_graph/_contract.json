@@ -1,0 +1,113 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "impact_graph",
+  "version": "0.1.0-b3",
+  "phase": "phase5-fix",
+  "description": "Impact Graph builder (probe P0.XREF) + Ripple consumer cho wf-fix-*. Builder quét source, sinh $SESSION_DIR/impact-graph.json với nodes (file) + edges (import) kèm edge_strength [0..1]. Ripple consumer đọc graph, enumerate downstream dependents (depth<=1, strength>=0.5) cho 1 issue.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-18", "ADR-22"],
+  "core_refs": ["CORE-006", "CORE-007", "CORE-012", "CORE-026", "CORE-031"],
+  "inputs": [
+    {
+      "name": "repo-root",
+      "kind": "filesystem",
+      "source": "Project root (được wf-fix-bugs Lane Dispatch truyền xuống)",
+      "required": true,
+      "notes": "Builder chỉ enumerate file trong SUPPORTED_LANGS (ts/tsx/js/jsx/py/java/cs/go/rs); bỏ qua node_modules/.git/.venv/dist/build/.mc-data/target/..."
+    },
+    {
+      "name": "scope-filter",
+      "kind": "param",
+      "source": "wf-fix-bugs Lane Dispatch (scope=all | system:<name> | module:<name>)",
+      "required": false,
+      "notes": "Ghi vào graph.scope metadata; hiện tại builder không lọc theo scope (scan toàn repo). Filter ở consumer phía Ripple."
+    },
+    {
+      "name": "issue",
+      "schema": "../signal_bus/schemas/issue.v2.schema.json",
+      "kind": "object",
+      "source": "Ripple consumer (wf-fix-execute Phase 5) — 1 issue đã fix",
+      "required": true,
+      "notes": "Cần tối thiểu 1 trong: file_path | target.file_path | evidence[0].file_path"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "impact-graph",
+      "path": "$SESSION_DIR/impact-graph.json",
+      "schema": "schemas/impact-graph.v1.schema.json",
+      "template": null,
+      "notes": "Builder emit atomic (tempfile + os.replace). KHÔNG dùng template cố định — graph được generate từ AST/regex, nội dung hoàn toàn phụ thuộc repo. Xem CORE-031 Protocol 19: output đi từ logic build-time thay vì populate template, schema chịu trách nhiệm ràng buộc cấu trúc."
+    },
+    {
+      "name": "ripple-targets",
+      "path": "stdout (CLI) | return value (API)",
+      "schema": null,
+      "template": null,
+      "notes": "verify_ripple() trả về list[RippleTarget] (dataclass). CLI `ripple.py verify` in JSON `{origin, depth, strength_threshold, target_count, targets[]}` ra stdout. Consumer tự quyết định persist nếu cần."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "python -m _shared.impact_graph.builder --repo-root <path> --output <path> [--scope all|system:<name>|module:<name>] [--max-files 5000] [--max-file-bytes 1048576]",
+      "kind": "python-cli",
+      "called_by": "wf-fix-bugs Lane Dispatch (QD1/QD2 probe)"
+    },
+    {
+      "command": "python -m _shared.impact_graph.ripple verify --issue <path> --graph <path> [--depth 1] [--strength 0.5]",
+      "kind": "python-cli",
+      "called_by": "wf-fix-execute Phase 5 (per-issue ripple check sau fix)"
+    },
+    {
+      "command": "from impact_graph import build, emit, verify_ripple, RippleTarget",
+      "kind": "python-import",
+      "called_by": "Python-side callers trong wf-fix-* (inline usage khi cần hiệu suất)"
+    }
+  ],
+  "safety_guarantees": [
+    {
+      "id": "SF-IG-1",
+      "rule": "ADR-18 (Impact Graph atomic emit)",
+      "description": "Builder dùng tempfile + os.replace để emit impact-graph.json — không có giai đoạn file corrupted đọc được bởi consumer.",
+      "enforced_in": "builder.py:emit()",
+      "violation_exit_code": 1
+    },
+    {
+      "id": "SF-IG-2",
+      "rule": "ADR-22 rule 2 (Verify Ripple depth<=1, strength>=0.5)",
+      "description": "verify_ripple() default depth=1, strength=0.5. Consumer được cho phép override nhưng default KHÔNG đổi ngầm — đảm bảo hành vi tại điểm gọi khớp ADR.",
+      "enforced_in": "ripple.py:DEFAULT_DEPTH, DEFAULT_STRENGTH, verify_ripple()",
+      "violation_exit_code": 0
+    },
+    {
+      "id": "SF-IG-3",
+      "rule": "ADR-18 (schema versioning)",
+      "description": "Graph được stamp $schema='impact-graph.v1'. Ripple consumer kiểm tra schema header trước khi đọc; mismatch → raise ValueError, không silent degrade.",
+      "enforced_in": "builder.py:SCHEMA_ID, ripple.py:_load_graph()",
+      "violation_exit_code": 1
+    },
+    {
+      "id": "SF-IG-4",
+      "rule": "Defensive scanning caps",
+      "description": "Builder có giới hạn MAX_FILES_DEFAULT=5000 và MAX_FILE_BYTES_DEFAULT=1 MiB để tránh scan vô hạn trong monorepo khổng lồ. Consumer có thể override khi cần.",
+      "enforced_in": "builder.py:_iter_source_files()",
+      "violation_exit_code": 0
+    },
+    {
+      "id": "SF-IG-5",
+      "rule": "Deterministic output",
+      "description": "Builder dedup edges theo (source,target,evidence_line) và loại self-loop; verify_ripple sort kết quả theo (distance, -strength, file_path). Bảo đảm reproducible cho CI verify.",
+      "enforced_in": "builder.py:build() dedup, ripple.py:verify_ripple() sort",
+      "violation_exit_code": 0
+    }
+  ],
+  "status": "B3-implemented",
+  "testing": {
+    "b3_smoke": "Smoke: tạo fixture pkg/{a,b,c,d,x}.py với a,b imports c; x imports a; verify edges {a→c, b→c, x→a}; ripple(c, depth=1) = {a,b}; ripple(c, depth=2) = {a,b,x}; ripple(d) = [].",
+    "b4_fixtures": [
+      "ts-monorepo-sample/: TS imports (named + dynamic + require) → verify edges + strength heuristic",
+      "py-namespace-package/: from pkg import sub → verify submodule resolution",
+      "polyglot-sample/: Java/Go/Rust — verify stem-match best-effort không false-positive nội bộ stdlib"
+    ]
+  }
+}

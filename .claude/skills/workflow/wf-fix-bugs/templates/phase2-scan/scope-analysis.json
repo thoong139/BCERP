@@ -1,0 +1,27 @@
+{
+  "$schema": "scope-analysis-v2",
+  "_template_notes": "scope-analysis.json — Phạm vi phân tích từ Phase 2 Scan. Schema: scope-analysis-v2 (v10.11.0 — enrich _schema_notes + dependency_level enum). Phase 2 POST-GATE T2 verify: .interface_type and .scope and .code and .docs.",
+  "_schema_notes": "Required: $schema, session_id, generated_at, interface_type, source_dir, scope, code, docs. interface_type ∈ {web, mobile, api-only, hybrid, desktop, cli, unknown}. scope ∈ {all, system, module}. code.languages[] item: {lang:string, file_count:int, total_loc:int}. code.dependency_level ∈ {none, light, moderate, heavy}. ci_coverage.gitnexus_tasks[]/serena_tasks[] item: {task_type:string, available:bool}. Consumer: Phase 3 (workload sizing + ISG dimension refinement), Phase 4 (Playwright skip nếu api-only, interface_type ép needs_playwright=false).",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "interface_type": "{{INTERFACE_TYPE}}",
+  "mobile_mode": "{{MOBILE_MODE}}",
+  "source_dir": "{{SOURCE_DIR}}",
+  "scope": "{{SCOPE}}",
+  "code": {
+    "total_files": 0,
+    "total_loc": 0,
+    "languages": [],
+    "dependency_level": "none"
+  },
+  "docs": {
+    "requirements": 0,
+    "features": 0
+  },
+  "ci_coverage": {
+    "execution_flows_available": 0,
+    "gitnexus_tasks": [],
+    "serena_tasks": [],
+    "fallback_count": 0
+  }
+}

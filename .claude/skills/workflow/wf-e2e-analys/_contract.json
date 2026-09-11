@@ -1,0 +1,291 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-analys",
+  "version": "2.0.0",
+  "phase": "F1 — Live test code-based 5 phases (DB/API/UI/Integration/Output) — consume findings từ F0a",
+  "description": "v2.0.0 (2026-05-15): Tier 0 Foundation Refactor — tách Phase 1 BUSINESS sang F0a wf-e2e-finding. F1 bây giờ consume findings từ F0a (PRE-GATE CONSUME CORE-036). Backward compat: G5 shim auto-spawn F0a nếu thiếu. Live DB + Live API test BẮT BUỘC. ISSUE-IMMEDIATE. Block classification 4 nhóm DUAL-WRITE.",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase0-setup.md",
+    "procedures/phase1-business.md",
+    "procedures/phase2-db.md",
+    "procedures/phase3-api.md",
+    "procedures/phase4-ui.md",
+    "procedures/phase5-integration.md",
+    "procedures/phase6-output.md",
+    "procedures/block-classification.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      "<feature spec path từ registry.features[].file>"
+    ],
+    "required_conditions": [
+      "FEAT-ID tồn tại trong req-registry.json",
+      "Feature spec file tồn tại + size > 500 bytes",
+      "Code đã implement (ít nhất một phần) — F1 sẽ test, không implement"
+    ],
+    "registry_fields": ["requirements", "features"],
+    "forensic_validation": "jq -e '.requirements | length > 0 and .features | length > 0' req-registry.json"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "required": true,
+      "description": "Registry SSOT — verify FEAT-ID, load feature metadata + req_ids"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID dạng FEAT-EW-{MOD}-{NNN}. F1 resolve sang spec path qua registry."
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F1 state machine: current_phase (0-6), sub_state (FIND|ASSESS|BO_SUNG|TEST|VERIFY|DONE), phase_N_status, bo_sung_count, verify_attempts, context_estimate_pct",
+        "phase": 0
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+        "required": true,
+        "template": "templates/issues.template.json",
+        "description": "ISSUE-IMMEDIATE: tất cả issues phát hiện trong P2-5. F1 CREATE + APPEND",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+        "required": true,
+        "template": "templates/block-test.template.json",
+        "description": "4-group block classification. F1 CREATE + APPEND. Realtime cập nhật theo ISSUE-IMMEDIATE pattern",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/implement-required.json",
+        "required": true,
+        "template": "templates/implement-required.template.json",
+        "description": "NEW. Nhóm 3 (chưa implement) → DUAL-WRITE với block-test.json. F4 wf-e2e-implement consume",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/manual.json",
+        "required": true,
+        "template": "templates/manual.template.json",
+        "description": "NEW. Nhóm 4 verified-OK + needs-human → DUAL-WRITE với block-test.json. QA team consume",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/business-understanding.md",
+        "required": true,
+        "template": "templates/business-understanding.template.md",
+        "description": "Phase 1: Mục đích / Actors / Dữ liệu / Business flow / Business rules",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/business-rule-catalog.md",
+        "required": true,
+        "template": "templates/business-rule-catalog.template.md",
+        "description": "Phase 1: BR-NNN catalog với Expected Error Code + HTTP status + CFV + CALC",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/state-machine.md",
+        "required": true,
+        "template": "templates/state-machine.template.md",
+        "description": "Phase 1: valid/invalid transitions + side effects (N/A nếu không có status field)",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/cross-module-map.md",
+        "required": true,
+        "template": "templates/cross-module-map.template.md",
+        "description": "Phase 1: domain events + consumer modules (LUÔN generate, N/A nếu không publish)",
+        "phase": 1
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/db-mapping.md",
+        "required": true,
+        "template": "templates/db-mapping.template.md",
+        "description": "Phase 2 FIND: tables, schema name, FK, relationships, CRUD ops, migration files",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/db-seed-data.md",
+        "required": true,
+        "template": "templates/db-seed-data.template.md",
+        "description": "Phase 2 SEED: ~20 bản ghi SQL INSERT phủ happy/edge/state/FK",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/db-test-report.md",
+        "required": true,
+        "template": "templates/db-test-report.template.md",
+        "description": "Phase 2 LIVE-TEST: migration check, constraint test (UNIQUE/NOT NULL/CHECK/Cascade/SoftDelete)",
+        "phase": 2
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/api-mapping.md",
+        "required": true,
+        "template": "templates/api-mapping.template.md",
+        "description": "Phase 3 FIND: endpoint matrix (route/method/handler/validator/RBAC/dependencies/response)",
+        "phase": 3
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/api-test-report.md",
+        "required": true,
+        "template": "templates/api-test-report.template.md",
+        "description": "Phase 3 LIVE-TEST: happy/validation/auth/error/BR violation/state transition/cross-field/calculation",
+        "phase": 3
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/ui-mapping.md",
+        "required": true,
+        "template": "templates/ui-mapping.template.md",
+        "description": "Phase 4 FIND: pages, routes, hooks, components, Zustand stores, i18n keys",
+        "phase": 4
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/ui-test-report.md",
+        "required": true,
+        "template": "templates/ui-test-report.template.md",
+        "description": "Phase 4 TEST: static analysis (loading/error/success/validation/RBAC/workflow UX/error UX mapping)",
+        "phase": 4
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/integration-test-report.md",
+        "required": true,
+        "template": "templates/integration-test-report.template.md",
+        "description": "Phase 5: 8 sections (chain trace/response handling/contract/live test 3 nhóm/issues/summary/cross-module chain/cross-module summary)",
+        "phase": 5
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/test-scenario.md",
+        "required": true,
+        "template": "templates/test-scenario.template.md",
+        "description": "Phase 6 skeleton: kịch bản test (chưa fill Pass/Fail browser — F7 fill). Loại happy/validation/error/BR/state/cross-module",
+        "phase": 6
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/user-guide.md",
+        "required": true,
+        "template": "templates/user-guide.template.md",
+        "description": "Phase 6 skeleton: hướng dẫn Việt per action + §4 Cross-Module (nếu có consumer). F8 verify accuracy + corrections",
+        "phase": 6
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F1-test/Phase{N}-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 per-phase summary tiếng Việt ≤15 dòng cho non-specialist (P1-P6)",
+        "phase": "1-6"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "note": "F1 wf-e2e-analys chỉ verify + test, không update registry. F4 wf-e2e-implement có SAFE-UPDATE role."
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-browser": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/ui-test-report.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/integration-test-report.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/outputs/test-scenario.md"
+      ],
+      "wf-e2e-unblock": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/manual.json"
+      ],
+      "wf-e2e-implement": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json"
+      ],
+      "wf-e2e-retest": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/*.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json"
+      ],
+      "wf-e2e-fix": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json"
+      ],
+      "wf-e2e-scenario": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/outputs/test-scenario.md"
+      ],
+      "wf-e2e-demo": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/outputs/user-guide.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/ui-mapping.md"
+      ]
+    },
+    "consumes_from": {
+      "wf-e2e-finding": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/business-understanding.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/business-rule-catalog.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/state-machine.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/cross-module-map.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/db-mapping.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/db-seed-data.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/api-mapping.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/ui-mapping.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/finding-summary.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/manual.json"
+      ]
+    },
+    "backward_compat": {
+      "g5_shim": "Nếu F0a findings/ KHÔNG tồn tại → WARN + auto-spawn wf-e2e-finding trước khi live-test"
+    },
+    "spawned_by": "wf-e2e-verify orchestrator (F1 step) OR standalone user invocation",
+    "code_intelligence": {
+      "integration": true,
+      "protocol": "20-code-intelligence.md",
+      "tools_used": ["gitnexus_query", "gitnexus_context", "gitnexus_impact", "serena_find_symbol", "serena_search_for_pattern"],
+      "ci_tasks": ["find endpoints", "find handlers", "find components", "find hooks", "find migrations"],
+      "graceful_degradation": "GitNexus/Serena → Grep/Glob fallback"
+    }
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E001-E022",
+    "description": "F1 6-phase code-based testing + shared pipeline errors",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E001-E022",
+    "shared": ["E001 missing FEAT-ID", "E002 spec content insufficient", "E007 lock active", "E008 stale lock", "E009 context >90%"],
+    "phase_specific": {
+      "E010": "Template implement-required/manual không tồn tại",
+      "E011": "Lock conflict khi append SSOT JSON",
+      "E012": "blocking_reason không thuộc enum",
+      "E013": "Nhóm 3 thiếu related_impl_req_id link",
+      "E014": "Nhóm 4 thiếu code_verification",
+      "E015": "POST-GATE cross-reference fail",
+      "E016": "Atomic write corrupted JSON",
+      "E017": "Entry thiếu required field",
+      "E018": "Trùng test_ref → duplicate BLK-NNN (warning)",
+      "E019": "code_verification=FAIL nhưng ghi manual (escalate issue)",
+      "E020": "Phase 1 outputs chưa available — không thể trace user flow (WARN, continue best-effort)",
+      "E021": "Phase 4 coverage critically low (<50% user flow steps mapped)",
+      "E022": "Critical UI element missing cho business flow action (critical severity issue)"
+    }
+  }
+}

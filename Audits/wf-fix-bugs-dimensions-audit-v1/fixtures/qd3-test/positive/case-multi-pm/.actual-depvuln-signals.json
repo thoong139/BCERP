@@ -1,0 +1,167 @@
+{
+  "$schema": "lane-signals-v1",
+  "lane": "wf-fix-security",
+  "dimension": "QD3",
+  "probe_id": "P-QD3-dependency-vuln-scan",
+  "probe_version": "v1.0",
+  "profile": "standard",
+  "generated_at": "2026-05-08T19:24:54Z",
+  "signals": [
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD3",
+      "probe_id": "P-QD3-dependency-vuln-scan",
+      "probe_version": "v1.0",
+      "severity": "info",
+      "fixability": "none",
+      "domain": "dependency",
+      "title": "Dep vuln scan skipped: maven (mvn not installed)",
+      "description": "Package manager maven detected but audit tool mvn is not installed. Install it to enable vulnerability scanning. SPEC-ONLY-PROBE-SKIP.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "spec",
+          "path": "N/A",
+          "description": "SPEC-ONLY-PROBE-SKIP: mvn not installed"
+        }
+      ],
+      "cdg_flags": [],
+      "fingerprint": "sha256:b3fa47931a9349aca1e542e53fc58ec4e1cd128abb4d0ea7b83811095cdc4f5d",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:24:45Z",
+      "detected_by": "wf-fix-security/P-QD3-dependency-vuln-scan"
+    },
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD3",
+      "probe_id": "P-QD3-dependency-vuln-scan",
+      "probe_version": "v1.0",
+      "severity": "medium",
+      "fixability": "code-change",
+      "domain": "dependency",
+      "title": "Vulnerable dependency: express@<=4.19.2 (npm)",
+      "description": ",: express vulnerable to XSS via response.redirect(); Express.js Open Redirect in malformed URLs — Package: express <=4.19.2 via npm. Update to a patched version.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "spec",
+          "path": "N/A",
+          "description": "CVE/Advisory: ,"
+        }
+      ],
+      "cdg_flags": [
+        "security"
+      ],
+      "fingerprint": "sha256:8461b5bb06926c83f4bf34f8be7087c3f22d91f34ef959292b5b426c03c8ac19",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:24:47Z",
+      "detected_by": "wf-fix-security/P-QD3-dependency-vuln-scan"
+    },
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD3",
+      "probe_id": "P-QD3-dependency-vuln-scan",
+      "probe_version": "v1.0",
+      "severity": "critical",
+      "fixability": "code-change",
+      "domain": "dependency",
+      "title": "Vulnerable dependency: lodash@<=4.17.23 (npm)",
+      "description": ",,,,,,,,,: Prototype Pollution in lodash; Command Injection in lodash; Prototype Pollution in lodash; Prototype Pollution in lodash; Prototype Pollution in lodash; Regular Expression Denial of Service (ReDoS) in lodash; Regular Expression Denial of Service (ReDoS) in lodash; Lodash has Prototype Pollution Vulnerability in `_.unset` and `_.omit` functions; lodash vulnerable to Code Injection via `_.template` imports key names; lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit` — Package: lodash <=4.17.23 via npm. Update to a patched version.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "spec",
+          "path": "N/A",
+          "description": "CVE/Advisory: ,,,,,,,,,"
+        }
+      ],
+      "cdg_flags": [
+        "security"
+      ],
+      "fingerprint": "sha256:b236092eeed746156a6923620b8a0fec3f1b04b192419f4d83c87d9fff091390",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:24:47Z",
+      "detected_by": "wf-fix-security/P-QD3-dependency-vuln-scan"
+    },
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD3",
+      "probe_id": "P-QD3-dependency-vuln-scan",
+      "probe_version": "v1.0",
+      "severity": "low",
+      "fixability": "code-change",
+      "domain": "dependency",
+      "title": "Vulnerable dependency: Newtonsoft.Json@12.0.3 (nuget)",
+      "description": "N/A: Vulnerable NuGet package detected by dotnet audit — Package: Newtonsoft.Json 12.0.3 via nuget. Update to a patched version.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "spec",
+          "path": "N/A",
+          "description": "CVE/Advisory: N/A"
+        }
+      ],
+      "cdg_flags": [
+        "security"
+      ],
+      "fingerprint": "sha256:fc074d152ca0305a2f9a060820a0043119d442538b8d1e8ce1affcc150ae68f8",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:24:53Z",
+      "detected_by": "wf-fix-security/P-QD3-dependency-vuln-scan"
+    },
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD3",
+      "probe_id": "P-QD3-dependency-vuln-scan",
+      "probe_version": "v1.0",
+      "severity": "info",
+      "fixability": "none",
+      "domain": "dependency",
+      "title": "Dep vuln scan skipped: pip (pip-audit not installed)",
+      "description": "Package manager pip detected but audit tool pip-audit is not installed. Install it to enable vulnerability scanning. SPEC-ONLY-PROBE-SKIP.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "spec",
+          "path": "N/A",
+          "description": "SPEC-ONLY-PROBE-SKIP: pip-audit not installed"
+        }
+      ],
+      "cdg_flags": [],
+      "fingerprint": "sha256:8c07bffd033a80d796c63d6d2009f4ca0b3b729003271fe35807e626066a8c5c",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:24:54Z",
+      "detected_by": "wf-fix-security/P-QD3-dependency-vuln-scan"
+    }
+  ]
+}

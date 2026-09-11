@@ -1,0 +1,17 @@
+{
+  "$schema": "session-status-v1",
+  "session_id": "",
+  "skill": "",
+  "created_at": "ISO-8601",
+  "status": "in_progress",
+  "scope": {
+    "system": "",
+    "module": "",
+    "description": ""
+  },
+  "phases_completed": [],
+  "current_phase": 0,
+  "files_created": 0,
+  "files_modified": 0,
+  "checkpoint_file": "checkpoint.json"
+}

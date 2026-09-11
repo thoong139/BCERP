@@ -1,0 +1,52 @@
+{
+  "$schema": "project-digest-schema-v1.0",
+  "description": "Compact project overview extracted from Phase 0 brainstorm. ~200 words. Purpose: đưa downstream skills nhanh chóng lên tốc độ về project scope, departments, tech stack, constraints.",
+  "template": {
+    "project_name": "string — tên dự án từ P0-01",
+    "project_summary": "string — 1-2 câu tóm tắt mục đích, business value",
+    "departments": [
+      {
+        "name": "string — tên phòng ban",
+        "role": "string — vai trò trong project (ví dụ: 'Business owner', 'End user', 'IT support')"
+      }
+    ],
+    "systems": [
+      {
+        "name": "string — tên hệ thống chính",
+        "purpose": "string — mục đích hệ thống này"
+      }
+    ],
+    "interface_type": "string enum: 'api-only' | 'web' | 'mobile' | 'web+mobile' | 'web+api' | 'hybrid'",
+    "tech_stack_summary": "string — 1-2 câu tóm tắt tech stack (framework, DB, cloud nếu có)",
+    "key_constraints": [
+      "string — ràng buộc kinh doanh/kỹ thuật quan trọng (ví dụ: 'Must support 10M users', 'Legacy system integration required')"
+    ],
+    "nfr_highlights": {
+      "performance": "string hoặc null — performance requirement nhấn mạnh",
+      "security": "string hoặc null — security concern chính",
+      "scalability": "string hoặc null — scalability expectation"
+    },
+    "project_complexity": "string enum: 'low' | 'medium' | 'high' | 'very_high'",
+    "estimated_effort_days": "number hoặc null — ước lượng effort (nếu có)",
+    "target_launch": "string ISO-8601 hoặc null — mục tiêu launch"
+  },
+  "validation": {
+    "required_fields": [
+      "project_name",
+      "project_summary",
+      "departments",
+      "interface_type",
+      "tech_stack_summary"
+    ],
+    "max_words": 200,
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-brainstorm (Phase 0 POST-GATE)",
+    "consumed_by": [
+      "wf-analyze-requirements (Phase 0 PRE-GATE)"
+    ],
+    "location": ".mc-data/docs/_meta/project-digest.json",
+    "fallback": "Nếu digest không tồn tại, consumer skill đọc phase0-brainstorm/ docs trực tiếp"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "signal-v2",
+  "probe_id": "P-QD1-example-probe",
+  "probe_version": "0.1.0",
+  "emitted_at": "2026-04-20T00:00:00+00:00",
+  "lane": "wf-fix-functional",
+  "dimension_id": "QD1",
+  "target": {
+    "kind": "code",
+    "file_path": "src/example/module.ts",
+    "line_range": [10, 25],
+    "symbol": "exampleFunction"
+  },
+  "description": "Mô tả lỗi/finding tiếng Việt có dấu — ≥10 ký tự theo ADR-09.",
+  "evidence": {
+    "code_snippet": "// Trích đoạn code ≥10 ký tự để thoả điều kiện ADR-09 evidence.",
+    "screenshot_path": null,
+    "log_excerpt": null,
+    "stacktrace": null,
+    "spec_ref": null,
+    "test_failure_ref": null
+  },
+  "suggested_severity": "medium",
+  "dedup_hints": []
+}

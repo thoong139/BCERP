@@ -1,0 +1,217 @@
+{
+  "$schema": "req-registry-v4",
+  "$description": "Master Registry — single source of truth cho tất cả IDs, dependencies, implementation order. AI không được tạo ID mới ngoài file này.",
+  "project": "[PROJECT_NAME]",
+  "last_updated": "YYYY-MM-DD",
+  "id_format": {
+    "REQ": "REQ-[DEPT]-[NNN]",
+    "MOD": "MOD-[SYS]-[MOD]",
+    "FEAT": "FEAT-[SYS]-[MOD]-[NNN]",
+    "UI_MAIN": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]",
+    "UI_TAB": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-T[N]",
+    "UI_DIALOG": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-D[N]",
+    "UI_SHEET": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-S[N]",
+    "UI_MODE": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-M[N]",
+    "API": "API-[SYS]-[MOD]-V1-[NNN]",
+    "DB": "DB-[SYS]-[MOD]-[NNN]",
+    "SEC": "SEC-[NNN]",
+    "DEP": "DEP-[ENV]-[NNN]"
+  },
+  "id_format_description": {
+    "SCREEN": "Tên màn hình viết hoa không dấu, VD: LIST, DETAIL, FORM, DASHBOARD",
+    "UI_MAIN": "Màn hình chính (page)",
+    "UI_TAB": "Tab trong màn hình",
+    "UI_DIALOG": "Dialog/Popup/Modal",
+    "UI_SHEET": "Sheet/Drawer/Sidepanel",
+    "UI_MODE": "View mode (Kanban/List/Calendar)"
+  },
+  "counters": {
+    "REQ": 0,
+    "MOD": 0,
+    "FEAT": 0,
+    "UI": 0,
+    "API": 0,
+    "DB": 0,
+    "SEC": 0,
+    "DEP": 0
+  },
+  "systems": [
+    {
+      "_comment": "Ví dụ mẫu — xóa và thay bằng systems thật. Seed bởi /wf-brainstorm Phase 5.3 (SEED). Enrich bởi /wf-analyze-requirements Phase 8 (PRIMARY).",
+      "id": "SYS-CRM",
+      "name": "CRM System",
+      "description": "Quản lý quan hệ khách hàng",
+      "prefix": "CRM",
+      "depends_on": ["SYS-AUTH"],
+      "navigation_file": "phase4-ux/crm/Navigation-crm.md",
+      "user_roles": ["Sales Rep", "Sales Manager"],
+      "_user_roles_note": "Seed bởi wf-brainstorm — primary user roles của system (từ P0-02 §2)",
+      "touchpoints": ["web", "mobile"],
+      "_touchpoints_note": "Seed bởi wf-brainstorm — các kênh tương tác (web/mobile/api/desktop). Mỗi system có ≥ 1 touchpoint.",
+      "related_departments": ["DEPT-SALES"],
+      "_related_departments_note": "Seed bởi wf-brainstorm — departments phục vụ system này (matrix dept × system). Dùng để fan-out requirements.",
+      "phase": "MVP",
+      "_phase_note": "MVP / Phase2 / Phase3 — lấy từ brainstorm roadmap. Dùng để enforce per-system coverage trong POST-GATE.",
+      "module_ids": ["MOD-CRM-CUST"],
+      "_module_ids_note": "Enriched bởi wf-analyze-requirements Phase 8 — reverse mapping từ modules[].system_id"
+    }
+  ],
+  "modules": [
+    {
+      "_comment": "Ví dụ mẫu — xóa và thay bằng modules thật",
+      "id": "MOD-CRM-CUST",
+      "name": "Customer Management",
+      "system": "CRM",
+      "_system_note": "Module thuộc system nào — set bởi wf-brainstorm (SEED) hoặc wf-analyze-requirements Phase 8 (PRIMARY).",
+      "prefix": "CUST",
+      "description": "Quản lý thông tin khách hàng",
+      "depends_on": [],
+      "folder": "phase2-features/features/crm/customer-management/",
+      "department_ids": ["DEPT-SALES"],
+      "_department_ids_note": "Enriched bởi wf-analyze-requirements Phase 8 — departments cung cấp requirements cho module này."
+    }
+  ],
+  "departments": [
+    {
+      "_comment": "Ví dụ mẫu — xóa và thay bằng departments thật",
+      "id": "DEPT-SALES",
+      "name": "Phòng Kinh Doanh",
+      "prefix": "SALES",
+      "folder": "phase1-business/departments/sales/"
+    }
+  ],
+  "requirements": [
+    {
+      "_comment": "Ví dụ mẫu — xóa và thay bằng REQs thật",
+      "id": "REQ-SALES-001",
+      "title": "Quản lý danh sách khách hàng",
+      "description": "Mô tả chi tiết yêu cầu — optional field",
+      "dept": "SALES",
+      "priority": "HIGH",
+      "status": "APPROVED",
+      "phase": "MVP",
+      "primary_module": "MOD-CRM-CUST",
+      "_primary_module_note": "Module chính chịu trách nhiệm — set bởi BA (Phase 3) hoặc wf-analyze-requirements Phase 8. BẮT BUỘC.",
+      "systems": ["SYS-CRM", "SYS-MOB"],
+      "_systems_note": "Array system IDs mà requirement này CẦN ĐƯỢC ĐÁP ỨNG — có thể nhiều systems (web portal + mobile app). BẮT BUỘC chứa ≥ 1 system. Dùng bởi wf-define-features Phase 1 fan-out để tạo feature RIÊNG cho mỗi system.",
+      "mapped_features": ["FEAT-CRM-CUST-001"],
+      "_mapped_features_note": "Mảng này được /define-features cập nhật khi tạo feature specs — reverse mapping REQ→FEAT để validation"
+    }
+  ],
+  "features": [
+    {
+      "_comment": "Ví dụ mẫu — xóa và thay bằng FEATs thật",
+      "id": "FEAT-CRM-CUST-001",
+      "title": "Customer List",
+      "system": "CRM",
+      "module": "CUST",
+      "req_ids": ["REQ-SALES-001"],
+      "_req_ids_note": "Reverse mapping FEAT→REQ — /define-features cập nhật đồng thời với mapped_features[] trong requirements[]",
+      "depends_on": [],
+      "priority": "HIGH",
+      "status": "PENDING",
+      "source_file": "phase2-features/features/crm/customer-management/customer-list.md"
+    }
+  ],
+  "screen_groups": [
+    {
+      "_comment": "Ví dụ mẫu — Screen Group = main page + tabs + dialogs + sheets + modes",
+      "id": "UI-CRM-CUST-LIST-001",
+      "title": "Customer List Screen Group",
+      "system": "CRM",
+      "module": "CUST",
+      "feat_ids": ["FEAT-CRM-CUST-001"],
+      "route": "/crm/customers",
+      "type": "list",
+      "status": "PENDING",
+      "source_file": "phase4-ux/crm/customer-management/customer-list.md",
+      "components": {
+        "main": "UI-CRM-CUST-LIST-001",
+        "tabs": [],
+        "dialogs": [
+          {
+            "id": "UI-CRM-CUST-LIST-001-D1",
+            "title": "Customer Create/Edit Dialog",
+            "type": "form"
+          },
+          {
+            "id": "UI-CRM-CUST-LIST-001-D2",
+            "title": "Delete Confirm Dialog",
+            "type": "confirm"
+          }
+        ],
+        "sheets": [],
+        "modes": []
+      }
+    },
+    {
+      "_comment": "Ví dụ mẫu — Detail page với nhiều tabs",
+      "id": "UI-CRM-CUST-DETAIL-001",
+      "title": "Customer Detail Screen Group",
+      "system": "CRM",
+      "module": "CUST",
+      "feat_ids": ["FEAT-CRM-CUST-001"],
+      "route": "/crm/customers/:id",
+      "type": "detail",
+      "status": "PENDING",
+      "source_file": "phase4-ux/crm/customer-management/customer-detail.md",
+      "components": {
+        "main": "UI-CRM-CUST-DETAIL-001",
+        "tabs": [
+          { "id": "UI-CRM-CUST-DETAIL-001-T1", "title": "Overview" },
+          { "id": "UI-CRM-CUST-DETAIL-001-T2", "title": "Orders" },
+          { "id": "UI-CRM-CUST-DETAIL-001-T3", "title": "Contracts" }
+        ],
+        "dialogs": [],
+        "sheets": [],
+        "modes": []
+      }
+    },
+    {
+      "_comment": "Ví dụ mẫu — Pipeline với nhiều view modes",
+      "id": "UI-CRM-PIPE-PIPE-001",
+      "title": "Sales Pipeline Screen Group",
+      "system": "CRM",
+      "module": "PIPE",
+      "feat_ids": ["FEAT-CRM-PIPE-001"],
+      "route": "/crm/pipeline",
+      "type": "dashboard",
+      "status": "PENDING",
+      "source_file": "phase4-ux/crm/pipeline/pipeline.md",
+      "components": {
+        "main": "UI-CRM-PIPE-PIPE-001",
+        "tabs": [],
+        "dialogs": [
+          { "id": "UI-CRM-PIPE-PIPE-001-D1", "title": "Deal Create/Edit Dialog", "type": "form" },
+          { "id": "UI-CRM-PIPE-PIPE-001-D2", "title": "Close Deal Dialog", "type": "form" }
+        ],
+        "sheets": [
+          { "id": "UI-CRM-PIPE-PIPE-001-S1", "title": "Deal Detail Sheet" }
+        ],
+        "modes": [
+          { "id": "UI-CRM-PIPE-PIPE-001-M1", "title": "Kanban View" },
+          { "id": "UI-CRM-PIPE-PIPE-001-M2", "title": "List View" },
+          { "id": "UI-CRM-PIPE-PIPE-001-M3", "title": "Forecast View" }
+        ]
+      }
+    }
+  ],
+  "interface_type": "web | mobile | web+mobile | api-only",
+  "design_status": "pending",
+  "ux_design_status": "pending",
+  "impl_status": {},
+  "implementation_order": {
+    "_comment": "Thứ tự implement — AI đọc mảng này để biết làm gì trước. Tính từ dependencies trong systems[], modules[], features[].",
+    "order": [
+      "FEAT-AUTH-CORE-001",
+      "FEAT-CRM-CUST-001"
+    ]
+  },
+  "status_values": {
+    "REQ": ["DRAFT", "APPROVED", "IMPLEMENTED", "DEPRECATED"],
+    "FEAT": ["PENDING", "IN_PROGRESS", "DONE", "BLOCKED"],
+    "UI": ["PENDING", "IN_PROGRESS", "DONE", "BLOCKED"],
+    "priority": ["HIGH", "MEDIUM", "LOW"],
+    "phase": ["MVP", "PHASE_2", "FUTURE"]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "legacy-scan-glossary-v1",
+
+  "project": "",
+  "created_at": "",
+  "created_by": "business-analyst",
+
+  "terms": [
+    {
+      "term": "",
+      "definition": "",
+      "context": "",
+      "source_files": [],
+      "related_modules": [],
+      "frequency": 0
+    }
+  ],
+
+  "abbreviations": [
+    {
+      "abbr": "",
+      "full_form": "",
+      "context": ""
+    }
+  ],
+
+  "domain_concepts": [
+    {
+      "concept": "",
+      "description": "",
+      "related_modules": []
+    }
+  ],
+
+  "stats": {
+    "total_terms": 0,
+    "total_abbreviations": 0,
+    "total_domain_concepts": 0,
+    "modules_covered": []
+  }
+}

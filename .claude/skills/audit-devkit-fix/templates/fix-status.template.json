@@ -1,0 +1,61 @@
+{
+  "$schema": "fix-status-v1",
+  "skill": "audit-devkit-fix",
+  "session_id": "YYYYMMDD-HHMMSS",
+  "status": "in_progress",
+  "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "mode": "live",
+  "severity_filter": "ALL",
+  "total_in_queue": 0,
+  "processed": 0,
+  "current_phase": "phase0-load",
+  "last_processed_finding": null,
+  "next_action": null,
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+  "phases": {
+    "phase0-load": {
+      "name": "Load Verified Findings",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase1-fix": {
+      "name": "Fix với Per-Fix Verification",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "fixes_applied": 0,
+      "fixes_reverted": 0,
+      "fixes_skipped": 0,
+      "error": null
+    },
+    "phase2-rescan": {
+      "name": "Post-Fix Targeted Re-scan",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "agents_spawned": 0,
+      "regressions_found": 0,
+      "error": null
+    },
+    "phase3-report": {
+      "name": "Final Report",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    }
+  },
+  "error_log": [],
+  "checkpoint": {
+    "context_used_pct": 0,
+    "current_phase": null,
+    "next_action": null,
+    "trigger_reason": null
+  }
+}

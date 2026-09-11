@@ -1,0 +1,20 @@
+{
+  "$schema": "fix-log-v1",
+  "fix_id": "FIX-YYYYMMDD-NNN",
+  "entries": [
+    {
+      "issue_id": "ISSUE-001",
+      "batch": 1,
+      "iteration": 0,
+      "agent": null,
+      "files_modified": [],
+      "files_created": [],
+      "change_type": "bug_fix",
+      "behavior_changed": false,
+      "api_contract_changed": false,
+      "route_map": [],
+      "summary": null,
+      "timestamp": "YYYY-MM-DDTHH:mm:ssZ"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "partition",
+  "version": "0.1.0",
+  "phase": "phase1-prereq",
+  "description": "Generic partition planner + workload gate. Group items by arbitrary key, estimate workload, gate decision (dead_zone/warn/block).",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-OPT-03"],
+  "core_refs": ["CORE-027"],
+  "inputs": [
+    {
+      "name": "items",
+      "type": "list[dict]",
+      "required": true,
+      "notes": "Danh sách items cần partition"
+    },
+    {
+      "name": "group_key",
+      "type": "string",
+      "required": true,
+      "notes": "Field name dùng để group (department, system, v.v.)"
+    },
+    {
+      "name": "threshold_minutes",
+      "type": "float",
+      "required": true,
+      "notes": "Ngưỡng workload gate"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "workload_estimate",
+      "kind": "file",
+      "template": "templates/workload-estimate.json",
+      "notes": "Workload estimate JSON"
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from partition import plan_partitions, check_workload_gate",
+      "kind": "python-import",
+      "called_by": "4 linear skills (trừ brainstorm)"
+    }
+  ],
+  "dependencies": {
+    "internal": [],
+    "external": []
+  },
+  "status": "phase1-new",
+  "testing": {
+    "min_cases": 3,
+    "notes": "Test partition grouping, split oversized, workload gate zones"
+  }
+}

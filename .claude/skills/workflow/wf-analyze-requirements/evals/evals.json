@@ -1,0 +1,758 @@
+{
+  "skill_name": "wf-analyze-requirements",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-analyze-requirements (ERP project — full run)",
+      "expected_output": "Load req-registry.json, detect domain ERP, spawn BA trước, sau đó spawn domain experts parallel, tạo departments/*.md + P1-02 + stakeholder-review + update req-registry.json. KHÔNG tạo feature specs.",
+      "assertions": [
+        {
+          "text": "PRE-GATE: Kiểm tra req-registry.json tồn tại trước khi bắt đầu (E000 guard)",
+          "type": "behavior"
+        },
+        {
+          "text": "BA (business-analyst) luôn chạy TRƯỚC domain experts — không spawn parallel ngay",
+          "type": "behavior"
+        },
+        {
+          "text": "Tạo .mc-data/work/wf-analyze-requirements/analyze-status.json ở Phase 0",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tạo .mc-data/work/wf-analyze-requirements/analyze-plan.md ở Phase 2",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6b: Tạo P1-02-business-workflow.md cross-departmental",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6c: Tạo stakeholder-review.md",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 8: Registry update trực tiếp (NO AGENT) — chỉ update systems[], modules[], departments[], requirements[], interface_type",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 8 Step 8.3 chỉ update systems[], modules[], departments[], requirements[], interface_type — KHÔNG tạo feature specs (features[] thuộc /wf-define-features scope per SKILL.md Registry Update section)",
+          "type": "behavior"
+        },
+        {
+          "text": "req-registry.json sau khi chạy có valid JSON (jq pass)",
+          "type": "file_content"
+        },
+        {
+          "text": "Report cuối hiển thị số REQ-IDs và đề xuất /wf-define-features (không phải /wf-design)",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-analyze-requirements --resume",
+      "expected_output": "Đọc analyze-status.json, xác định phase đang dở, resume đúng chỗ, không chạy lại phases đã xong",
+      "assertions": [
+        {
+          "text": "Đọc .mc-data/work/wf-analyze-requirements/analyze-status.json trước khi làm bất cứ điều gì",
+          "type": "behavior"
+        },
+        {
+          "text": "Thông báo rõ resume từ phase/expert nào",
+          "type": "output_contains"
+        },
+        {
+          "text": "Phase 3 Step 3.3: trước khi spawn BA agent, kiểm tra test -f [dept].md && test -s — nếu Phần A đã có → skip + LOG. Phase 4 Step 4.1: trước khi spawn expert, grep \"Phần B\" — nếu đã có → skip. Checkpoint preserves depts_completed count",
+          "type": "behavior"
+        },
+        {
+          "text": "Lưu checkpoint sau khi hoàn thành mỗi expert trong Phase 4",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-analyze-requirements business (CRM project)",
+      "expected_output": "Scope = business, chỉ tạo departments/*.md, BA + domain experts chạy bình thường, expert mapping cho CRM domain",
+      "assertions": [
+        {
+          "text": "Phase 1 Step 1.3: parse scope từ arguments. Step 1.4: xác định scope — user input ưu tiên hơn auto-detect. Scope=business chạy phases 0→1→2→3→4→5→6→8→8b (skip 6b/6c/6d per procedures/phase1-scope.md Scope behavior table)",
+          "type": "behavior"
+        },
+        {
+          "text": "Detect domain = CRM, spawn sales-expert + marketing-expert",
+          "type": "behavior"
+        },
+        {
+          "text": "Tạo departments/*.md files",
+          "type": "file_exists"
+        },
+        {
+          "text": "Không spawn experts ngoài CRM domain (vd: không có manufacturing-expert)",
+          "type": "behavior"
+        },
+        {
+          "text": "Registry chỉ update allowed fields: systems[], modules[], departments[], requirements[], interface_type",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-analyze-requirements (project có conflicts trong SO-01/02/03)",
+      "expected_output": "Phase 6d phân loại findings thành AUTO-RESOLVE / EXPERT-RESOLVE / DEFER-TO-DESIGN, auto-resolve terminology + SSOT, domain experts tự quyết conflicts, ghi deferred-issues.md cho technical gaps",
+      "assertions": [
+        {
+          "text": "Phase 6d chạy SAU Phase 6c và TRƯỚC Phase 8",
+          "type": "behavior"
+        },
+        {
+          "text": "Đọc stakeholder-review.md và extract tất cả findings",
+          "type": "behavior"
+        },
+        {
+          "text": "AUTO-RESOLVE: cập nhật terminology/SSOT vào dept docs mà không hỏi user",
+          "type": "behavior"
+        },
+        {
+          "text": "EXPERT-RESOLVE: spawn domain expert(s) liên quan để tự chọn recommended option",
+          "type": "behavior"
+        },
+        {
+          "text": "DEFER-TO-DESIGN: tạo deferred-issues.md với technical/dependency issues",
+          "type": "file_exists"
+        },
+        {
+          "text": "POST-GATE: không còn finding nào ở trạng thái PENDING",
+          "type": "behavior"
+        },
+        {
+          "text": "stakeholder-review.md được cập nhật mark findings RESOLVED hoặc DEFERRED",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-analyze-requirements (Phase 8 — registry update, NO AGENT)",
+      "expected_output": "Phase 8 cập nhật registry trực tiếp từ main conversation (KHÔNG spawn agent), JSON valid, counts khớp với dept docs",
+      "assertions": [
+        {
+          "text": "Phase 8 KHÔNG delegate registry update cho agent — main conversation trực tiếp Read/Write",
+          "type": "behavior"
+        },
+        {
+          "text": "Registry JSON valid sau write (jq parse thành công)",
+          "type": "file_content"
+        },
+        {
+          "text": "Số requirements[] trong registry == tổng REQ-IDs từ dept docs",
+          "type": "behavior"
+        },
+        {
+          "text": "KHÔNG update features[] (thuộc /wf-define-features scope)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 8b cross-validate: mỗi REQ-ID có source file tồn tại",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-analyze-requirements (Phase 8b cross-validation errors)",
+      "expected_output": "Phase 8b auto-correction loop: detect errors → auto-fix → re-check → PASS or escalate",
+      "assertions": [
+        {
+          "text": "Phase 8b chạy 8 validation checks (8b.1 → 8b.7 + 8b.3b)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 8b Check 8b.2: verify mỗi REQ-ID trong dept docs có trong registry — nếu FAIL (missing_file) → auto-fix: kiểm tra file bị đổi tên/di chuyển, fix path; nếu thực sự thiếu → tạo từ context per procedures/_shared.md §Fix Rules (missing_file row)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 8b Check 8b.5: verify không có duplicate REQ-IDs — nếu FAIL → auto-fix bằng merge duplicates, keep entry với nhiều thông tin hơn per procedures/_shared.md §Fix Rules (duplicate_id row)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 8b auto-correction loop: sau mỗi auto-fix iteration, re-run TẤT CẢ 8 validation checks (8b.1→8b.7 + 8b.3b), không chỉ check lỗi cũ — max 3 iterations per protocols/01-accuracy-assurance.md",
+          "type": "behavior"
+        },
+        {
+          "text": "Log iteration count + errors fixed + errors remaining vào analyze-report",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-analyze-requirements (auto-fix fail sau 3 iterations)",
+      "expected_output": "STOP — không tiếp tục. Báo cáo chi tiết lỗi còn lại. Escalation message rõ ràng",
+      "assertions": [
+        {
+          "text": "STOP sau đúng 3 iterations — không lặp vô hạn",
+          "type": "behavior"
+        },
+        {
+          "text": "Iteration 2 có WARNING cho user biết lỗi lặp lại",
+          "type": "output_contains"
+        },
+        {
+          "text": "Iteration 3 (final) STOP + báo cáo chi tiết lỗi còn lại",
+          "type": "output_contains"
+        },
+        {
+          "text": "Phase 8b POST-GATE: zero validation errors (tất cả checks PASS) HOẶC user acknowledged remaining errors — KHÔNG tiến sang Output Report section khi Phase 8b POST-GATE chưa PASS per procedures/phase8b-crossval.md POST-GATE",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-analyze-requirements — chưa có .mc-data/ (error handling)",
+      "expected_output": "PRE-GATE Phase 0 FAIL → E000 → STOP ngay, thông báo chạy /wf-brainstorm trước",
+      "assertions": [
+        {
+          "text": "PRE-GATE Phase 0 detect req-registry.json không tồn tại → trigger E000",
+          "type": "behavior"
+        },
+        {
+          "text": "STOP ngay — không tiến sang bất kỳ phase nào",
+          "type": "behavior"
+        },
+        {
+          "text": "Thông báo rõ: cần chạy /wf-brainstorm trước",
+          "type": "output_contains"
+        },
+        {
+          "text": "PRE-GATE Phase 0 FAIL → E000 (req-registry.json) hoặc E016 (P0-01-brainstorm.md) → STOP ngay — không mkdir .mc-data/work/wf-analyze-requirements/, không tạo analyze-status.json, không tạo bất kỳ file nào trong .mc-data/",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-analyze-requirements MOD-SALES (ERP project, targeted single module)",
+      "expected_output": "Scope = targeted module MOD-SALES, chỉ xử lý 1 department kinh-doanh-ban-hang, skip Phase 6b/6c/6d, registry chỉ thêm REQ-SALES-*",
+      "assertions": [
+        {
+          "text": "Scope detected as targeted module (MOD-SALES / kinh-doanh-ban-hang)",
+          "type": "behavior"
+        },
+        {
+          "text": "Chỉ tạo department doc cho kinh-doanh-ban-hang — KHÔNG tạo cho 4 departments còn lại",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tạo P1-01-project-overview.md",
+          "type": "file_exists"
+        },
+        {
+          "text": "SKIP Phase 6b (scope != all)",
+          "type": "behavior"
+        },
+        {
+          "text": "SKIP Phase 6c (scope != all)",
+          "type": "behavior"
+        },
+        {
+          "text": "SKIP Phase 6d (scope != all)",
+          "type": "behavior"
+        },
+        {
+          "text": "Registry features[] vẫn empty, safe-write protocol enforced",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-analyze-requirements --resume (resume từ Phase 3 done, Phase 4 pending)",
+      "expected_output": "Detect checkpoint, skip Phase 0-3, preserve existing Phần A, create missing depts, complete all remaining phases, session=2",
+      "assertions": [
+        {
+          "text": "Detect --resume flag và load analyze-status.json checkpoint",
+          "type": "behavior"
+        },
+        {
+          "text": "SKIP Phase 0-3 (đã completed) — bắt đầu từ Phase 4",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3 Step 3.3: test -f departments/[dept]/[dept].md && test -s — nếu Phần A đã tồn tại và non-empty → LOG \"Skip [dept] — Phần A đã có\" + cộng vào depts_completed → KHÔNG spawn BA agent, KHÔNG ghi đè",
+          "type": "behavior"
+        },
+        {
+          "text": "Tạo Phần A cho departments còn thiếu",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tạo Phần B cho TẤT CẢ departments",
+          "type": "file_exists"
+        },
+        {
+          "text": "Hoàn thành Phase 6→6b→6c→6d→8→8b (scope=all)",
+          "type": "behavior"
+        },
+        {
+          "text": "Registry có 34+ REQ-IDs cho cả 5 departments",
+          "type": "file_content"
+        },
+        {
+          "text": "analyze-status.json updated — status=completed, session=2",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "Phân tích requirements cho hệ thống CRM bán hàng - có quản lý khách hàng, pipeline, báo giá, đơn hàng",
+      "expected_output": "Skill chạy đúng phases theo procedures/ (phase0-context → phase1-scope → phase2-plan → phase3-ba-parta → phase4-experts-partb → phase6-consolidate → phase6b-workflow → phase6c-stakeholder → phase6d-conflict → phase8-registry → phase8b-crossval → phase8c-handoff) cho CRM Sales domain: BA phân tích stakeholders, sales-expert + marketing-expert + customer-expert + finance-expert tạo dept docs, req-registry.json cập nhật systems/modules/departments/requirements, REQ-IDs format REQ-[DEPT]-[NNN], output report hiển thị /wf-define-features.",
+      "assertions": [
+        {
+          "text": "Kiểm tra PRE-GATE Phase 0: req-registry.json tồn tại, P0-01-brainstorm.md tồn tại (E000/E016 guard)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 2: detect domain CRM/Sales, lên kế hoạch spawn sales-expert (primary cho Kinh doanh/Bán hàng dept)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3: spawn business-analyst TRƯỚC domain experts — BA tạo Phần A cho tất cả departments",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4: spawn sales-expert phụ trách Phần B cho phòng ban Kinh doanh",
+          "type": "behavior"
+        },
+        {
+          "text": "Tạo analyze-status.json tại .mc-data/work/wf-analyze-requirements/analyze-status.json",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tạo P1-01-project-overview.md tại .mc-data/docs/phase1-business/P1-01-project-overview.md",
+          "type": "file_exists"
+        },
+        {
+          "text": "departments/ thư mục có ít nhất 3 thư mục con riêng biệt (CRM Sales có 4 phòng ban: Kinh doanh, Marketing, CSKH, Kế toán)",
+          "type": "file_exists"
+        },
+        {
+          "text": "REQ-IDs trong dept docs có format đúng REQ-[DEPT]-[NNN] (ví dụ REQ-SALES-001, REQ-CRM-001)",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 8: req-registry.json được cập nhật với requirements[] không rỗng (có ít nhất 5 REQ-IDs)",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 8: req-registry.json JSON valid (có thể parse), KHÔNG update features[] hay design_status",
+          "type": "file_content"
+        },
+        {
+          "text": "Output report cuối đề xuất /wf-define-features là next step (KHÔNG phải /wf-design)",
+          "type": "output_contains"
+        },
+        {
+          "text": "Phase 6c: Tạo .mc-data/docs/phase1-business/stakeholder-review.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6d: Tạo .mc-data/work/wf-analyze-requirements/deferred-issues.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tạo .mc-data/docs/phase1-business/departments/_index.md (department index file)",
+          "type": "file_exists"
+        },
+        {
+          "text": "analyze-status.json: trường status = 'completed' sau khi skill hoàn tất (không phải 'pending' hay 'in_progress')",
+          "type": "file_content"
+        }
+      ],
+      "files": [
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc1-crm-sales/mc-data/docs/_meta/req-registry.json",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc1-crm-sales/mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "Analyze requirements cho hospital management system - quản lý bệnh nhân, lịch khám, hồ sơ y tế, viện phí",
+      "expected_output": "Skill nhận diện Healthcare domain, spawn healthcare-expert (primary cho Lâm sàng/Y tế dept), finance-expert cho Kế toán/Billing, BA phân tích stakeholders lâm sàng. REQ-IDs healthcare-specific (REQ-PATIENT, REQ-CLINIC, REQ-BILLING). req-registry.json updated. Compliance healthcare được đề cập.",
+      "assertions": [
+        {
+          "text": "Phase 1/2: detect domain Healthcare/Hospital, nhận diện healthcare-expert là primary expert",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4: spawn healthcare-expert phụ trách departments Lâm sàng/Clinical/Y tế",
+          "type": "behavior"
+        },
+        {
+          "text": "departments/ có ít nhất 2 thư mục con riêng biệt (hospital có 4 phòng ban: Lâm sàng, Hành chính, Kế toán/Billing, Dược)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Tạo department docs có nội dung healthcare-specific (bệnh nhân, lịch khám, hồ sơ y tế, BHYT)",
+          "type": "file_content"
+        },
+        {
+          "text": "REQ-IDs trong registry có format hợp lệ REQ-[DEPT]-[NNN] hoặc REQ-[SYSTEM]-[MODULE]-[NNN]",
+          "type": "file_content"
+        },
+        {
+          "text": "req-registry.json sau khi update: requirements[] có ít nhất 5 REQ-IDs, departments[] không rỗng",
+          "type": "file_content"
+        },
+        {
+          "text": "req-registry.json: features[] vẫn là [] (KHÔNG bị thêm features)",
+          "type": "file_content"
+        },
+        {
+          "text": "Tạo P1-01-project-overview.md với thông tin Hospital Management System",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6c: Tạo .mc-data/docs/phase1-business/stakeholder-review.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6d: Tạo .mc-data/work/wf-analyze-requirements/deferred-issues.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "analyze-status.json: trường status = 'completed' sau khi skill hoàn tất (không phải 'pending')",
+          "type": "file_content"
+        }
+      ],
+      "files": [
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc2-hospital-mgmt/mc-data/docs/_meta/req-registry.json",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc2-hospital-mgmt/mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "Phân tích yêu cầu cho logistics platform - quản lý vận chuyển, kho bãi, tracking, customs clearance",
+      "expected_output": "Skill nhận diện Logistics domain, spawn logistics-expert (primary cho Vận chuyển/Hải quan dept), operations-expert (Kho bãi/WMS), finance-expert (Kế toán). Dept docs có nội dung logistics-specific (TMS, WMS, hải quan, Incoterms). REQ-IDs logistics-specific. req-registry.json updated với TMS + WMS systems.",
+      "assertions": [
+        {
+          "text": "Phase 1/2: detect domain Logistics, nhận diện logistics-expert là primary expert cho vận chuyển/hải quan",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4: spawn logistics-expert phụ trách departments Vận chuyển / Hải quan / Xuất nhập khẩu",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4: spawn operations-expert phụ trách Kho bãi / Warehouse dept",
+          "type": "behavior"
+        },
+        {
+          "text": "Tạo department docs với nội dung logistics-specific (TMS, WMS, tracking, customs, Incoterms, HS code)",
+          "type": "file_content"
+        },
+        {
+          "text": "REQ-IDs trong dept docs: format REQ-[DEPT]-[NNN] không có spaces hay ký tự đặc biệt",
+          "type": "file_content"
+        },
+        {
+          "text": "req-registry.json requirements[] có ít nhất 5 REQ-IDs sau khi skill chạy xong",
+          "type": "file_content"
+        },
+        {
+          "text": "req-registry.json: systems[] chứa TMS và/hoặc WMS (không bị clear về [])",
+          "type": "file_content"
+        },
+        {
+          "text": "departments/ có ít nhất 3 thư mục con riêng biệt (logistics có 5 phòng ban: Vận chuyển, Kho bãi, Hải quan, CSKH, Kế toán)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6c: Tạo .mc-data/docs/phase1-business/stakeholder-review.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6d: Tạo .mc-data/work/wf-analyze-requirements/deferred-issues.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "analyze-plan.md: nội dung đề cập logistics-expert hoặc operations-expert làm primary experts (không chỉ business-analyst)",
+          "type": "file_content"
+        }
+      ],
+      "files": [
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc3-logistics-platform/mc-data/docs/_meta/req-registry.json",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc3-logistics-platform/mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "Phân tích requirements cho dự án legacy đã onboard — LEGACY_MODE auto-detect (project-context.md > 500 bytes), merge existing docs thay vì overwrite",
+      "expected_output": "Skill detect LEGACY_MODE (CORE-021: project-context.md > 500 bytes), load legacy context + legacy-decisions.json, chạy Phase 5 merge logic ($HAS_EXISTING_DOCS=true), giữ nguyên existing dept docs (kho.md), bổ sung departments mới (kế toán, sản xuất), REQ-IDs existing giữ nguyên + thêm mới, operations-expert + procurement-expert + manufacturing-expert + finance-expert spawn cho đúng domain.",
+      "assertions": [
+        {
+          "text": "Phase 0: detect LEGACY_MODE (CORE-021 — project-context.md > 500 bytes) và load legacy context + legacy-decisions.json (CORE-022)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 5: chạy Existing Docs Integration — merge onboard docs thay vì overwrite (HAS_EXISTING_DOCS=true)",
+          "type": "behavior"
+        },
+        {
+          "text": "Existing dept doc kho.md: nội dung Phần A gốc (REQ-WH-001, REQ-WH-002, REQ-WH-003) được giữ nguyên, KHÔNG bị xóa hoặc ghi đè",
+          "type": "file_content"
+        },
+        {
+          "text": "Bổ sung departments mới ngoài kho và thu-mua (ít nhất 1 dept mới: ke-toan hoặc san-xuat)",
+          "type": "file_exists"
+        },
+        {
+          "text": "req-registry.json: existing REQ-IDs (REQ-WH-001, REQ-WH-002, REQ-WH-003, REQ-PM-001) vẫn tồn tại sau khi skill chạy xong",
+          "type": "file_content"
+        },
+        {
+          "text": "req-registry.json: requirements[] có nhiều hơn 4 entries ban đầu (bổ sung REQ-IDs mới cho gaps và departments mới)",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 2: detect domain Manufacturing/Retail, lên kế hoạch spawn operations-expert hoặc manufacturing-expert hoặc procurement-expert",
+          "type": "behavior"
+        },
+        {
+          "text": "req-registry.json: features[] vẫn là [] (KHÔNG bị thêm features — safe-write protocol)",
+          "type": "file_content"
+        },
+        {
+          "text": "Tạo analyze-status.json với status='completed' sau khi skill hoàn tất",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 6c: Tạo .mc-data/docs/phase1-business/stakeholder-review.md (scope=all, output bắt buộc)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 6d: Tạo .mc-data/work/wf-analyze-requirements/deferred-issues.md nếu có unresolved items",
+          "type": "file_exists"
+        },
+        {
+          "text": "req-registry.json: JSON valid, departments[] chứa ít nhất 3 entries (kho + thu-mua + thêm mới)",
+          "type": "file_content"
+        }
+      ],
+      "files": [
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc4-from-legacy-scan/mc-data/docs/_meta/req-registry.json",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc4-from-legacy-scan/mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc4-from-legacy-scan/mc-data/docs/phase1-business/departments/kho/kho.md",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc4-from-legacy-scan/mc-data/work/wf-legacy-scan/doc-mapping.json",
+        "skills-test-workspace/wf-analyze-requirements-workspace/fixtures/tc4-from-legacy-scan/mc-data/work/wf-legacy-scan/onboard-report-20260318.md"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "session-isolation-multi-run",
+      "prompt": "/wf-analyze-requirements chạy 2 lần liên tiếp trên cùng project (không --resume) — verify ADR-OPT-02 session isolation",
+      "expected_output": "Run 1 tạo sessions/{id1}/ chứa đầy đủ session-state.json + workload-report.md + lanes/ + aggregation-result.json. Run 2 tạo sessions/{id2}/ mới, KHÔNG overwrite session cũ. Con trỏ `latest` (symlink hoặc file) trỏ về session mới nhất (id2).",
+      "assertions": [
+        {
+          "text": "Sau Run 1: tồn tại directory .mc-data/work/wf-analyze-requirements/sessions/{id1}/ với session-state.json non-empty",
+          "type": "file_exists"
+        },
+        {
+          "text": "Sau Run 2: tồn tại 2 directories sessions/{id1}/ và sessions/{id2}/ — count >= 2",
+          "type": "behavior"
+        },
+        {
+          "text": "Sau Run 2: file .mc-data/work/wf-analyze-requirements/latest trỏ đến sessions/{id2}/ (session mới nhất)",
+          "type": "file_content"
+        },
+        {
+          "text": "Session cũ (id1) sau Run 2: session-state.json giữ nguyên (phases.*.status không bị reset), workload-report.md không bị ghi đè",
+          "type": "file_content"
+        },
+        {
+          "text": "id1 != id2 — 2 session IDs khác nhau (timestamp-based hoặc UUID-based)",
+          "type": "behavior"
+        },
+        {
+          "text": "CORE-030 Working Directory Session Isolation: skills multi-run không ghi đè session cũ",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 16,
+      "name": "workload-gate-dead-zone",
+      "prompt": "/wf-analyze-requirements trên project nhỏ (≤3 departments, ≤10 requirements) — verify ADR-OPT-03 Workload Gate dead_zone silent continue",
+      "expected_output": "Phase 0.5 Workload Gate chạy, tính complexity metrics (departments count, requirements count, expert count), xác định gate_status=\"dead_zone\", ratio < 0.8. Skill silent continue sang Phase 1 KHÔNG prompt user. session-state.json có phases.P0_5.status=\"completed\" với gate_decision=\"dead_zone_auto_continue\".",
+      "assertions": [
+        {
+          "text": "Tồn tại sessions/{id}/workload-report.md chứa 'gate_status: dead_zone' hoặc tương đương",
+          "type": "file_content"
+        },
+        {
+          "text": "workload-report.md có ratio < 0.8 (complexity thấp hơn ngưỡng warning)",
+          "type": "file_content"
+        },
+        {
+          "text": "KHÔNG có AskUserQuestion spawn trong Phase 0.5 — silent continue",
+          "type": "behavior"
+        },
+        {
+          "text": "session-state.json: phases.P0_5.status = 'completed' và có gate_decision field",
+          "type": "file_content"
+        },
+        {
+          "text": "Skill tiếp tục Phase 1+ bình thường sau Phase 0.5 (không block, không early-exit)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 17,
+      "name": "workload-gate-block-override-cdg",
+      "prompt": "/wf-analyze-requirements trên project lớn (≥10 departments, ≥50 requirements) — verify ADR-OPT-03 Workload Gate block + CDG override",
+      "expected_output": "Phase 0.5 Workload Gate xác định gate_status=\"block\" (ratio > 1.5), spawn AskUserQuestion với 2 options Plan A (giảm scope) / Plan B (Override + CDG). Nếu user chọn Override → tạo cdg-tokens.json với entry cdg_id=\"CDG-A02-workload-override\", decision=\"accept\". Skill tiếp tục với flag override=true.",
+      "assertions": [
+        {
+          "text": "workload-report.md chứa gate_status='block' và ratio > 1.5",
+          "type": "file_content"
+        },
+        {
+          "text": "AskUserQuestion được spawn với ≥2 options (Plan A / Plan B Override)",
+          "type": "behavior"
+        },
+        {
+          "text": "Nếu user chọn Override: tồn tại cdg-tokens.json với cdg_id='CDG-A02-workload-override' và decision='accept'",
+          "type": "file_content"
+        },
+        {
+          "text": "CORE-027 Critical Decision Gate: hành động override được log với user confirmation",
+          "type": "behavior"
+        },
+        {
+          "text": "session-state.json ghi gate_decision='override' và flow tiếp tục sang Phase 1",
+          "type": "file_content"
+        },
+        {
+          "text": "Nếu user chọn Plan A (giảm scope): skill DỪNG với hướng dẫn user revise brainstorm hoặc split project",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 18,
+      "name": "lane-dispatch-parallel-writes",
+      "prompt": "/wf-analyze-requirements với 5 departments và 5 domain-experts khác nhau — verify ADR-OPT-04 Lane Dispatch parallel write-scope isolation",
+      "expected_output": "Phase 4 Lane Dispatch tạo sessions/{id}/lanes/ với 5 subdirs (1 per dept-expert pair). Mỗi lane có signals.json non-empty, lane_key unique, items[] chứa signals của riêng dept đó. Không có write conflict giữa các lanes — mỗi lane write vào subdir riêng. session-log.json không có file lock errors.",
+      "assertions": [
+        {
+          "text": "Tồn tại sessions/{id}/lanes/ với 5 subdirs tương ứng 5 departments",
+          "type": "file_exists"
+        },
+        {
+          "text": "Mỗi lane có signals.json non-empty, đúng schema lane-signal-v1 (có fields lane_key, items[], status, ...)",
+          "type": "file_content"
+        },
+        {
+          "text": "lane_keys unique across 5 lanes — không trùng",
+          "type": "file_content"
+        },
+        {
+          "text": "items[] giữa các lanes không overlap về dept ownership (mỗi item chỉ thuộc 1 lane)",
+          "type": "file_content"
+        },
+        {
+          "text": "session-log.json không chứa error events về file lock/write conflict",
+          "type": "file_content"
+        },
+        {
+          "text": "CORE-025: Song song hóa có ownership rõ (mỗi lane = 1 owner), isolated write scope (subdir riêng), stable contract (lane-signal schema)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 19,
+      "name": "signal-aggregation-dedup",
+      "prompt": "/wf-analyze-requirements với 2 lanes cùng produce REQ-SHARED-001 — verify ADR-OPT-04 Signal Aggregator dedup logic",
+      "expected_output": "Phase 4 post-dispatch Signal Aggregator đọc tất cả lanes/*/signals.json, merge + dedup. aggregation-result.json có duplicates >= 1, total_output < total_input. Nếu duplicate có nội dung khác nhau (conflict) → log vào conflicts[]. Phase 6d nhận flag để xử lý conflicts.",
+      "assertions": [
+        {
+          "text": "Tồn tại sessions/{id}/aggregation-result.json đúng schema aggregation-result-v1",
+          "type": "file_exists"
+        },
+        {
+          "text": "aggregation-result.json: duplicates field >= 1 khi có REQ-ID trùng giữa 2+ lanes",
+          "type": "file_content"
+        },
+        {
+          "text": "aggregation-result.json: total_output < total_input (dedup đã chạy)",
+          "type": "file_content"
+        },
+        {
+          "text": "aggregation-result.json: conflicts[] chứa entry nếu 2 versions của cùng REQ-ID có nội dung khác nhau",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 6d receive flag hoặc đọc conflicts[] để xử lý — không silent drop",
+          "type": "behavior"
+        },
+        {
+          "text": "Final req-registry.json requirements[] không chứa REQ-ID duplicate sau dedup",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 20,
+      "name": "template-strip-no-leak",
+      "prompt": "/wf-analyze-requirements full run (ERP project) — verify ADR-OPT-05 template strip: canonical digest outputs KHÔNG leak template helper keys",
+      "expected_output": "Phase 8c Handoff đọc template _digests/dept-digests.template.json + phase1-handoff.template.json, populate data, strip helper keys (_template_notes, _comments, _examples, _placeholder, _description) trước khi ghi canonical output. .mc-data/docs/_meta/dept-digests.json và phase1-handoff.json KHÔNG chứa bất kỳ key nào bắt đầu bằng underscore (_*).",
+      "assertions": [
+        {
+          "text": "Tồn tại .mc-data/docs/_meta/dept-digests.json với valid JSON",
+          "type": "file_exists"
+        },
+        {
+          "text": "dept-digests.json KHÔNG chứa key _template_notes, _comments, _examples, _placeholder, _description",
+          "type": "file_content"
+        },
+        {
+          "text": "phase1-handoff.json KHÔNG chứa key _template_notes, _comments, _examples, _placeholder, _description",
+          "type": "file_content"
+        },
+        {
+          "text": "Template file gốc (_digests/dept-digests.template.json) vẫn giữ nguyên các helper keys — chỉ canonical output bị strip",
+          "type": "file_content"
+        },
+        {
+          "text": "Strip logic áp dụng đệ quy (nested objects/arrays) — không chỉ top-level",
+          "type": "behavior"
+        },
+        {
+          "text": "CORE-031 Template Usage Rule: READ template → POPULATE → STRIP → WRITE canonical",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

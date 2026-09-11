@@ -1,0 +1,5 @@
+{
+  "$schema": "cdg-tokens-v1",
+  "_template_notes": "Template cho cdg-tokens.json. Strip _template_notes trước khi ghi.",
+  "tokens": []
+}

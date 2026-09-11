@@ -1,0 +1,25 @@
+{
+  "$schema": "fix-log-v1",
+  "fixed_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "source": "audit-verified-result.json",
+  "mode": "live",
+  "severity_filter": "ALL",
+  "fixes": [],
+  "manual_issues": [],
+  "regressions": [],
+  "summary": {
+    "attempted": 0,
+    "fixed_verified": 0,
+    "reverted": 0,
+    "skipped": 0,
+    "dry_run": 0,
+    "regressions_detected": 0
+  },
+  "post_fix_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict_pre_fix": null,
+  "verdict_post_fix": null
+}

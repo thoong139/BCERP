@@ -1,0 +1,111 @@
+{
+  "$schema": "audit-status-v1",
+  "skill": "audit-skill-output",
+  "status": "not_started | in_progress | completed | error | paused",
+  "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+  "completed_at": null,
+  "current_session": 1,
+
+  "mode": "single | --all",
+  "flags": {
+    "no_fix": false,
+    "dimension": null,
+    "verbose": false
+  },
+
+  "target": {
+    "skills_to_audit": [],
+    "current_skill": null,
+    "completed_skills": [],
+    "remaining_skills": []
+  },
+
+  "findings": {
+    "total": 0,
+    "by_severity": {
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "info": 0
+    },
+    "by_dimension": {
+      "D1": { "pass": 0, "warn": 0, "fail": 0, "skipped": false },
+      "D2": { "pass": 0, "warn": 0, "fail": 0, "skipped": false },
+      "D3": { "pass": 0, "warn": 0, "fail": 0, "skipped": false },
+      "D4": { "pass": 0, "warn": 0, "fail": 0, "score": null, "skipped": false },
+      "D5": { "pass": 0, "warn": 0, "fail": 0, "skipped": false },
+      "D6": { "pass": 0, "warn": 0, "fail": 0, "skipped": false },
+      "D7": { "pass": 0, "warn": 0, "fail": 0, "skipped": false },
+      "D8": { "pass": 0, "warn": 0, "fail": 0, "skipped": false, "master_plan_enabled": false }
+    },
+    "auto_fixed": 0,
+    "escalated": 0
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Scope Detection & Context Loading",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Structural Audit (D1+D2+D3+D6+D7+D8)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "dimensions_run": [],
+      "error": null
+    },
+    "phase_2": {
+      "name": "Auto-Fix Structural Issues",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "fixes_applied": 0,
+      "skipped": false,
+      "skip_reason": null,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Semantic Audit via Subagents (D4+D5)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "d4_status": "pending | completed | skipped | error",
+      "d4_score": null,
+      "d5_status": "pending | completed | skipped | error",
+      "skipped": false,
+      "skip_reason": null,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Collect Results, Verdict & Report",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "verdict": null,
+      "report_file": null,
+      "dimensions_audited": 0,
+      "dimensions_total": 7,
+      "dimensions_total_with_master_plan": 8,
+      "error": null
+    }
+  },
+
+  "reports": [],
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_skill": null,
+    "next_action": null,
+    "resumed_from": null
+  },
+
+  "error_log": []
+}

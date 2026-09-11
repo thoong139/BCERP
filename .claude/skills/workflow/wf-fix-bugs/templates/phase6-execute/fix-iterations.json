@@ -1,0 +1,31 @@
+{
+  "$schema": "fix-iterations-v1",
+  "_template_notes": [
+    "Template cho fix-iterations.json — audit trail của Phase 6 Fix Iteration Loop (Wave 2 G2).",
+    "fix-iteration-loop.sh init template này khi iteration đầu tiên bắt đầu.",
+    "verify-defer-reasons.sh + execute agent append entries cho mỗi iteration.",
+    "Strip _template_notes khi populate (CORE-031)."
+  ],
+  "_schema_notes": {
+    "max_iterations": "Số iteration tối đa (default 3, env MCV3_FIX_LOOP_MAX_ITER override)",
+    "current_iteration": "Iteration đang chạy (1-based). 0 = chưa start.",
+    "final_decision": "completed | cdg_escalated | max_exhausted | user_skip"
+  },
+  "session_id": "<SESSION_ID>",
+  "max_iterations": 3,
+  "current_iteration": 0,
+  "started_at": null,
+  "updated_at": null,
+  "completed_at": null,
+  "iterations": [],
+  "final_decision": null,
+  "cdg_token": null,
+  "summary": {
+    "initial_should_fix": 0,
+    "initial_actually_fixed": 0,
+    "initial_unsanctioned": 0,
+    "final_fixed_total": 0,
+    "final_unsanctioned_remaining": 0,
+    "net_improvement": 0
+  }
+}

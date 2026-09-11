@@ -1,0 +1,120 @@
+{
+  "$schema": "golden-v6-expected-v1",
+  "description": "Expected signals from golden-v6 fixture across 7 dimensions",
+  "expected_counts": {
+    "QD1": 2,
+    "QD2": 3,
+    "QD3": 3,
+    "QD4": 2,
+    "QD5": 2,
+    "QD6": 3,
+    "QD7": 2
+  },
+  "expected_signals": [
+    {
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "target_file": "src/auth.ts",
+      "description_contains": "REQ-"
+    },
+    {
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "target_file": "src/orders.ts",
+      "description_contains": "REQ-"
+    },
+    {
+      "probe_id": "P-QD2-hardcoded-value-detect",
+      "dimension_id": "QD2",
+      "target_file": "src/orders.ts",
+      "description_contains": "TAX_RATE"
+    },
+    {
+      "probe_id": "P-QD2-hardcoded-value-detect",
+      "dimension_id": "QD2",
+      "target_file": "src/orders.ts",
+      "description_contains": "COMMISSION_RATE"
+    },
+    {
+      "probe_id": "P-QD2-calculation-check",
+      "dimension_id": "QD2",
+      "target_file": "src/orders.ts",
+      "description_contains": "reduce"
+    },
+    {
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "target_file": "src/auth.ts",
+      "description_contains": "secret",
+      "cdg_required": true
+    },
+    {
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "target_file": "src/auth.ts",
+      "description_contains": "password",
+      "cdg_required": true
+    },
+    {
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "target_file": "src/auth.ts",
+      "description_contains": "PRIVATE KEY",
+      "cdg_required": true
+    },
+    {
+      "probe_id": "P-QD4-bundle-size-audit",
+      "dimension_id": "QD4",
+      "target_file": "src/api/users.ts",
+      "description_contains": "lodash"
+    },
+    {
+      "probe_id": "P-QD4-db-query-analysis",
+      "dimension_id": "QD4",
+      "target_file": "src/api/users.ts",
+      "description_contains": "SELECT"
+    },
+    {
+      "probe_id": "P-QD5-label-consistency",
+      "dimension_id": "QD5",
+      "target_file": "src/dashboard.tsx",
+      "description_contains": "icon-btn"
+    },
+    {
+      "probe_id": "P-QD5-label-consistency",
+      "dimension_id": "QD5",
+      "target_file": "src/dashboard.tsx",
+      "description_contains": "iconButton"
+    },
+    {
+      "probe_id": "P-QD6-schema-drift-detect",
+      "dimension_id": "QD6",
+      "target_file": "src/db-migration.sql",
+      "description_contains": "CREATE TABLE"
+    },
+    {
+      "probe_id": "P-QD6-schema-drift-detect",
+      "dimension_id": "QD6",
+      "target_file": "src/db-migration.sql",
+      "description_contains": "ALTER TABLE"
+    },
+    {
+      "probe_id": "P-QD6-schema-drift-detect",
+      "dimension_id": "QD6",
+      "target_file": "src/db-migration.sql",
+      "description_contains": "DROP TABLE"
+    },
+    {
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "target_file": "src/orders.ts",
+      "description_contains": "Deprecated"
+    },
+    {
+      "probe_id": "P-QD7-deprecated-api-usage",
+      "dimension_id": "QD7",
+      "target_file": "src/orders.ts",
+      "description_contains": "Unversioned"
+    }
+  ]
+}

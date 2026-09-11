@@ -1,0 +1,118 @@
+{
+  "$schema": "audit-index-v1",
+  "generated_at": "{{TIMESTAMP_ISO}}",
+  "devkit_version": "{{DEVKIT_VERSION}}",
+  "session_id": "{{SESSION_ID}}",
+  "scope": "{{SCOPE}}",
+  "components": {
+    "agents": [
+      {
+        "path": "{{AGENT_PATH}}",
+        "name": "{{AGENT_NAME}}",
+        "team": "{{TEAM}}",
+        "size_bytes": 0,
+        "has_procedures": false,
+        "procedure_count": 0
+      }
+    ],
+    "skills": [
+      {
+        "path": "{{SKILL_PATH}}",
+        "name": "{{SKILL_NAME}}",
+        "category": "{{CATEGORY}}",
+        "size_bytes": 0
+      }
+    ],
+    "templates": [
+      {
+        "path": "{{TEMPLATE_PATH}}",
+        "name": "{{TEMPLATE_NAME}}",
+        "phase": "{{PHASE}}",
+        "size_bytes": 0
+      }
+    ],
+    "rules": [
+      {
+        "path": "{{RULE_PATH}}",
+        "name": "{{RULE_NAME}}",
+        "size_bytes": 0
+      }
+    ],
+    "hooks": [
+      {
+        "path": "{{HOOK_PATH}}",
+        "name": "{{HOOK_NAME}}",
+        "size_bytes": 0
+      }
+    ],
+    "references": [
+      {
+        "path": "{{REFERENCE_PATH}}",
+        "domain": "{{DOMAIN}}",
+        "name": "{{REFERENCE_NAME}}"
+      }
+    ],
+    "scripts": [
+      {
+        "path": "{{SCRIPT_PATH}}",
+        "name": "{{SCRIPT_NAME}}"
+      }
+    ],
+    "master_plan_components": {
+      "_comment": "Wave 4 populates these. true=present+correct, false=present+incorrect, NOT_FOUND=not implemented",
+      "hook_2tier": {
+        "hook_utils_exists": "NOT_FOUND",
+        "hook_detect_tier_mode_defined": "NOT_FOUND",
+        "hooks_with_tier": [],
+        "hooks_without_tier": [],
+        "tier_aware_count": 0
+      },
+      "baseline_metrics": {
+        "schema_exists": "NOT_FOUND",
+        "schema_valid_json": false,
+        "baseline_s_exists": "NOT_FOUND",
+        "benchmark_files": []
+      },
+      "checkpoint_digest": {
+        "schema_has_context_digest": "NOT_FOUND",
+        "protocols_mention_context_digest": "NOT_FOUND",
+        "implement_feature_generates_digest": "NOT_FOUND"
+      },
+      "digest_pipeline": {
+        "templates_dir_exists": "NOT_FOUND",
+        "template_count": 0,
+        "templates_found": [],
+        "producer_skills_with_digest_step": [],
+        "consumer_skills_with_digest_step": []
+      },
+      "executable_spec_a6ext": {
+        "task_template_has_a6ext": "NOT_FOUND",
+        "plan_modules_generates_a6ext": "NOT_FOUND",
+        "implement_feature_loads_a6ext": "NOT_FOUND"
+      },
+      "micro_task_a7ext": {
+        "task_template_has_a7ext": "NOT_FOUND",
+        "implement_feature_has_microtask_flag": "NOT_FOUND",
+        "plan_modules_has_microtask_step": "NOT_FOUND",
+        "microtask_schema_exists": "NOT_FOUND"
+      },
+      "parallel_execution": {
+        "implement_feature_has_phase2_5": "NOT_FOUND",
+        "implement_feature_has_parallel_flag": "NOT_FOUND",
+        "implement_feature_has_features_flag": "NOT_FOUND",
+        "implement_feature_has_safety_rules": "NOT_FOUND",
+        "orchestrator_has_multifeature": "NOT_FOUND"
+      }
+    }
+  },
+  "counts": {
+    "agents": 0,
+    "skills": 0,
+    "templates": 0,
+    "rules": 0,
+    "hooks": 0,
+    "references": 0,
+    "scripts": 0,
+    "total": 0
+  }
+}

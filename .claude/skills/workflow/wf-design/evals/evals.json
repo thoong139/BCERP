@@ -1,0 +1,177 @@
+{
+  "skill_name": "wf-design",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-design (sau khi đã có req-registry.json với 1 system, 5 modules)",
+      "expected_output": "Detect approach = System Design, tạo đầy đủ: design-plan.md, P3-01-architecture.md, api-contract.md + database-design.md + infra-spec.md (parallel group A), integration-map.md (sequential), update registry",
+      "assertions": [
+        {
+          "text": "Phase 0 PRE-GATE: Kiem tra req-registry.json ton tai, valid JSON (jq \".\" ), va co features[] (jq \".features | length > 0\") truoc khi bat dau design",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 Step 1-2: Detect approach = System Design khi registry co 1 system va >2 modules, route vao flow-new.md",
+          "type": "behavior"
+        },
+        {
+          "text": "Tạo .mc-data/work/wf-design/design-status.json ở Phase 0",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 2a, 2b, 2d được ghi nhận là parallel group A trong design-status.json hoặc run log (không nhất thiết thực thi đồng thời trong single-agent context)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 2c (integration-map.md) chỉ bắt đầu SAU KHI 2a và 2b hoàn thành",
+          "type": "behavior"
+        },
+        {
+          "text": "KHÔNG thiết kế module ngoài registry — P3-01-architecture.md không liệt kê module/system mới ngoài danh sách registry (Auth/Security chỉ là cross-cutting layer, không phải module riêng)",
+          "type": "file_content"
+        },
+        {
+          "text": "Update req-registry.json với design_status = done, JSON vẫn valid",
+          "type": "file_content"
+        },
+        {
+          "text": "Report cuối hiển thị danh sách files đã tạo và đề xuất bước tiếp theo (/wf-design-ux hoặc /wf-plan-modules)",
+          "type": "output_contains"
+        },
+        {
+          "text": "integration-map.md mô tả ít nhất 1 integration point hoặc cross-module flow thực chất (không phải placeholder)",
+          "type": "file_content"
+        },
+        {
+          "text": "infra-spec.md mô tả ít nhất dev và production environments với container/runtime specs",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-design --resume",
+      "expected_output": "Đọc design-status.json, xác định phase đang dở (VD đang ở 2b), restore context, tiếp tục từ đúng chỗ không làm lại phases đã xong",
+      "assertions": [
+        {
+          "text": "Đọc .mc-data/work/wf-design/design-status.json trước khi làm bất cứ điều gì",
+          "type": "behavior"
+        },
+        {
+          "text": "Thông báo rõ resume từ phase nào",
+          "type": "output_contains"
+        },
+        {
+          "text": "Resume mode: Doc design-status.json de xac dinh completed_phases[], chi chay phases chua completed, khong overwrite files da tao (P3-01-architecture.md, api-contract.md, v.v.)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "tôi muốn thiết kế kỹ thuật cho module Quản lý Khách hàng trong hệ thống CRM",
+      "expected_output": "Trigger wf-design dù không dùng lệnh /wf-design, detect approach = Module Design (1 module), tập trung design cho module CRM Customer",
+      "assertions": [
+        {
+          "text": "Trigger skill wf-design từ natural language không có lệnh /wf-design",
+          "type": "behavior"
+        },
+        {
+          "text": "Detect approach Module Design (chỉ 1 module được chỉ định)",
+          "type": "behavior"
+        },
+        {
+          "text": "P3-01-architecture.md tập trung vào CRM Customer module, không design toàn platform",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 1 (agent selection): Khong spawn ux-designer agent neu req-registry.json interface_type khong phai web/mobile (api-only project)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-design (Phase 4a có lỗi cross-validation: REQ-ID missing from spec + API/DB mismatch)",
+      "expected_output": "Phase 4a auto-correction loop: iteration 1 phát hiện lỗi → auto-fix → iteration 2 re-check → PASS",
+      "assertions": [
+        {
+          "text": "Phase 4a chạy 6 validation checks (4a.1 → 4a.6)",
+          "type": "behavior"
+        },
+        {
+          "text": "Khi REQ-ID missing from spec → auto-fix bằng thêm reference vào spec",
+          "type": "behavior"
+        },
+        {
+          "text": "Re-run tất cả checks sau auto-fix",
+          "type": "behavior"
+        },
+        {
+          "text": "Log iteration count + errors fixed vào design-report.md",
+          "type": "file_content"
+        },
+        {
+          "text": "Cập nhật design-status.json phase_4a với iterations_run, errors_fixed",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-design (Phase 4a auto-fix fail sau 3 iterations)",
+      "expected_output": "STOP — không tiếp tục. Báo cáo chi tiết lỗi còn lại cho user",
+      "assertions": [
+        {
+          "text": "STOP sau đúng 3 iterations — không lặp vô hạn",
+          "type": "behavior"
+        },
+        {
+          "text": "Iteration 2 có WARNING cho user biết lỗi lặp lại",
+          "type": "output_contains"
+        },
+        {
+          "text": "KHÔNG tiến sang Phase 4 khi POST-GATE chưa PASS",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-design (LEGACY_MODE=true — project-context.md > 500 bytes, có module-code-mapping.json từ wf-legacy-extract)",
+      "expected_output": "Detect LEGACY_MODE, chạy Phase 1-6 với LEGACY context injection + architecture labels, Phase 7 Gap Analysis tạo gap-report + action-items, Phase 8 tạo digest. Registry update với extended fields.",
+      "assertions": [
+        {
+          "text": "Phase 0 detect LEGACY_MODE=true (project-context.md > 500 bytes), load legacy-decisions.json, set $DEPRECATED_MODULES",
+          "type": "behavior"
+        },
+        {
+          "text": "Architecture docs có labels [VERIFIED], [INFERRED], [RECOMMENDED] khi LEGACY_MODE=true",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 7 Gap Analysis chạy — gap-report.md + action-items.json + final-report.md tạo tại .mc-data/work/legacy-scan/",
+          "type": "file_exists"
+        },
+        {
+          "text": "action-items.json là valid JSON với fields: id, module, category, severity, description, action, priority",
+          "type": "file_content"
+        },
+        {
+          "text": "Modules DEPRECATE bị loại khỏi architecture specs, technical specs, integration-map, gap analysis",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 8 tạo design-input-digest.json thành công, phase-summary.md viết tiếng Việt ≤15 dòng",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+# wf-fix-bugs CI — chạy pytest + coverage gate cho _shared modules.
+#
+# Trigger: moi PR/commit tac dong den _shared/ hoac wf-fix-* sub-skills.
+# Coverage gate: >= 80% (CORE-023: chat luong truoc toc do).
+# Tham chieu: B4-1 — Production CI/CD.
+#
+# Cach chay local:
+#   cd .claude/skills/workflow/_shared && ./run-tests.sh
+#   cd .claude/skills/workflow/_shared && ./run-tests.sh --cov-xml
+
+name: wf-fix-bugs CI
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - '.claude/skills/workflow/_shared/**'
+      - '.claude/skills/workflow/wf-fix-bugs/**'
+      - '.claude/skills/workflow/wf-fix-triage/**'
+      - '.claude/skills/workflow/wf-fix-execute/**'
+      - '.claude/skills/workflow/wf-fix-functional/**'
+      - '.claude/skills/workflow/wf-fix-business/**'
+      - '.claude/skills/workflow/wf-fix-security/**'
+      - '.claude/skills/workflow/wf-fix-performance/**'
+      - '.claude/skills/workflow/wf-fix-ux-a11y/**'
+      - '.claude/skills/workflow/wf-fix-data/**'
+      - '.claude/skills/workflow/wf-fix-compat/**'
+  pull_request:
+    branches: [master, main]
+    paths:
+      - '.claude/skills/workflow/_shared/**'
+      - '.claude/skills/workflow/wf-fix-bugs/**'
+      - '.claude/skills/workflow/wf-fix-triage/**'
+      - '.claude/skills/workflow/wf-fix-execute/**'
+      - '.claude/skills/workflow/wf-fix-functional/**'
+      - '.claude/skills/workflow/wf-fix-business/**'
+      - '.claude/skills/workflow/wf-fix-security/**'
+      - '.claude/skills/workflow/wf-fix-performance/**'
+      - '.claude/skills/workflow/wf-fix-ux-a11y/**'
+      - '.claude/skills/workflow/wf-fix-data/**'
+      - '.claude/skills/workflow/wf-fix-compat/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          cd .claude/skills/workflow/_shared
+          pip install --quiet pytest pytest-cov
+
+      - name: Run tests + coverage gate
+        run: |
+          cd .claude/skills/workflow/_shared
+          python -m pytest tests/ \
+            --cov=_shared \
+            --cov-fail-under=80 \
+            --cov-report=term-missing \
+            --cov-report=xml:coverage.xml \
+            -ra --strict-markers --strict-config --tb=short
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-py${{ matrix.python-version }}
+          path: .claude/skills/workflow/_shared/coverage.xml
+          retention-days: 7
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install lint tools
+        run: pip install --quiet ruff
+
+      - name: Syntax check (py_compile)
+        run: |
+          cd .claude/skills/workflow/_shared
+          python -m py_compile concurrency/token_bucket.py
+          python -m py_compile concurrency/backpressure.py
+          python -m py_compile isg/isg_recommender.py
+          python -m py_compile scan_cache/fingerprint.py
+          python -m py_compile scan_cache/cache_lookup.py
+          python -m py_compile scan_cache/cache_store.py
+          python -m py_compile signal_bus/signal_bus.py
+          python -m py_compile workload_estimator/estimator.py
+          python -m py_compile impact_graph/builder.py
+          python -m py_compile impact_graph/ripple.py
+          python -m py_compile profile_resolver.py
+          python -m py_compile dimension_registry.py
+          python -m py_compile lane_dispatch.py
+          python -m py_compile signal_aggregator.py
+          python -m py_compile read_trace.py
+          echo "[PASS] Tat ca file py_compile thanh cong."
+
+      - name: Ruff check (lint)
+        run: |
+          cd .claude/skills/workflow/_shared
+          ruff check --select=E9,F63,F7,F82 . || true
+          echo "[INFO] Ruff lint completed (non-blocking — chi syntax + undefined)."
+
+  schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate JSON schemas + contracts
+        run: |
+          cd .claude/skills/workflow/_shared
+          find . -name '*.schema.json' -print0 | xargs -0 -I{} python -c "
+          import json, sys
+          with open('{}') as f: json.load(f)
+          print('[PASS] {}')
+          "
+          find . -name '_contract.json' -print0 | xargs -0 -I{} python -c "
+          import json, sys
+          with open('{}') as f: json.load(f)
+          print('[PASS] {}')
+          "
+          echo "[PASS] Tat ca JSON schema/contract hop le."

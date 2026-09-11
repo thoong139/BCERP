@@ -1,0 +1,823 @@
+{
+  "$schema": "ui-interactivity-spec-v1",
+  "project": "EUREKA-2026",
+  "version": "1.0.0-template",
+  "last_updated": "2026-05-16",
+  "description": "Template SSOT cho CD38 (UI Implementation Coverage). Định nghĩa endpoint nào là user-facing, workflow state nào cần UI trigger, permission nào cần UI element, entity nào cần CRUD UI đầy đủ. Người chạy /wf-cmi cần copy file này vào .mc-data/docs/_meta/ và điều chỉnh theo thực tế project.",
+  "_template_notes": "PHẢI xóa các field bắt đầu bằng _ trước khi commit. Đây là TEMPLATE — không phải runtime config.",
+
+  "_instructions": {
+    "how_to_use": "1) Copy file này vào .mc-data/docs/_meta/ui-interactivity-spec.json. 2) Strip metadata fields (_template_notes, _instructions, _comment). 3) Update theo thực tế EUREKA backend code. 4) Chạy /wf-cmi --dims=CD38 để verify.",
+    "default_behavior": "Endpoint KHÔNG match pattern nào được classify mặc định là 'user_facing' với grace_period_days = 14. Tức là sau 14 ngày deploy mà 0 FE caller → flag violation."
+  },
+
+  "config": {
+    "grace_period_days": 14,
+    "default_endpoint_class": "user_facing",
+    "fail_on_undefined": false,
+    "strict_crud_check": true,
+    "include_admin_in_orphan_check": true,
+    "_comment_grace": "Endpoint deploy mới có grace_period 14 ngày trước khi flag orphan",
+    "_comment_default": "Endpoint không match pattern nào → default user_facing (strict). Đổi 'system_internal' nếu muốn lenient.",
+    "_comment_strict_crud": "Strict: entity bắt buộc có đủ 4 CRUD UI. Lenient: chỉ check Create+Read."
+  },
+
+  "endpoint_classifications": {
+    "user_facing": {
+      "description": "Endpoints expected to have UI consumer trong erp-web hoặc mobile clients. Bị flag violation nếu không có FE caller sau grace period.",
+      "patterns": [
+        "POST /api/booking",
+        "POST /api/booking/{id}/confirm",
+        "POST /api/booking/{id}/cancel",
+        "GET /api/booking",
+        "GET /api/booking/{id}",
+        "PUT /api/booking/{id}",
+        "DELETE /api/booking/{id}",
+        "POST /api/booking/{id}/duplicate",
+        "GET /api/booking/{id}/timeline",
+
+        "POST /api/customs/declarations",
+        "POST /api/customs/declarations/{id}/submit",
+        "POST /api/customs/declarations/{id}/resubmit",
+        "POST /api/customs/declarations/{id}/cancel",
+        "GET /api/customs/declarations",
+        "GET /api/customs/declarations/{id}",
+        "PUT /api/customs/declarations/{id}",
+        "POST /api/customs/declarations/bulk-approve",
+        "POST /api/customs/declarations/{id}/manual-override",
+
+        "POST /api/invoice",
+        "POST /api/invoice/{id}/issue",
+        "POST /api/invoice/{id}/cancel",
+        "POST /api/invoice/{id}/credit-note",
+        "GET /api/invoice",
+        "GET /api/invoice/{id}",
+        "GET /api/invoice/{id}/pdf",
+        "GET /api/invoice/{id}/audit-trail",
+        "PUT /api/invoice/{id}",
+
+        "POST /api/payment",
+        "POST /api/payment/{id}/confirm",
+        "POST /api/payment/{id}/refund",
+        "GET /api/payment",
+        "GET /api/payment/{id}",
+
+        "GET /api/tracking/{bol_id}",
+        "GET /api/tracking/{bol_id}/timeline",
+        "POST /api/tracking/{bol_id}/comments",
+        "GET /api/tracking/search",
+
+        "POST /api/customer",
+        "GET /api/customer",
+        "GET /api/customer/{id}",
+        "PUT /api/customer/{id}",
+        "DELETE /api/customer/{id}",
+        "POST /api/customer/{id}/contacts",
+        "POST /api/customer/{id}/addresses",
+        "GET /api/customer/{id}/credit-limit",
+        "POST /api/customer/{id}/credit-limit",
+
+        "POST /api/carrier",
+        "GET /api/carrier",
+        "GET /api/carrier/{id}",
+        "PUT /api/carrier/{id}",
+        "POST /api/carrier/{id}/api-credentials",
+
+        "POST /api/tariff",
+        "GET /api/tariff",
+        "GET /api/tariff/{id}",
+        "PUT /api/tariff/{id}",
+        "DELETE /api/tariff/{id}",
+        "POST /api/tariff/{id}/effective-date",
+        "POST /api/tariff/quote",
+
+        "POST /api/document/upload",
+        "GET /api/document/{id}",
+        "GET /api/document/{id}/preview",
+        "GET /api/document/{id}/download",
+        "DELETE /api/document/{id}",
+        "POST /api/document/{id}/versions",
+
+        "GET /api/notification",
+        "GET /api/notification/unread-count",
+        "POST /api/notification/{id}/mark-read",
+        "POST /api/notification/mark-all-read",
+        "PUT /api/notification/preferences",
+
+        "GET /api/report/booking-summary",
+        "GET /api/report/revenue",
+        "GET /api/report/carrier-performance",
+        "GET /api/report/customs-statistics",
+        "POST /api/report/export",
+        "GET /api/report/scheduled",
+
+        "GET /api/dashboard/operator",
+        "GET /api/dashboard/manager",
+        "GET /api/dashboard/finance",
+
+        "GET /api/master-data/hs-codes",
+        "GET /api/master-data/countries",
+        "GET /api/master-data/ports",
+        "GET /api/master-data/currencies",
+
+        "POST /api/search/global",
+        "GET /api/search/recently-viewed",
+        "POST /api/search/save-filter",
+
+        "GET /api/user/profile",
+        "PUT /api/user/profile",
+        "PUT /api/user/preferences",
+        "PUT /api/user/locale",
+        "POST /api/user/change-password",
+
+        "GET /api/audit-log",
+        "GET /api/audit-log/{entity}/{id}"
+      ]
+    },
+
+    "system_internal": {
+      "description": "Backend-only endpoints. Webhooks, background jobs, health checks, internal service-to-service. KHÔNG cần UI consumer.",
+      "patterns": [
+        "POST /api/webhooks/**",
+        "POST /api/webhooks/carrier/dhl",
+        "POST /api/webhooks/carrier/maersk",
+        "POST /api/webhooks/carrier/msc",
+        "POST /api/webhooks/payment/**",
+        "POST /api/webhooks/customs/**",
+
+        "POST /api/jobs/**",
+        "POST /api/jobs/daily-reconcile",
+        "POST /api/jobs/nightly-tariff-sync",
+        "POST /api/jobs/monthly-period-close",
+        "POST /api/jobs/audit-retention-purge",
+
+        "GET /api/health",
+        "GET /api/health/liveness",
+        "GET /api/health/readiness",
+        "GET /api/health/startup",
+        "GET /api/metrics",
+
+        "POST /api/integration/erp/**",
+        "POST /api/integration/accounting/**",
+        "POST /api/integration/customs-vnaccs/**",
+        "POST /api/integration/customs-h2010/**",
+
+        "POST /api/internal/event-bus/**",
+        "POST /api/internal/outbox/**",
+        "POST /api/internal/saga/**",
+
+        "GET /api/_diagnostics/**"
+      ]
+    },
+
+    "admin_only": {
+      "description": "Endpoints chỉ admin UI consume (trong /admin/* routes). User-facing nhưng restricted role.",
+      "patterns": [
+        "POST /api/admin/tenant",
+        "GET /api/admin/tenant",
+        "PUT /api/admin/tenant/{id}",
+        "DELETE /api/admin/tenant/{id}",
+        "POST /api/admin/tenant/{id}/suspend",
+        "POST /api/admin/tenant/{id}/restore",
+
+        "POST /api/admin/users",
+        "GET /api/admin/users",
+        "PUT /api/admin/users/{id}",
+        "POST /api/admin/users/{id}/reset-password",
+        "POST /api/admin/users/{id}/disable",
+
+        "POST /api/admin/roles",
+        "GET /api/admin/roles",
+        "PUT /api/admin/roles/{id}",
+        "POST /api/admin/roles/{id}/permissions",
+
+        "GET /api/admin/system-config",
+        "PUT /api/admin/system-config",
+        "GET /api/admin/feature-flags",
+        "PUT /api/admin/feature-flags/{key}",
+
+        "GET /api/admin/audit-log",
+        "GET /api/admin/audit-log/export",
+        "GET /api/admin/compliance-report"
+      ]
+    },
+
+    "deprecated": {
+      "description": "Endpoints đã deprecate. UI gọi vào → flag REVERSE_ORPHAN_UI violation.",
+      "patterns": [
+        "GET /api/v1/**",
+        "POST /api/v1/**",
+        "GET /api/legacy/**",
+        "GET /api/reports/old-format/**"
+      ],
+      "deprecation_date": "2026-01-01",
+      "removal_date": "2026-12-31"
+    }
+  },
+
+  "workflow_user_actions": {
+    "description": "Workflow state transitions cần user action có UI trigger (button/form). Mapping state → expected_ui_action.",
+
+    "BOL": {
+      "description": "Bill of Lading lifecycle — 7 states",
+      "states_requiring_user_action": [
+        {
+          "state": "draft",
+          "user_action": "submit_for_carrier_confirm",
+          "expected_ui_button": "Gửi cho hãng tàu xác nhận",
+          "ui_location": "/booking/[id]",
+          "required_role": "booking_operator"
+        },
+        {
+          "state": "requires_carrier_confirmation",
+          "user_action": "manual_confirm_carrier",
+          "expected_ui_button": "Xác nhận thủ công (carrier chậm)",
+          "ui_location": "/booking/[id]",
+          "required_role": "booking_manager",
+          "recovery_only": true,
+          "_comment": "Chỉ dùng khi carrier API timeout >24h"
+        },
+        {
+          "state": "carrier_confirmed",
+          "user_action": "submit_customs",
+          "expected_ui_button": "Khai báo hải quan",
+          "ui_location": "/booking/[id]",
+          "required_role": "customs_operator"
+        },
+        {
+          "state": "customs_rejected",
+          "user_action": "fix_and_resubmit",
+          "expected_ui_button": "Sửa và submit lại",
+          "ui_location": "/customs/declarations/[id]",
+          "required_role": "customs_operator",
+          "must_preserve_form_data": true
+        },
+        {
+          "state": "in_transit",
+          "user_action": "update_tracking_manually",
+          "expected_ui_button": "Cập nhật vị trí thủ công",
+          "ui_location": "/tracking/[bol_id]",
+          "required_role": "tracking_operator",
+          "recovery_only": true
+        },
+        {
+          "state": "delivered_pending_confirm",
+          "user_action": "confirm_delivery",
+          "expected_ui_button": "Xác nhận giao hàng",
+          "ui_location": "/tracking/[bol_id]",
+          "required_role": "booking_operator"
+        }
+      ]
+    },
+
+    "CustomsDeclaration": {
+      "description": "Customs declaration lifecycle (VN VNACCS hoặc CN H2010)",
+      "states_requiring_user_action": [
+        {
+          "state": "draft",
+          "user_action": "submit",
+          "expected_ui_button": "Gửi cơ quan hải quan",
+          "ui_location": "/customs/declarations/[id]"
+        },
+        {
+          "state": "rejected",
+          "user_action": "resubmit_after_fix",
+          "expected_ui_button": "Sửa và gửi lại",
+          "ui_location": "/customs/declarations/[id]/edit",
+          "must_preserve_form_data": true,
+          "must_show_rejection_reason": true
+        },
+        {
+          "state": "pending_payment",
+          "user_action": "pay_customs_tax",
+          "expected_ui_button": "Thanh toán thuế",
+          "ui_location": "/customs/declarations/[id]/payment"
+        },
+        {
+          "state": "approved_pending_pickup",
+          "user_action": "mark_picked_up",
+          "expected_ui_button": "Xác nhận đã lấy hàng",
+          "ui_location": "/customs/declarations/[id]"
+        }
+      ]
+    },
+
+    "Invoice": {
+      "description": "Invoice lifecycle với e-invoice VN Thông tư 78/2021",
+      "states_requiring_user_action": [
+        {
+          "state": "draft",
+          "user_action": "preview_before_issue",
+          "expected_ui_button": "Xem trước hóa đơn",
+          "ui_location": "/invoice/[id]"
+        },
+        {
+          "state": "draft",
+          "user_action": "issue",
+          "expected_ui_button": "Phát hành hóa đơn",
+          "ui_location": "/invoice/[id]",
+          "required_role": "finance_manager",
+          "must_show_confirmation": true,
+          "irreversible": true
+        },
+        {
+          "state": "issued",
+          "user_action": "send_to_customer",
+          "expected_ui_button": "Gửi cho khách hàng",
+          "ui_location": "/invoice/[id]"
+        },
+        {
+          "state": "issued",
+          "user_action": "create_credit_note",
+          "expected_ui_button": "Tạo hóa đơn điều chỉnh",
+          "ui_location": "/invoice/[id]",
+          "required_role": "finance_manager"
+        },
+        {
+          "state": "overdue",
+          "user_action": "send_reminder",
+          "expected_ui_button": "Gửi nhắc nợ",
+          "ui_location": "/invoice/[id]"
+        }
+      ]
+    },
+
+    "Payment": {
+      "states_requiring_user_action": [
+        {
+          "state": "pending",
+          "user_action": "confirm_received",
+          "expected_ui_button": "Xác nhận đã nhận",
+          "ui_location": "/payment/[id]",
+          "required_role": "finance_operator"
+        },
+        {
+          "state": "failed",
+          "user_action": "retry_or_record_manually",
+          "expected_ui_button": "Thử lại / Ghi nhận thủ công",
+          "ui_location": "/payment/[id]"
+        }
+      ]
+    },
+
+    "Quotation": {
+      "states_requiring_user_action": [
+        {
+          "state": "draft",
+          "user_action": "send_to_customer",
+          "expected_ui_button": "Gửi báo giá",
+          "ui_location": "/quotation/[id]"
+        },
+        {
+          "state": "sent",
+          "user_action": "mark_accepted",
+          "expected_ui_button": "Đánh dấu đã chấp thuận",
+          "ui_location": "/quotation/[id]"
+        },
+        {
+          "state": "accepted",
+          "user_action": "convert_to_booking",
+          "expected_ui_button": "Chuyển thành booking",
+          "ui_location": "/quotation/[id]"
+        }
+      ]
+    }
+  },
+
+  "crud_required_entities": {
+    "description": "Entities phải có đầy đủ Create + Read + Update + Delete UI. Thiếu 1 trong 4 → flag CRUD_INCOMPLETE.",
+    "entities": [
+      {
+        "name": "Customer",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "ui_pages": {
+          "Create": "/customer/new",
+          "Read": "/customer/[id]",
+          "Update": "/customer/[id]/edit",
+          "Delete": "/customer (inline action)",
+          "List": "/customer"
+        }
+      },
+      {
+        "name": "Booking",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "ui_pages": {
+          "Create": "/booking/new",
+          "Read": "/booking/[id]",
+          "Update": "/booking/[id]/edit",
+          "Delete": "/booking (inline action, soft delete only)",
+          "List": "/booking"
+        }
+      },
+      {
+        "name": "Invoice",
+        "crud": ["Create", "Read", "Update"],
+        "_comment": "Invoice không có Delete (compliance Thông tư 78/2021), chỉ có credit-note",
+        "ui_pages": {
+          "Create": "/invoice/new",
+          "Read": "/invoice/[id]",
+          "Update": "/invoice/[id]/edit (chỉ khi state=draft)",
+          "List": "/invoice"
+        }
+      },
+      {
+        "name": "CustomsDeclaration",
+        "crud": ["Create", "Read", "Update"],
+        "_comment": "Không Delete (compliance hải quan), chỉ Cancel",
+        "ui_pages": {
+          "Create": "/customs/declarations/new",
+          "Read": "/customs/declarations/[id]",
+          "Update": "/customs/declarations/[id]/edit",
+          "List": "/customs/declarations"
+        }
+      },
+      {
+        "name": "Tariff",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "ui_pages": {
+          "Create": "/admin/tariff/new",
+          "Read": "/admin/tariff/[id]",
+          "Update": "/admin/tariff/[id]/edit",
+          "Delete": "/admin/tariff (inline, soft delete with effective_date)",
+          "List": "/admin/tariff"
+        }
+      },
+      {
+        "name": "Carrier",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "ui_pages": {
+          "Create": "/admin/carrier/new",
+          "Read": "/admin/carrier/[id]",
+          "Update": "/admin/carrier/[id]/edit",
+          "Delete": "/admin/carrier (inline)",
+          "List": "/admin/carrier"
+        }
+      },
+      {
+        "name": "ContactPerson",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "ui_pages": {
+          "Create": "/customer/[id]/contacts/new",
+          "Read": "/customer/[id]/contacts/[contactId]",
+          "Update": "/customer/[id]/contacts/[contactId]/edit",
+          "Delete": "/customer/[id]/contacts (inline)",
+          "List": "/customer/[id]/contacts"
+        }
+      },
+      {
+        "name": "Document",
+        "crud": ["Create", "Read", "Delete"],
+        "_comment": "Document không Update (immutable, version mới thay thế)",
+        "ui_pages": {
+          "Create": "Upload widget inline",
+          "Read": "/document/[id] (preview)",
+          "Delete": "Inline action với confirmation",
+          "List": "/document"
+        }
+      },
+      {
+        "name": "Quotation",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "ui_pages": {
+          "Create": "/quotation/new",
+          "Read": "/quotation/[id]",
+          "Update": "/quotation/[id]/edit (chỉ khi state=draft)",
+          "Delete": "/quotation (inline, draft only)",
+          "List": "/quotation"
+        }
+      },
+      {
+        "name": "SavedFilter",
+        "crud": ["Create", "Read", "Update", "Delete"],
+        "_comment": "User personalization — saved search/filter",
+        "ui_pages": {
+          "Create": "Save dialog inline",
+          "Read": "User dropdown",
+          "Update": "Edit in dropdown",
+          "Delete": "Remove from dropdown",
+          "List": "User profile page"
+        }
+      }
+    ]
+  },
+
+  "crud_optional_entities": {
+    "description": "Entities KHÔNG bắt buộc full CRUD UI. Skip CRUD_INCOMPLETE check.",
+    "entities": [
+      {
+        "name": "AuditLog",
+        "rationale": "Read-only by design (immutable)"
+      },
+      {
+        "name": "SystemConfig",
+        "rationale": "Admin-only, không user-facing"
+      },
+      {
+        "name": "EventLog",
+        "rationale": "System-internal, no UI needed"
+      },
+      {
+        "name": "OutboxMessage",
+        "rationale": "Infrastructure"
+      },
+      {
+        "name": "MigrationHistory",
+        "rationale": "Infrastructure"
+      },
+      {
+        "name": "FeatureFlag",
+        "rationale": "Admin-only"
+      },
+      {
+        "name": "Tenant",
+        "rationale": "Admin-only, có UI riêng trong /admin/tenant"
+      }
+    ]
+  },
+
+  "permission_ui_mapping": {
+    "description": "RBAC permission → UI element. Permission được grant nhưng không có UI element → flag PERMISSION_WITHOUT_UI.",
+
+    "mappings": [
+      {
+        "permission": "booking.create",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Tạo booking mới",
+            "location": "/booking (header)"
+          },
+          {
+            "type": "fab",
+            "location": "Mobile staff app"
+          }
+        ]
+      },
+      {
+        "permission": "booking.bulk_cancel",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Hủy hàng loạt",
+            "location": "/booking (bulk action bar)"
+          }
+        ]
+      },
+      {
+        "permission": "customs.approve",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Duyệt",
+            "location": "/customs/declarations/[id]"
+          }
+        ]
+      },
+      {
+        "permission": "customs.bulk_approve",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Duyệt hàng loạt",
+            "location": "/customs/declarations (bulk action bar)"
+          }
+        ]
+      },
+      {
+        "permission": "customs.manual_override",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Override thủ công",
+            "location": "/customs/declarations/[id] (advanced section)",
+            "requires_confirmation": true
+          }
+        ]
+      },
+      {
+        "permission": "invoice.issue",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Phát hành hóa đơn",
+            "location": "/invoice/[id]",
+            "requires_confirmation": true,
+            "irreversible": true
+          }
+        ]
+      },
+      {
+        "permission": "invoice.credit_note",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Tạo hóa đơn điều chỉnh",
+            "location": "/invoice/[id] (after issued)"
+          }
+        ]
+      },
+      {
+        "permission": "payment.refund",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Hoàn tiền",
+            "location": "/payment/[id]",
+            "requires_confirmation": true
+          }
+        ]
+      },
+      {
+        "permission": "tariff.publish",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Phát hành biểu phí",
+            "location": "/admin/tariff/[id]"
+          }
+        ]
+      },
+      {
+        "permission": "report.export",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Xuất Excel/PDF",
+            "location": "Every report page"
+          }
+        ]
+      },
+      {
+        "permission": "admin.tenant.manage",
+        "ui_elements": [
+          {
+            "type": "menu_item",
+            "label": "Quản lý tenant",
+            "location": "/admin (sidebar)"
+          }
+        ]
+      },
+      {
+        "permission": "admin.user.reset_password",
+        "ui_elements": [
+          {
+            "type": "button",
+            "label": "Reset mật khẩu",
+            "location": "/admin/users/[id]",
+            "requires_confirmation": true
+          }
+        ]
+      }
+    ]
+  },
+
+  "client_specific": {
+    "description": "EUREKA-2026 có 3 clients. Mỗi client có endpoint coverage khác nhau.",
+
+    "erp-web": {
+      "description": "Internal staff web app (Next.js 16) — full feature",
+      "should_consume": [
+        "user_facing.**",
+        "admin_only.** (chỉ admin role)"
+      ]
+    },
+
+    "mobile-staff": {
+      "description": "Mobile app cho field staff (tracking operators, customs officers)",
+      "should_consume": [
+        "user_facing.booking.**",
+        "user_facing.tracking.**",
+        "user_facing.customs.declarations.**"
+      ],
+      "should_not_consume": [
+        "user_facing.invoice.**",
+        "user_facing.payment.**",
+        "admin_only.**"
+      ],
+      "_comment": "Staff mobile không quản lý tài chính, không có admin"
+    },
+
+    "mobile-customer": {
+      "description": "Mobile app cho khách hàng (shipper, consignee)",
+      "should_consume": [
+        "user_facing.tracking.{bol_id}.**",
+        "user_facing.notification.**",
+        "user_facing.invoice.{id} (read-only)",
+        "user_facing.payment.{id} (read-only)",
+        "user_facing.user.profile"
+      ],
+      "should_not_consume": [
+        "user_facing.booking.create",
+        "user_facing.customs.**",
+        "user_facing.tariff.**",
+        "admin_only.**"
+      ],
+      "_comment": "Customer chỉ track + xem invoice/payment + receive notification"
+    }
+  },
+
+  "deprecation_tracking": {
+    "description": "Endpoints đã deprecate cần có UI removal plan.",
+    "deprecated_endpoints": [
+      {
+        "endpoint": "GET /api/v1/reports/legacy",
+        "deprecated_at": "2026-01-01",
+        "replacement": "GET /api/v2/reports/{type}",
+        "removal_date": "2026-12-31",
+        "expected_ui_status": "removed",
+        "_comment": "Phải remove /legacy/reports route trong erp-web trước 2026-12-31"
+      },
+      {
+        "endpoint": "POST /api/v1/booking/quick",
+        "deprecated_at": "2026-03-01",
+        "replacement": "POST /api/v2/booking với template_id",
+        "removal_date": "2026-09-30",
+        "expected_ui_status": "removed"
+      }
+    ]
+  },
+
+  "exclusions": {
+    "description": "Endpoints/permissions explicitly excluded khỏi CD38 check (whitelist).",
+    "endpoint_exclusions": [
+      {
+        "pattern": "GET /api/_diagnostics/**",
+        "reason": "Diagnostic only"
+      },
+      {
+        "pattern": "POST /api/dev-tools/**",
+        "reason": "Dev environment only"
+      }
+    ],
+    "permission_exclusions": [
+      {
+        "permission": "super_admin.god_mode",
+        "reason": "Backend-only flag, không có UI"
+      }
+    ],
+    "entity_exclusions": [
+      {
+        "entity": "InternalServiceAccount",
+        "reason": "System entity, no user-facing UI"
+      }
+    ]
+  },
+
+  "validation_rules": {
+    "description": "Custom rules cho CD38 validation logic.",
+    "rules": [
+      {
+        "id": "RULE-CD38-001",
+        "name": "user_facing_must_have_caller",
+        "description": "Endpoint trong user_facing pattern PHẢI có ít nhất 1 FE caller sau grace period",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD38-002",
+        "name": "workflow_user_action_must_have_ui",
+        "description": "Mọi state trong workflow_user_actions PHẢI có button/form tương ứng",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD38-003",
+        "name": "permission_must_have_ui_element",
+        "description": "Permission có trong RBAC matrix VÀ có user role được grant → PHẢI có ít nhất 1 UI element",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD38-004",
+        "name": "crud_required_must_be_complete",
+        "description": "Entity trong crud_required_entities PHẢI có đủ UI cho mọi CRUD operation declared",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "RULE-CD38-005",
+        "name": "reverse_orphan_ui_must_be_removed",
+        "description": "UI gọi endpoint không tồn tại / deprecated past removal_date → phải remove",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD38-006",
+        "name": "client_specific_coverage_respect",
+        "description": "Mobile client KHÔNG được consume endpoint outside its should_consume scope",
+        "severity": "MEDIUM"
+      }
+    ]
+  },
+
+  "_appendix": {
+    "_changelog": [
+      {
+        "version": "1.0.0-template",
+        "date": "2026-05-16",
+        "changes": "Initial template cho EUREKA-2026 v1.0 launch"
+      }
+    ],
+    "_references": [
+      ".claude/skills/workflow/wf-cmi/SKILL.md (CD38 spec)",
+      "docs/04-skill-design/wf-cmi/04-file-contract.md",
+      "plans/wf-cmi/progress-update.md"
+    ],
+    "_maintenance": "Update file này mỗi khi: (a) thêm endpoint mới (b) workflow state mới (c) permission mới (d) entity mới. Có thể auto-generate từ api-graph.json + rbac-matrix.json."
+  }
+}

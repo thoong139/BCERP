@@ -1,0 +1,444 @@
+{
+  "skill_name": "wf-fix-triage",
+  "test_cases": [
+    {
+      "id": "T001",
+      "name": "Normal triage voi issues hon hop severity",
+      "description": "Triage khi wf-fix-bugs Lane Dispatch da tao issue-registry.json voi mix CRITICAL/HIGH/MEDIUM",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false,
+            "deep": false,
+            "no_browser": false
+          },
+          "scope": {
+            "type": "all"
+          },
+          "phases": {
+            "phase_0": {
+              "status": "completed"
+            },
+            "phase_1": {
+              "status": "completed"
+            },
+            "phase_2": {
+              "status": "not_started"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "compile_error",
+              "source": "static",
+              "file_path": "src/modules/crm/customer.ts",
+              "line": 42,
+              "description": "Missing type annotation"
+            },
+            {
+              "type": "test_failure",
+              "source": "static",
+              "file_path": "tests/crm/customer.test.ts",
+              "line": 10,
+              "description": "Assert failed"
+            },
+            {
+              "type": "lint_error",
+              "source": "static",
+              "file_path": "src/modules/finance/invoice.ts",
+              "line": 100,
+              "description": "Unused import"
+            }
+          ]
+        }
+      },
+      "expected_outputs": [
+        "$SESSION_DIR/bug-triage.md (co Summary + CRITICAL/HIGH/MEDIUM tables + Execution Plan)",
+        "$SESSION_DIR/fix-plan.md (tao tu canonical template wf-fix-bugs/templates/phase5-triage/fix-plan.md, Sprint 3 F07.010)",
+        "$SESSION_DIR/issue-registry.json (updated: issues[].severity + .batch + .fixability + .domain + .out_of_scope fields)",
+        "$SESSION_DIR/fix-log.json (init: fix_id set, entries=[])",
+        "$SESSION_DIR/phase-summary.md (tieng Viet, <=15 dong, CORE-028 + Protocol 14)"
+      ],
+      "expected_behavior": [
+        "Step 2.0: Scope filter apply (all → pass all, $TARGET_DIRS+$TARGET_ROUTES rong → fallback PASS)",
+        "Step 2.0b: Issue IDs assigned (ISSUE-001, ISSUE-002, ISSUE-003)",
+        "Step 2.1: compile_error → CRITICAL, test_failure → HIGH, lint_error → MEDIUM",
+        "Step 2.1a: customer.ts → domain='sales', invoice.ts → domain='finance'",
+        "Step 2.2: compile/lint → AUTO_FIX, test_failure → AGENT_FIX",
+        "Step 2.3b: issue-registry.json UPDATED (giu nguyen type/source/file_path, them severity/batch/fixability/domain/out_of_scope)",
+        "Step 2.7: User confirmation prompted (dry_run=false, Protocol 16 CDG)",
+        "Step 2.8: phase-summary.md created (tieng Viet, <=15 dong, sections: Da lam gi/Ket qua/Can luu y/Buoc tiep theo)",
+        "POST-GATE: fix-status.json.phases.phase_2.status='completed', progress_pct=30, active_skill='wf-fix-bugs', next_action='phase_3_execute', output_files.phase_summary set"
+      ]
+    },
+    {
+      "id": "T002",
+      "name": "Dry-run mode — tao day du file nhung khong chay execute",
+      "description": "Triage trong dry_run mode — tat ca 4 files van duoc tao de Phase 6 Report co the generate",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": true,
+            "deep": false
+          },
+          "scope": {
+            "type": "module",
+            "name": "crm"
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            },
+            "phase_2": {
+              "status": "not_started"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "type_error",
+              "source": "static",
+              "file_path": "src/modules/crm/lead.ts",
+              "line": 55,
+              "description": "Wrong type"
+            }
+          ]
+        }
+      },
+      "expected_outputs": [
+        "$SESSION_DIR/bug-triage.md (day du du dry-run)",
+        "$SESSION_DIR/fix-plan.md (day du du dry-run)",
+        "$SESSION_DIR/issue-registry.json (enriched day du)",
+        "$SESSION_DIR/fix-log.json (init day du — entries=[])",
+        "$SESSION_DIR/phase-summary.md (day du du dry-run)"
+      ],
+      "expected_behavior": [
+        "Tat ca steps 2.0-2.6 va 2.8 van chay binh thuong",
+        "Step 2.5: Hien thi message dry-run + set next_action='phase_3_execute' (execute tu skip Phase 3-5)",
+        "Step 2.7 SKIP (khong hoi user xac nhan khi dry_run=true)",
+        "Step 2.8: phase-summary.md van tao (non-technical, tieng Viet)",
+        "POST-GATE: fix-status.json updated binh thuong, next_action='phase_3_execute' (execute tu detect flags.dry_run de skip Phase 3-5, chi chay Phase 6 preview)"
+      ],
+      "NOT_expected": [
+        "Prompt user xac nhan",
+        "Skip tao bat ky file nao (ke ca phase-summary.md)"
+      ]
+    },
+    {
+      "id": "T003",
+      "name": "Khong co issues sau scope filter — empty triage",
+      "description": "wf-fix-bugs Lane Dispatch co tim ra issues nhung tat ca ngoai scope $TARGET_DIRS",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false
+          },
+          "scope": {
+            "type": "module",
+            "name": "sales",
+            "dirs": [
+              "src/modules/sales/**"
+            ]
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "lint_error",
+              "source": "static",
+              "file_path": "src/modules/finance/a.ts",
+              "line": 10,
+              "description": "Out of scope"
+            },
+            {
+              "type": "lint_error",
+              "source": "static",
+              "file_path": "src/modules/crm/b.ts",
+              "line": 20,
+              "description": "Out of scope"
+            }
+          ]
+        }
+      },
+      "expected_behavior": [
+        "Step 2.0: TAT CA issues marked OUT_OF_SCOPE (gan flag `out_of_scope=true` tren tung issue)",
+        "Sau scope filter: $DISCOVERED_ISSUES effective = empty",
+        "T004 empty handling: Tao bug-triage.md trang (Total=0, khong co severity tables) + fix-plan.md (No batches) + fix-log.json (init voi entries=[]) + phase-triage.md (tieng Viet 'Khong co loi can fix'). **KHONG UPDATE issue-registry.json** (giu nguyen do wf-fix-bugs Lane Dispatch tao — POST-GATE schema check T4 SKIP khi .issues rong)",
+        "Update fix-status.json: phase_2.status='completed', issues.by_severity all 0, issues.out_of_scope=N",
+        "STOP voi message 'Khong co issues trong scope de fix'",
+        "active_skill='wf-fix-bugs', next_action='phase_3_execute' (execute se detect 0 fixable issues va skip sang Phase 6)"
+      ],
+      "NOT_expected": [
+        "Ghi issue-registry.json voi severity/fixability/domain (vi phong doi khong co issues trong scope)",
+        "Fail POST-GATE vi .issues[0] khong co severity"
+      ]
+    },
+    {
+      "id": "T004",
+      "name": "Deep scan voi orphan UI issues",
+      "description": "Triage voi --deep flag — orphan UI issues duoc xu ly rieng trong bug-triage.md",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false,
+            "deep": true
+          },
+          "scope": {
+            "type": "all",
+            "app_url": "http://localhost:3000"
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            }
+          },
+          "deep_scan_state": {
+            "orphan_ui_issues_accumulated": [
+              {
+                "orphan_type": "ORPHAN_UI_ACTION",
+                "element": "Delete user button",
+                "page_url": "/admin/users"
+              },
+              {
+                "orphan_type": "ORPHAN_UI_SCREEN",
+                "page_url": "/reports/sales"
+              }
+            ]
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "lint_error",
+              "source": "static",
+              "file_path": "src/shared/util.ts",
+              "line": 5
+            }
+          ]
+        }
+      },
+      "expected_behavior": [
+        "Step 2.0a: $ORPHAN_UI_ISSUES loaded tu deep_scan_state (2 orphan items)",
+        "Orphan issues KHONG merge vao $DISCOVERED_ISSUES — xu ly rieng",
+        "Step 2.3: bug-triage.md section 'UI→Docs Gap Analysis (--deep)' co 2 rows",
+        "Step 2.3b: issue-registry.json MERGE orphan issues (them vao .issues[] voi ISSUE-NNN moi, severity=MEDIUM, fixability=AUTO_FIX, batch=2 cho ORPHAN_UI_ACTION / ESCALATE cho ORPHAN_UI_SCREEN)",
+        "fix-status.json.issues.by_orphan_type updated"
+      ]
+    },
+    {
+      "id": "T005",
+      "name": "Resume sau khi triage bi gian doan giua chung",
+      "description": "Session truoc da tao bug-triage.md partial nhung chua hoan tat POST-GATE",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            },
+            "phase_2": {
+              "status": "in_progress",
+              "started_at": "2026-04-18T10:00:00Z"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "compile_error",
+              "source": "static",
+              "file_path": "src/a.ts"
+            }
+          ]
+        },
+        "existing_files": [
+          "$SESSION_DIR/bug-triage.md (partial, missing Execution Plan)"
+        ]
+      },
+      "expected_behavior": [
+        "Resume Logic detect phase_2.status='in_progress'",
+        "Hien thi: 'bug-triage.md partial tim thay. Regenerate tu dau hoac reuse?'",
+        "Default: regenerate tu Step 2.0 (triage la idempotent)",
+        "POST-GATE: tat ca 5 files valid (bug-triage + fix-plan + issue-registry + fix-log + phase-summary), fix-status.json updated"
+      ]
+    },
+    {
+      "id": "T006",
+      "name": "Phase Summary BAT BUOC (CORE-028 + Protocol 14)",
+      "description": "phase-summary.md PHAI duoc tao sau khi POST-GATE pass. Tieng Viet, <=15 dong, non-technical. Fail → T011 retry x3, neu van fail → tao voi status='THAT BAI'.",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false,
+            "deep": false
+          },
+          "scope": {
+            "type": "all"
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            },
+            "phase_2": {
+              "status": "not_started"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "compile_error",
+              "source": "static",
+              "file_path": "src/a.ts",
+              "line": 1,
+              "description": "err"
+            }
+          ]
+        }
+      },
+      "expected_outputs": [
+        "$SESSION_DIR/phase-summary.md (tieng Viet, <=15 dong noi dung, <=20 dong ke ca frontmatter)",
+        "fix-status.json.output_files.phase_summary set"
+      ],
+      "expected_behavior": [
+        "Step 2.8 chay SAU KHI POST-GATE T1-T3 pass (T4 = phase-summary check)",
+        "Noi dung: sections '## Da lam gi', '## Ket qua', '## Can luu y', '## Buoc tiep theo' — BAT BUOC co 3 trong 4 sections (grep)",
+        "Ngon ngu: tieng Viet thuan, non-technical (khong dung 'severity', 'fixability', thay bang 'muc do nghiem trong', 'kha nang tu sua')",
+        "Resume --resume: giu nguyen summary cu, chi update khi phase_2 complete (Protocol 14.3)",
+        "Orchestrator family: overwrite summary cua phase truoc (Lane Dispatch ghi truoc, wf-fix-triage ghi de)",
+        "POST-GATE T4: `test $LINES -le 20 && grep -q '## Da lam gi\\|## Ket qua\\|## Buoc tiep theo' phase-summary.md`",
+        "Protocol 14.4: Hien thi noi dung inline trong conversation sau khi WRITE"
+      ],
+      "failure_scenarios": [
+        "Line count > 20 → T011 retry x3 → VAN tao voi status='THAT BAI' (Protocol 14.1 exception)",
+        "Template sai sections → T011 retry x3",
+        "Write fail (permission/disk) → retry → neu van fail → log FAIL trace va abort"
+      ]
+    },
+    {
+      "id": "T007",
+      "name": "All-CRITICAL issues — toan bo Batch 1",
+      "description": "Triage khi moi issue la CRITICAL (compile_error). Tat ca vao Batch 1, khong co Batch 2/3.",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false,
+            "deep": false
+          },
+          "scope": {
+            "type": "all"
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            },
+            "phase_2": {
+              "status": "not_started"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "compile_error",
+              "source": "static",
+              "file_path": "src/a.ts",
+              "line": 1,
+              "description": "Cannot find module"
+            },
+            {
+              "type": "type_error",
+              "source": "static",
+              "file_path": "src/b.ts",
+              "line": 10,
+              "description": "Type mismatch"
+            },
+            {
+              "type": "missing_import",
+              "source": "static",
+              "file_path": "src/c.ts",
+              "line": 5,
+              "description": "Missing import"
+            }
+          ]
+        }
+      },
+      "expected_behavior": [
+        "Step 2.1: TAT CA 3 issues → CRITICAL severity",
+        "Step 2.2: compile_error + type_error + missing_import → AUTO_FIX",
+        "bug-triage.md: Chi co CRITICAL table (Batch 1), khong co HIGH/MEDIUM tables",
+        "fix-plan.md: Chi co Batch 1 (3 issues), Batch 2 va 3 rong hoac khong co",
+        "Execution Plan: 1 batch duy nhat, est. ~(3 x 10K) tokens",
+        "Step 2.7: User confirmation — CRITICAL-heavy warning"
+      ],
+      "NOT_expected": [
+        "Bat ky issue nao co severity khac CRITICAL",
+        "Batch 2 hoac Batch 3 co issues"
+      ]
+    },
+    {
+      "id": "T008",
+      "name": "Toan bo issues ESCALATE — khong gi de auto-fix",
+      "description": "Triage khi moi issue la missing_doc hoac design_issue. Tat ca ESCALATE, khong co batches de fix.",
+      "input": {
+        "fix_status": {
+          "flags": {
+            "dry_run": false,
+            "deep": false
+          },
+          "scope": {
+            "type": "all"
+          },
+          "phases": {
+            "phase_1": {
+              "status": "completed"
+            },
+            "phase_2": {
+              "status": "not_started"
+            }
+          }
+        },
+        "issue_registry": {
+          "issues": [
+            {
+              "type": "missing_doc",
+              "source": "static",
+              "file_path": "docs/",
+              "line": null,
+              "description": "Thieu feature spec cho CRM module"
+            },
+            {
+              "type": "design_issue",
+              "source": "static",
+              "file_path": "src/api/routes.ts",
+              "line": 42,
+              "description": "API contract conflict giua Sales va CRM"
+            }
+          ]
+        }
+      },
+      "expected_behavior": [
+        "Step 2.1: missing_doc → khong co severity (ESCALATE), design_issue → khong co severity (ESCALATE)",
+        "Step 2.2: TAT CA → ESCALATE",
+        "bug-triage.md: ESCALATED table co 2 rows voi Recommended Action",
+        "fix-plan.md: No batches (Batch 1/2/3 rong), chi co ESCALATE section",
+        "Execution Plan: 'Khong co issues tu fix duoc. Tat ca can user xu ly.'",
+        "Step 2.7: User confirmation voi warning 'Khong co auto-fix — toan bo can ban xu ly'",
+        "fix-status.json: issues.by_action.auto_fix=0, agent_fix=0, escalate=2, skip=0"
+      ],
+      "NOT_expected": [
+        "Bat ky issue nao co fixability AUTO_FIX hoac AGENT_FIX",
+        "Batch entries trong execution plan"
+      ]
+    }
+  ]
+}

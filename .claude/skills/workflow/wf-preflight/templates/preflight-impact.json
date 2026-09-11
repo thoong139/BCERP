@@ -1,0 +1,36 @@
+{
+  "schema": "preflight-impact-v1",
+  "session_id": "{SESSION_ID}",
+  "scope": {
+    "type": "{all|system|module|feature}",
+    "name": null
+  },
+  "verdict": "{PASS|WARN|FAIL}",
+  "scores": {
+    "registry": null,
+    "docs": null,
+    "code_sync": null,
+    "quality": null,
+    "tests": null,
+    "overall": null
+  },
+  "issues_by_category": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0,
+    "low": 0,
+    "total": 0
+  },
+  "issues": [],
+  "next_recommended_action": "",
+  "blocking_items": [],
+  "registry_changes": [],
+  "fix_applied": false,
+  "tests_run": false,
+  "audit_chain": {
+    "registry_checksum_sha256": "sha256:{HEX}",
+    "report_checksum_sha256": "sha256:{HEX}",
+    "produced_at": "{ISO_TIMESTAMP}",
+    "by_skill_version": "wf-preflight@3.0.0"
+  }
+}

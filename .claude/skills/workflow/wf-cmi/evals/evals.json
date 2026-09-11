@@ -1,0 +1,687 @@
+{
+  "skill_name": "wf-cmi",
+  "evals": [
+    {
+      "id": "TC-cmi-001",
+      "prompt": "/wf-cmi --scope=module=crm --profile=quick (fixture minimal voi 1 module CRM, 3 entity stubs, 5 REQs)",
+      "expected_output": "Pipeline 8 phases hoan tat trong <5 min. Tao integrity-status.json + 5 graphs (CD1-CD4, CD7 active) + coverage-matrix.json + integrity-report.md + integrity-impact.json. Phase 6 SKIPPED (no --since). Phase 7 CDG bypass neu khong co GAP. Exit 0.",
+      "assertions": [
+        {
+          "type": "file_exists",
+          "text": "Phase 1 Init: .mc-data/work/wf-cmi/sessions/{SESSION_ID}/integrity-status.json duoc tao tu template templates/integrity-status.json, $schema=integrity-status-v1, current_phase=1, profile=quick"
+        },
+        {
+          "type": "file_exists",
+          "text": "Phase 2 Discovery: 5 graph files duoc tao trong sessions/{SESSION_ID}/phase2-discovery/: entity-graph.json (≥3 nodes), module-graph.json, workflow-graph.json, api-graph.json, rbac-matrix.json (event-graph.json SKIPPED neu profile=quick)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 4 Coverage Dispatch: profile=quick → activate 5 lanes CD1,CD2,CD3,CD4,CD7 (theo 05-execution-profiles.md §3). lane-status.json ghi 5 lane PENDING→RUNNING→COMPLETED. signals.json append per lane voi schema signals-v1"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 5 Aggregate: coverage-matrix.json co 5 active dimensions (CD1,CD2,CD3,CD4,CD7), threshold=60, status_per_dim={pass|warn|fail}. Phase5-report.md ≤15 dong tieng Viet voi per-dim table"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 6 Regression: SKIPPED khi khong co --since flag. Phase6-report.md ghi 'SKIPPED: ly do=khong co --since', integrity-status.json field phases.6.status='skipped'"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 8 Report: integrity-report.md ≤30 dong tieng Viet voi 6 sections (Coverage, Violations, Suggestions, Regression, Recommendation, Next step). integrity-impact.json co $schema=integrity-impact-v1 + audit_chain.source + audit_chain.checksum (sha256)"
+        },
+        {
+          "type": "behavior",
+          "text": "Exit code 0, error-ledger.json khong co entry severity=critical, context budget <50% (CORE-038)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/minimal/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/minimal/apps/backend/Eureka.Modules.CRM/Domain/Entities/Customer.cs",
+        "tests/fixtures/wf-cmi/minimal/apps/backend/Eureka.Modules.CRM/Domain/Entities/Contact.cs",
+        "tests/fixtures/wf-cmi/minimal/apps/backend/Eureka.Modules.CRM/Domain/Entities/SalesOwner.cs"
+      ]
+    },
+    {
+      "id": "TC-cmi-002",
+      "prompt": "/wf-cmi --profile=standard (fixture realistic voi 3 modules CRM+Orders+Finance, ~15 stub files, cross-module FK)",
+      "expected_output": "Pipeline 8 phases hoan tat 15-30 min. 7 lanes active (CD1-CD6, CD9), CD7 active. business-invariants.json infer ≥10 invariants voi cross_module_dependencies. coverage-matrix.json overall_pct ≥80%. integrity-impact.json schema valid + 4 consumer maps. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 3 Invariant Artifact: 3-pass LLM (Pass 1 pattern detection cross-module, Pass 2 spawn 5 domain experts parallel cho CRM+Sales+Finance+Orders+Logistics, Pass 3 registry gap detection). business-invariants.json APPEND-only sau CDG E094 ACCEPT, audit_chain.source_registry_checksum recorded"
+        },
+        {
+          "type": "file_content",
+          "text": "business-invariants.json: $schema=business-invariants-v1, invariants[] co >=10 entries voi cross_module_dependencies (vd: Order.CustomerId→Customer.Id, Customer.SalesOwnerId→Employee.Id). audit_chain.author = git user.email + user.name"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 4 Coverage Dispatch: profile=standard → activate 7 lanes (CD1,CD2,CD3,CD4,CD5,CD6,CD9). Spawn agents qua Agent({subagent_type, prompt}) max concurrency 10 (CORE-025). Per-lane timeout 3 min, retry x1"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 5 Aggregate: coverage-matrix.json co 7 dimensions, threshold=80, overall_pct ≥80, status='pass'. Per-dim coverage_pct field >=80 (else status='fail' va trigger CDG E090)"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 7 GAP + CDG: phat hien GAPs per dim, spawn triage agent, gap-suggestions.json co suggestions per kind (test/invariant/contract/doc/validation). CDG E094 prompt user APPEND sidecar artifact"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 8 Report: integrity-impact.json $schema=integrity-impact-v1, produces_for map cho 4 consumers (wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment), audit_chain.checksum sha256 cua integrity-status.json verifiable"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase reports tieng Viet ≤15 dong/phase (CORE-028). integrity-report.md ≤30 dong. Khong vi pham CORE-036 (cross-skill artifact schema versioned + audit_chain)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/realistic/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/realistic/apps/backend/Eureka.Modules.CRM/Domain/Entities/Customer.cs",
+        "tests/fixtures/wf-cmi/realistic/apps/backend/Eureka.Modules.Orders/Domain/Entities/Order.cs",
+        "tests/fixtures/wf-cmi/realistic/apps/backend/Eureka.Modules.Finance/Domain/Entities/Invoice.cs"
+      ]
+    },
+    {
+      "id": "TC-cmi-003",
+      "prompt": "/wf-cmi --profile=standard (fixture corrupt voi req-registry.json bi corrupt sau Phase 2 PASS, truoc Phase 3 LLM call)",
+      "expected_output": "Phase 3 PRE-GATE T2 fail (jq parse error). Auto-fix budget 3 retries (re-read → re-validate → fallback backup) deu fail. ESCALATE AskUserQuestion 4 options (Re-run/Skip/Cancel/Switch). Error E039 logged. Exit 2.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 1-2 PASS binh thuong tren fixture corrupt/ (registry hop le luc start). Trigger hook .mc-data/work/wf-cmi/sessions/{SESSION_ID}/inject/corrupt-trigger gay corrupt req-registry.json giua Phase 2 va Phase 3"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 3 PRE-GATE T2: jq '.' req-registry.json fail → error E039 (Phase 3 invariant range E030-E039). PRE-GATE invoke auto-fix budget"
+        },
+        {
+          "type": "behavior",
+          "text": "Auto-fix retry 1: re-read registry → van corrupt → fail. Retry 2: re-validate jq → fail. Retry 3: fallback backup (.mc-data/work/wf-cmi/_backups/) → no backup → fail. Budget exhausted (3/3)"
+        },
+        {
+          "type": "behavior",
+          "text": "ESCALATE qua AskUserQuestion (CORE-027 CDG) voi 4 options: 'Re-run phase' / 'Skip Phase 3 (risky)' / 'Cancel pipeline' / 'Switch profile (try quick)'. Error E039 entry logged trong error-ledger.json voi retry_count=3, severity='critical'"
+        },
+        {
+          "type": "file_content",
+          "text": "error-ledger.json: JSONL APPEND-only, last entry co error_code='E039', phase=3, retry_count=3, escalated=true, resolution='AWAIT_USER'. integrity-status.json field current_phase=3, status='ESCALATED'"
+        },
+        {
+          "type": "behavior",
+          "text": "Exit code 2 (ESCALATE — co the resume via --resume). Lock retained voi heartbeat freeze. Pipeline state preserved cho user quay lai"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/corrupt/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/corrupt/inject/corrupt-trigger",
+        "tests/fixtures/wf-cmi/corrupt/README.md"
+      ]
+    },
+    {
+      "id": "TC-cmi-004",
+      "prompt": "/wf-cmi --resume (sau khi run /wf-cmi --profile=standard bi interrupted giua Phase 4, 6/10 lanes da PASS, 4 lanes pending)",
+      "expected_output": "Doc fix-status.json (integrity-status.json), detect current_phase=4, lane_status 6 PASS + 1 RUNNING + 3 PENDING. Stale lock check: age <30 min → reacquire ngay. Skip 6 PASS lanes (khong re-spawn). Re-spawn 4 pending. Continue Phase 5-8. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "--resume mode: procedures/resume-status.md xu ly 10-step. Step 1 stale lock check (PID-aware): lock age <30 min → reacquire. Step 2 doc integrity-status.json: current_phase=4, phases_completed=[1,2,3], lane_status={CD1:PASS, CD2:PASS, CD3:PASS, CD4:PASS, CD5:PASS, CD6:RUNNING, CD7:PENDING, CD8:N/A, CD9:PENDING, CD10:N/A}"
+        },
+        {
+          "type": "behavior",
+          "text": "Step 3 partial output archive: archive Phase 4 partial outputs sang _partial/ subfolder. Step 4 re-init Phase 4 lane dispatcher voi state preserved. Re-spawn CD6 (RUNNING bi cut), CD7+CD9 (PENDING). KHONG re-spawn CD1-CD5 (da PASS)"
+        },
+        {
+          "type": "behavior",
+          "text": "session-log.json: append entry {event='RESUME', original_session_id=..., resumed_at=..., lanes_skipped=[CD1,CD2,CD3,CD4,CD5], lanes_resumed=[CD6,CD7,CD9]}. Retry budget preserved tu original run"
+        },
+        {
+          "type": "behavior",
+          "text": "Continue Phase 5-8 binh thuong. Phase 5 Aggregate: doc 5 PASS lanes (cu) + 3 lanes moi spawn = 8 lanes total → coverage-matrix.json. Exit 0"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-status.json final: phases_completed=[1,2,3,4,5,6,7,8] (with 6 SKIPPED neu no --since), current_phase=8, status='COMPLETED'. resume_count=1. Lock released sau Phase 8"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/realistic/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/realistic/.mc-data/work/wf-cmi/sessions/2026-05-16-system-resume-test-01/integrity-status.json"
+      ]
+    },
+    {
+      "id": "TC-cmi-005",
+      "prompt": "Hai phien song song cung may: Session A /wf-cmi --scope=system --profile=deep (chay truoc, vao Phase 2). Session B /wf-cmi --scope=module=crm --profile=quick (chay sau 30s).",
+      "expected_output": "Protocol 22 R/W lock: Session B Phase 1-2 PASS song song voi Session A (read-only). Khi ca 2 toi Phase 7 (CDG write sidecar) → second session gets E090b CDG conflict → wait OR escalate. Heartbeat 30s update dung cho ca 2.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Session A va Session B co SESSION_ID khac nhau (format YYYY-MM-DD-{scope}-{slug}-NN). Session A SESSION_DIR=sessions/2026-05-16-system-deep-01, Session B SESSION_DIR=sessions/2026-05-16-module-crm-quick-02. KHONG corrupt state cua nhau"
+        },
+        {
+          "type": "behavior",
+          "text": "Read-heavy phases (Phase 2 Discovery, Phase 5 Aggregate): Protocol 22 read lock cho phep N reader dong thoi. Session B Phase 1-2 chay song song voi Session A khong block. CI cache + req-registry.json doc duoc tu ca 2 sessions"
+        },
+        {
+          "type": "behavior",
+          "text": "Write-heavy phase (Phase 7 CDG sidecar APPEND): Protocol 22 write lock doc quyen. Khi ca 2 toi Phase 7, second-in queue → E090b CDG: 'Lock dang giu boi Session A, expected release in ~2 min. Cho? / Force release? / Cancel?'"
+        },
+        {
+          "type": "behavior",
+          "text": "Heartbeat daemon: ca 2 sessions update _index/sessions.jsonl moi 30s. Stale lock auto-release sau 30 min (CORE-038). Session crash (kill -9) → lock auto-release sau 30 min OR force-release qua CDG"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/wf-cmi/_index/sessions.jsonl: APPEND-only, ghi 2 entries cho 2 sessions voi event=START + heartbeat updates + COMPLETE/FAIL. concurrent-runner.sh trong fixture concurrent/ orchestrate 2 sessions"
+        },
+        {
+          "type": "behavior",
+          "text": "Cleanup: ca 2 sessions release lock dung khi COMPLETE/FAIL. Khong leak lock. KHONG vi pham CORE-030 (Working Directory Session Isolation) hoac CORE-025 (concurrency limit 5 sessions/may quick+standard, 2 sessions/may deep+exhaustive)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/concurrent/README.md",
+        "tests/fixtures/wf-cmi/concurrent/concurrent-runner.sh",
+        "tests/fixtures/wf-cmi/realistic/.mc-data/docs/_meta/req-registry.json"
+      ]
+    },
+    {
+      "id": "TC-cmi-006",
+      "prompt": "/wf-cmi --profile=deep --dims=CD11,CD16,CD17 (fixture v2-wave1 voi 1 FE component + 2 BE aggregates + 1 DbContext, validate Wave 1 dispatch only)",
+      "expected_output": "Wave coordinator init + Wave 1 start voi 3 lanes (CD11/CD16/CD17). Wave 2 + Wave 3 SKIPPED (subset --dims). wave-status.json schema=wave-status-v1 voi wave_1 PASS + wave_2 SKIPPED + wave_3 SKIPPED. integrity-impact.json $schema=integrity-impact-v2 voi lanes_v2.active=[CD11,CD16,CD17]. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 4 Coverage Dispatch: wave-coordinator.sh init + start wave_1 voi LANES_CSV='CD11,CD16,CD17' (canonical wave_1 = [CD1-CD7,CD11,CD16,CD17] intersect requested). lane_count=3, pass_count=3 sau dispatch"
+        },
+        {
+          "type": "file_content",
+          "text": "wave-status.json: $schema=wave-status-v1, current_wave=4 (sentinel complete), all_waves_complete=true, wave_1.lanes_active=[CD11,CD16,CD17], wave_1.gate_status=PASS, wave_2.gate_status=SKIPPED, wave_3.gate_status=SKIPPED, total_lanes_completed=3"
+        },
+        {
+          "type": "behavior",
+          "text": "Wave 2 + Wave 3 KHONG dispatch khi --dims subset cua wave_1 (no Wave 2/3 lanes requested). wave-coordinator.sh end wave_2 + wave_3 voi empty lanes_active → status='SKIPPED', fail_threshold met=null"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: $schema=integrity-impact-v2, lanes_v2.active=[CD11,CD16,CD17] (length=3), lanes_v2.skipped (length>=9), wave_breakdown.wave_1.lane_count=3 + gate_status=PASS, wave_breakdown.wave_2.gate_status=SKIPPED, group_breakdown.frontend.coverage_pct>=0, group_breakdown.backend.coverage_pct>=0, schema_version_compat.readable_by=[integrity-impact-v1,integrity-impact-v2]"
+        },
+        {
+          "type": "behavior",
+          "text": "CD11 lane procedure file procedures/lanes/CD11.md execute Steps CD11.1-CD11.9 voi PRE-GATE T1-T4 PASS (fe-component-graph.json exists). CD16 + CD17 cung execute lane procedures voi 8 sections §A-§H per file. Idempotency: re-run wave-coordinator.sh end wave_1 KHONG double-count total_lanes_completed"
+        },
+        {
+          "type": "behavior",
+          "text": "Exit code 0. SKILL.md remain 487 dong <=500 (CORE-032). 28 procedure paths verified on disk truoc dispatch. Phase reports tieng Viet, integrity-report.md <=55 dong (Stage 7 v2 max bound)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v2-wave1/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v2-wave1/apps/erp-web/components/CustomerCard.tsx",
+        "tests/fixtures/wf-cmi/v2-wave1/apps/backend/Eureka.Modules.CRM/Domain/Entities/Customer.cs",
+        "tests/fixtures/wf-cmi/v2-wave1/apps/backend/Eureka.Modules.CRM/Persistence/DbContextModelSnapshot.cs"
+      ]
+    },
+    {
+      "id": "TC-cmi-007",
+      "prompt": "/wf-cmi --profile=deep --dims=CD15 (fixture v2-ssot-missing, rbac-permission-catalog.json KHONG exist trong .mc-data/docs/_meta/)",
+      "expected_output": "CD15 PRE-GATE T1-T4 fail tai SSOT existence check. Lane KHONG fallback heuristic vi explicit SSOT required. ESCALATE E144 voi AskUserQuestion 4 options. error-ledger.json append entry severity=critical. Exit 2 (ESCALATE).",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "CD15 lane procedure procedures/lanes/CD15.md Step CD15.1 load SSOT: test -f .mc-data/docs/_meta/rbac-permission-catalog.json → false. Error E144 raised (SSOT mandatory missing, KHONG fallback)"
+        },
+        {
+          "type": "file_content",
+          "text": "error-ledger.json: JSONL APPEND-only, last entry co error_code='E144', phase=4, lane=CD15, message contains 'rbac-permission-catalog.json SSOT mandatory not found', retry_count=0 (no auto-fix for SSOT missing), escalated=true, severity='critical'"
+        },
+        {
+          "type": "behavior",
+          "text": "ESCALATE qua AskUserQuestion 4 options: 'Populate SSOT now (cancel + populate manual)' / 'Skip CD15 (degrade coverage)' / 'Use heuristic fallback (security risk)' / 'Cancel pipeline'. CORE-027 CDG enforce user decision"
+        },
+        {
+          "type": "behavior",
+          "text": "Wave coordinator handle: CD15 fail → wave_2.fail_count=1, lane_count=1, no other Wave 2 lane → fail_count=1 < fail_threshold=3 → exit code 2 PARTIAL_FAIL E123 (not E121 FAIL_THRESHOLD). Overall_status=FAIL khi user chon 'Cancel pipeline'"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: $schema=integrity-impact-v2, lanes_v2.active=[CD15] but signal_count=0, summary.status='FAILED', summary.note contains 'CD15 SSOT missing — populate rbac-permission-catalog.json before re-run', logistics_critical_signals_count.must_severity_count=0"
+        },
+        {
+          "type": "behavior",
+          "text": "Exit code 2 (ESCALATE — resumable). Lock retained voi heartbeat. State preserved cho user re-populate SSOT roi --resume. integrity-status.json field current_phase=4, status='ESCALATED'"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v2-ssot-missing/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v2-ssot-missing/README.md"
+      ]
+    },
+    {
+      "id": "TC-cmi-008",
+      "prompt": "/wf-cmi --profile=deep (fixture v2-full voi 5 modules CRM+Orders+Finance+Logistics+Compliance + 9 SSOTs populated, validate full 26 lane 3-wave dispatch)",
+      "expected_output": "Pipeline 8 phases hoan tat ~55-90 min. 26 lanes active (CD1-CD7, CD9, CD11, CD13, CD15-CD18, CD23-CD26, CD28-CD31, CD37-CD40). 3-wave dispatch: W1=10 + W2=10 + W3=6. coverage-matrix.json overall_pct >=95% (deep threshold). integrity-impact.json $schema=integrity-impact-v2 voi tat ca 5 v2 fields populated. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 4 Coverage Dispatch: wave-coordinator.sh init + 3 wave sequential. Wave 1 (10 lanes CD1-CD7+CD11+CD16+CD17) max concurrency 10, ~10-12 min. Wave 2 (10 lanes CD13+CD15+CD18+CD23-25+CD28+CD30+CD31+CD37) ~12-15 min. Wave 3 (6 lanes CD9+CD26+CD29+CD38-40) ~8-10 min. Total Phase 4 ~30-37 min"
+        },
+        {
+          "type": "file_content",
+          "text": "wave-status.json: $schema=wave-status-v1, all_waves_complete=true, current_wave=4 (sentinel), overall_status=PASS, wave_1.lane_count=10 + gate_status=PASS, wave_2.lane_count=10 + gate_status=PASS, wave_3.lane_count=6 + gate_status=PASS, total_lanes_completed=26 + total_lanes_failed=0"
+        },
+        {
+          "type": "file_content",
+          "text": "coverage-matrix.json: $schema=coverage-matrix-v2, 35 dim entries (26 active + 9 SKIPPED markers cho CD8/CD10/CD12/CD14/CD19/CD20/CD21/CD22/CD27, CD32-CD36 KHONG present), threshold=95 (deep), overall_pct >=95, wave_breakdown.wave_1/2/3 per-wave overall_pct populated"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: $schema=integrity-impact-v2 + skill_version=2.0.0 + final_status=PASS, lanes_v2.active=[26 lanes], lanes_v2.skipped=[9 lanes], lanes_v2.skeleton=[5 CD32-36 v3-deferred], wave_breakdown.wave_1+2+3 voi gate_status PASS, group_breakdown 7 sections (core/frontend/backend/ux/logistics★★★/compliance★★★/implementation★) voi critical=true cho logistics+compliance, logistics_critical_signals_count.total>=0 + by_lane (CD28/30/31/37/38/39/40), schema_version_compat.readable_by=[integrity-impact-v1,integrity-impact-v2]"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 8 Report: integrity-report.md <=55 dong (Stage 7 v2 max bound) voi top 10 violations severity-weighted [TOP_VIOLATIONS_LIST] placeholder populated, 7 grouped sections (Core/FE/BE/UX/Logistics★★★/Compliance★★★/Implementation★). Wave summary table tu wave-status.json. Phase reports tieng Viet <=15 dong/phase. consumers_recommended_actions populated cho 4 consumers (wf-verify-sync/wf-fix-bugs/wf-implement-feature/wf-prepare-deployment) v1→v2 logic"
+        },
+        {
+          "type": "behavior",
+          "text": "Context budget <80% (CORE-038). 28 lane procedure files verified pre-dispatch. SKILL.md 487 dong <=500 (CORE-032). Exit code 0. error-ledger.json no critical entries. all _contract.json.outputs.working[] files exist tren disk"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/rbac-permission-catalog.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/ux-conventions.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/mdm-canonical-entities.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/compliance-mapping.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/workflow-state-machines.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/audit-critical-entities.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/error-code-catalog.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/print-export-templates.json",
+        "tests/fixtures/wf-cmi/v2-full/.mc-data/docs/_meta/ui-interactivity-spec.json"
+      ]
+    },
+    {
+      "id": "TC-cmi-009",
+      "prompt": "/wf-cmi --profile=deep --dims=CD28,CD30,CD31 (fixture v2-logistics, validate ★★★ logistics-critical lanes voi VN+CN multi-currency + numbering uniqueness)",
+      "expected_output": "Wave 2 dispatch voi 3 logistics-critical lanes CD28/CD30/CD31. SSOT mandatory check: mdm-canonical-entities.json + workflow-state-machines.json + compliance-mapping.json must exist. Signal kinds expected: MDM-CD28 + TIME-CD30 + (MONEY|TAX)-CD31. logistics_critical_signals_count populated voi by_lane=[CD28,CD30,CD31]. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "CD28 lane procedure procedures/lanes/CD28.md Step CD28.1 load SSOT mdm-canonical-entities.json (mandatory E141). Step CD28.4 multi-writer check: detect cross-module write tren MasterCustomer entity. Step CD28.5 reference-data drift: compare currency list FE vs BE seed data"
+        },
+        {
+          "type": "behavior",
+          "text": "CD30 lane procedure procedures/lanes/CD30.md Step CD30.1 load SSOT workflow-state-machines.json (numbering_schemes + timezone_policy). Step CD30.3 timezone-aware datetime check: scan EF entities for DateTime properties WITHOUT [Column(TypeName='timestamp with time zone')]. Step CD30.5 numbering uniqueness: validate Invoice/BOL/Customs declared format regex"
+        },
+        {
+          "type": "behavior",
+          "text": "CD31 lane procedure procedures/lanes/CD31.md Step CD31.1 load 2 SSOTs (mdm-canonical-entities.currencies + compliance-mapping.tax_regulations). Step CD31.3 Money VO check: detect decimal/double for monetary fields. Step CD31.7 VN VAT 2024 NQ 142/2024/QH15 (8%) + CN VAT 13%/9%/6% cross-validate"
+        },
+        {
+          "type": "file_content",
+          "text": "signals.json: rule_id format match `MDM-CD28-\\d{3}|TIME-CD30-\\d{3}|MONEY-CD31-\\d{3}|TAX-CD31-\\d{3}`. CRITICAL_FLOAT_MONEY severity=MUST. VND_DECIMAL_PRESENT severity=HIGH (CD24 ngoai phase, lane CD31 verify backend). MIXED_CURRENCY_HEADER severity=MUST. compliance_refs[] populated cho moi signal (TT 78/2021/TT-BTC, NQ 142/2024/QH15, etc.)"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: logistics_critical_signals_count.total >= signals_count, by_lane.CD28 + by_lane.CD30 + by_lane.CD31 populated. must_severity_count > 0 neu co MUST signal → wf-prepare-deployment BLOCK release. group_breakdown.logistics.critical=true, coverage_pct populated"
+        },
+        {
+          "type": "behavior",
+          "text": "Wave 2 gate check: 3 lanes pass → fail_count=0 < fail_threshold=3 → exit 0 PASS. wave-coordinator.sh end wave_2 idempotent. Exit code 0"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v2-logistics/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v2-logistics/.mc-data/docs/_meta/mdm-canonical-entities.json",
+        "tests/fixtures/wf-cmi/v2-logistics/.mc-data/docs/_meta/workflow-state-machines.json",
+        "tests/fixtures/wf-cmi/v2-logistics/.mc-data/docs/_meta/compliance-mapping.json",
+        "tests/fixtures/wf-cmi/v2-logistics/apps/backend/Eureka.Modules.Finance/Domain/Entities/Invoice.cs",
+        "tests/fixtures/wf-cmi/v2-logistics/apps/backend/Eureka.Modules.Logistics/Domain/Entities/Booking.cs"
+      ]
+    },
+    {
+      "id": "TC-cmi-010",
+      "prompt": "/wf-cmi --profile=deep --dims=CD29,CD37 (fixture v2-compliance voi 13 audit-critical entities + 5 VN + 3 CN regulations, validate PII access logging + cross-border CN→VN)",
+      "expected_output": "Wave 3 dispatch voi CD29 + Wave 2 dispatch voi CD37 (separate waves). SSOT mandatory: audit-critical-entities.json (CD29) + compliance-mapping.json (CD37). Signal kinds: AUDIT-CD29-001..005 (incl PII_READ_NOT_LOGGED MUST VN-PDPL) + COMP-CD37-001..005 (incl CROSS_BORDER_COMPLIANCE_GAP MUST). Cross-lane CD29 vs CD37 KHONG duplicate signals tren cung entity. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "CD29 lane procedure procedures/lanes/CD29.md Step CD29.1 load SSOT audit-critical-entities.json (mandatory E145). Step CD29.5 PII access logging check: GET endpoints returning entity Customer/Employee/Patient WITHOUT audit log call → PII_READ_NOT_LOGGED severity=MUST (VN-PDPL Nghi dinh 13/2023/ND-CP Dieu 6)"
+        },
+        {
+          "type": "behavior",
+          "text": "CD37 lane procedure procedures/lanes/CD37.md Step CD37.1 load SSOT compliance-mapping.json (3 jurisdictions VN+CN+intl, mandatory E143). Step CD37.5 cross-border CN→VN: scan customer.region='CN' + customer.region='VN' transfer → CN-PIPL CAC assessment required. Step CD37.6 OFAC sanctions screening"
+        },
+        {
+          "type": "file_content",
+          "text": "signals.json: rule_id format match `AUDIT-CD29-\\d{3}` cho CD29 + `COMP-CD37-\\d{3}` cho CD37. PII_READ_NOT_LOGGED + REGULATORY_RULE_VIOLATION + PERSONAL_DATA_UNGOVERNED + CROSS_BORDER_COMPLIANCE_GAP severity=MUST. regulation_ref field populated voi 5 VN (TT 78/2021, PDPL 2023, VNACCS, Labor Code 2019, NQ 142/2024) + 3 CN (Fapiao, H2010 customs, PIPL 2021) + 3 intl (Incoterms 2020, GDPR, OFAC)"
+        },
+        {
+          "type": "behavior",
+          "text": "Cross-lane validation: CD29 check call-site (handler co call audit log call?), CD37 check structural existence (handler entity flagged compliance-critical?). Cung entity Invoice: CD29 signal=PII_READ_NOT_LOGGED (call-site), CD37 signal=MISSING_COMPLIANCE_CHECK (structural). KHONG duplicate — complementary scopes per cross_lane_overlap_note"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: group_breakdown.compliance.critical=true, coverage_pct populated. consumers_recommended_actions.wf-prepare-deployment.action='BLOCK' khi PII_READ_NOT_LOGGED >0 OR CROSS_BORDER_COMPLIANCE_GAP >0 (must_severity_count >0)"
+        },
+        {
+          "type": "behavior",
+          "text": "Exit code 0 neu all signal severity SHOULD/HIGH (no MUST) → wave PASS. Exit code 2 ESCALATE neu MUST signal exist → CDG E090 prompt user accept/generate/cancel"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v2-compliance/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v2-compliance/.mc-data/docs/_meta/audit-critical-entities.json",
+        "tests/fixtures/wf-cmi/v2-compliance/.mc-data/docs/_meta/compliance-mapping.json",
+        "tests/fixtures/wf-cmi/v2-compliance/apps/backend/Eureka.Modules.CRM/Application/Queries/GetCustomerByIdQuery.cs",
+        "tests/fixtures/wf-cmi/v2-compliance/apps/backend/Eureka.Modules.Finance/Domain/Entities/Invoice.cs"
+      ]
+    },
+    {
+      "id": "TC-cmi-011",
+      "prompt": "/wf-cmi --profile=deep --dims=CD38,CD39,CD40 (fixture v2-newadds voi UI interactivity spec + error catalog + print templates, validate NEW additions Wave 3)",
+      "expected_output": "Wave 3 dispatch voi 3 NEW additions. CD38 SSOT mandatory (ui-interactivity-spec). CD39 + CD40 SSOT optional voi fallback Grep/filesystem. Signal kinds UI-CD38-001..005 + ERR-CD39-001..005 + DOC-CD40-001..005. Print templates VN+CN+EN logistics-critical. ERROR_MESSAGE_NOT_VIETNAMESE check (CORE-005). Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "CD38 lane procedure procedures/lanes/CD38.md Step CD38.1 load SSOT ui-interactivity-spec.json (mandatory E144, lane KHONG fallback). Step CD38.4 orphan API check voi grace_period_days. Step CD38.6 workflow state no UI trigger severity=CRITICAL"
+        },
+        {
+          "type": "behavior",
+          "text": "CD39 lane procedure procedures/lanes/CD39.md Step CD39.1 load SSOT error-code-catalog.json (optional E147 WARN fallback Grep). Step CD39.3 missing error boundary check: Next.js App Router page WITHOUT error.tsx/global-error.tsx. Step CD39.5 ERROR_MESSAGE_NOT_VIETNAMESE check (CORE-005): error message English-only → severity HIGH"
+        },
+        {
+          "type": "behavior",
+          "text": "CD40 lane procedure procedures/lanes/CD40.md Step CD40.1 load SSOT print-export-templates.json (optional E148 WARN fallback filesystem). Step CD40.3 print template drift VN: e-invoice TT 78/2021/TT-BTC required fields. Step CD40.6 brand asset logo check: external-facing PDF missing branding"
+        },
+        {
+          "type": "file_content",
+          "text": "signals.json: rule_id format match `UI-CD38-\\d{3}|ERR-CD39-\\d{3}|DOC-CD40-\\d{3}`. WORKFLOW_STATE_NO_UI_TRIGGER severity=CRITICAL (CD38). RAW_ERROR_LEAKED_TO_USER severity=HIGH (CD39). PRINT_TEMPLATE_DRIFT severity=MUST cho e-invoice VN (CD40). BOL VN+EN+CN bilingual check (CD40)"
+        },
+        {
+          "type": "behavior",
+          "text": "Wave 3 gate check: 3 lanes pass → fail_count=0 < fail_threshold=2 → exit 0 PASS. wave-coordinator.sh end wave_3. integrity-report.md top 10 violations include signals tu CD38/CD39/CD40 neu severity MUST/HIGH"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: group_breakdown.implementation populated voi CD38/39/40, group_breakdown.frontend.coverage_pct shows CD38/CD39 contributions. logistics_critical_signals_count.by_lane.CD40 populated (print/export logistics-document-heavy: invoice, BOL, customs declaration)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v2-newadds/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v2-newadds/.mc-data/docs/_meta/ui-interactivity-spec.json",
+        "tests/fixtures/wf-cmi/v2-newadds/.mc-data/docs/_meta/error-code-catalog.json",
+        "tests/fixtures/wf-cmi/v2-newadds/.mc-data/docs/_meta/print-export-templates.json",
+        "tests/fixtures/wf-cmi/v2-newadds/apps/erp-web/app/dashboard/customers/page.tsx",
+        "tests/fixtures/wf-cmi/v2-newadds/apps/erp-web/templates/invoice.cshtml"
+      ]
+    },
+    {
+      "id": "TC-cmi-012",
+      "prompt": "/wf-cmi --profile=quick (fixture v1-legacy migration: tao integrity-impact.json v2, sau do mock v1 consumer skill read artifact qua wf-verify-sync --from-cmi)",
+      "expected_output": "Producer wf-cmi v2.0 ghi integrity-impact.json voi $schema=integrity-impact-v2 + all v1 fields preserved + 5 v2 fields new. Mock v1 consumer skill read artifact: detect $schema field via jq, accept v2 (forward-compat) hoac fall back voi WARN log. Tat ca v1 fields (coverage_matrix_summary, violations, regression_scope, gap_artifacts_suggested, consumers_recommended_actions, summary, audit_chain) accessible normally. v2 extras (lanes_v2, wave_breakdown, group_breakdown, logistics_critical_signals_count, schema_version_compat) ignored by v1 reader. Exit 0.",
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: $schema='integrity-impact-v2' (NOT 'integrity-impact-v1'). All v1 required fields present + populated: coverage_matrix_summary{overall_pct, threshold, status}, violations[]{rule_id, severity, lane, description}, regression_scope{commits_analyzed, files_changed}, gap_artifacts_suggested[]{kind, target_path}, consumers_recommended_actions{wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment}, summary{status, signal_count, top_3_violations}, audit_chain{source, checksum, git_commit, author}"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json v2 new fields populated: lanes_v2.active (array length>=1), lanes_v2.skipped (array length>=9), lanes_v2.skeleton (array length=5 for CD32-36 v3-deferred), wave_breakdown.wave_1+wave_2+wave_3 populated voi {lane_count, pass_count, overall_pct, gate_status}, group_breakdown 7 sections (core/frontend/backend/ux/logistics/compliance/implementation) voi critical flag, logistics_critical_signals_count{total, by_lane, must_severity_count}, schema_version_compat.readable_by=['integrity-impact-v1', 'integrity-impact-v2']"
+        },
+        {
+          "type": "behavior",
+          "text": "Mock v1 consumer test: read integrity-impact.json voi jq query path-based: jq '.coverage_matrix_summary.overall_pct' → returns number (not null). jq '.violations | length' → returns int. jq '.audit_chain.checksum' → returns sha256 string. v1 consumer KHONG cuc try access v2-only fields (lanes_v2, wave_breakdown) — gracefully ignore"
+        },
+        {
+          "type": "behavior",
+          "text": "Mock v2 consumer test: $schema field detection via jq '.\\$schema' → 'integrity-impact-v2'. Consumer route to v2 reader path. Access lanes_v2.active → array length 26 (deep profile). Access wave_breakdown.wave_2.gate_status → 'PASS'. Access group_breakdown.logistics.critical → true. Access logistics_critical_signals_count.must_severity_count → int >=0"
+        },
+        {
+          "type": "file_content",
+          "text": "_contract.json: cross_skill_contracts.produces_for_schema_compat section defines backward-compat contract: schema_field='$schema', current_value='integrity-impact-v2', readable_by=['integrity-impact-v1', 'integrity-impact-v2'], degradation_strategy='v1 reader graceful skip v2-only fields, no error'. cross_skill_contracts.produces_for{wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment} 4 consumers updated voi v2 logic refs"
+        },
+        {
+          "type": "behavior",
+          "text": "Backward-compat verify gates: jq -e check all v1 fields preserved trong v2 artifact. jq -e check all 5 v2 fields populated. Exit code 0 if both pass. Stage 7 5/5 gates align: compliance audit + schema sync + smoke test max bound + backward-compat verify + SKILL.md <=500"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v1-legacy/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v1-legacy/.mc-data/work/wf-cmi/sessions/2026-05-16-system-quick-01/phase8-report/integrity-impact.json"
+      ]
+    },
+    {
+      "id": "TC-cmi-013",
+      "prompt": "/wf-cmi --status (sau khi run --profile=deep, validate quick status query KHONG re-execute pipeline)",
+      "expected_output": "Read-only status query qua procedures/resume-status.md. Doc integrity-status.json + wave-status.json + last Phase{N}-report.md → render summary table tieng Viet. KHONG re-spawn agent. KHONG touch lock. Exit 0 voi summary output.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "--status flag: procedures/resume-status.md handler doc fix-status.json (integrity-status.json), wave-status.json (neu Phase 4 da chay), latest Phase{N}-report.md. KHONG acquire lock (read-only). KHONG re-spawn agent. KHONG modify any file"
+        },
+        {
+          "type": "file_exists",
+          "text": "Read-only access: .mc-data/work/wf-cmi/sessions/{LATEST_SESSION_ID}/integrity-status.json exists + readable. .mc-data/work/wf-cmi/sessions/{LATEST_SESSION_ID}/phase4-coverage/wave-status.json exists neu Phase 4 da chay. .mc-data/work/wf-cmi/_index/sessions.jsonl readable"
+        },
+        {
+          "type": "behavior",
+          "text": "Output format: summary table tieng Viet voi columns Session ID | Profile | Current Phase | Wave 1/2/3 Status | Overall Status | Started At | Duration. Multi-session display neu co >1 session active (Protocol 22 R/W lock-aware). Khong vi pham CORE-028 (Phase report tieng Viet)"
+        },
+        {
+          "type": "behavior",
+          "text": "wave-coordinator.sh status SESSION_DIR called (read-only subcommand). Output 3-wave summary voi gate_status + pass_count + fail_count + duration. Exit code 0 (read-only success)"
+        },
+        {
+          "type": "behavior",
+          "text": "Edge case: --status khi no active session → message 'Khong co session wf-cmi nao active. Chay /wf-cmi --scope=... de bat dau' + exit 0. Edge case: --status khi session crashed (lock orphan) → cảnh báo 'Session 2026-05-16-system-deep-01 orphan lock detected (PID 12345 chet ~30 min truoc). Chay --resume hoac --status --force-cleanup'"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/realistic/.mc-data/work/wf-cmi/sessions/2026-05-16-system-deep-01/integrity-status.json",
+        "tests/fixtures/wf-cmi/realistic/.mc-data/work/wf-cmi/sessions/2026-05-16-system-deep-01/phase4-coverage/wave-status.json"
+      ]
+    },
+    {
+      "id": "TC-cmi-014",
+      "prompt": "/wf-cmi --profile=standard (fixture v3-backward-compat, NO --exec-scenarios flag, validate v2 backward-compat: v3 schema artifact ghi voi e2e fields = null/empty, v1+v2 fields preserved 100%, Phase 9-10 SKIP)",
+      "expected_output": "Pipeline 8 phases hoan tat (KHONG Phase 9-10). integrity-impact.json $schema=integrity-impact-v3 voi e2e_execution_summary=null + scenarios_artifacts=[] (default --exec-scenarios=off). schema_version_compat.readable_by=[v1,v2,v3]. integrity-report.md ≤55 dong (v2 base, NO E2E section). Behavior y het v2.0. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 1 Init: parse args KHONG co --exec-scenarios → v3_flags.exec_scenarios=false trong integrity-status.json. CD41 lane skip o Phase 4 voi INFO log 'profile=standard, CD41 deep|exhaustive only'. Phase 9-10 SKIP (no Phase{9,10}-report.md created). integrity-status.json.phases_completed=[1,2,3,4,5,6,7,8]"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-impact.json: $schema='integrity-impact-v3' (NOT v2), skill_version='3.0.0', schema_version_compat.readable_by=['integrity-impact-v1','integrity-impact-v2','integrity-impact-v3']. e2e_execution_summary=null (default off). scenarios_artifacts=[] (empty array). ALL v1 fields present: coverage_matrix_summary + violations + regression_scope + gap_artifacts_suggested + consumers_recommended_actions + summary + audit_chain. ALL v2 fields present: lanes_v2 + wave_breakdown + group_breakdown + logistics_critical_signals_count"
+        },
+        {
+          "type": "behavior",
+          "text": "Mock v1 consumer test: jq '.coverage_matrix_summary.overall_pct' returns number. jq '.violations | length' returns int. jq '.audit_chain.checksum' returns sha256. v1 reader IGNORE v3 fields (e2e_execution_summary/scenarios_artifacts) — graceful skip"
+        },
+        {
+          "type": "behavior",
+          "text": "Mock v2 consumer test: jq '.wave_breakdown.wave_2.gate_status' returns 'PASS'/'SKIPPED'. jq '.group_breakdown.logistics.critical' returns true. jq '.logistics_critical_signals_count.must_severity_count' returns int. v2 reader IGNORE v3-only fields"
+        },
+        {
+          "type": "behavior",
+          "text": "Mock v3 consumer test: jq '.e2e_execution_summary' returns null (off mode). jq '.scenarios_artifacts | length' returns 0. v3 reader detect e2e_execution_summary=null → KHONG try render E2E section. integrity-report.md verify: grep '## 3.5. E2E Execution Summary' returns 0 matches (section NOT rendered)"
+        },
+        {
+          "type": "file_content",
+          "text": "integrity-report.md: ≤55 dong (v2 base max bound, KHONG mo rong sang 70 vi NO E2E section). 6 sections truoc-Stage-6: Tong quan + Coverage matrix + Top 10 violations + Gap suggestions + Regression scope + Recommendations. NO section 3.5 E2E Execution Summary"
+        },
+        {
+          "type": "behavior",
+          "text": "Exit code 0. error-ledger.json no critical entries. Phase 9-10 SKIP CHINH XAC (KHONG fall through accidentally). v2 backward-compat 100% preserved (CORE-036)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v3-backward-compat/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v3-backward-compat/README.md",
+        "tests/fixtures/wf-cmi/v3-backward-compat/apps/backend/Eureka.Modules.CRM/Domain/Entities/Customer.cs"
+      ]
+    },
+    {
+      "id": "TC-cmi-015",
+      "prompt": "/wf-cmi --profile=deep (fixture v3-cd41-synth voi 3 MUST violations cross-module workflow-graph + business-invariants + ui-interactivity-spec, validate CD41 sinh ≥1 test scenario)",
+      "expected_output": "Phase 4 Wave 3 dispatch CD41 lane. CD41 filter violations severity=MUST AND dim∈{CD9,CD11,CD13,CD15,CD23-26,CD38,CD39} → ≥3 qualifying violations. Synthesize scenarios voi confidence ≥0.5. scenarios-manifest.json $schema=scenarios-manifest-v1 voi total_valid ≥1 + ≥1 cross-module scenario. Phase 9 SKIP (no --exec-scenarios). Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 4 Coverage Dispatch: profile=deep activate CD41 (Wave 3, owner=qa-lead+ux-researcher+business-analyst). CD41.1 load 4 inputs: signals-aggregated.jsonl (W1+W2 MUST) + business-invariants.json (≥3 invariants cross_module) + workflow-graph.json + ui-interactivity-spec.json SSOT"
+        },
+        {
+          "type": "behavior",
+          "text": "CD41.2 filter+rank: severity=MUST AND dim ∈ {CD9,CD11,CD13,CD15,CD23-26,CD38,CD39} → ≥3 qualifying. CD41.3 walk workflow-graph: per violation find path involving modules, derive Steps. CD41.4 render template với confidence scoring (workflow path complete + invariant clear + SSOT match → confidence ≥0.7)"
+        },
+        {
+          "type": "file_content",
+          "text": "scenarios-manifest.json: $schema='scenarios-manifest-v1', session_id populated, lane='CD41', total_synthesized ≥3, total_valid ≥1 (confidence ≥0.5 threshold), total_skipped_low_confidence value populated (could be 0), total_cross_module ≥1 (affected_modules length >1), scenarios[] array length = total_synthesized, metadata.filter_dims contains 'CD11', metadata.filter_severities=['MUST','HIGH']"
+        },
+        {
+          "type": "file_content",
+          "text": "scenarios/test-scenario-CMI-01-{slug}.md: frontmatter YAML co scenario_id, generated_by='CD41', session_id, source_violation_id (1+ violation IDs), source_invariant_id (from business-invariants.json), source_dim (CD11/CD13/...), severity='MUST', scenario_type ∈ {Happy,Validation,Permission,BusinessRule}, modules_involved (array length ≥1), cross_module bool, confidence (0.5-0.95), entry_url (from fe-route-graph), actor (from rbac-matrix). Body co bang Buoc 5 cot chuan (Buoc | Hanh dong | Du lieu | Ket qua mong doi | Ket qua thuc te) voi ≥3 buoc"
+        },
+        {
+          "type": "behavior",
+          "text": "CD41.6 signals emit 3 kinds: E2E_SCENARIO_SYNTHESIZED (1 signal voi count=total_synthesized, cross_module_count, modules_covered), E2E_SCENARIO_SKIPPED_LOW_CONFIDENCE (0 hoac N signals), E2E_CROSS_MODULE_SCENARIO_DETECTED (per cross-module scenario). signals.json appended trong phase4-coverage/lanes/CD41-e2e-synth/"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 9 SKIP (no --exec-scenarios flag): NOT integrate execute. integrity-status.json.v3_flags.exec_scenarios=false. integrity-status.json.phases_completed=[1..8] (9-10 NOT in array). Phase 9-10 reports NOT created. Exit 0. CD41 outputs preserved cho future --scenarios-only resume"
+        },
+        {
+          "type": "file_content",
+          "text": "CD41-e2e-synth-report.md: ≤20 dong tieng Viet voi 'scenarios synthesized: N', 'valid: M', 'skipped low confidence: K', 'cross-module: P', 'manifest path: ...', 'phase9_ready: true (waiting --exec-scenarios)'. integrity-report.md ≤55 dong (no E2E section vi no execute)"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v3-cd41-synth/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v3-cd41-synth/.mc-data/docs/_meta/ui-interactivity-spec.json",
+        "tests/fixtures/wf-cmi/v3-cd41-synth/README.md"
+      ]
+    },
+    {
+      "id": "TC-cmi-016",
+      "prompt": "/wf-cmi --profile=deep --exec-scenarios (fixture v3-phase9-fail voi 5 scenarios sinh tu CD41, mock 2 scenarios FAIL voi failure_type=TEST_SELECTOR + UI_BUG, validate Phase 10 auto-fix Phase A browser-fix → 2 scenarios PASS after retry)",
+      "expected_output": "Phase 9 execute 5 scenarios qua Playwright MCP: 3 PASS truc tiep, 2 FAIL (selector not found + null TypeError in console). Phase 10 trigger auto-run vi ≥1 FAIL. Phase 10 Step 10.2 classify failures + Phase A auto-fix browser: TEST_SELECTOR thu 3 selector variant (data-testid/role/label) → tim duoc → PASS. UI_BUG page reload → state recover → PASS. final 5/5 AUTO_CORRECTED. e2e-results.json sub-state populated. Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 9 PRE-GATE T1-T4 PASS: scenarios-manifest exists (5 entries), Playwright MCP available, FE running (mock), browser-mcp.lock acquirable. Step 9.3 lint 5 scenarios → 0 critical errors → continue. Step 9.4 5x pre-flight skip (mock stable-registry hit). Step 9.5 login PASS (auth scenario)"
+        },
+        {
+          "type": "behavior",
+          "text": "Step 9.6 FOR each scenario execute: scenario-01,02,03 → PASS (browser_snapshot verify Ket qua mong doi match). scenario-04 → FAIL (browser_click step: 'Element not found' → e2e-results.json entry execution_status=FAIL, failure_detail.type=TEST_SELECTOR, defer Phase 10). scenario-05 → FAIL (after browser_navigate: console error 'TypeError: cannot read property X of null' → execution_status=FAIL, failure_detail.type=UI_BUG, defer Phase 10)"
+        },
+        {
+          "type": "file_content",
+          "text": "e2e-results.json: $schema='e2e-results-v1', scenarios[] length=5, per-entry has execution_status ∈ {PASS,FAIL,AUTO_CORRECTED,QUARANTINED,BLOCKED}, evidence.screenshot paths populated (5 PNG files in phase9-e2e-execute/screenshots/), failure_detail object cho 2 FAIL entries (type, message, console_logs[], network_failures[]), auto_fix_attempts[] empty TRUOC Phase 10"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 10 PRE-GATE PASS: e2e-results.json has ≥1 FAIL (count=2). failure-analyzer engine loadable. agents available (qa-lead + frontend-developer). Phase 10 trigger auto-run (no user prompt vi ≥1 FAIL det). Lane mode HYBRID (analysis sequential)"
+        },
+        {
+          "type": "behavior",
+          "text": "Step 10.2 per FAIL issue: scenario-04 (TEST_SELECTOR): Buoc 1 collect evidence → Buoc 2 classify TEST_SELECTOR → Buoc 3 layer=test owner=qa-lead → Buoc 7 Phase A browser-fix: thu selector variant 1 (data-testid='customer-card-1') FAIL, variant 2 (role='button') FAIL, variant 3 (text='Khach hang 1') PASS → re-run scenario → AUTO_CORRECTED. scenario-05 (UI_BUG): Phase A page_reload → state recover → re-run → AUTO_CORRECTED"
+        },
+        {
+          "type": "file_content",
+          "text": "resolution-report.md: 6 sections (Tong quan + Failure classification matrix + Per-failure resolution + Auto-fix outcomes + Loop-back suggestions + Phase Summary). Per-failure block: failure_type, classify_reason, layer, owner, resolution_direction, auto_fix_attempts[2 entries], final_status=AUTO_CORRECTED. resolution_summary: total=2, auto_corrected=2, source_fix_required=0, escalated=0"
+        },
+        {
+          "type": "behavior",
+          "text": "e2e-results.json post-Phase 10: scenario-04 + scenario-05 execution_status updated to AUTO_CORRECTED (NOT FAIL). auto_fix_attempts[] populated voi 3+1 attempts respectively. screenshot scenario-04-retry-final.png + scenario-05-retry-final.png exist. Phase 9-10 reports created. Exit 0. integrity-report.md ≤70 dong (v3 max with E2E section). integrity-impact.json e2e_execution_summary populated voi N_PASS=3 + N_AUTO_CORRECTED=2 + N_FAIL=0"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v3-phase9-fail/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v3-phase9-fail/.mc-data/work/wf-cmi/sessions/2026-05-17-system-deep-01/phase4-coverage/lanes/CD41-e2e-synth/scenarios-manifest.json",
+        "tests/fixtures/wf-cmi/v3-phase9-fail/README.md"
+      ]
+    },
+    {
+      "id": "TC-cmi-017",
+      "prompt": "/wf-cmi --profile=deep --exec-scenarios --auto-fix-source (fixture v3-loopback voi 3 scenarios FAIL: 1 TEST_SELECTOR + 1 NETWORK_ERROR backend + 1 BUSINESS_RULE, validate Phase 10 Phase B source-fix spawn agent + loop-back APPEND gap-suggestions.json voi kind='e2e_scenario_fix')",
+      "expected_output": "Phase 10 Phase A browser-fix fail cho 3 scenarios (selector variant fail, retry network fail, business rule cannot bypass). CDG E195 prompt user --auto-fix-source confirm (silent default vi --no-prompt KHONG set, prompt fire). User accept → Phase B spawn 3 agents parallel max=3: qa-lead (selector), developer (NETWORK), developer+logistics-expert (BUSINESS_RULE). Post-fix wait HMR → re-run → 2 PASS + 1 ESCALATE. Step 10.3 loop-back APPEND 3 entries vao gap-suggestions.json voi kind='e2e_scenario_fix'.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 9 execute 3 scenarios all FAIL: scenario-01 TEST_SELECTOR after 3 retries, scenario-02 NETWORK_ERROR 500 after 3 retries, scenario-03 BUSINESS_RULE assertion fail (invariant violated). Phase 10 trigger auto-run. Phase A browser-fix per scenario fail: selector variants 3 fail, network retry 3s x3 still 500, business rule cannot fix client-side"
+        },
+        {
+          "type": "behavior",
+          "text": "CDG E195 'Source-fix Authorization': trigger FIRST source-fix attempt in session. AskUserQuestion 3 options: 'Confirm cho session nay (1 lan)' / 'Reject — escalate manual' / 'Skip this scenario, try next'. User chon Confirm. SESSION_DIR/cdg-decisions.json APPEND entry {gate='E195', decision='confirm', scenarios_authorized=[scenario-01,02,03]}"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase B source-fix spawn 3 agents parallel max=3 (CORE-025): qa-lead (subagent_type, prompt voi scenario.md + selector evidence) sua scenario.md selector → write atomic. developer (subagent_type, prompt voi endpoint code + network log) sua backend endpoint return 200. developer+logistics-expert spawn sequential for BUSINESS_RULE (architect coordinate). Each spawn voi 8-section prompt template (CORE-037)"
+        },
+        {
+          "type": "behavior",
+          "text": "Post-fix wait HMR reload (15s for Next.js dev + 30s for .NET hot-reload) → re-run scenario: scenario-01 PASS (selector fix worked), scenario-02 PASS (endpoint return 200), scenario-03 ESCALATE (business rule fix requires Phase 0-3 redesign, NOT auto-fixable in Phase 10). e2e-results.json scenario-01 execution_status=AUTO_CORRECTED, scenario-02=AUTO_CORRECTED, scenario-03=ESCALATED voi escalation_reason='requires business-analyst manual review'"
+        },
+        {
+          "type": "file_content",
+          "text": "gap-suggestions.json: APPEND 3 entries voi kind='e2e_scenario_fix' (NEW kind v3). Each entry: target_path (scenario-01.md OR backend/endpoint.cs OR business-invariants.json), source_signal_ids=[issue.id], confidence (0.85 for selector_fix, 0.75 for backend_fix, 0.5 for business_rule_escalate), severity='MUST', status='proposed', rationale (from resolution-report). NO re-trigger CD41 (loop-back guard per Step 10.3 Common Pitfall #9)"
+        },
+        {
+          "type": "file_content",
+          "text": "resolution-report.md: 6 sections + CDG E195 source-fix decision log subsection. Per-scenario block: failure_type, classify, layer, owner, Phase A attempts[] (all failed), Phase B agent spawn log (agent_name, prompt_hash, exit_code, files_modified[]), HMR wait duration, re-run result. resolution_summary: total=3, auto_corrected=2, source_fix_required=3, escalated=1, loop_back_suggestions_count=3"
+        },
+        {
+          "type": "behavior",
+          "text": "Loop-back guard: Step 10.3 APPEND gap-suggestions CHI voi kind='e2e_scenario_fix' (mới v3). KHONG re-trigger CD41 (no signal kind 'E2E_SCENARIO_SYNTHESIZED' emitted). Common Pitfall #9 avoided (no infinite loop CD41 → Phase 10 → CD41). gap-suggestions.json schema gap-suggestions-v1 maintained (backward-compat with kind enum extended: ['test','invariant','contract','doc','validation','e2e_scenario_fix'])"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v3-loopback/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v3-loopback/.mc-data/docs/_meta/business-invariants.json",
+        "tests/fixtures/wf-cmi/v3-loopback/README.md"
+      ]
+    },
+    {
+      "id": "TC-cmi-018",
+      "prompt": "/wf-cmi --profile=deep --exec-scenarios (fixture v3-stable-registry voi 10 scenarios MOI sinh tu CD41 + stable-registry.json TON TAI tu session truoc voi 7 scenarios hash khop TTL=15 ngay, validate skip 5x pre-flight cho 7 scenarios stable + chay 5x cho 3 scenarios MOI/MODIFIED)",
+      "expected_output": "Phase 9 Step 9.4 5x pre-flight check: doc stable-registry.json hien tai, compute scenario hash per scenario (sha256 of scenario.md body + frontmatter), match hash voi registry entries. 7 scenarios hash khop + expires_at > now+15 days → SKIP 5x check (mark stable=true, source='stable-registry'). 3 scenarios MOI/MODIFIED → chay 5x pre-flight: 3/3 PASS lan dau, 2/3 PASS lan 2 (1 flaky), 0/3 PASS lan 3 → quarantine if ≤3/5. stable-registry.json APPEND new stable entries (TTL 30 days). Exit 0.",
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 9 Step 9.4 pre-flight stability check: load stable-registry.json (tu .mc-data/work/wf-cmi/sessions/{PREV_SESSION_ID}/phase9-e2e-execute/ HOAC stable-registry shared global path). Per scenario in scenarios-manifest.json: compute scenario_file_hash = sha256(scenario.md content). LOOKUP registry: if hash match AND expires_at > now → mark stable, SKIP 5x execution. ELSE → run 5x"
+        },
+        {
+          "type": "file_content",
+          "text": "stable-registry.json: $schema='stable-registry-v1', registry_owner='wf-cmi v3.0', scenarios[] length=7 BEFORE this session, entries co scenario_id, scenario_file_hash (sha256), verified_at (ISO-8601), expires_at (verified_at + TTL 30 days), pre_flight_pass_rate (5/5 or 4/5), last_session_id. AFTER this session: length growth based on new stable scenarios (e.g., 7+2=9 if 2 new scenarios pass 5/5)"
+        },
+        {
+          "type": "behavior",
+          "text": "7 scenarios stable hit: stable=true, source='stable-registry', skip_5x=true, time_saved_estimate ≥5 min (5 retries × 7 scenarios × ~10s each = 350s ≈ 5.8 min). 3 scenarios NEW: scenarios_new[].5x_results array length=5 entries per scenario. result_summary: 3/5 PASS for scenario-08 (4 PASS 1 FAIL stable register), 5/5 PASS for scenario-09 (register stable), 2/5 PASS for scenario-10 (auto-quarantine E152, NOT register)"
+        },
+        {
+          "type": "file_content",
+          "text": "quarantine-report.json: $schema='quarantine-report-v1', quarantined_scenarios[] length=1 (scenario-10), entry co reason='flaky', fail_stats={attempts=5, passes=2, fails=3, pass_rate=0.40}, diagnostic_bundle={dom_diff,network_trace,console_errors,screenshots,timing_analysis} populated, experts_assigned=['qa-lead','frontend-developer']. session metadata: total_quarantined=1, quarantine_threshold=0.6"
+        },
+        {
+          "type": "behavior",
+          "text": "stable-registry.json APPEND post Step 9.4: 2 new entries (scenario-08 + scenario-09 passed ≥4/5). scenario-10 NOT registered (quarantined). Atomic Write Pattern: build tmp → jq validate → mv. Verify: jq '.scenarios | length' returns 9 (7 old + 2 new). expires_at for new entries = verified_at + 30 days = approximately 2026-06-16"
+        },
+        {
+          "type": "behavior",
+          "text": "Time efficiency metric: e2e-execution-report.md section 'Pre-flight efficiency': '7/10 scenarios skipped 5x (stable-registry hit), time saved ~5.8 min'. Phase 9 total duration ~10 min (vs ~16 min if no registry, ~37.5% efficiency gain). integrity-impact.json e2e_execution_summary.stable_registry_hits=7, stable_registry_misses=3, quarantined=1, registered_new=2"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase9-report.md: ≤15 dong tieng Viet voi 'pre-flight efficiency: 7/10 stable-hit, time saved 5.8 min', 'flaky quarantined: 1', 'new stable registered: 2'. integrity-report.md ≤70 dong (v3 max with E2E section). integrity-impact.json e2e_execution_summary populated with stable_registry_stats. Exit 0"
+        }
+      ],
+      "files": [
+        "tests/fixtures/wf-cmi/v3-stable-registry/.mc-data/docs/_meta/req-registry.json",
+        "tests/fixtures/wf-cmi/v3-stable-registry/.mc-data/work/wf-cmi/sessions/2026-05-10-system-deep-prev-01/phase9-e2e-execute/stable-registry.json",
+        "tests/fixtures/wf-cmi/v3-stable-registry/README.md"
+      ]
+    }
+  ]
+}

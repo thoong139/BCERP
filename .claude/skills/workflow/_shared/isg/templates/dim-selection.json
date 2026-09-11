@@ -1,0 +1,30 @@
+{
+  "$schema": "dim-selection-v1",
+  "selected_at": "2026-04-20T00:00:00+00:00",
+  "profile": "standard",
+  "scope": {
+    "type": "all"
+  },
+  "recommendations": [
+    {"dim": "QD1", "strength": "strong", "reason": "Git diff chạm file service/controller — ≥10 ký tự."},
+    {"dim": "QD2", "strength": "weak",   "reason": "Profile standard mặc định include QD2."},
+    {"dim": "QD3", "strength": "none",   "reason": "Không có signal cho QD3 ở phiên này."},
+    {"dim": "QD4", "strength": "none",   "reason": "Không có signal cho QD4 ở phiên này."},
+    {"dim": "QD5", "strength": "strong", "reason": "Profile standard luôn include UI/UX."},
+    {"dim": "QD6", "strength": "none",   "reason": "Không có signal cho QD6 ở phiên này."},
+    {"dim": "QD7", "strength": "none",   "reason": "Không có signal cho QD7 ở phiên này."}
+  ],
+  "selected": ["QD1", "QD2", "QD5"],
+  "skipped": ["QD3", "QD4", "QD6", "QD7"],
+  "skipped_rationale": "User chọn profile=standard, không thêm chiều ngoài default.",
+  "safety_floor_enforced": true,
+  "cdg_confirmations": [],
+  "source_signals": {
+    "git_diff_files": 0,
+    "preflight_available": false,
+    "preflight_critical_count": 0,
+    "preflight_warn_count": 0,
+    "domain": null,
+    "interface_type": null
+  }
+}

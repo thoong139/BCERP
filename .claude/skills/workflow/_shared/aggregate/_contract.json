@@ -1,0 +1,48 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "aggregate",
+  "version": "0.1.0",
+  "phase": "phase1-prereq",
+  "description": "Generic signal aggregator + dedup. Gom lane outputs, dedup theo configurable key, detect conflicts.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-OPT-04"],
+  "core_refs": [],
+  "inputs": [
+    {
+      "name": "lane_outputs",
+      "type": "list[Path]",
+      "required": true,
+      "notes": "Danh sách path đến lane signal JSON files"
+    },
+    {
+      "name": "dedup_key_fn",
+      "type": "Callable[[dict], str]",
+      "required": false,
+      "notes": "Dedup key function. Default: dedup_by_id('id')"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "aggregation_result",
+      "kind": "file",
+      "template": "templates/aggregation-result.json",
+      "notes": "Kết quả aggregation sau dedup"
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from aggregate import aggregate_lane_signals, dedup_by_id, dedup_by_composite",
+      "kind": "python-import",
+      "called_by": "4 linear skills (trừ brainstorm)"
+    }
+  ],
+  "dependencies": {
+    "internal": [],
+    "external": []
+  },
+  "status": "phase1-new",
+  "testing": {
+    "min_cases": 3,
+    "notes": "Test dedup single/composite key, conflict detection, empty input"
+  }
+}

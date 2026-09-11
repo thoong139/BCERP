@@ -1,0 +1,189 @@
+{
+  "skill": "audit-skill-output",
+  "version": "1.8.0",
+  "last_evaluated": "2026-04-23",
+  "evals": [
+    {
+      "id": "eval-1-single-skill",
+      "description": "Audit output của 1 skill cụ thể (wf-define-features) — Hybrid Delegation 4 phases",
+      "input": "/audit-skill-output wf-define-features",
+      "expected_behavior": "Phase 0: Init status. Phase 1: Structural D1+D2+D3+D6+D7 (main agent). Phase 2: Auto-fix. Phase 3: Subagents D4+D5 song song. Phase 4: Collect + report",
+      "pass_criteria": [
+        "Đọc SKILL.md của wf-define-features trước khi audit",
+        "Phase 0 init status file từ templates/audit-status.json (Step 0.6b)",
+        "Phase 1 chạy D1+D2+D3+D6+D7 trong main agent (tool-based, không spawn subagent)",
+        "Phase 2 auto-fix structural issues (D1/D2/D3/D7) trước khi chạy semantic audit",
+        "Phase 3 spawn 2 subagents SONG SONG: D4 (Content Quality) và D5 (Cross-Phase)",
+        "Phase 4 collect kết quả từ subagents, tính verdict, ghi report",
+        "Status file cập nhật sau mỗi phase POST-GATE (phase_N.status = completed)",
+        "Report ghi vào .mc-data/work/audit-skill-output/audit-report-wf-define-features-[date].md"
+      ]
+    },
+    {
+      "id": "eval-2-no-fix",
+      "description": "Audit với --no-fix (tắt auto-fix, chỉ báo cáo)",
+      "input": "/audit-skill-output wf-define-features --no-fix",
+      "expected_behavior": "Phase 1: Structural audit. Phase 2: SKIP (--no-fix). Phase 3: Subagents D4+D5. Phase 4: Report chỉ findings",
+      "pass_criteria": [
+        "Phase 1 phát hiện sai field names (feat_id→id, module→module_id)",
+        "Phase 2 SKIP hoàn toàn — KHÔNG auto-fix bất kỳ gì",
+        "KHÔNG auto-rename fields — chỉ báo cáo trong report",
+        "Report chỉ có findings, KHÔNG có Fix Results section",
+        "Verdict FAIL (vì có CRITICAL issues không được fix)",
+        "Status file ghi phases.phase_2.skipped = true, skip_reason chứa --no-fix"
+      ]
+    },
+    {
+      "id": "eval-3-all-skills",
+      "description": "Audit tất cả skills đã chạy — mỗi skill chạy 4 phases độc lập",
+      "input": "/audit-skill-output --all",
+      "expected_behavior": "Detect skills có output, audit từng skill (4 phases/skill), combined report, checkpoint support",
+      "pass_criteria": [
+        "Detect đúng số skills đã chạy (từ .mc-data/work/wf-* và .mc-data/docs/phase*)",
+        "LEGACY_MODE phát hiện bằng project-context.md (> 500 bytes) — KHÔNG dùng ledger.json (CORE-021)",
+        "Legacy skills được detect bằng test -d .mc-data/docs/phase{0,1,2,3,4}-*",
+        "Audit mỗi skill độc lập với 4 phases (structural → fix → semantic subagents → report)",
+        "Status file tracking: target.remaining_skills[] và target.completed_skills[] cập nhật đúng",
+        "Combined report có summary tất cả skills",
+        "Checkpoint tự động lưu khi context > 80% (tại .mc-data/work/audit-skill-output/checkpoint.json)",
+        "Checkpoint ID format: CP-AUDIT-[YYYYMMDD]-[NNN]",
+        "RE-READ procedures/_shared.md ở đầu mỗi skill (context recovery)"
+      ]
+    },
+    {
+      "id": "eval-4-dimension-filter",
+      "description": "Audit chỉ dimensions cụ thể — chỉ structural, SKIP subagents",
+      "input": "/audit-skill-output wf-design --dimension=D3,D6",
+      "expected_behavior": "Chỉ chạy D3 + D6 trong Phase 1. SKIP Phase 3 (D4/D5 không được chỉ định). Verdict trên 2/7 dimensions.",
+      "pass_criteria": [
+        "Phase 1 chỉ chạy D3 + D6 (structural dimensions được chỉ định)",
+        "Phase 3 SKIP (D4/D5 không nằm trong --dimension list → không spawn subagents)",
+        "Report ghi rõ 'Dimensions kiểm tra: 2 / 7'",
+        "Verdict dựa trên 2 dimensions — KHÔNG tính dimensions bị skip",
+        "Report ghi 'Verdict dựa trên 2/7 dimensions'"
+      ]
+    },
+    {
+      "id": "eval-5-error-no-output",
+      "description": "Error khi skill chưa chạy — E001 trước khi vào Phase 1",
+      "input": "/audit-skill-output wf-prepare-deployment",
+      "expected_behavior": "Phát hiện skill chưa có output → E001 error tại Phase 0",
+      "pass_criteria": [
+        "Kiểm tra .mc-data/work/wf-prepare-deployment và .mc-data/docs/phase6-deployment",
+        "Không tìm thấy output → STOP với E001 trước khi vào Phase 1",
+        "Thông báo rõ: 'Skill wf-prepare-deployment chưa có output. Chạy skill trước.'"
+      ]
+    },
+    {
+      "id": "eval-6-d5-skip-legacy",
+      "description": "D5 SKIP conditions cho legacy flow skills — gap analysis SKIP, shared skills RUN với cross-phase consistency check",
+      "input": "/audit-skill-output wf-design (legacy flow — gap analysis) + wf-design-ux (legacy flow) + shared skills (legacy flow)",
+      "expected_behavior": "Legacy flow skills với D5 handling: gap analysis=SKIP, shared skills=RUN với cross-phase consistency check",
+      "pass_criteria": [
+        "wf-design (legacy flow — gap analysis): D5 SKIP (output là work reports, không phải phase docs)",
+        "Shared skills (legacy flow — Phase 0-3): D5 KHÔNG skip — kiểm tra cross-phase consistency giữa phase2-features và phase3-architecture",
+        "D5 subagent dùng đúng: phase_current = phase3-architecture, phase_previous = phase2-features",
+        "D2 legacy exception: [UNKNOWN] placeholder → severity WARN (không FAIL), ghi 'Legacy E009 placeholder'",
+        "D4 legacy exception: sections ngắn với confidence markers → severity WARN (không MAJOR)"
+      ]
+    },
+    {
+      "id": "eval-7-subagent-errors",
+      "description": "Xử lý khi subagent fail hoặc timeout — E011/E012, best-effort parse, verdict logic",
+      "input": "/audit-skill-output wf-define-features",
+      "expected_behavior": "Subagent fail → retry x1 → skip + WARNING. Sai format → parse best-effort. Cả 2 fail + structural CRITICAL → FAIL (không PASS_WITH_WARN)",
+      "pass_criteria": [
+        "Subagent D4/D5 fail → retry 1 lần (E011)",
+        "Retry vẫn fail → skip dimension + WARNING trong report",
+        "Subagent trả về sai format → parse best-effort: markers → patterns → skip",
+        "Report ghi: 'DX format không chuẩn, kết quả có thể không đầy đủ.' khi E012",
+        "D4+D5 cả hai fail (E011 sau retry) VÀ structural CRITICAL = 0 → Verdict = PASS_WITH_WARN",
+        "D4+D5 cả hai fail (E011 sau retry) VÀ structural CRITICAL > 0 → Verdict = FAIL (structural ưu tiên)",
+        "Verdict tính trên structural dimensions còn lại"
+      ]
+    },
+    {
+      "id": "eval-8-resume-checkpoint",
+      "description": "Tiếp tục từ checkpoint — SKIP Phase 0 init, tiếp tục từ remaining_skills",
+      "input": "/audit-skill-output --all --resume",
+      "expected_behavior": "Resume từ checkpoint: đọc status+checkpoint → SKIP init → tiếp tục remaining. --resume chỉ hợp lệ với --all",
+      "pass_criteria": [
+        "Phase 0 EARLY EXIT: đọc audit-skill-output-status.json + checkpoint.json → SKIP Phase 0 init",
+        "Xác định: current_phase, next_action từ checkpoint.json",
+        "SKIP các skills trong completed_skills[] (không re-audit)",
+        "Tiếp tục từ remaining_skills[] đúng thứ tự",
+        "--resume với single skill (không phải --all) → ERROR: 'Chỉ dùng --resume với --all'",
+        "Checkpoint field: resumed_from = checkpoint_id của lần trước"
+      ]
+    },
+    {
+      "id": "eval-9-d8-master-plan",
+      "description": "D8 Master Plan Compliance — kiểm tra digest artifacts, executable specs, checkpoints khi Master Plan enabled",
+      "input": "/audit-skill-output wf-define-features (với Master Plan enabled: baseline-schema.json tồn tại)",
+      "expected_behavior": "D8 được detect (master_plan_enabled = true), chạy D8.7 + D8.8 cho wf-define-features (feature-briefs.json). Report có D8 section.",
+      "pass_criteria": [
+        "Phase 0 Step 0.8 detect master_plan_enabled = true (baseline-schema.json tồn tại HOẶC .mc-data/docs/_meta/project-digest.json tồn tại — KHÔNG dùng template path)",
+        "Phase 1 chạy D8.7 (feature-briefs.json tồn tại và non-empty) + D8.8 (required fields)",
+        "D8.8: mỗi feature có feature_id, name, summary, acceptance_criteria. Summary <= 100 words",
+        "D8 SKIP checks không liên quan đến skill (ví dụ D8.1-D8.6 cho wf-brainstorm/wf-analyze-req)",
+        "Report có D8 section table với findings",
+        "Status file có D8 entry trong findings.by_dimension",
+        "Verdict bao gồm D8 trong dimensions kiểm tra count"
+      ]
+    },
+    {
+      "id": "eval-10-d8-disabled",
+      "description": "D8 hoàn toàn SKIP khi Master Plan KHÔNG enabled — không ảnh hưởng verdict",
+      "input": "/audit-skill-output wf-define-features (Master Plan KHÔNG enabled)",
+      "expected_behavior": "D8 hoàn toàn SKIP, không chạy bất kỳ D8 check nào. Verdict dựa trên D1-D7.",
+      "pass_criteria": [
+        "Phase 0 Step 0.8: master_plan_enabled = false (baseline-schema.json và project-digest.json không tồn tại — KHÔNG kiểm tra template file)",
+        "D8 hoàn toàn SKIP — không chạy D8.1-D8.18",
+        "Report ghi: 'D8: SKIP — Master Plan không enabled'",
+        "Status file: findings.by_dimension.D8.skipped = true",
+        "Verdict dựa trên D1-D7 — D8 không tính vào pass/warn/fail counts",
+        "dimensions_total = 7 (không kể D8)"
+      ]
+    },
+    {
+      "id": "eval-11-autofix-verify-cycle",
+      "description": "Auto-fix → re-check → pass cycle — verify cascading fixes work correctly",
+      "input": "/audit-skill-output wf-define-features (với D3 field name errors + D7 missing status fields)",
+      "expected_behavior": "Phase 2 fix D3 errors (field names), then fix D7 (status fields), re-check passes. Report shows fix results.",
+      "pass_criteria": [
+        "Phase 1 phát hiện D3.3 FAIL (wrong field names) + D7.1 FAIL (missing status fields)",
+        "Phase 2 fix D3 trước (ưu tiên cao nhất): rename fields trong registry",
+        "Phase 2 fix D7 sau: thêm default fields vào status file",
+        "Re-check sau fix: cả D3.3 và D7.1 PASS",
+        "Fix log ghi rõ: fix type, target, before/after, re-check result",
+        "KHÔNG fix files trong .claude/ (safety gate) — chỉ ESCALATE nếu phát hiện",
+        "Report có Fix Results section với chi tiết từng fix"
+      ]
+    },
+    {
+      "id": "eval-12-d6-grep-first",
+      "description": "D6 POST-GATE extraction uses grep-first approach to avoid context explosion",
+      "input": "/audit-skill-output wf-fix-bugs (skill với nhiều procedure files)",
+      "expected_behavior": "D6 extraction grep POST-GATE patterns trước, chỉ Read files có match. Không đọc tất cả procedures.",
+      "pass_criteria": [
+        "Step 1.18 chạy grep -rn 'POST-GATE' trên procedures/*.md của target skill",
+        "Chỉ Read files grep tìm thấy POST-GATE sections",
+        "KHÔNG Read tất cả procedure files (tránh context explosion)",
+        "Nếu grep không tìm thấy → log E005, skip D6"
+      ]
+    },
+    {
+      "id": "eval-13-d37-partial-checks",
+      "description": "D3.7 partial count checks cho wf-design và wf-plan-modules (lower-bound validation)",
+      "input": "/audit-skill-output wf-design + wf-plan-modules",
+      "expected_behavior": "D3.7 cho wf-design: mỗi system có ≥1 doc. D3.7 cho wf-plan-modules: task files ≥ features count. Severity WARN (không FAIL).",
+      "pass_criteria": [
+        "wf-design D3.7: kiểm tra mỗi system trong registry có ≥1 file trong phase3-architecture/",
+        "wf-plan-modules D3.7: đếm task files và so với features count",
+        "Severity là WARN (không FAIL) cho partial checks",
+        "wf-analyze-requirements: D3.7 SKIP (N:M mapping)",
+        "wf-brainstorm: D3.7 SKIP (không có registry entries)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,282 @@
+{
+  "skill_name": "audit-devkit",
+  "skill_version": "5.1.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "TC1-full-pipeline",
+      "prompt": "/audit-devkit",
+      "expected_output": "Full pipeline: audit-devkit-scan → audit-devkit-verify → audit-devkit-fix chạy tuần tự. Kết quả truyền qua JSON files trong .mc-data/work/audit-devkit-{scan,verify,fix}/[session]/. Report tại .mc-data/work/audit-devkit-verify/reports/devkit-audit-[date].md. Verdict strict từ post-fix CRITICAL-functional count.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Phase 0 hiển thị pipeline plan: stages=[scan, verify, fix], Fix: ON"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-scan được gọi ở Phase 1 (trước verify và fix)"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-verify được gọi ở Phase 2 (sau scan, trước fix)"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-fix được gọi ở Phase 3 (sau verify)"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session_id]/audit-scan-result.json tồn tại sau Phase 1"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-verify/[session_id]/audit-verified-result.json tồn tại sau Phase 2"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-fix/[session_id]/fix-log.json tồn tại sau Phase 3"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit/orchestrator-status.json tồn tại (persistent state)"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 4 hiển thị summary table với CRITICAL/MAJOR/MINOR counts"
+        },
+        {
+          "type": "file_content",
+          "text": "Verdict tuân theo strict table: CLEAN/ACCEPTABLE/NEEDS ATTENTION/BROKEN dựa trên CRITICAL-functional count"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-verify/reports/devkit-audit-[date].md được tạo"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "TC2-scan-only",
+      "prompt": "/audit-devkit --scan-only",
+      "expected_output": "Chỉ chạy audit-devkit-scan, STOP sau scan. audit-devkit-verify và audit-devkit-fix KHÔNG được gọi. Output: .mc-data/work/audit-devkit-scan/[session_id]/audit-scan-result.json.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Phase 0 hiển thị 'Pipeline: [scan]' — chỉ 1 stage, không có verify/fix"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-scan được gọi"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-verify KHÔNG được gọi (--scan-only mode)"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-fix KHÔNG được gọi (--scan-only mode)"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session_id]/audit-scan-result.json được tạo"
+        },
+        {
+          "type": "file_content",
+          "text": "Scan summary được hiển thị với finding counts sau scan"
+        },
+        {
+          "type": "behavior",
+          "text": "Không có verdict (scan-only không có verify, không tính verdict)"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "TC3-no-fix",
+      "prompt": "/audit-devkit --no-fix",
+      "expected_output": "Chạy scan → verify → master-plan, SKIP audit-devkit-fix. Report chỉ có pre-fix verdict. Auto-fix OFF được ghi nhận.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Phase 0 hiển thị 'Pipeline: [scan, verify, master-plan]. Fix: OFF'"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-scan được gọi"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-verify được gọi"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-fix KHÔNG được gọi (--no-fix mode)"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session_id]/audit-scan-result.json được tạo"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-verify/[session_id]/audit-verified-result.json được tạo"
+        },
+        {
+          "type": "behavior",
+          "text": ".mc-data/work/audit-devkit-fix/[session_id]/fix-log.json KHÔNG được tạo (fix bị skip)"
+        },
+        {
+          "type": "file_content",
+          "text": "Summary ghi rõ Fix: OFF hoặc Auto-fix: OFF"
+        },
+        {
+          "type": "file_content",
+          "text": "Verdict từ pre-fix CRITICAL-functional count — không có 'before→after' comparison"
+        },
+        {
+          "type": "file_content",
+          "text": "Hướng dẫn fix thủ công hoặc 'chạy /audit-devkit-fix' được hiển thị"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "TC4-quick",
+      "prompt": "/audit-devkit --quick",
+      "expected_output": "Structural check only: audit-devkit-scan chạy với '--agents --skills' args (lightweight). Không deep-scan content. Phase 0 notes quick/structural mode.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "audit-devkit-scan được gọi với '--agents --skills' (không phải '--all')"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-verify KHÔNG được gọi (--quick = scan only)"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-fix KHÔNG được gọi (--quick mode)"
+        },
+        {
+          "type": "file_content",
+          "text": "Quick mode hoặc structural check được ghi nhận trong Phase 0 output"
+        },
+        {
+          "type": "file_exists",
+          "text": ".mc-data/work/audit-devkit-scan/[session_id]/audit-scan-result.json được tạo"
+        },
+        {
+          "type": "behavior",
+          "text": "scan_args KHÔNG phải '--all' (quick chỉ structural = --agents --skills)"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "TC5-with-evals",
+      "prompt": "/audit-devkit --no-fix --evals --eval-mode=stub",
+      "expected_output": "Full pipeline scan+verify+master-plan (no fix) + Phase 3.6 chạy eval harness. eval-results.json được tạo. Eval verdict hiển thị trong Phase 4 summary.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Phase 0 hiển thị 'Eval: ON (mode=stub)' trong pipeline plan"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 3.6 chạy eval harness script"
+        },
+        {
+          "type": "file_exists",
+          "text": "eval-results file được tạo sau Phase 3.6"
+        },
+        {
+          "type": "file_content",
+          "text": "Phase 4 summary hiển thị Eval verdict (EVAL-CLEAN/EVAL-PARTIAL/EVAL-NEEDS-REVIEW/EVAL-NEEDS-FIX)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "TC6-no-evals",
+      "prompt": "/audit-devkit --no-fix",
+      "expected_output": "Pipeline scan+verify+master-plan, KHÔNG chạy Phase 3.6. Không có eval section trong summary.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "behavior",
+          "text": "Phase 0 hiển thị 'Eval: OFF'"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 3.6 KHÔNG chạy — không có eval harness trong output"
+        },
+        {
+          "type": "behavior",
+          "text": "Phase 4 summary KHÔNG có 'Skill Evals Status' section"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "TC7-master-plan-only",
+      "prompt": "/audit-devkit --master-plan",
+      "expected_output": "Chỉ chạy Phase 3.5 Master Plan validation. Skip scan/verify/fix. Display Master Plan component status + verdict.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Phase 0 hiển thị 'Pipeline: [master-plan]' — chỉ master-plan stage"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-scan KHÔNG được gọi"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-verify KHÔNG được gọi"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-fix KHÔNG được gọi"
+        },
+        {
+          "type": "file_content",
+          "text": "Master Plan verdict hiển thị (MP-CLEAN/MP-ACCEPTABLE/MP-NEEDS-ATTENTION/MP-INCOMPLETE)"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "TC8-fix-only",
+      "prompt": "/audit-devkit --fix-only",
+      "expected_output": "Chỉ chạy fix phase, skip scan+verify+master-plan. Cần verified results từ lần chạy trước.",
+      "files": [],
+      "assertions": [
+        {
+          "type": "file_content",
+          "text": "Phase 0 validates prerequisite: audit-verified-result.json tồn tại"
+        },
+        {
+          "type": "file_content",
+          "text": "audit-devkit-fix được gọi với severity filter"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-scan KHÔNG được gọi"
+        },
+        {
+          "type": "behavior",
+          "text": "audit-devkit-verify KHÔNG được gọi"
+        },
+        {
+          "type": "file_content",
+          "text": "Summary hiển thị verdict before/after comparison"
+        }
+      ]
+    }
+  ]
+}

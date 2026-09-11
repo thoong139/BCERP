@@ -1,0 +1,19 @@
+{
+  "$schema": "add-scope-checkpoint-v1",
+  "session_id": "{SESSION_ID}",
+  "checkpoint_at": "{ISO_TIMESTAMP}",
+  "current_phase": 0,
+  "phase_status": "in_progress | completed | failed",
+  "context_usage_pct": 0,
+  "state_variables": {
+    "SYSTEM_ID": "{SYSTEM_ID}",
+    "MODE": "{from-mapping|modules-list|interactive|from-scan}",
+    "LEGACY_MODE": false,
+    "DRY_RUN": false,
+    "NO_DOCS": false,
+    "MODULES_BEFORE": 0,
+    "FEATURES_BEFORE": 0
+  },
+  "next_action": "{description of what to do when resuming}",
+  "files_in_progress": []
+}

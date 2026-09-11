@@ -1,0 +1,257 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD7",
+  "dimension_name": "Browser/API/Device Compatibility",
+  "short_name": "Compatibility",
+  "owner_agent": "frontend-developer",
+  "version": "1.0.0",
+  "description": "Dimension QD7: Browser/API/Device Compatibility",
+  "probes": [
+    {
+      "id": "P-QD7-browser-compat-check",
+      "name": "Browser Compat Check",
+      "type": "static+runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD7-browser-compat-check.md"
+      },
+      "required_inputs": [
+        "code",
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD7-api-version-compat",
+      "name": "API Version Compat",
+      "type": "static+runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD7-api-version-compat.md"
+      },
+      "required_inputs": [
+        "code",
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD7-deprecated-api-usage",
+      "name": "Deprecated API Usage",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD7-deprecated-api-usage.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD7-polyfill-coverage",
+      "name": "Polyfill Coverage",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD7-polyfill-coverage.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD7-device-breakpoint-test",
+      "name": "Device Breakpoint Test",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD7-device-breakpoint-test.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal",
+        "catalog"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    },
+    {
+      "id": "P-QD7-llm-analysis",
+      "name": "LLM-Augmented Compatibility Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd7-compatibility.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD7-browser-compat-check",
+        "P-QD7-api-version-compat",
+        "P-QD7-deprecated-api-usage"
+      ],
+      "max_signals_per_probe": 30
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD7-browser-compat-check",
+        "P-QD7-api-version-compat",
+        "P-QD7-deprecated-api-usage",
+        "P-QD7-polyfill-coverage"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "deep": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 100
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "API breaking change khong co fallback"
+    ],
+    "high_triggers": [
+      "Deprecated API khong co plan",
+      "Missing polyfill cho required feature"
+    ],
+    "medium_triggers": [
+      "Minor version mismatch",
+      "Layout break tai non-standard viewport"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "agents": [
+      "frontend-developer"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/QD7-compat-report.md"
+  },
+  "execution_order": [
+    "P-QD7-deprecated-api-usage",
+    "P-QD7-browser-compat-check",
+    "P-QD7-polyfill-coverage",
+    "P-QD7-api-version-compat",
+    "P-QD7-device-breakpoint-test",
+    "P-QD7-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD7-deprecated-api-usage",
+      "P-QD7-browser-compat-check",
+      "P-QD7-polyfill-coverage"
+    ],
+    [
+      "P-QD7-api-version-compat"
+    ],
+    [
+      "P-QD7-device-breakpoint-test"
+    ],
+    [
+      "P-QD7-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "static-before-runtime, deprecated-api fast-fail first"
+}

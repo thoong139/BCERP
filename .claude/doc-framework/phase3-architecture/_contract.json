@@ -1,0 +1,110 @@
+{
+  "version": "1.0",
+  "phase": "phase3-architecture",
+  "description": "Template compliance contracts for Phase 3 Architecture & Technical Specs documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern. Section numbers (§6+) may shift when architects add project-specific sections (e.g. WebSocket, Real-time Integration). Patterns without trailing specifics (e.g. '## 6. Endpoints By') match any variation.",
+  "templates": {
+    "P3-01-architecture": {
+      "template_file": "phase3-architecture/P3-01-architecture.md",
+      "description": "Thiết kế kiến trúc tổng thể — tech decisions, system diagram, data ownership",
+      "output_pattern": ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+      "required_sections": [
+        "## 1. Quyết Định Kiến Trúc",
+        "## 2. Sơ Đồ Kiến Trúc Hệ Thống",
+        "## 3. Danh Sách Phân Hệ",
+        "## 4. Phân Quyền Dữ Liệu",
+        "## 5. Giao Tiếp Giữa Các Phân Hệ",
+        "## 6. Các Quy Ước Áp Dụng Toàn Hệ Thống",
+        "## 7. Môi Trường Triển Khai",
+        "## 8. Cross-Cutting Concerns"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "api-contract": {
+      "template_file": "phase3-architecture/technical-specs/api-contract.md",
+      "description": "API contract — conventions, response envelopes, endpoints by system",
+      "output_pattern": ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+      "required_sections": [
+        "## 1. Global Conventions",
+        "## 2. Standard Response Envelopes",
+        "## 3. HTTP Status Codes",
+        "## 4. Error Codes Registry",
+        "## 5. Authentication Endpoints",
+        "## 6. Endpoints By",
+        "## 7. Internal",
+        "## 8. Rate Limiting"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "§6 pattern '## 6. Endpoints By' matches 'By System', 'By Module', etc. §7 pattern '## 7. Internal' matches 'Internal API', 'Internal Service Calls', etc. If author adds a new section between §5 and §8 (e.g. WebSocket), §6-8 will be renumbered — audit should WARN not FAIL."
+    },
+    "database-design": {
+      "template_file": "phase3-architecture/technical-specs/database-design.md",
+      "description": "Database design — schema organization, DDL, migration strategy",
+      "output_pattern": ".mc-data/docs/phase3-architecture/technical-specs/database-design.md",
+      "required_sections": [
+        "## 1. Schema Organization",
+        "## 2. Shared",
+        "## 3.",
+        "## 4. Common Patterns",
+        "## 5. Migration Strategy",
+        "## 6. Index Strategy"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "Section 3 is system-specific tables — heading varies per project (e.g. '## 3. CRM Tables'). Use startswith '## 3.' matching"
+    },
+    "integration-map": {
+      "template_file": "phase3-architecture/technical-specs/integration-map.md",
+      "description": "Integration map — sync/async calls, event payloads, cross-system rules",
+      "output_pattern": ".mc-data/docs/phase3-architecture/technical-specs/integration-map.md",
+      "required_sections": [
+        "## 1. Tổng Quan Tích Hợp",
+        "## 2. Synchronous Calls",
+        "## 3. Asynchronous Events",
+        "## 4. Event Payload Schemas",
+        "## 5. Event Infrastructure",
+        "## 6. External Integrations",
+        "## 7. Cross-System Business Rules",
+        "## 8. Data Consistency Rules",
+        "## 9. Compensation Patterns"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "§6-9 may be renumbered if author inserts a project-specific section (e.g. Real-time Integration, WebSocket) between §5 and §6. Content equivalence check is more reliable than strict number matching for §6+."
+    },
+    "infra-spec": {
+      "template_file": "phase3-architecture/technical-specs/infra-spec.md",
+      "description": "Infrastructure spec — environments, server specs, monitoring, NFR targets",
+      "output_pattern": ".mc-data/docs/phase3-architecture/technical-specs/infra-spec.md",
+      "required_sections": [
+        "## 1. Environments",
+        "## 2. Required Environment Variables",
+        "## 3. Server / Container Specs",
+        "## 4. Networking",
+        "## 5. Storage",
+        "## 6. Deployment Setup",
+        "## 7. Health Check Endpoints",
+        "## 8. Monitoring & Alerting",
+        "## 9. Non-Functional Requirements"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "§6-9 names may vary per project (CI/CD Pipeline, Monitoring & Observability, Security Hardening, NFR Targets). Health Check content may appear inside Monitoring section. Audit these by content presence rather than strict heading match."
+    },
+    "stakeholder-review": {
+      "template_file": "phase3-architecture/stakeholder-review.md",
+      "description": "Stakeholder review — technical cross-review, consistency, gap analysis",
+      "output_pattern": ".mc-data/docs/phase3-architecture/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    }
+  }
+}

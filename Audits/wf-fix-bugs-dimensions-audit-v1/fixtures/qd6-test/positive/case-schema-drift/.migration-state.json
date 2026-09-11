@@ -1,0 +1,8 @@
+{
+  "applied": [
+    "001_create_users.sql",
+    "002_add_email.sql"
+  ],
+  "last_applied_at": "2026-05-09T08:00:00Z",
+  "database": "app_production"
+}

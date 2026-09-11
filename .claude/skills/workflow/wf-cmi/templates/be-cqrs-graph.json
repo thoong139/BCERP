@@ -1,0 +1,77 @@
+{
+  "_template_notes": {
+    "purpose": "Backend CQRS Pipeline graph — Discovery Plugin #13 (v2.0 Gói C++ Stage 2.2). Parse MediatR patterns: IRequest<TResponse>, IRequestHandler<TRequest, TResponse>, AbstractValidator<TRequest>, IPipelineBehavior<TRequest, TResponse>, INotification, INotificationHandler. Source: Grep MediatR base type matching. Consumed by lane CD18 (CQRS Pipeline Integrity) — phát hiện Request không có Handler, Handler không có Validator, missing pipeline behaviors (TransactionBehavior/LoggingBehavior/AuthorizationBehavior).",
+    "populate": [
+      "nodes[]: 1 entry per CQRS type declaration — {id, name, kind, module, file_path, line, request_type?, response_type?, validates_for?, behavior_order?, fingerprint}",
+      "  id format: '{module_short}.{type_name}' vd 'CRM.CreateCustomerCommand'",
+      "  kind enum: 'command', 'query', 'request_handler', 'validator', 'pipeline_behavior', 'notification', 'notification_handler'",
+      "    - command: : IRequest<TResponse> hoặc : IRequest VÀ name *Command",
+      "    - query: : IRequest<TResponse> VÀ name *Query",
+      "    - request_handler: : IRequestHandler<TReq, TResp> hoặc : IRequestHandler<TReq>",
+      "    - validator: : AbstractValidator<TReq> (FluentValidation)",
+      "    - pipeline_behavior: : IPipelineBehavior<TReq, TResp>",
+      "    - notification: : INotification (MediatR pub/sub)",
+      "    - notification_handler: : INotificationHandler<TNotif>",
+      "  request_type: cho handler/validator, extract từ generic argument",
+      "  response_type: cho command/query/handler, extract từ generic argument thứ 2",
+      "  validates_for: cho validator, tên Request được validate (= request_type)",
+      "edges[]: pipeline relationships — {from, to, kind: 'handles|validates|wraps|notifies'}",
+      "  handles: handler → request (request_handler.id → request.id qua request_type matching)",
+      "  validates: validator → request (validator.id → request.id qua validates_for matching)",
+      "  wraps: pipeline_behavior → request (qua wildcard hoặc specific request match)",
+      "  notifies: notification_handler → notification",
+      "metadata.build_at: ISO 8601 timestamp khi graph built",
+      "metadata.scope_root: 'apps/backend' (v2.0)",
+      "metadata.source_method: 'grep_fallback|serena_find_symbol' (Serena primary nếu available)",
+      "metadata.parser_version: '1.0' (Grep + line-based). v2.1 → Roslyn syntax tree analyzer cho full generic resolution + namespace-qualified type names.",
+      "metadata.kinds_distribution: count per kind cho quick overview",
+      "metadata.modules_covered: list of module short names có CQRS types",
+      "metadata.cs_file_count: total .cs files scanned",
+      "metadata.coverage_indicators: {requests_without_handler, requests_without_validator, handlers_without_request} cho lane CD18 early warning"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/backend/ → SKIP, write empty graph với skipped:true (lane CD18 sẽ fallback Grep với E135 WARN)",
+      "Tech stack backend != .NET → SKIP, log E137 WARN (parser chỉ support C# MediatR conventions)",
+      "Không tìm thấy MediatR pattern nào (0 request + 0 handler) → write nodes=[] với skipped:false + WARN E139 (project có thể dùng custom mediator hoặc minimal API only)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "be-cqrs-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/backend",
+    "module_pattern": "Eureka.Modules.*"
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/backend",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "cs_file_count": 0,
+    "skipped_files": [],
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "kinds_distribution": {
+      "command": 0,
+      "query": 0,
+      "request_handler": 0,
+      "validator": 0,
+      "pipeline_behavior": 0,
+      "notification": 0,
+      "notification_handler": 0
+    },
+    "coverage_indicators": {
+      "requests_without_handler": 0,
+      "requests_without_validator": 0,
+      "handlers_without_request": 0
+    },
+    "skipped": false,
+    "skip_reason": null
+  }
+}

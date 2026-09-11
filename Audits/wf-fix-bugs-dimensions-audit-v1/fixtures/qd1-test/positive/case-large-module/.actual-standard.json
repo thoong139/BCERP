@@ -1,0 +1,41 @@
+{
+  "$schema": "lane-signals-v1",
+  "lane": "wf-fix-functional",
+  "dimension": "QD1",
+  "probe_id": "P-QD1-cta-keyword-scan",
+  "probe_version": "v1.1",
+  "profile": "standard",
+  "generated_at": "2026-05-08T19:43:45Z",
+  "signals": [
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD1",
+      "probe_id": "P-QD1-cta-keyword-scan",
+      "probe_version": "v1.1",
+      "severity": "info",
+      "fixability": "none",
+      "domain": "cta",
+      "title": "CTA probe: no CTA elements found (locale=en)",
+      "description": "No CTA keywords detected in UI source files. If app has CTAs, check locale configuration or add locale dictionary.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "spec",
+          "path": "N/A",
+          "description": "SPEC-ONLY-PROBE-SKIP: no CTA patterns matched"
+        }
+      ],
+      "cdg_flags": [],
+      "fingerprint": "spec-only-probe-skip-cta",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:43:44Z",
+      "detected_by": "wf-fix-functional/P-QD1-cta-keyword-scan"
+    }
+  ]
+}

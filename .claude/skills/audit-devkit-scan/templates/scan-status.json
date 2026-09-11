@@ -1,0 +1,37 @@
+{
+  "skill": "audit-devkit-scan",
+  "version": "3.0.0",
+  "session_id": "{{SESSION_ID}}",
+  "status": "in_progress",
+  "started_at": "{{TIMESTAMP_ISO}}",
+  "last_updated": "{{TIMESTAMP_ISO}}",
+  "completed_at": null,
+  "scope": "{{SCOPE}}",
+  "invoked_as": "{{INVOCATION}}",
+  "session_dir": "{{SESSION_DIR}}",
+  "phases": {
+    "phase_0_index": {"status": "pending", "started_at": null, "completed_at": null},
+    "phase_1_scan": {
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "waves": {
+        "wave_1_agents": {"status": "pending", "started_at": null, "completed_at": null, "completed_batches": [], "pending_batches": ["agents-business-a", "agents-business-b", "agents-engineering", "agents-design-testing", "agents-review"]},
+        "wave_2_skills":  {"status": "pending", "started_at": null, "completed_at": null, "completed_batches": [], "pending_batches": ["skills-workflow", "skills-other"]},
+        "wave_3_templates_rules_hooks": {"status": "pending", "started_at": null, "completed_at": null, "completed_batches": [], "pending_batches": ["templates-a", "templates-b", "rules", "hooks"]},
+        "wave_3_5_scripts": {"status": "pending", "started_at": null, "completed_at": null, "completed_batches": [], "pending_batches": ["scripts"]},
+        "wave_4_masterplan": {"status": "pending", "started_at": null, "completed_at": null, "completed_batches": [], "pending_batches": ["mp-1", "mp-2", "mp-3", "mp-4", "mp-5", "mp-6", "mp-7"]}
+      }
+    },
+    "phase_2_merge": {"status": "pending", "started_at": null, "completed_at": null},
+    "phase_3_summary": {"status": "pending", "started_at": null, "completed_at": null}
+  },
+  "metrics": {
+    "total_components_indexed": 0,
+    "total_findings": 0,
+    "agent_spawns": 0,
+    "split_events": 0,
+    "circuit_breaker_triggered": false
+  },
+  "next_action": "phase_0_build_index"
+}

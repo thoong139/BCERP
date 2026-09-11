@@ -1,0 +1,205 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-e2e-verify",
+  "version": "7.0.0",
+  "description": "Test cases cho wf-e2e-verify v7.0.0 orchestrator (8 sub-skills + backward-compat). Test cases TC-001-003 từ v5.0.0 đã migrate sang F1 evals.",
+  "test_cases": [
+    {
+      "id": "TC-ORCH-001",
+      "name": "Full pipeline — 8 steps complete sequential",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001",
+        "context": "Feature có spec đầy đủ + code implement. DB+BE+FE running. Playwright MCP available."
+      },
+      "expected_behavior": [
+        "Init session + e2e-status.json",
+        "F1 wf-e2e-test (Phase 0-6) → produces findings/, outputs/ skeleton, 4 SSOT JSONs",
+        "F2 wf-e2e-browser (default ON) → pre-scan + execute browser tests",
+        "DECIDE F3: block-test.json có entries → run F3 OR skip",
+        "DECIDE F4: implement-required.json có pending → run F4 OR skip",
+        "F5 wf-e2e-retest (mandatory) → default Playwright",
+        "DECIDE F6: issues.json có open → run F6 with anti-loop max 3 vòng",
+        "F7 wf-e2e-scenario (default ON)",
+        "F8 wf-e2e-demo (default ON)",
+        "Finalize: orchestrator-summary.md + phase-summary.md"
+      ],
+      "assertions": [
+        "test -f e2e-status.json",
+        "test -f orchestrator-summary.md",
+        "jq '.overall_status' e2e-status.json ∈ {success, partial}",
+        "jq '[.steps[] | select(.status==\"completed\" or .status==\"skipped\")] | length' e2e-status.json == 8",
+        "test -f phase-summary.md"
+      ]
+    },
+    {
+      "id": "TC-ORCH-002",
+      "name": "Conditional skip — block-test empty, implement-required empty",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-SIMPLE-001",
+        "context": "Feature đơn giản, F1+F2 không phát hiện block hay implement-required."
+      },
+      "expected_behavior": [
+        "F1+F2 complete, không append block-test / implement-required",
+        "F3 SKIP (block-test empty) → skip_reason='block-test empty'",
+        "F4 SKIP (implement-required empty) → skip_reason='implement-required empty'",
+        "F5 run (PENDING markers nếu có) hoặc skip",
+        "F6 conditional",
+        "F7+F8 default ON",
+        "Final overall_status = success"
+      ],
+      "assertions": [
+        "jq '.steps.F3.status' e2e-status.json == \"skipped\"",
+        "jq '.steps.F4.status' e2e-status.json == \"skipped\"",
+        "jq '.steps.F3.skip_reason' e2e-status.json — contains 'empty'"
+      ]
+    },
+    {
+      "id": "TC-ORCH-003",
+      "name": "Anti-loop F6↔F5 max 3 vòng",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --auto",
+        "context": "Feature có 1 issue không thể fix surgical (vd: requires architectural change). F6 fix fail 3 lần, F5 retest reveal lại issue."
+      },
+      "expected_behavior": [
+        "F6 round 1 → fix attempt → F5 retest FAIL → still_fail counter increment",
+        "F6 round 2 → cùng issue → F5 retest FAIL",
+        "F6 round 3 → cùng issue → F5 retest FAIL → still_fail final",
+        "Orchestrator detect f6_f5_loop_count = 3 → ESCALATE E004",
+        "AskUserQuestion: Continue / Skip / Cancel",
+        "Issue marked status=still_fail"
+      ],
+      "assertions": [
+        "jq '.anti_loop.f6_f5_loop_count' e2e-status.json == 3",
+        "grep 'E004' error-ledger.json",
+        "jq '.signals[] | select(.status==\"still_fail\") | length' issues.json >= 1"
+      ]
+    },
+    {
+      "id": "TC-ORCH-004",
+      "name": "Legacy --playwright-mcp --cross-module --parallel-safe accept + WARN",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --playwright-mcp --cross-module --parallel-safe",
+        "context": "User cũ chạy với 3 legacy flags."
+      },
+      "expected_behavior": [
+        "Display 3 DEPRECATION WARNINGS:",
+        "  - --parallel-safe deprecated, always enabled",
+        "  - --cross-module deprecated, always enabled",
+        "  - --playwright-mcp deprecated, default ON",
+        "Track trong e2e-status.json.legacy_flags_used",
+        "Run default F1→F8 chain (unchanged behavior)"
+      ],
+      "assertions": [
+        "jq '.legacy_flags_used | length' e2e-status.json >= 3",
+        "jq '.legacy_flags_used[]' e2e-status.json — contains 'deprecated'",
+        "Output contains 'DEPRECATION WARNINGS'"
+      ]
+    },
+    {
+      "id": "TC-ORCH-005",
+      "name": "Legacy --fix=<path> standalone F6",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --fix=path/to/issues.json --session=FEAT-EW-CRM-001-20260513-1200",
+        "context": "User cũ dùng --fix với specific path."
+      },
+      "expected_behavior": [
+        "Detect --fix=<path> → standalone F6 mode",
+        "WARN deprecation",
+        "Skip F1-F5, F7-F8 (mark skipped reason='standalone_F6')",
+        "Spawn F6 wf-e2e-fix với --path=path/to/issues.json",
+        "Other steps not executed"
+      ],
+      "assertions": [
+        "jq '.steps.F6.status' e2e-status.json == \"completed\"",
+        "jq '[.steps[] | select(.status==\"skipped\") | .skip_reason]' e2e-status.json — contains 'standalone'",
+        "jq '.standalone_step' e2e-status.json == \"F6\""
+      ]
+    },
+    {
+      "id": "TC-ORCH-006",
+      "name": "Resume mid-pipeline (sau F4 crash)",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --resume",
+        "context": "Session đã có F1-F3 completed. F4 đang implement IMPL-REQ-002 thì user Ctrl+C. status.json current_step=F4, sub-step in_progress."
+      },
+      "expected_behavior": [
+        "Resolve session → latest matching FEAT_ID",
+        "Acquire .lock (stale check, auto-release nếu >30 min)",
+        "Read e2e-status → find first incomplete step = F4",
+        "Re-validate F1-F3 outputs exist",
+        "Resume từ F4 (idempotent: skip IMPL-REQ-001 đã done, continue IMPL-REQ-002)",
+        "F4 done → continue F5 → F6 (conditional) → F7 → F8"
+      ],
+      "assertions": [
+        "jq '.steps.F1.status' e2e-status.json == \"completed\" (không re-run)",
+        "jq '.steps.F4.status' e2e-status.json — eventually \"completed\"",
+        "F1/F2/F3 outputs mtime KHÔNG đổi (không re-run)"
+      ]
+    },
+    {
+      "id": "TC-ORCH-007",
+      "name": "--status display + no execute",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --status",
+        "context": "Session đang chạy F4 (in_progress)."
+      },
+      "expected_behavior": [
+        "Read e2e-status.json + 4 SSOT JSONs",
+        "Display 8-step pipeline dashboard table",
+        "Display SSOT counters",
+        "Display anti-loop counter",
+        "STOP — không advance phase"
+      ],
+      "assertions": [
+        "Không có file mới được tạo / sửa",
+        "Output contains '8-Step Pipeline'",
+        "Output contains 'SSOT Counters'",
+        "Output contains 'Anti-loop counter'"
+      ]
+    },
+    {
+      "id": "TC-ORCH-008",
+      "name": "--no-playwright deprecated v7.1.0 → ignored với WARN, pipeline vẫn chạy live",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --no-playwright",
+        "context": "User cũ vẫn truyền --no-playwright. v7.1.0+ phải ignore và chạy live browser."
+      },
+      "expected_behavior": [
+        "Legacy-flags.md detect --no-playwright → WARN deprecation, unset NO_PLAYWRIGHT",
+        "F1 run normally",
+        "F2 RUN (live browser, auto-start mandatory) — KHÔNG skip",
+        "F3, F4 conditional, F5 run với Playwright BẮT BUỘC",
+        "F6 conditional",
+        "F7 RUN (auto-start mandatory) — KHÔNG skip",
+        "F8 RUN (auto-start mandatory) — KHÔNG skip",
+        "legacy_flags_used array chứa warning về --no-playwright"
+      ],
+      "assertions": [
+        "jq '.steps.F2.status' e2e-status.json != \"skipped\"",
+        "jq '.steps.F7.status' e2e-status.json != \"skipped\"",
+        "jq '.steps.F8.status' e2e-status.json != \"skipped\"",
+        "jq '.legacy_flags_used | length' e2e-status.json >= 1",
+        "jq -r '.legacy_flags_used[]' e2e-status.json | grep -q 'no-playwright.*DEPRECATED'"
+      ]
+    },
+    {
+      "id": "TC-ORCH-009",
+      "name": "--skip=F2,F5,F7,F8 explicit (user accept rủi ro bỏ qua UI test)",
+      "input": {
+        "command": "/wf-e2e-verify FEAT-EW-CRM-001 --auto --skip=F2,F5,F7,F8",
+        "context": "User explicit opt-out UI test (vd CI không có browser). Khác với --no-playwright deprecated: phải explicit từng step."
+      },
+      "expected_behavior": [
+        "F1 run, F2/F5/F7/F8 skipped với skip_reason='--skip=Fx'",
+        "F3, F4, F6 conditional theo SSOT JSONs",
+        "Final overall_status = partial (4 steps user-skipped)"
+      ],
+      "assertions": [
+        "jq '.steps.F2.skip_reason' e2e-status.json == \"--skip=F2\"",
+        "jq '.steps.F5.skip_reason' e2e-status.json == \"--skip=F5\"",
+        "jq '.steps.F7.skip_reason' e2e-status.json == \"--skip=F7\"",
+        "jq '.steps.F8.skip_reason' e2e-status.json == \"--skip=F8\""
+      ]
+    }
+  ]
+}

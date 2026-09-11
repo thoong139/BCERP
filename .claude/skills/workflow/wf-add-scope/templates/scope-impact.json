@@ -1,0 +1,49 @@
+{
+  "$schema": "scope-impact-v1",
+  "scope_id": "{SESSION_ID}",
+  "target_system": "{SYSTEM_ID}",
+  "mode": "{from-mapping|modules-list|interactive|from-scan}",
+  "legacy_mode": false,
+  "timestamp": "{ISO_TIMESTAMP}",
+
+  "registry_changes": {
+    "modules_added": [],
+    "modules_skipped": [],
+    "features_added_count": 0,
+    "features_skipped_count": 0,
+    "modules_count_before": 0,
+    "modules_count_after": 0,
+    "features_count_before": 0,
+    "features_count_after": 0
+  },
+
+  "files_created": [],
+
+  "audit_chain": {
+    "checksum_pre": "sha256:{HEX_PRE}",
+    "checksum_post": "sha256:{HEX_POST}",
+    "backup_path": "{REGISTRY_BACKUP_PATH}"
+  },
+
+  "consumer_hints": {
+    "wf-define-features": {
+      "stubs_to_flesh": [],
+      "total_stub_features": 0
+    },
+    "wf-plan-modules": {
+      "new_modules_to_plan": [],
+      "replan_recommended": true
+    },
+    "wf-annotate-code": {
+      "new_modules_to_annotate": []
+    },
+    "wf-verify-sync": {
+      "registry_changes_version": "scope-impact-v1",
+      "cross_check_fields": ["registry_changes.modules_added", "files_created"]
+    },
+    "wf-preflight": {
+      "affected_files_count": 0,
+      "risk_level": "low"
+    }
+  }
+}

@@ -1,0 +1,509 @@
+{
+  "skill_name": "wf-implement-feature",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nImplement feature FEAT-CRM-CUST-001 Customer Management cho MockCRM project. Project data tại .mc-data/. Tech stack: NestJS + TypeORM + PostgreSQL.\n\nYêu cầu:\n- Đọc feature design từ .mc-data/docs/phase2-features/sys-crm/mod-crm/customer-management.md\n- Đọc task file từ .mc-data/docs/phase5-implementation/tasks/sys-crm/mod-crm/customer-management-impl.md\n- Implement theo TDD: customer.entity.ts, DTOs, customer.service.ts, customer.controller.ts + test files\n- Mỗi source file PHẢI có // REQ-ID: REQ-CRM-CUST-001 comment\n- Sau khi implement xong: update req-registry.json impl_status=done cho REQ-CRM-CUST-001\n- Tạo impl-status.json, impl-plan.md, impl-report.md tại .mc-data/work/wf-implement-feature/customer-management/\n- Spawn parallel code-reviewer và security agents để review\n- Tạo phase-summary.md bằng tiếng Việt",
+      "expected_output": "Source code NestJS: entity (TypeORM), DTOs (class-validator), service, controller + test files theo TDD. Mỗi file có REQ-ID comment. Parallel code review + security review. Registry updated impl_status=done. Phase summary tiếng Việt.",
+      "assertions": [
+        {
+          "text": "Source files được tạo: customer.entity.ts, customer.service.ts, customer.controller.ts",
+          "type": "file_exists"
+        },
+        {
+          "text": "Mỗi source file có REQ-ID comment (REQ-CRM-CUST-001)",
+          "type": "file_content"
+        },
+        {
+          "text": "Test files được tạo: customer.service.spec.ts hoặc customer.controller.spec.ts",
+          "type": "file_exists"
+        },
+        {
+          "text": "TDD order đúng: test file tạo trước (hoặc cùng lúc) source file",
+          "type": "behavior"
+        },
+        {
+          "text": "Parallel review: spawn code-reviewer và security agents",
+          "type": "behavior"
+        },
+        {
+          "text": "req-registry.json được update: impl_status=done cho REQ-CRM-CUST-001",
+          "type": "file_content"
+        },
+        {
+          "text": "impl-report.md được tạo trong .mc-data/work/wf-implement-feature/customer-management/",
+          "type": "file_exists"
+        },
+        {
+          "text": "phase-summary.md được tạo và viết bằng tiếng Việt",
+          "type": "file_content"
+        },
+        {
+          "text": "Customer entity dùng TypeORM @Entity, @PrimaryGeneratedColumn('uuid'), @DeleteDateColumn cho soft delete",
+          "type": "file_content"
+        },
+        {
+          "text": "DTO files dùng class-validator decorators (@IsEmail, @IsNotEmpty)",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nChạy /wf-implement-feature FEAT-CRM-CUST-001 --status để kiểm tra tiến độ. Project data tại .mc-data/.\n\nExpected: Vì chưa có session nào cho feature này, skill sẽ thông báo 'Chưa có session nào cho feature này.' và không thực thi implement.",
+      "expected_output": "Thông báo rõ ràng: chưa có session, không có impl-status.json. Không tạo file code nào. Không thực thi implement.",
+      "assertions": [
+        {
+          "text": "Output chứa thông báo về trạng thái: 'chưa có session' hoặc 'impl-status.json not found' hoặc tương đương",
+          "type": "behavior"
+        },
+        {
+          "text": "KHÔNG có source code files được tạo (không có customer.entity.ts)",
+          "type": "behavior"
+        },
+        {
+          "text": "Skill dừng sau khi hiển thị status, không tiếp tục implement",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nThử implement feature FEAT-CRM-CUST-999 không tồn tại trong registry. Project data tại .mc-data/.\n\nExpected: Skill sẽ phát hiện feature không tồn tại trong req-registry.json và dừng lại với thông báo lỗi rõ ràng (Error E103, alias E003).",
+      "expected_output": "Error E103 (alias E003): Không xác định được feature/REQ-ID. Thông báo rõ ràng. Không tạo code. Không cần chạy /wf-design.",
+      "assertions": [
+        {
+          "text": "Skill không tạo source code files",
+          "type": "behavior"
+        },
+        {
+          "text": "Output chứa thông báo lỗi rõ ràng: feature không tìm thấy hoặc ID không hợp lệ",
+          "type": "behavior"
+        },
+        {
+          "text": "Skill hỏi user hoặc dừng lại, không tiếp tục implement",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nResume session cho feature FEAT-CRM-CUST-001. Session trước đã tạo checkpoint tại Phase 3 batch 2 (context 82%).\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 --resume\n- Load checkpoint từ .mc-data/work/wf-implement-feature/customer-management/checkpoint.json\n- Inject context_digest vào Phase 1\n- Tiếp tục từ checkpoint.next_action (Batch 3: Controller + API)\n- KHÔNG re-implement Batch 1 (Entity) và Batch 2 (Service) đã done\n\nExpected: Skill resume từ checkpoint, chỉ implement Batch 3, không duplicate work.",
+      "expected_output": "Resume từ checkpoint thành công. Chỉ implement Batch 3 (Controller + API). Batch 1-2 không bị re-implement. impl-status.json update đúng progress.",
+      "assertions": [
+        {
+          "text": "Checkpoint được load từ .mc-data/work/wf-implement-feature/customer-management/checkpoint.json",
+          "type": "behavior"
+        },
+        {
+          "text": "KHÔNG re-implement files đã hoàn thành ở session trước (entity, service)",
+          "type": "behavior"
+        },
+        {
+          "text": "Chỉ tạo controller + test files cho Batch 3",
+          "type": "behavior"
+        },
+        {
+          "text": "impl-status.json phản ánh đúng: batch 1-2 done, batch 3 mới implement",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nImplement feature FEAT-CRM-CUST-001 ở chế độ EXTEND — mở rộng Customer module đã có sẵn code.\n\nYêu cầu:\n- Đọc req-registry.json → detect scenario = EXTEND\n- Chạy Phase 0: Existing Code Analysis → tạo existing-patterns.json\n- existing-patterns.json PHẢI phân tích naming, file_structure, code_style, entity/service/test patterns\n- Tuân thủ patterns đã phát hiện khi viết code mới\n\nExpected: Phase 0 chạy (không skip), existing-patterns.json được tạo với đầy đủ pattern analysis. Code mới tuân thủ patterns cũ.",
+      "expected_output": "existing-patterns.json tồn tại và chứa đầy đủ: naming, file_structure, code_style, entity_patterns, service_patterns, test_patterns. Code mới match patterns cũ.",
+      "assertions": [
+        {
+          "text": "Phase 0 Existing Code Analysis chạy (không skip vì scenario = EXTEND)",
+          "type": "behavior"
+        },
+        {
+          "text": "existing-patterns.json được tạo tại .mc-data/work/wf-implement-feature/customer-management/",
+          "type": "file_exists"
+        },
+        {
+          "text": "existing-patterns.json chứa sections: naming, file_structure, code_style, entity_patterns, service_patterns, test_patterns",
+          "type": "file_content"
+        },
+        {
+          "text": "Code mới tuân thủ naming conventions từ existing patterns",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nTemplate Usage Rule verification: Mọi output file từ template PHẢI được tạo theo luồng READ template → POPULATE → WRITE.\n\nYêu cầu:\n- Verify skill đọc templates/existing-patterns.json trước khi tạo output (Phase 0)\n- Verify skill đọc templates/impl-status.json trước khi tạo output (Phase 1)\n- Verify skill đọc templates/impl-plan.md trước khi tạo output (Phase 2)\n- Verify skill đọc templates/checkpoint.json trước khi tạo output (Phase 3.4)\n- Verify skill đọc templates/qa-review-report.md trước khi tạo output (Phase 4)\n- Verify skill đọc templates/impl-report.md trước khi tạo output (Phase 6)\n\nExpected: Mỗi phase có bước [Template Rule] READ template rõ ràng trước khi generate output.",
+      "expected_output": "Mọi template đều được READ trước khi populate và write. Output files match template structure.",
+      "assertions": [
+        {
+          "text": "Phase 0 có bước READ templates/existing-patterns.json trước khi generate output",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 1 có bước READ templates/impl-status.json trước khi initialize",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 2 có bước READ templates/impl-plan.md trước khi generate plan",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3.4 có bước READ templates/checkpoint.json trước khi save checkpoint",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4 có bước READ templates/qa-review-report.md trước khi consolidate review",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 6 có bước READ templates/impl-report.md trước khi generate report",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nDecision Registry tracking: Kiểm tra rằng architectural decisions được ghi nhận đúng trong quá trình implement.\n\nYêu cầu:\n- Phase 0.5b tạo decision-registry.json nếu chưa tồn tại\n- Trong Phase 3, developer agent phát hiện decision mới → ghi vào output\n- Phase 3.5 parse NEW DECISION → check conflict → append vào decision-registry.json\n- Phase 5a.5a.D check compliance với decisions đã ghi\n\nExpected: decision-registry.json được tạo và cập nhật đúng. Mỗi decision có category, rule, reason. Không có conflict.",
+      "expected_output": "decision-registry.json tồn tại với decisions[] được populate. Mỗi decision có đủ fields. No conflicts.",
+      "assertions": [
+        {
+          "text": "decision-registry.json được tạo tại .mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/",
+          "type": "file_exists"
+        },
+        {
+          "text": "decision-registry.json có $schema: decision-registry-v1",
+          "type": "file_content"
+        },
+        {
+          "text": "Nếu có decisions mới → decisions[] được append (không overwrite)",
+          "type": "behavior"
+        },
+        {
+          "text": "Mỗi decision có fields: category, rule, reason",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nPhase 5a Cross-Validation Loop: Kiểm tra auto-correction loop hoạt động đúng.\n\nYêu cầu:\n- Cross-validation chạy tối đa 3 iterations\n- Mỗi iteration kiểm tra: REQ-ID in code, test files exist, tests pass, no critical issues, no placeholders, status consistent\n- Auto-fix obvious issues (thêm REQ-ID, tạo test stub)\n- Log results vào impl-report.md mỗi iteration\n- Ghi tổng kết: iterations count, errors fixed, errors remaining\n\nExpected: Cross-validation loop chạy, auto-fix obvious issues, log mỗi iteration vào impl-report.md.",
+      "expected_output": "Cross-validation loop chạy 1-3 iterations. impl-report.md có validation results. Auto-fix obvious issues. Summary logged.",
+      "assertions": [
+        {
+          "text": "impl-report.md có section chứa cross-validation results",
+          "type": "file_content"
+        },
+        {
+          "text": "Mọi source file có REQ-ID comment sau cross-validation",
+          "type": "file_content"
+        },
+        {
+          "text": "Mọi source file có test file tương ứng sau cross-validation",
+          "type": "behavior"
+        },
+        {
+          "text": "Cross-validation loop kết thúc khi zero errors HOẶC max 3 iterations reached",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nCORE-028 Phase Summary: Kiểm tra phase-summary.md được tạo đúng chuẩn.\n\nYêu cầu:\n- Phase 6 tạo phase-summary.md\n- File PHẢI viết bằng tiếng Việt\n- Nội dung tóm tắt cho non-specialist: feature gì, bao nhiêu files, tests pass, review kết quả, next step\n- File tồn tại tại .mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/phase-summary.md\n\nExpected: phase-summary.md viết tiếng Việt, dễ hiểu cho non-specialist, đủ nội dung tóm tắt.",
+      "expected_output": "phase-summary.md viết tiếng Việt, tóm tắt đầy đủ: feature, files, tests, review, next step.",
+      "assertions": [
+        {
+          "text": "phase-summary.md tồn tại tại .mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/",
+          "type": "file_exists"
+        },
+        {
+          "text": "phase-summary.md viết bằng tiếng Việt (không phải English)",
+          "type": "file_content"
+        },
+        {
+          "text": "phase-summary.md đề cập đến feature name và REQ-ID",
+          "type": "file_content"
+        },
+        {
+          "text": "phase-summary.md có thông tin về số files tạo/sửa và test results",
+          "type": "file_content"
+        },
+        {
+          "text": "phase-summary.md có next step (wf-verify-sync hoặc wf-preflight)",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\n--skip-review hotfix path: Kiểm tra rằng khi dùng --skip-review, Phase 4 review bị skip nhưng Phase 5a cross-validation vẫn chạy.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 --skip-tests --skip-review\n- Phase 4 (Parallel Reviews) bị skip\n- Phase 5a (Cross-Validation) vẫn chạy — nhưng bỏ qua checks liên quan tests\n- impl-status.json reviews sections = skipped\n\nExpected: Review agents không được spawn. Phase 5a chạy với reduced checks. impl-status.json phản ánh skip.",
+      "expected_output": "Phase 4 bị skip. Phase 5a chạy. impl-status.json ghi skip_tests=true, skip_review=true. Không spawn review agents.",
+      "assertions": [
+        {
+          "text": "KHÔNG spawn code-reviewer, security, qa-lead agents (Phase 4 skip)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 5a Cross-Validation vẫn chạy",
+          "type": "behavior"
+        },
+        {
+          "text": "impl-status.json có flags.skip_tests = true, flags.skip_review = true",
+          "type": "file_content"
+        },
+        {
+          "text": "impl-status.json reviews.code_review.status = 'skipped'",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nMulti-feature flow: Kiểm tra --features flag orchestration.\n\nYêu cầu:\n- Chạy /wf-implement-feature --features=FEAT-CRM-CUST-001,FEAT-CRM-ORD-001\n- flow-multi.md được load thay vì flow.md\n- Dependency analysis: đọc A7-EXT sections từ task files\n- Features independent → chạy parallel\n- Mỗi feature tạo riêng impl-status.json, impl-report.md trong $FEATURE_SLUG dir\n\nExpected: Multi-feature orchestration đúng. Mỗi feature có isolated output. Dependency graph built từ task files.",
+      "expected_output": "flow-multi.md loaded. Dependency graph built. Features chạy (parallel nếu independent). Isolated outputs per feature.",
+      "assertions": [
+        {
+          "text": "flow-multi.md được load (không load các phase files single-feature như phase0-existing-analysis.md, phase1-feature-context.md, ...)",
+          "type": "behavior"
+        },
+        {
+          "text": "Dependency graph được build từ A7-EXT sections",
+          "type": "behavior"
+        },
+        {
+          "text": "Mỗi feature có riêng impl-status.json trong $FEATURE_SLUG dir",
+          "type": "file_exists"
+        },
+        {
+          "text": "multi-feature report được tạo",
+          "type": "file_exists"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Session Isolation: Multi-run preservation kiểm tra session_dir riêng biệt.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 lần 1 → tạo session_id=2026-04-28-100000-host1\n- Chạy lần 2 (sau hoàn tất lần 1) → tạo session_id MỚI (khác lần 1)\n- KHÔNG ghi đè state lần 1\n- $FEATURE_SLUG/sessions/{session_id_1}/ và $FEATURE_SLUG/sessions/{session_id_2}/ cùng tồn tại\n- $FEATURE_SLUG/current.txt trỏ tới session mới nhất (session_id_2)\n\nExpected: Hai session subdirs cùng tồn tại với state riêng. current.txt trỏ session mới nhất. Lần 2 KHÔNG ghi đè impl-status.json của lần 1.",
+      "expected_output": "Multi-run isolation OK. sessions/ chứa ≥2 subdirs. current.txt point to latest. Old session preserved.",
+      "assertions": [
+        {
+          "text": "$FEATURE_SLUG/sessions/ chứa ≥2 subdirs từ 2 runs khác nhau",
+          "type": "file_exists"
+        },
+        {
+          "text": "$FEATURE_SLUG/current.txt tồn tại và trỏ tới session mới nhất (relative path 'sessions/{id}')",
+          "type": "file_content"
+        },
+        {
+          "text": "impl-status.json của session lần 1 không bị overwrite (timestamp + content unchanged)",
+          "type": "behavior"
+        },
+        {
+          "text": "Cả 2 sessions đều có impl-status.json riêng với schema_version=2.0",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 --fresh flag: Archive sessions cũ thay vì xóa.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 (đã có 2 sessions cũ)\n- Sử dụng flag --fresh để bắt đầu hoàn toàn mới\n- Sessions cũ PHẢI được MOVE vào $FEATURE_SLUG/archived/\n- KHÔNG xóa data — chỉ move\n- Session mới được tạo trong $FEATURE_SLUG/sessions/{new_id}/\n- archived/ giữ thư mục con với session_id ban đầu\n\nExpected: Old sessions moved to archived/. New session in sessions/. No data loss.",
+      "expected_output": "archived/ contains old sessions; sessions/ has new fresh session; all data preserved.",
+      "assertions": [
+        {
+          "text": "$FEATURE_SLUG/archived/ tồn tại và chứa ≥1 session cũ với session_id nguyên gốc",
+          "type": "file_exists"
+        },
+        {
+          "text": "$FEATURE_SLUG/sessions/ chỉ có 1 session mới (session_id mới)",
+          "type": "behavior"
+        },
+        {
+          "text": "Không có data nào bị xóa: archived sessions vẫn có impl-status.json đầy đủ",
+          "type": "file_content"
+        },
+        {
+          "text": "current.txt trỏ tới session mới (sessions/{new_id})",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Profile=quick: Tối giản pipeline cho fix nhỏ.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 --profile=quick\n- $SESSION_DIR/profile.txt = 'quick'\n- impl-status.json profile=quick\n- Phase 3 mode = sequential (KHÔNG parallel)\n- Phase 4 chỉ spawn 1 reviewer (code-reviewer), KHÔNG spawn security/qa-lead\n- Test depth = smoke (skip integration tests)\n- WARN nếu user cũng truyền --parallel: profile=quick override force sequential\n\nExpected: Quick profile resolved. Single reviewer. Sequential mode. Smoke tests only.",
+      "expected_output": "profile.txt=quick, impl-status profile=quick, Phase 4 single reviewer, sequential Phase 3.",
+      "assertions": [
+        {
+          "text": "$SESSION_DIR/profile.txt tồn tại với nội dung 'quick'",
+          "type": "file_content"
+        },
+        {
+          "text": "impl-status.json có field profile='quick'",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 4 chỉ spawn code-reviewer agent (không có security/qa-lead/a11y/perf)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3 chạy sequential (không có parallel waves)",
+          "type": "behavior"
+        },
+        {
+          "text": "Nếu user cũng truyền --parallel → log WARN và force sequential",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 15,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Profile=deep: Parallel + 3 reviewers cho feature lớn.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 --profile=deep\n- $SESSION_DIR/profile.txt = 'deep'\n- impl-status.json profile=deep\n- Phase 3 auto-enable parallel mode (waves)\n- Phase 4 spawn 3 reviewers: code-reviewer + security + qa-lead\n- Phase 2.5 contracts.json được tạo (parallel mode)\n- Test depth = unit + integration\n\nExpected: Deep profile. Parallel waves. 3 reviewers. Contracts generated.",
+      "expected_output": "profile.txt=deep, impl-status profile=deep, parallel mode enabled, 3 reviewers spawned, contracts.json exists.",
+      "assertions": [
+        {
+          "text": "$SESSION_DIR/profile.txt tồn tại với nội dung 'deep'",
+          "type": "file_content"
+        },
+        {
+          "text": "impl-status.json có profile='deep'",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 4 spawn ≥3 review agents (code-reviewer + security + qa-lead)",
+          "type": "behavior"
+        },
+        {
+          "text": "$SESSION_DIR/contracts.json được tạo (parallel mode)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Phase 3 chạy parallel waves (developer agents song song)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 16,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Pattern Cache HIT: Multi-feature cùng module tiết kiệm tokens.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 (module CRM, scenario=EXTEND) → cache MISS, tạo $FEATURE_DIR/.cache/crm/existing-patterns.{git_sha}.json\n- Chạy /wf-implement-feature FEAT-CRM-ORD-001 (cùng module CRM, scenario=EXTEND) → cache HIT\n- Verify trace_event 'CACHE_HIT' trong session-log.json\n- impl-status.json cache_hits.existing_patterns=true cho FEAT-CRM-ORD-001\n- saved_tokens_estimated ≥ 5000 cho cache hit\n- Cache TTL 24h + git SHA hash dual invalidation\n\nExpected: 1st run MISS (write cache). 2nd run HIT (read cache, save tokens).",
+      "expected_output": "Cache written on 1st run. Cache read on 2nd run. trace_event CACHE_HIT logged. saved_tokens_estimated ≥ 5000.",
+      "assertions": [
+        {
+          "text": ".cache/{module_slug}/existing-patterns.{git_sha}.json được tạo sau lần 1",
+          "type": "file_exists"
+        },
+        {
+          "text": "Lần 2 (cùng module) impl-status.json có cache_hits.existing_patterns=true",
+          "type": "file_content"
+        },
+        {
+          "text": "Lần 2 saved_tokens_estimated ≥ 5000",
+          "type": "file_content"
+        },
+        {
+          "text": "trace_event CACHE_HIT xuất hiện trong session-log.json (lần 2)",
+          "type": "file_content"
+        },
+        {
+          "text": "Cache file có metadata: invalidation_hash, module_path, scanned_at",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Multi-dev Safety (simulated): JSONL history append-only không conflict.\n\nYêu cầu:\n- Simulate 2 hostnames (HOSTNAME=dev1, HOSTNAME=dev2) chạy /wf-implement-feature FEAT-CRM-CUST-001\n- Mỗi run sẽ append 1 line vào $FEATURE_DIR/.history/implementations-index.jsonl\n- 2 lines trong JSONL phải có short_host khác nhau (dev1, dev2)\n- Append-only: không có line nào bị overwrite\n- File không có merge conflict markers (<<<<<<<, >>>>>>>)\n- File parseable: mỗi dòng là valid JSON\n\nExpected: 2 entries trong JSONL với 2 hosts khác nhau. Multi-dev safe.",
+      "expected_output": "implementations-index.jsonl có ≥2 lines, each parseable JSON, distinct hostnames.",
+      "assertions": [
+        {
+          "text": "$FEATURE_DIR/.history/implementations-index.jsonl tồn tại",
+          "type": "file_exists"
+        },
+        {
+          "text": "JSONL chứa ≥2 lines, mỗi line parse được bằng jq -e",
+          "type": "file_content"
+        },
+        {
+          "text": "2 lines có giá trị short_host khác nhau (dev1, dev2)",
+          "type": "file_content"
+        },
+        {
+          "text": "Không có git merge conflict markers trong file",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Error Ledger Trigger: Force test fail → ledger entry populated.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001\n- Trigger error scenario: tests fail vì missing assertion (E401 — test execution failed)\n- error-ledger.json PHẢI được tạo (lazy-init lần đầu có error)\n- Entry có: timestamp, severity, code (E401), phase, message, context, action\n- ledger.errors[] không vượt LEDGER_MAX_ENTRIES (100); nếu vượt → ghi E904 và keep tail 50\n- phase-summary.md có section 'Errors & Warnings' nếu ledger non-empty\n\nExpected: error-ledger.json populated with E401 entry. phase-summary highlights errors.",
+      "expected_output": "error-ledger.json with valid E401 entry. phase-summary lists errors. Ledger schema_version=1.0.",
+      "assertions": [
+        {
+          "text": "$SESSION_DIR/error-ledger.json tồn tại sau khi error trigger",
+          "type": "file_exists"
+        },
+        {
+          "text": "error-ledger.json có schema_version='1.0' và errors[] không rỗng",
+          "type": "file_content"
+        },
+        {
+          "text": "Entry có code='E401' (hoặc namespaced equivalent), severity, phase, message, action",
+          "type": "file_content"
+        },
+        {
+          "text": "phase-summary.md có 'Errors & Warnings' section listing E401",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "Working directory: Z:/Working/MCV3/mock-project/\n\nv4.0 Output Schema v2.0 + consumer_hints: Synthetic --from-impl consumer.\n\nYêu cầu:\n- Chạy /wf-implement-feature FEAT-CRM-CUST-001 hoàn tất Phase 6\n- impl-status.json (schema v2.0) có top-level fields: schema_version='2.0', session_id, profile, cache_hits, consumer_hints\n- consumer_hints có 3 sub-sections: for_prepare_deployment (files_for_changelog, breaking_changes), for_fix_bugs (scope_modules, recently_modified_files), for_verify_sync (req_ids_completed, batch_completion_summary)\n- Synthetic consumer script (mock prepare-deployment) đọc consumer_hints.for_prepare_deployment.files_for_changelog → list files OK\n- Phase 3.5 cross-feature decisions append vào decision-registry.global.json (lock acquired qua implement-acquire-lock.sh --type=decision-registry)\n\nExpected: schema v2.0 + consumer_hints populated. Synthetic consumer reads files. Global registry append-only.",
+      "expected_output": "impl-status.json schema_version=2.0 with consumer_hints. Mock consumer reads files. Global registry append.",
+      "assertions": [
+        {
+          "text": "impl-status.json có schema_version='2.0' top-level field",
+          "type": "file_content"
+        },
+        {
+          "text": "consumer_hints object có 3 sub-sections: for_prepare_deployment, for_fix_bugs, for_verify_sync",
+          "type": "file_content"
+        },
+        {
+          "text": "consumer_hints.for_prepare_deployment.files_for_changelog là array (≥0 items)",
+          "type": "file_content"
+        },
+        {
+          "text": "consumer_hints.for_fix_bugs.scope_modules array có ≥1 module slug",
+          "type": "file_content"
+        },
+        {
+          "text": "consumer_hints.for_verify_sync.req_ids_completed array bao gồm REQ-CRM-CUST-001",
+          "type": "file_content"
+        },
+        {
+          "text": "Nếu Phase 3 phát hiện cross-feature decision (scope=project|module:*) → decision-registry.global.json append entry mới",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "MCV3_HOOK_METRICS_ENABLED": "1",
+    "MCV3_HOOK_METRICS_FILE": ".mc-data/logs/hook-metrics.jsonl",
+    "MCV3_HOOK_PERF_FILE": ".mc-data/logs/hook-perf.jsonl",
+    "GITNEXUS_MAX_FILE_SIZE": "32768",
+    "GITNEXUS_WORKER_SUB_BATCH_TIMEOUT_MS": "60000",
+    "GITNEXUS_WORKER_SUB_BATCH_MAX_BYTES": "16777216"
+  },
+  "permissions": {
+    "allow": [
+      "Edit(/.claude/skills/workflow/**)",
+      "Edit(/.claude/skills/audit-devkit/**)",
+      "Edit(/.claude/skills/audit-devkit-verify/**)",
+      "Edit(/.claude/skills/audit-devkit-fix/**)",
+      "Edit(/.claude/skills/audit-skill-output/**)",
+      "Edit(/.claude/skills/audit-devkit-scan/**)",
+      "Bash(python -m json.tool)",
+      "Bash(mkdir -p .claude/skills/workflow/_shared/lane/templates/archive)",
+      "Bash(git mv *)"
+    ],
+    "deny": [
+      "Write(.env)",
+      "Write(.env.*)",
+      "Edit(.env)",
+      "Edit(.env.*)",
+      "Write(**/credentials*)",
+      "Write(**/secrets*)",
+      "Write(**/*.pem)",
+      "Write(**/*.key)",
+      "Write(.git/**)",
+      "Edit(.git/**)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~/)",
+      "Bash(rm -rf ~/*)",
+      "Bash(dd if=/dev/zero *)",
+      "Bash(dd if=/dev/urandom *)",
+      "Bash(mkfs *)",
+      "Bash(fdisk *)",
+      "Write(/etc/**)",
+      "Write(/boot/**)",
+      "Write(/sys/**)"
+    ],
+    "defaultMode": "bypassPermissions",
+    "additionalDirectories": [
+      "z:\\Working\\MCV3\\.claude\\doc-framework\\_meta",
+      "C:\\Users\\hanoi\\.claude",
+      "Z:\\Working\\MCV3\\.claude\\skills\\workflow\\wf-fix-bugs\\procedures"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/session-init.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/privacy-block.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/scout-block.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/validate-requirement-sync.sh"
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/validate-critical-decision.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/pre-bash-safety.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/update-sync-status.sh"
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/validate-contract-sync.sh"
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/validate-ui-component.sh"
+          },
+          {
+            "type": "command",
+            "command": "./.claude/hooks/validate-naming-convention.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./.claude/hooks/stop-session-verify.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "audit-skill-output",
+  "version": "1.8.0",
+  "phase": "devkit-audit",
+  "description": "Kiểm tra chất lượng output của skill — so sánh actual output vs SKILL.md design (D1-D7 + D8 optional), auto-fix mặc định. v1.8.0: fix D8 detection, verdict logic, auto-fix safety gate, D3.7 partial checks, D4 rubric, template fixes.",
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Cần skill name để audit. Nếu --all thì scan tất cả skills"
+  },
+  "inputs": [
+    {
+      "path": ".claude/skills/[skill-name]/SKILL.md",
+      "description": "Skill definition để so sánh expected vs actual",
+      "required": true
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry context cho skill output validation",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/[skill-name]/",
+      "description": "Actual outputs từ skill đã chạy",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/work/audit-skill-output/audit-report-[skill-name]-[YYYY-MM-DD].md",
+        "template": "templates/audit-report.md",
+        "contract_key": "skill-output-audit-report",
+        "required": true,
+        "description": "Audit report: D1-D7 + D8 (optional) dimension comparison, issues found, auto-fix results"
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/audit-skill-output/audit-skill-output-status.json",
+        "template": "templates/audit-status.json",
+        "description": "Status tracking — phase progress, findings, verdict, checkpoint state"
+      },
+      {
+        "path": ".mc-data/work/audit-skill-output/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "description": "Checkpoint cho --resume support (--all mode)"
+      },
+      {
+        "path": ".mc-data/work/audit-skill-output/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "description": "Tóm tắt audit cho người không chuyên (CORE-028) — max 15 dòng tiếng Việt"
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Read-only với registry — không cập nhật"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Read-only với registry"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {}
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "version": "1.0",
+  "phase": "phase4-ux",
+  "description": "Template compliance contracts for Phase 4 UX/UI Design documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "templates": {
+    "design-system": {
+      "template_file": "phase4-ux/design-system.md",
+      "description": "Design system — colors, typography, spacing, components, layout, conventions",
+      "output_pattern": ".mc-data/docs/phase4-ux/design-system.md",
+      "required_sections": [
+        "## 1. Màu Sắc",
+        "## 2. Chữ",
+        "## 3. Khoảng Cách",
+        "## 4. Thư Viện Component",
+        "## 5. Bố Cục Trang",
+        "## 6. Quy Ước Giao Diện"
+      ],
+      "optional_sections": [
+        "## 7. Thiết Kế Mobile",
+        "## 8. Accessibility",
+        "## 9. Đa Ngôn Ngữ",
+        "## 10."
+      ],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "Navigation": {
+      "template_file": "phase4-ux/[system-name]/Navigation-[system].md",
+      "description": "Navigation spec per system — menu tree, screen groups, permissions, UI notes",
+      "output_pattern": ".mc-data/docs/phase4-ux/*/Navigation-*.md",
+      "required_sections": [
+        "## 1. Sơ Đồ Menu",
+        "## 2. Danh Sách Screen Groups",
+        "## 3. Phân Quyền",
+        "## 4. UI Notes",
+        "## Tài Liệu Liên Quan"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "screen-group": {
+      "template_file": "phase4-ux/[system-name]/[module-name]/[screen-group].md",
+      "description": "Screen group spec — layout, components, columns, actions, dialogs, API endpoints, UI-ID registry",
+      "output_pattern": ".mc-data/docs/phase4-ux/*/*/screens-*.md",
+      "required_sections": [
+        "## Thông Tin Chung",
+        "## 1. TRANG CHÍNH",
+        "## 6. API ENDPOINTS",
+        "## 7. UI-ID Registry",
+        "## Tài Liệu Liên Quan"
+      ],
+      "optional_sections": [
+        "## 2. TABS",
+        "## 3. DIALOGS",
+        "## 4. SHEETS",
+        "## 5. VIEW MODES"
+      ],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "Sections 2 (TABS) và 5 (VIEW MODES) có ghi chú 'Xóa section này nếu...' trong template — là optional có điều kiện. Sections 3 (DIALOGS) và 4 (SHEETS) là optional — chỉ thêm nếu screen có dialogs/sheets"
+    },
+    "stakeholder-review": {
+      "template_file": "phase4-ux/stakeholder-review.md",
+      "description": "Stakeholder review — UX cross-review, consistency, gap analysis",
+      "output_pattern": ".mc-data/docs/phase4-ux/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    }
+  }
+}

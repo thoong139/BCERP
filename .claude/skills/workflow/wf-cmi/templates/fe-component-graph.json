@@ -1,0 +1,46 @@
+{
+  "_template_notes": {
+    "purpose": "Frontend Component graph — Discovery Plugin #7 (v2.0 Gói C++). Parse React/Next.js components + props signatures + import dependencies. Source: Glob `apps/erp-web/components/**/*.tsx` + AST props extraction. Consumed by lane CD11 (FE Component Contracts) qua graph_dependency.",
+    "populate": [
+      "nodes[]: 1 entry per component file — {id, name, module, file_path, props[], default_export, named_exports[], fingerprint}",
+      "props[]: 1 entry per prop — {name, type, required, default_value, jsdoc_description}",
+      "edges[]: 1 entry per import relation — {from_component, to_component, import_kind: 'default|named|namespace', is_internal: true|false}",
+      "metadata.build_at: ISO 8601 timestamp khi graph built",
+      "metadata.scope_root: 'apps/erp-web/components' (v2.0 chỉ scan erp-web — mobile defer v2.1)",
+      "metadata.source_method: 'ast_typescript|grep_fallback|gitnexus_clusters'",
+      "metadata.ci_index_freshness: từ CI PRE-GATE Nb",
+      "metadata.parser_version: '1.0' nếu fallback Grep, '2.0' nếu ts-morph/tsc AST (TODO v2.1)",
+      "metadata.tsx_file_count: total .tsx files scanned",
+      "metadata.skipped_files[]: files với parse error (log fail không block)"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/erp-web/ → SKIP, write empty graph với skipped:true (per CD11 graph_dependency optional)",
+      "Tech stack frontend != Next.js → SKIP, log E137 WARN (parser chỉ support Next.js conventions)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "fe-component-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/erp-web/components",
+    "client_apps": ["erp-web"]
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/erp-web/components",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "tsx_file_count": 0,
+    "skipped_files": [],
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "skipped": false,
+    "skip_reason": null
+  }
+}

@@ -1,0 +1,151 @@
+# Authorization Matrix — EUREKA ERP (Sample)
+# Dat tai: .mc-data/docs/phase3-architecture/auth-matrix/auth-erp-v1.yaml
+# Schema: .claude/doc-framework/_meta/authorization-matrix-schema.json
+# Su dung boi: P-QD10-auth-matrix-check de kiem tra role guard trong code
+
+matrix_id: auth-erp-v1
+version: "1.0.0"
+description: "Authorization matrix cho EUREKA ERP — quan ly phan quyen role x module x action"
+system_id: ERP
+
+roles:
+  - id: sysadmin
+    description: "Quan tri he thong — toan quyen"
+    inherits: [manager, accountant, sales_manager]
+  - id: manager
+    description: "Truong phong — quan ly toan bo module thuoc phong ban"
+    inherits: [sales_manager, warehouse_staff]
+  - id: sales_manager
+    description: "Quan ly kinh doanh — phe duyet bao gia va don hang"
+    inherits: [sales_rep]
+  - id: sales_rep
+    description: "Nhan vien kinh doanh — tao va quan ly bao gia"
+  - id: accountant
+    description: "Ke toan — quan ly hoa don va thanh toan"
+  - id: warehouse_staff
+    description: "Nhan vien kho — quan ly don hang va xuat nhap kho"
+  - id: viewer
+    description: "Xem-only — khong sua doi du lieu"
+
+modules:
+  - module_id: MOD-CRM
+    description: "Quan ly khach hang va lien he"
+    actions:
+      - action: view_customer
+        description: "Xem thong tin khach hang"
+        roles_allowed: [sales_rep, sales_manager, manager, accountant, viewer, sysadmin]
+
+      - action: create_customer
+        description: "Tao moi khach hang"
+        roles_allowed: [sales_rep, sales_manager, manager, sysadmin]
+
+      - action: update_customer
+        description: "Cap nhat thong tin khach hang"
+        roles_allowed: [sales_rep, sales_manager, manager, sysadmin]
+
+      - action: delete_customer
+        description: "Xoa khach hang (chi admin)"
+        roles_allowed: [sysadmin]
+        roles_forbidden: [sales_rep, viewer]
+
+      - action: export_customer_list
+        description: "Xuat danh sach khach hang ra file"
+        roles_allowed: [sales_manager, manager, sysadmin]
+        roles_forbidden: [viewer]
+
+  - module_id: MOD-QUOTATION
+    description: "Quan ly bao gia"
+    actions:
+      - action: view_quotation
+        description: "Xem bao gia"
+        roles_allowed: [sales_rep, sales_manager, manager, accountant, viewer, sysadmin]
+
+      - action: create_quotation
+        description: "Tao bao gia moi"
+        roles_allowed: [sales_rep, sales_manager, sysadmin]
+
+      - action: update_quotation
+        description: "Cap nhat bao gia (chi khi chua gui)"
+        roles_allowed: [sales_rep, sales_manager, sysadmin]
+
+      - action: submit_quotation
+        description: "Gui bao gia cho khach hang"
+        roles_allowed: [sales_rep, sales_manager, sysadmin]
+
+      - action: approve_quotation
+        description: "Phe duyet bao gia (truong phong tro len)"
+        roles_allowed: [sales_manager, manager, sysadmin]
+        roles_forbidden: [sales_rep, viewer]
+        guard_hint: "NestJS @Roles('sales_manager', 'manager', 'sysadmin')"
+
+      - action: reject_quotation
+        description: "Tu choi bao gia"
+        roles_allowed: [sales_manager, manager, sysadmin]
+        roles_forbidden: [sales_rep, viewer]
+
+      - action: convert_quotation_to_order
+        description: "Chuyen bao gia thanh don hang"
+        roles_allowed: [sales_rep, sales_manager, sysadmin]
+
+      - action: delete_quotation
+        description: "Xoa bao gia (chi admin)"
+        roles_allowed: [sysadmin]
+
+  - module_id: MOD-ORDERS
+    description: "Quan ly don hang"
+    actions:
+      - action: view_order
+        description: "Xem don hang"
+        roles_allowed: [sales_rep, sales_manager, manager, warehouse_staff, accountant, viewer, sysadmin]
+
+      - action: create_order
+        description: "Tao don hang moi (thuong tu bao gia)"
+        roles_allowed: [sales_rep, sales_manager, sysadmin]
+
+      - action: confirm_order
+        description: "Xac nhan don hang (truong phong)"
+        roles_allowed: [sales_manager, manager, sysadmin]
+        roles_forbidden: [sales_rep, viewer]
+        guard_hint: "Requires MANAGER or higher"
+
+      - action: cancel_order
+        description: "Huy don hang"
+        roles_allowed: [sales_manager, manager, sysadmin]
+        roles_forbidden: [sales_rep, warehouse_staff, viewer]
+
+      - action: process_order_fulfillment
+        description: "Xu ly xuat kho don hang"
+        roles_allowed: [warehouse_staff, manager, sysadmin]
+        roles_forbidden: [viewer, accountant]
+
+      - action: delete_order
+        description: "Xoa don hang (chi admin)"
+        roles_allowed: [sysadmin]
+
+  - module_id: MOD-FINANCE
+    description: "Quan ly tai chinh — hoa don va thanh toan"
+    actions:
+      - action: view_invoice
+        description: "Xem hoa don"
+        roles_allowed: [accountant, manager, sales_manager, viewer, sysadmin]
+
+      - action: create_invoice
+        description: "Tao hoa don tu don hang"
+        roles_allowed: [accountant, sysadmin]
+        roles_forbidden: [sales_rep, viewer, warehouse_staff]
+        guard_hint: "Accountant only — NestJS @Roles('accountant', 'sysadmin')"
+
+      - action: approve_invoice
+        description: "Phe duyet hoa don (truong phong ke toan)"
+        roles_allowed: [manager, sysadmin]
+        roles_forbidden: [accountant, sales_rep, viewer]
+
+      - action: void_invoice
+        description: "Huy hoa don (nghiem cam — chi admin khi co ly do ro rang)"
+        roles_allowed: [sysadmin]
+        roles_forbidden: [accountant, manager, sales_rep, viewer]
+
+      - action: record_payment
+        description: "Ghi nhan thanh toan"
+        roles_allowed: [accountant, manager, sysadmin]
+        roles_forbidden: [sales_rep, viewer, warehouse_staff]

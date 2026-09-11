@@ -1,0 +1,425 @@
+{
+  "$schema": "risk-heatmap-v1",
+  "session_id": "eureka-risk-webcustomer-234711",
+  "generated_at": "2026-05-16T16:47:39Z",
+  "scope": "module",
+  "scope_name": "apps/web-customer",
+  "analysis_window_days": 30,
+  "files": [
+    {
+      "path": "apps/web-customer/server/routes/auth.ts",
+      "risk_score": 56,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 354,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/Login.tsx",
+      "risk_score": 56,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 245,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/Pricing.tsx",
+      "risk_score": 52,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 340,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "payment"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/ForgotPassword.tsx",
+      "risk_score": 52,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 497,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/components/admin/PricingForm.tsx",
+      "risk_score": 52,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 443,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "payment"
+      }
+    },
+    {
+      "path": "apps/web-customer/tests/unit/ForgotPassword.test.tsx",
+      "risk_score": 51,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 2,
+        "loc": 247,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/tests/unit/auth-forgot-password.test.ts",
+      "risk_score": 50,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 250,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/tests/auth-logic.test.ts",
+      "risk_score": 50,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 275,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/MyOrders.tsx",
+      "risk_score": 47,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 9,
+        "loc": 1004,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/components/admin/AuditLogList.tsx",
+      "risk_score": 47,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 204,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/Wallet.tsx",
+      "risk_score": 46,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 741,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/OrderDetail.tsx",
+      "risk_score": 46,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 1512,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/Overview.tsx",
+      "risk_score": 45,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 6,
+        "loc": 530,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/Documents.tsx",
+      "risk_score": 45,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 6,
+        "loc": 1097,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/Complaints.tsx",
+      "risk_score": 44,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 5,
+        "loc": 621,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/components/admin/HomepageForm.tsx",
+      "risk_score": 44,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 5,
+        "loc": 558,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/server/middleware/auth.ts",
+      "risk_score": 43,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 37,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "low",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/DashboardLayout.tsx",
+      "risk_score": 43,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 10,
+        "loc": 449,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/Services.tsx",
+      "risk_score": 43,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 605,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/Register.tsx",
+      "risk_score": 43,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 517,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/Home.tsx",
+      "risk_score": 43,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 748,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/AdminLogin.tsx",
+      "risk_score": 43,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 110,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "low",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/admin/site/HomepageEditorPage.tsx",
+      "risk_score": 42,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 617,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/services/refund.ts",
+      "risk_score": 41,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 2,
+        "loc": 95,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "low",
+        "domain": "payment"
+      }
+    },
+    {
+      "path": "apps/web-customer/server/seed-data.ts",
+      "risk_score": 41,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 2,
+        "loc": 627,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "infrastructure"
+      }
+    },
+    {
+      "path": "apps/web-customer/components/ProfileSettingsModal.tsx",
+      "risk_score": 41,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 360,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/services/api.ts",
+      "risk_score": 40,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 7,
+        "loc": 527,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "generic"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/Debt.tsx",
+      "risk_score": 40,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 7,
+        "loc": 295,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/dashboard/CartLinks.tsx",
+      "risk_score": 40,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 516,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "ui"
+      }
+    },
+    {
+      "path": "apps/web-customer/pages/admin/adminRouteMeta.ts",
+      "risk_score": 40,
+      "risk_tier": "MEDIUM",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 246,
+        "missing_req_id": false,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "api"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "module": "apps/web-customer",
+      "score": 32,
+      "files_at_risk": 0,
+      "total_files": 144,
+      "dominant_domain": "ui",
+      "top_signals": {
+        "avg_churn": 3.17,
+        "req_id_coverage_pct": 100.0,
+        "test_coverage_pct": 0.0
+      }
+    }
+  ],
+  "summary": {
+    "total_files_analyzed": 144,
+    "critical_count": 0,
+    "high_count": 0,
+    "medium_count": 80,
+    "low_count": 64,
+    "missing_req_id_pct": 0.0,
+    "missing_tests_pct": 100.0,
+    "avg_risk_score": 32.42,
+    "duration_seconds": 28
+  }
+}

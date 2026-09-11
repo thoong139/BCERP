@@ -1,0 +1,9 @@
+# Generated fixture files — KHÔNG commit binary blobs hoặc thousands of source files
+apps/
+.mc-data/
+.fixture-marker.json
+
+# Cho phép giữ scripts/ và README
+!scripts/
+!README.md
+!.gitignore

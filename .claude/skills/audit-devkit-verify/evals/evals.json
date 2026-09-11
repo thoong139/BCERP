@@ -1,0 +1,138 @@
+{
+  "skill_name": "audit-devkit-verify",
+  "skill_version": "3.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/audit-devkit-verify — cross-validate scan findings, check workflow integrity, bidirectional consistency, và generate verified result",
+      "expected_output": "Creates .mc-data/work/audit-devkit-verify/[session]/ với 4 findings-crossref-*.json files, findings-workflow.json, findings-consistency.json, findings-masterplan-verify.json, audit-verified-result.json, verify-status.json, và report. Dedupes cross-source findings. Displays summary table với verdict.",
+      "files": [],
+      "assertions": [
+        {"type": "file_content", "text": ".mc-data/work/audit-devkit-verify/[session]/verify-status.json is created with scope: 'all'"},
+        {"type": "file_content", "text": "4 findings-crossref-*.json files created (agents-skills, skills-templates, docs, hooks) with $schema: 'audit-findings-v1'"},
+        {"type": "file_content", "text": ".mc-data/work/audit-devkit-verify/[session]/findings-workflow.json created with $schema: 'audit-findings-v1'"},
+        {"type": "file_content", "text": ".mc-data/work/audit-devkit-verify/[session]/findings-consistency.json created with $schema: 'audit-findings-v1'"},
+        {"type": "file_exists", "text": ".mc-data/work/audit-devkit-verify/[session]/findings-masterplan-verify.json created (rỗng hoặc có findings)"},
+        {"type": "file_content", "text": ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json created with $schema: 'audit-verified-result-v1'"},
+        {"type": "structure", "text": "audit-verified-result.json has summary.final_total = length of findings array"},
+        {"type": "structure", "text": "audit-verified-result.json has dedup_log array (empty if no dupes)"},
+        {"type": "behavior", "text": "verdict_pre_fix computed per §4.8: CLEAN (total=0), ACCEPTABLE (CRITICAL=0, MAJOR≤5), NEEDS ATTENTION (CRITICAL=0 MAJOR>5, or CRITICAL 1-3), BROKEN (CRITICAL>3)"},
+        {"type": "file_exists", "text": "Report written to .mc-data/work/audit-devkit-verify/reports/devkit-audit-[date].md"},
+        {"type": "behavior", "text": "All output files written to audit-devkit-verify directory (NOT audit-devkit-scan)"},
+        {"type": "file_content", "text": "verify-status.json updated to status: 'completed' at end"},
+        {"type": "content_check", "text": "Finding IDs use correct prefixes per phase: F-XRF- (crossref), F-WFL- (workflow), F-CON- (consistency), F-MPV- (master plan)"}
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/audit-devkit-verify --crossref — chỉ chạy cross-reference verification (Phase 1)",
+      "expected_output": "Chỉ chạy Phase 0 (load) + Phase 1 (4 cross-ref passes). Tạo 4 findings-crossref-*.json files. Stops sau Phase 1. Không chạy workflow/consistency/master-plan phases. Mini-summary hiển thị per-pass findings count. Verdict tính chỉ trên crossref findings.",
+      "files": [],
+      "assertions": [
+        {"type": "file_content", "text": "verify-status.json scope is set to 'crossref' (not 'all')"},
+        {"type": "file_exists", "text": "4 findings-crossref-*.json files created in audit-devkit-verify/[session]/"},
+        {"type": "behavior", "text": "No findings-workflow.json created"},
+        {"type": "behavior", "text": "No findings-consistency.json created"},
+        {"type": "behavior", "text": "No findings-masterplan-verify.json created"},
+        {"type": "behavior", "text": "No audit-verified-result.json created (full merge not run)"},
+        {"type": "file_content", "text": "verify-status.json completed_phases includes phase0-load and phase1-pass-a through phase1-pass-d"},
+        {"type": "file_content", "text": "verify-status.json pending_phases is empty (scope completed)"},
+        {"type": "output_contains", "text": "Mini-summary displayed with per-pass findings count"},
+        {"type": "behavior", "text": "Verdict computed and displayed based on crossref findings only"}
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/audit-devkit-verify --master-plan — chỉ chạy Master Plan Components verification (Phase 3.5)",
+      "expected_output": "Chỉ chạy Phase 0 (load) + Phase 3.5 (V1-V6 checks). Kiểm tra master_plan_components trong audit-index.json. Nếu tất cả NOT_FOUND → skip với log. Nếu có component deployed → chạy V1-V5 song song, V6 sau. Creates findings-masterplan-verify.json.",
+      "files": [],
+      "assertions": [
+        {"type": "file_content", "text": "verify-status.json scope is set to 'master-plan' (not 'all')"},
+        {"type": "behavior", "text": "Phase 1 (crossref), Phase 2 (workflow), Phase 3 (consistency) are NOT run"},
+        {"type": "behavior", "text": "Phase 3.5 checks master_plan_components in audit-index.json"},
+        {"type": "behavior", "text": "If all master_plan_components are NOT_FOUND → findings-masterplan-verify.json has empty findings array with skip_reason"},
+        {"type": "behavior", "text": "If components exist → V1-V6 checks run with appropriate trigger conditions"},
+        {"type": "file_content", "text": "findings-masterplan-verify.json created with $schema: 'audit-findings-v1'"},
+        {"type": "output_contains", "text": "Master Plan Components Verify Summary table displayed with V1-V6 status"},
+        {"type": "file_content", "text": "verify-status.json completed_phases includes phase3_5-master-plan"},
+        {"type": "behavior", "text": "Verdict computed based on master plan findings only"}
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/audit-devkit-verify --resume — tiếp tục từ checkpoint khi session trước bị gián đoạn giữa Phase 1",
+      "expected_output": "Reads existing verify-status.json, identifies completed phases/passes, continues from pending phases. Không re-run completed passes. Loads existing findings-crossref-*.json thay vì regenerate. Final merge includes findings from both old and new phases.",
+      "files": [],
+      "assertions": [
+        {"type": "behavior", "text": "Skill reads .mc-data/work/audit-devkit-verify/[session]/verify-status.json to determine progress"},
+        {"type": "behavior", "text": "Completed passes (in completed_phases) are NOT re-run"},
+        {"type": "behavior", "text": "Existing findings-crossref-*.json files from completed passes are loaded"},
+        {"type": "behavior", "text": "Pending passes are executed and new findings files created/updated"},
+        {"type": "behavior", "text": "verify-status.json is updated progressively as phases complete"},
+        {"type": "behavior", "text": "Final audit-verified-result.json includes findings from both old and new phases"},
+        {"type": "file_content", "text": "verify-status.json updated to status: 'completed' at end"}
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/audit-devkit-verify — chạy nhưng scan prerequisites không tồn tại (audit-index.json missing)",
+      "expected_output": "PRE-GATE fails. Stops immediately. Hiển thị error E001: 'PRE-GATE fail — audit-index.json không tồn tại. STOP — chạy /audit-devkit-scan trước.' Không tạo findings files. Không tiếp tục phases.",
+      "files": [],
+      "assertions": [
+        {"type": "behavior", "text": "Skill detects missing audit-index.json during Phase 0 PRE-GATE"},
+        {"type": "output_contains", "text": "Error E001 is displayed to user with clear instruction to run /audit-devkit-scan first"},
+        {"type": "behavior", "text": "No work directory created or only empty directory"},
+        {"type": "behavior", "text": "No findings files created"},
+        {"type": "behavior", "text": "verify-status.json NOT created (or created with status indicating failure)"},
+        {"type": "behavior", "text": "Skill does NOT attempt to continue to Phase 1 or later phases"}
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/audit-devkit-verify — chạy nhưng audit-index.json thiếu trường master_plan_components (scan chạy trước v1.1)",
+      "expected_output": "Phase 0 load bình thường. Phase 3.5 phát hiện audit-index.json không có master_plan_components → log WARNING E014: 'audit-index.json không có master_plan_components — scan có thể chạy trước v1.1. Phase 3.5 skipped.' Tiếp tục Phase 4 mà không có master plan findings. findings-masterplan-verify.json tạo rỗng với skip_reason.",
+      "files": [],
+      "assertions": [
+        {"type": "behavior", "text": "Phase 0 loads audit-index.json successfully despite missing master_plan_components field"},
+        {"type": "output_contains", "text": "Warning E014 is logged: audit-index.json missing master_plan_components, Phase 3.5 skipped"},
+        {"type": "file_content", "text": "findings-masterplan-verify.json created with empty findings array and skip_reason field"},
+        {"type": "behavior", "text": "Phase 4 continues without master plan findings (from_master_plan = 0)"},
+        {"type": "file_content", "text": "audit-verified-result.json master_plan_verify.skipped = true with skip_reason"},
+        {"type": "behavior", "text": "Pipeline completes successfully — missing field is non-blocking"}
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/audit-devkit-verify — chạy nhưng spot-check phát hiện >20% files đã bị xóa/đổi tên since scan (E005)",
+      "expected_output": "Phase 0 spot-check (step 0.8) phát hiện <4/5 files vẫn tồn tại → WARNING E005. Hiển thị warning cho user: 'Scan data có thể stale (>20% files đã thay đổi). Khuyến nghị: chạy lại /audit-devkit-scan.' Verify tiếp tục nhưng log warnings. verify-status.json chứa warnings[].",
+      "files": [],
+      "assertions": [
+        {"type": "behavior", "text": "Spot-check step 0.8 detects >20% files missing/renamed"},
+        {"type": "output_contains", "text": "Warning E005 displayed to user with recommendation to re-run scan"},
+        {"type": "file_content", "text": "Warnings are logged in verify-status.json"},
+        {"type": "behavior", "text": "Verify continues execution (does not STOP) — stale data is a warning, not blocking"},
+        {"type": "content_check", "text": "Findings may note 'file may have been moved or deleted since scan'"}
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/audit-devkit-verify --skill=wf-design — focused verify cho skill wf-design",
+      "expected_output": "Chỉ chạy Phase 0 (load) + Phase 1 focused crossref (skip passes A-D) + Phase 2 (workflow chỉ check handoffs liên quan wf-design) + Phase 3 (consistency chỉ check wf-design naming). Skip Phase 3.5 (master plan). Tạo 1 findings-crossref-wf-design.json với checks: _contract.json cross-ref, output path alignment với 00-core.md §4b, downstream/upstream skill references. verify-status.json scope='skill', focused_skill='wf-design'.",
+      "files": [],
+      "assertions": [
+        {"type": "file_content", "text": "verify-status.json scope is set to 'skill' and focused_skill is set to 'wf-design'"},
+        {"type": "behavior", "text": "Phase 0 loads and validates scan results normally"},
+        {"type": "behavior", "text": "Phase 1 runs focused crossref only (1.F.1–1.F.8) — skip full passes A, B, C, D"},
+        {"type": "file_content", "text": "findings-crossref-wf-design.json created with $schema: 'audit-findings-v1' and category field (functional/structural)"},
+        {"type": "behavior", "text": "Focused crossref checks: _contract.json produces_for/consumes_from match SKILL.md paths, output paths exist in 00-core.md §4b, template refs exist on disk"},
+        {"type": "behavior", "text": "Phase 2 workflow check only traces handoffs involving wf-design (not all skills)"},
+        {"type": "behavior", "text": "Phase 3 consistency check only checks wf-design naming (not all skills)"},
+        {"type": "behavior", "text": "Phase 3.5 master plan verification is SKIPPED"},
+        {"type": "behavior", "text": "Phase 4 merge produces audit-verified-result.json with focused findings only"},
+        {"type": "file_content", "text": "verify-status.json completed_phases includes phase0-load, phase1-focused-crossref, phase2-workflow, phase3-consistency, phase4-merge"},
+        {"type": "file_content", "text": "verify-status.json does NOT include phase1-pass-a through phase1-pass-d or phase3_5-master-plan"},
+        {"type": "file_content", "text": "verify-status.json status is 'completed' at end"}
+      ]
+    }
+  ]
+}

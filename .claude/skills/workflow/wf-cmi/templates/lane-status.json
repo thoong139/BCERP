@@ -1,0 +1,36 @@
+{
+  "_template_notes": {
+    "purpose": "Per-lane execution status. Phase 4 lane agent updates atomically khi state changes. Orchestrator monitor file để detect timeout/failure. Tham chiếu 03-phase-routing.md Phase 4.",
+    "populate": [
+      "status flow: PENDING → RUNNING → COMPLETED | FAILED | TIMEOUT | SKIPPED",
+      "started_at: ISO 8601 khi agent spawned",
+      "completed_at: ISO 8601 khi agent done (mọi state cuối)",
+      "duration_sec: completed_at - started_at",
+      "timeout_threshold_sec: 180 mặc định (3 phút/lane)",
+      "retry_count: 0..1 (max 1 retry per-lane)",
+      "agent_pid: PID của agent process (để force kill nếu timeout)",
+      "exit_code: 0 cho COMPLETED, !=0 cho FAILED",
+      "error_message: populate khi FAILED/TIMEOUT",
+      "skip_reason: populate khi SKIPPED (vd 'profile=quick, CD8 not active')"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "lane-status-v1",
+  "session_id": "{{SESSION_ID}}",
+  "lane": "{{LANE_ID}}",
+  "agent_subagent_type": "{{AGENT_TYPE}}",
+  "status": "PENDING",
+  "started_at": null,
+  "completed_at": null,
+  "duration_sec": 0,
+  "timeout_threshold_sec": 180,
+  "retry_count": 0,
+  "agent_pid": 0,
+  "exit_code": null,
+  "error_message": null,
+  "skip_reason": null,
+  "outputs": {
+    "signals_file": null,
+    "report_file": null
+  }
+}

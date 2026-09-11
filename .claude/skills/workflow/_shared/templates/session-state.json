@@ -1,0 +1,16 @@
+{
+  "$schema": "session-state-v1",
+  "_template_notes": "Template cho session isolation state. Strip _template_notes trước khi ghi output.",
+  "session_id": "",
+  "skill_name": "",
+  "created_at": "",
+  "updated_at": "",
+  "status": "in_progress",
+  "profile_used": "standard",
+  "next_action": "",
+  "phases": {},
+  "cdg_decisions": [],
+  "digests_produced": [],
+  "lanes_completed": [],
+  "errors": []
+}

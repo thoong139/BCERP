@@ -1,0 +1,143 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "new-project",
+  "version": "4.0.0",
+  "phase": "orchestrator",
+  "phases": [
+    {
+      "id": "init",
+      "name": "Phase 0: Orchestrator Init & Routing",
+      "sub_skill": "internal",
+      "procedure": "procedures/phase0-init.md"
+    },
+    {
+      "id": "0",
+      "name": "Bước 0 — Phase 0: Brainstorm",
+      "sub_skill": "wf-brainstorm",
+      "procedure": "procedures/phase1-brainstorm.md"
+    },
+    {
+      "id": "1",
+      "name": "Bước 1 — Phase 1: Analyze Requirements",
+      "sub_skill": "wf-analyze-requirements",
+      "procedure": "procedures/phase2-analyze.md"
+    },
+    {
+      "id": "2",
+      "name": "Bước 2 — Phase 2: Define Features",
+      "sub_skill": "wf-define-features",
+      "procedure": "procedures/phase3-features.md"
+    },
+    {
+      "id": "3",
+      "name": "Bước 3 — Phase 3: Design",
+      "sub_skill": "wf-design",
+      "procedure": "procedures/phase4-design.md"
+    },
+    {
+      "id": "4",
+      "name": "Bước 4 — Phase 4: Design UX (conditional)",
+      "sub_skill": "wf-design-ux",
+      "procedure": "procedures/phase5-ux.md"
+    },
+    {
+      "id": "5a",
+      "name": "Bước 5 — Phase 5a: Plan Modules",
+      "sub_skill": "wf-plan-modules",
+      "procedure": "procedures/phase6-plan.md"
+    },
+    {
+      "id": "5b",
+      "name": "Bước 6 — Phase 5b: Implement Features (loop)",
+      "sub_skill": "wf-implement-feature",
+      "procedure": "procedures/phase7-implement.md"
+    },
+    {
+      "id": "5c",
+      "name": "Bước 7 — Phase 5c: Preflight Check",
+      "sub_skill": "wf-preflight",
+      "procedure": "procedures/phase8-preflight.md"
+    },
+    {
+      "id": "verify",
+      "name": "Bước 8 — Verify: Sync Check",
+      "sub_skill": "wf-verify-sync",
+      "procedure": "procedures/phase9-verify.md"
+    },
+    {
+      "id": "6",
+      "name": "Bước 9 — Phase 6: Prepare Deployment",
+      "sub_skill": "wf-prepare-deployment",
+      "procedure": "procedures/phase10-deploy.md"
+    }
+  ],
+  "description": "Orchestrator: idea → deployment — điều phối toàn bộ workflow skills cho dự án mới. v4.0.0 refactor thành orchestrator + procedures pattern (lazy-loading). 10 bước tuần tự từ Brainstorm đến Deployment, với conditional skip cho Phase 4 (UX) khi interface_type=api-only.",
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Entry point cho dự án mới — không có prerequisites. Phase 0 Init validate sub-skill paths tồn tại trước khi chạy."
+  },
+  "inputs": [
+    {
+      "path": "user_prompt",
+      "description": "Mô tả ý tưởng dự án từ người dùng (optional — có thể lấy trong Phase 0 Brainstorm)",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/new-project/status.json",
+        "template": null,
+        "required": true,
+        "description": "Tracking state — current_step, steps_completed/skipped, implement_progress, interface_type, preflight_status. Schema inline (xem procedures/_shared.md §Status File Schema)."
+      }
+    ],
+    "registry": {
+      "path": "delegated to sub-skills",
+      "action": "delegated",
+      "description": "Orchestrator không ghi trực tiếp — mọi output do sub-skills tạo"
+    },
+    "notes": "Orchestrator gọi tuần tự 10 sub-skills: wf-brainstorm → wf-analyze-requirements → wf-define-features → wf-design → wf-design-ux (conditional) → wf-plan-modules → wf-implement-feature (loop) → wf-preflight → wf-verify-sync → wf-prepare-deployment"
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Orchestrator không sở hữu registry fields — delegate đến sub-skills"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {},
+    "orchestrates": [
+      "wf-brainstorm",
+      "wf-analyze-requirements",
+      "wf-define-features",
+      "wf-design",
+      "wf-design-ux",
+      "wf-plan-modules",
+      "wf-implement-feature",
+      "wf-preflight",
+      "wf-verify-sync",
+      "wf-prepare-deployment"
+    ]
+  },
+  "procedures": {
+    "shared": "procedures/_shared.md",
+    "phase_files": [
+      "procedures/phase0-init.md",
+      "procedures/phase1-brainstorm.md",
+      "procedures/phase2-analyze.md",
+      "procedures/phase3-features.md",
+      "procedures/phase4-design.md",
+      "procedures/phase5-ux.md",
+      "procedures/phase6-plan.md",
+      "procedures/phase7-implement.md",
+      "procedures/phase8-preflight.md",
+      "procedures/phase9-verify.md",
+      "procedures/phase10-deploy.md"
+    ],
+    "backup": "procedures/flow-legacy.md.bak",
+    "notes": "v4.0.0 refactor — monolithic SKILL.md (583 dòng) tách thành 11 procedure files + 1 shared file, lazy-loaded per phase để giảm context load ~65%. File phaseN-*.md tên theo orchestrator step order (không phải DEVKIT phase number)."
+  }
+}

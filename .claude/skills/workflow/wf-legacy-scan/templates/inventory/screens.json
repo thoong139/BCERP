@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory-screens-v1",
+  "title": "Inventory: Screens",
+  "description": "UI screens/pages/views detected during legacy scan Stage 1. Output: .mc-data/work/legacy-scan/inventory/screens.json",
+  "type": "object",
+  "required": ["count", "items"],
+  "properties": {
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng số screens phát hiện được"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "name", "type", "framework"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path từ project root"
+          },
+          "name": {
+            "type": "string",
+            "description": "Tên file"
+          },
+          "type": {
+            "type": "string",
+            "description": "Loại screen theo framework — vd: page, view, screen, component"
+          },
+          "framework": {
+            "type": "string",
+            "description": "Frontend framework — vd: react, vue, angular, flutter, swiftui"
+          }
+        }
+      }
+    }
+  }
+}

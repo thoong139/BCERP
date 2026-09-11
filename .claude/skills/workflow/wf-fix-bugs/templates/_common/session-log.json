@@ -1,0 +1,15 @@
+{
+  "$schema": "session-log-v1",
+  "_template_notes": "session-log.json — Execution trace (CORE-026). Dual-write: global (.mc-data/work/_trace/) + session ($SESSION_DIR/). Append-only via wrapper pattern (KHÔNG dùng `>>` raw — sẽ phá JSON). Schema: session-log-v1.",
+  "_how_to_use": "APPEND event: `jq '.events += [{phase,event,timestamp,...}]' SL > TMP && jq '.' TMP > /dev/null && mv TMP SL` (atomic CORE-035). KHÔNG dùng `jq -n {...} >> SL` (phá tính JSON hợp lệ).",
+  "_entry_schema": {
+    "phase": "phase1 | ... | phase7",
+    "event": "START | COMPLETE | FAIL | CHECKPOINT",
+    "timestamp": "ISO-8601",
+    "_optional_fields": "profile, scope, name, dimensions, error_code, ..."
+  },
+  "skill": "wf-fix-bugs",
+  "version": "{{SKILL_VERSION}}",
+  "session_id": "{{SESSION_ID}}",
+  "events": []
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "cache-entry-v1",
+  "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+  "probe_id": "P-QD1-example-probe",
+  "probe_version": "0.1.0",
+  "file_path": "src/example/module.ts",
+  "file_content_sha": "0000000000000000000000000000000000000000000000000000000000000000",
+  "config_hash": "",
+  "cached_at": "2026-04-20T00:00:00+00:00",
+  "ttl_expires_at": "2026-05-04T00:00:00+00:00",
+  "signals_emitted": [
+    {
+      "$schema": "signal-v2",
+      "probe_id": "P-QD1-example-probe",
+      "dimension_id": "QD1"
+    }
+  ],
+  "metadata": {
+    "elapsed_ms": 0,
+    "probe_exit_code": 0
+  }
+}

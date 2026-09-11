@@ -1,0 +1,113 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "audit-devkit-verify",
+  "version": "3.0.0",
+  "phase": "devkit-audit",
+  "description": "Cross-validate findings từ audit-devkit-scan — kiểm tra references, workflow integrity, consistency. Hỗ trợ focused mode (--skill=<name>) cho verify 1 skill cụ thể. v3.0.0: tái cấu trúc monolithic SKILL.md thành 8 phase files + 1 _shared.md (lazy loading per-phase).",
+  "prerequisites": {
+    "files": [
+      ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+      ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json"
+    ],
+    "registry_fields": [],
+    "notes": "Yêu cầu audit-devkit-scan đã chạy xong và có kết quả"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+      "description": "Index findings từ scan",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json",
+      "description": "Aggregated scan result",
+      "required": true
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/findings-crossref-*.json",
+        "template": "templates/findings-verify.template.json",
+        "notes": "Schema audit-findings-v1. CORE-031: READ template → POPULATE → WRITE. Steps chi tiết trong procedures/phase1-crossref.md (full mode) hoặc procedures/phase1-focused.md (--skill mode)",
+        "required": true,
+        "description": "Cross-reference findings per pass. Full mode: 4 files (agents-skills, skills-templates, docs, hooks). Focused mode (--skill): 1 file (findings-crossref-[name].json)"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/findings-workflow.json",
+        "template": "templates/findings-verify.template.json",
+        "notes": "Schema audit-findings-v1. CORE-031: READ template → POPULATE → WRITE. Steps trong procedures/phase2-workflow.md",
+        "required": true,
+        "description": "Workflow integrity findings"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/findings-consistency.json",
+        "template": "templates/findings-verify.template.json",
+        "notes": "Schema audit-findings-v1. CORE-031: READ template → POPULATE → WRITE. Steps trong procedures/phase3-consistency.md",
+        "required": true,
+        "description": "Bidirectional consistency findings"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/findings-masterplan-verify.json",
+        "template": "templates/findings-verify.template.json",
+        "notes": "Schema audit-findings-v1. CORE-031: READ template → POPULATE → WRITE. Steps V1-V6 trong procedures/phase3-5-masterplan-crossvalidate.md",
+        "required": false,
+        "description": "Master Plan components verification findings (optional — rỗng nếu skip)"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json",
+        "template": "templates/audit-verified-result.template.json",
+        "notes": "Schema audit-verified-result-v1. CORE-031: READ template → POPULATE → WRITE. Steps merge + verdict trong procedures/phase4-merge.md",
+        "required": true,
+        "description": "Final verified findings — input cho audit-devkit-fix"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/verify-status.json",
+        "template": null,
+        "notes": "Inline schema trong procedures/_shared.md §Schemas (verify-status.json). Quy tắc completion + phase IDs hợp lệ trong cùng section",
+        "required": true,
+        "description": "Resume support status file"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/phase-summary.md",
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "notes": "CORE-028 + Protocol §14: tóm tắt verify kết quả cho non-technical user, tiếng Việt, ≤15 dòng. Tạo sau Phase 4 merge.",
+        "required": true,
+        "description": "Phase summary cho non-technical user (CORE-028)"
+      }
+    ],
+    "reports": [
+      {
+        "path": ".mc-data/work/audit-devkit-verify/reports/devkit-audit-[date].md",
+        "template": null,
+        "notes": "Template markdown định nghĩa inline trong procedures/phase4-merge.md §Report Template",
+        "required": true,
+        "description": "Human-readable audit report"
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Không cập nhật registry"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Read-only"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "audit-devkit-fix": [
+        ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json"
+      ]
+    },
+    "consumes_from": {
+      "audit-devkit-scan": [
+        ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+        ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json"
+      ]
+    }
+  }
+}

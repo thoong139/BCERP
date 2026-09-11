@@ -1,0 +1,127 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-triage",
+  "version": "1.5.0",
+  "phase": "phase5",
+  "description": "Triage: phan loai issues theo severity + fixability + domain. Tao bug-triage.md, fix-plan.md, enrich issue-registry.json, init fix-log.json, phase-summary.md. Nhan issue-registry.json (initial) tu wf-fix-bugs Lane Dispatch, chuan bi input cho wf-fix-execute. v1.4.0: dong bo version voi SKILL.md, schema-sync-triage compliance (write_role di chuyen vao registry_scope theo template). v1.3.0: cap nhat session_dir_variants sang v7.0 flat format. v1.2 (S3 wf-fix-bugs v7.0): fix-plan.md + fix-log.json templates di chuyen sang _shared/lane/templates/ (fix F3 cross-skill template fragility).",
+  "prerequisites": {
+    "files": [
+      "$SESSION_DIR/fix-status.json",
+      "$SESSION_DIR/issue-registry.json"
+    ],
+    "session_dir_variants": {
+      "v7.0_canonical": ".mc-data/work/wf-fix-bugs/sessions/{YYYY-MM-DD-{scope}-{slug}-{NN}}/",
+      "v6_compat_fallback": ".mc-data/work/wf-fix-bugs/run-NNN--YYYYMMDD/ (v6.x legacy — chi khi fix-status.json.engine_version == 'v6')"
+    },
+    "notes": "v7.0 canonical: session_id = YYYY-MM-DD-{scope}-{slug}-{NN}, flat structure, KHONG nesting sessions/{sys}/{mod}/ nhu v6.x. Xem wf-fix-bugs/procedures/session-dir.md §v7.0 Session ID Format. $SESSION_DIR duoc resolve boi wf-fix-bugs Lane Dispatch (Phase 0). Orchestrator resolve $SESSION_DIR bang find -maxdepth 2 tren sessions/. phases.phase_1.status == 'completed' (Lane Dispatch da xong) + phases.phase_2.status != 'completed' (chua triage). issue-registry.json PHAI co issues. v6 mode: detect via fix-status.json.engine_version == 'v6' — fallback path run-NNN--YYYYMMDD/, triage van enrich severity/fixability binh thuong."
+  },
+  "inputs": [
+    {
+      "name": "fix-status-path",
+      "type": "file-path",
+      "required": true,
+      "description": "Path to $SESSION_DIR/fix-status.json. Contains session config, scope, flags, phase 1 results."
+    },
+    {
+      "name": "issue-registry-path",
+      "type": "file-path",
+      "required": true,
+      "description": "Path to $SESSION_DIR/issue-registry.json. Initial list (severity/fixability/domain CHUA set) — wf-fix-triage se enrich."
+    }
+  ],
+  "procedure": [
+    "procedures/phase2-triage.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/bug-triage.md",
+        "required": true,
+        "template": "templates/bug-triage.md",
+        "notes": "Bug triage report — severity counts + issue tables + execution plan. Tao o Step 2.3."
+      },
+      {
+        "path": "$SESSION_DIR/fix-plan.md",
+        "required": true,
+        "template": "../wf-fix-bugs/templates/phase5-triage/fix-plan.md",
+        "notes": "Canonical template (Sprint 3 F07.010). fix-plan.md la input cua wf-fix-execute. v10 concise (36 dòng) — agent fill chi tiết khi spawn. READ template → FILL data → WRITE vao $SESSION_DIR/fix-plan.md. Tao o Step 2.3a. Validator resolve: $SKILLS_DIR/wf-fix-triage/../wf-fix-bugs/templates/phase5-triage/fix-plan.md. Legacy v7 320-line template archived to _shared/lane/templates/archive/fix-plan-v7-legacy.md."
+      },
+      {
+        "path": "$SESSION_DIR/issue-registry.json",
+        "required": true,
+        "template": null,
+        "notes": "UPDATE (KHONG CREATE) — enrich severity/batch/fixability/domain. File da ton tai (boi wf-fix-bugs Lane Dispatch). Giu nguyen cac fields khac. Step 2.3b."
+      },
+      {
+        "path": "$SESSION_DIR/fix-log.json",
+        "required": true,
+        "template": "../wf-fix-bugs/templates/phase5-triage/fix-log.json",
+        "schema": "fix-log-v2",
+        "notes": "Canonical template (Sprint 3 XF-03). fix-log.json schema fix-log-v2 — init by wf-fix-triage Step 2.3c, APPEND by wf-fix-execute Phase 3. Validator resolve: $SKILLS_DIR/wf-fix-triage/../wf-fix-bugs/templates/phase5-triage/fix-log.json. Legacy v1 template archived to _shared/lane/templates/archive/fix-log-v1.json."
+      },
+      {
+        "path": "$SESSION_DIR/phase-summary.md",
+        "required": true,
+        "template": null,
+        "notes": "CORE-028 + Protocol 14: Phase summary tieng Viet, <=15 dong, non-technical. Inline template (xem SKILL.md §Phase 2 Step 2.8). Sub-skill cua wf-fix-bugs orchestrator ghi vao $SESSION_DIR (shared session dir), overwrite summary cua phase truoc. Tao o Step 2.8 sau khi POST-GATE structural checks pass. Neu POST-GATE fail 3 iterations: VAN tao voi status 'THAT BAI'."
+      }
+    ]
+  },
+  "registry_scope": {
+    "write_role": "NONE",
+    "fields_owned": [],
+    "notes": "wf-fix-triage KHONG ghi vao req-registry.json. Chi wf-fix-execute (Phase 4) co quyen update impl_status."
+  },
+  "cross_skill_contracts": {
+    "_profile_count_note": "producers_count va consumers_count tinh theo DATA FLOW: wf-fix-bugs Lane Dispatch produces input data, wf-fix-execute consumes output data. spawned_by/returns_to chi dinh ORCHESTRATOR relationship (wf-fix-bugs dieu phoi).",
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "After Lane Dispatch POST-GATE complete (phases.phase_2.status == 'completed')",
+      "receives": [
+        "$SESSION_DIR/fix-status.json",
+        "$SESSION_DIR/issue-registry.json (initial)"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE complete (phases.phase_2.status == 'completed')",
+      "provides": [
+        "$SESSION_DIR/bug-triage.md",
+        "$SESSION_DIR/fix-plan.md",
+        "$SESSION_DIR/issue-registry.json (enriched)",
+        "$SESSION_DIR/fix-log.json (init)",
+        "$SESSION_DIR/phase-summary.md"
+      ],
+      "via": "fix-status.json active_skill field update (active_skill='wf-fix-bugs', next_action='phase_3_execute' — orchestrator luon spawn wf-fix-execute; execute tu detect flags.dry_run de skip Phase 3-5 khi can)"
+    },
+    "uses_templates_from": [
+      {
+        "skill": "_shared/lane",
+        "templates": [
+          "templates/fix-plan.md",
+          "templates/fix-log.json"
+        ],
+        "rationale": "S3 (wf-fix-bugs v7.0) — fix-plan.md + fix-log.json la cross-skill artifacts (consume boi wf-fix-execute), di chuyen sang _shared/lane/templates/ de tranh fragile relative path. F3 fix."
+      }
+    ]
+  },
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "bug_investigation",
+    "pattern": "PRE-GATE detection (Na/Nb/Nc) + CI-ROUTE Phase 2 bug investigation (phase2-triage.md)",
+    "tools_used": [
+      "gitnexus_query",
+      "serena_find_definition",
+      "serena_get_symbols_overview"
+    ],
+    "ci_tasks": [
+      "understand_flow (Phase 2: GitNexus query de tim execution flows lien quan den bug)",
+      "find_definition (Phase 2: Serena find_definition de xac dinh vi tri suspected function)",
+      "symbol_overview (Phase 2: Serena get_symbols_overview de hieu cau truc file)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Grep/Read. Freshness caveat → warning. Zero regression.",
+    "notes": "CI tools duoc auto-detect o Phase 0 PRE-GATE. Neu spawned boi orchestrator (wf-fix-bugs), nhan CI context tu orchestrator; neu standalone --resume, tu detect."
+  }
+}

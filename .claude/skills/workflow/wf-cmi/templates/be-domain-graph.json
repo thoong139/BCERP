@@ -1,0 +1,63 @@
+{
+  "_template_notes": {
+    "purpose": "Backend Domain graph — Discovery Plugin #11 (v2.0 Gói C++ Stage 2.2). Parse C# DDD patterns: AggregateRoot, Entity, ValueObject, DomainEvent, DomainEventHandler, Specification. Source: Serena `find_symbol` cho DDD base types + Grep fallback `: AggregateRoot|: Entity<|: ValueObject|: I?DomainEvent`. Consumed by lane CD16 (Domain Logic Integrity) qua graph_dependency.",
+    "populate": [
+      "nodes[]: 1 entry per DDD type — {id, name, kind, module, file_path, line, base_types[], properties_count, fingerprint}",
+      "  id format: '{module_short}.{type_name}' vd 'CRM.Customer' (deterministic per module+name)",
+      "  kind enum: 'aggregate_root', 'entity', 'value_object', 'domain_event', 'domain_event_handler', 'specification', 'repository_interface'",
+      "  base_types[]: list of inheritance/implementation, vd ['AggregateRoot<Guid>', 'IAuditableEntity']",
+      "  properties_count: số public properties (heuristic Grep — v2.1 AST chính xác hơn)",
+      "edges[]: 1 entry per relationship — {from, to, kind: 'inherits_from|uses_value_object|raises_event|handles_event|aggregates|references_entity', file?}",
+      "  inherits_from: A : AggregateRoot<X>",
+      "  uses_value_object: AggregateRoot có property type ValueObject",
+      "  raises_event: AggregateRoot.RaiseDomainEvent(new XxxEvent())",
+      "  handles_event: IDomainEventHandler<XxxEvent>.Handle(...)",
+      "metadata.build_at: ISO 8601 timestamp khi graph built",
+      "metadata.scope_root: 'apps/backend' (v2.0 chỉ scan main backend — microservices defer v3)",
+      "metadata.source_method: 'serena_find_symbol|grep_fallback' (Serena primary + Grep fallback per Protocol 20)",
+      "metadata.parser_version: '1.0' (Grep + line-based parse). v2.1 → Roslyn-based syntax tree analyzer.",
+      "metadata.kinds_distribution: count per kind cho quick overview",
+      "metadata.modules_covered: list of module short names có DDD types",
+      "metadata.cs_file_count: total .cs files scanned"
+    ],
+    "skip_conditions": [
+      "Project KHÔNG có apps/backend/ → SKIP, write empty graph với skipped:true (lane CD16 sẽ fallback Serena/Grep với E133 WARN)",
+      "Tech stack backend != .NET → SKIP, log E137 WARN (parser chỉ support C# DDD conventions)",
+      "Không tìm thấy DDD pattern nào (0 aggregate_root + 0 entity + 0 value_object) → write nodes=[] với skipped:false + WARN E139 (downstream lane Grep fallback)"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "be-domain-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "scope_root": "apps/backend",
+    "module_pattern": "Eureka.Modules.*"
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "scope_root": "apps/backend",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "parser_version": "1.0",
+    "cs_file_count": 0,
+    "skipped_files": [],
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": [],
+    "kinds_distribution": {
+      "aggregate_root": 0,
+      "entity": 0,
+      "value_object": 0,
+      "domain_event": 0,
+      "domain_event_handler": 0,
+      "specification": 0,
+      "repository_interface": 0
+    },
+    "skipped": false,
+    "skip_reason": null
+  }
+}

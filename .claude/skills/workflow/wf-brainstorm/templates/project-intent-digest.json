@@ -1,0 +1,27 @@
+{
+  "$schema": "project-intent-digest-v1",
+  "project_name": "",
+  "project_type": "new | legacy",
+  "project_goal": "",
+  "business_model": "",
+  "industry": "",
+  "company_size": "",
+  "platform": "",
+  "interface_type": "web | mobile | web+mobile | api-only",
+  "active_departments": [],
+  "systems": [],
+  "modules": [],
+  "actors": [],
+  "pain_points": [],
+  "scope_in": [],
+  "scope_out": [],
+  "assumptions": [],
+  "open_questions": [],
+  "handoff_notes": [],
+  "next_skill": "/wf-analyze-requirements",
+  "source_files": [
+    ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+    ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+    ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+  ]
+}

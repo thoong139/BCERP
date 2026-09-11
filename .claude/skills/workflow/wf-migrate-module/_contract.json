@@ -1,0 +1,223 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-migrate-module",
+  "version": "1.1.0",
+  "phase": "standalone",
+  "description": "Orchestrator di chuyen chuc nang tu he thong cu sang he thong moi EUREKA — tu scan docs den code hoat dong, day du, tuong thich.",
+  "procedures": [
+    "procedures/_shared.md",
+    "procedures/phase0-intake.md",
+    "procedures/phase1-gap-analysis.md",
+    "procedures/phase2-add-scope.md",
+    "procedures/phase3-define-features.md",
+    "procedures/phase4-design.md",
+    "procedures/phase5-plan-modules.md",
+    "procedures/phase6-implement.md",
+    "procedures/phase7-report.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "required_phases_completed": [
+      "wf-brainstorm"
+    ],
+    "required_skills_completed": [
+      "wf-scan-target"
+    ],
+    "notes": "Yeu cau registry da co (qua wf-brainstorm). Yeu cau da scan module cu bang wf-scan-target truoc khi chay skill nay."
+  },
+  "inputs": [
+    {
+      "arg": "--from-scan",
+      "type": "session-id",
+      "description": "Session ID cua wf-scan-target da hoan thanh (VD: 2026-05-11-crm-module). Skill se doc target-map.json + feature-inventory.md + module-map.md tu session nay.",
+      "required": true
+    },
+    {
+      "arg": "--to-system",
+      "type": "string (System ID)",
+      "description": "System dich trong EUREKA se nhan chuc nang moi (VD: SYS-BACKEND). Lay ID tu registry hoac /status.",
+      "required": true
+    },
+    {
+      "arg": "--to-module",
+      "type": "string (Module ID)",
+      "description": "Module dich trong EUREKA. Neu module chua ton tai, skill se tao moi qua wf-add-scope.",
+      "required": true
+    },
+    {
+      "arg": "[mo-ta-yeu-cau]",
+      "type": "string (natural language)",
+      "description": "Mo ta cua ban ve chuc nang can chuyen — 'toi muon chuyen chuc nang Customer 360 tu he thong cu sang module CRM cua EUREKA'",
+      "required": true
+    },
+    {
+      "arg": "--resume",
+      "type": "flag",
+      "description": "Tiep tuc session in_progress/paused gan nhat",
+      "required": false
+    },
+    {
+      "arg": "--status",
+      "type": "flag",
+      "description": "Hien thi trang thai cac sessions gan nhat, KHONG thuc thi → STOP",
+      "required": false
+    },
+    {
+      "arg": "--auto-approve",
+      "type": "flag",
+      "description": "NEW v1.1 — Tu dong phe duyet tat ca CDG (strategy, entity mapping, scope), skip hoi user. Dung cho automated pipeline.",
+      "required": false
+    },
+    {
+      "arg": "--dry-run",
+      "type": "flag",
+      "description": "NEW v1.1 — Chay Phase 0 + 1 roi STOP. Hien thi preview: strategy matrix, entity mapping, sub-skills list. KHONG ghi registry, KHONG goi sub-skill.",
+      "required": false
+    },
+    {
+      "arg": "--auto-rollback",
+      "type": "flag",
+      "description": "NEW v1.1 — Tu dong revert registry + code khi E017 CRITICAL (>5 parity FAIL). Khong hoi user. Dung cho automated pipeline.",
+      "required": false
+    },
+    {
+      "arg": "--resume-task",
+      "type": "integer",
+      "description": "NEW v1.1 — Resume Phase 6 tu task so n (0-indexed). Bo qua cac task da hoan thanh. Yeu cau checkpoint.json co partial_state.phase6.",
+      "required": false
+    },
+    {
+      "arg": "--skip-phase",
+      "type": "enum: design,plan-modules,implement",
+      "description": "Bo qua phase cu the (vi du: da co design san). Co the dung nhieu lan: --skip-phase=design --skip-phase=plan-modules",
+      "required": false
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry hien tai — de xac dinh system/module dich va tranh trung lap",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions ve deprecated modules (CORE-022) — enforce exclusion",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/_meta/code-intelligence.json",
+      "description": "NEW v1.1 — CI capabilities flags (gitnexus_available, serena_available) detected by ci-detect.sh",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/migrate-status.json",
+        "template": "templates/migrate-status.json",
+        "required": true,
+        "description": "Session status tracking"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/preflight-results.json",
+        "template": null,
+        "notes": "Generated dynamically at runtime from sub-skill _contract.json inspection — no static template possible.",
+        "required": true,
+        "description": "NEW v1.1 — Sub-skill pre-flight check results for all 5 sub-skills"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/gap-analysis.md",
+        "template": "templates/gap-analysis.md",
+        "required": true,
+        "description": "Ket qua phan tich gap giua module cu va he thong moi"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/strategy-matrix.md",
+        "template": "templates/strategy-matrix.md",
+        "required": true,
+        "description": "Ma tran quyet dinh Keep/Redesign/Deprecate/Merge per feature"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/entity-mapping.md",
+        "template": "templates/entity-mapping.md",
+        "required": true,
+        "description": "Bang anh xa entity cu → entity moi"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/migrate-report.md",
+        "template": "templates/migrate-report.md",
+        "required": true,
+        "description": "Bao cao tong ket migration — da lam gi, ket qua, next steps"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "description": "Tom tat tieng Viet cho non-specialist (CORE-028)"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/rollback-guide.md",
+        "template": "templates/rollback-guide.md",
+        "required": true,
+        "description": "NEW v1.1 — Huong dan rollback neu can, liet ke tat ca snapshot"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/parity-check-{feature}.md",
+        "template": "templates/parity-check.md",
+        "required": false,
+        "description": "NEW v1.1 — Per-feature automated parity check (chi cho feature Keep)"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/snapshots/",
+        "template": null,
+        "notes": "Directory for runtime snapshot files created during rollback protocol — no static template needed.",
+        "required": true,
+        "description": "NEW v1.1 — Rollback snapshots (registry-phase*.json, changed-files-task*.txt)"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/sessions/{session_id}/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "description": "Checkpoint cho --resume"
+      },
+      {
+        "path": ".mc-data/work/wf-migrate-module/index.json",
+        "template": "templates/index.json",
+        "required": true,
+        "description": "Session registry — root, khong per-session"
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "append (qua wf-add-scope) + update (qua cac sub-skills)",
+      "description": "wf-migrate-module KHONG truc tiep ghi registry. Sub-skills (add-scope, define-features, plan-modules, implement-feature) ghi theo role cua chung."
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "notes": "Pure orchestrator — khong truc tiep ghi registry. Sub-skills ghi theo role: wf-add-scope=APPEND, wf-define-features=PRIMARY, wf-design=PRIMARY, wf-plan-modules=PRIMARY, wf-implement-feature=PRIMARY."
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-implement-feature": [
+        ".mc-data/work/wf-migrate-module/sessions/{session_id}/strategy-matrix.md",
+        ".mc-data/work/wf-migrate-module/sessions/{session_id}/entity-mapping.md"
+      ]
+    },
+    "consumes_from": {
+      "wf-scan-target": [
+        ".mc-data/work/wf-scan-target/sessions/{scan_session_id}/target-map.json",
+        ".mc-data/work/wf-scan-target/sessions/{scan_session_id}/feature-inventory.md",
+        ".mc-data/work/wf-scan-target/sessions/{scan_session_id}/module-map.md"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ]
+    }
+  },
+  "evals": "evals/evals.json",
+  "session_isolation": "CORE-030 — moi invocation tao sessions/{session_id}/ rieng. Format: MIG-{YYYYMMDD}-{NNN}. index.json o root working dir."
+}

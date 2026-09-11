@@ -1,0 +1,24 @@
+{
+  "$schema": "session-log-v1",
+  "project": "",
+  "entries": [
+    {
+      "timestamp": "ISO-8601",
+      "skill": "/wf-[skill-name]",
+      "event": "START | COMPLETE | FAIL | CHECKPOINT",
+      "run_sequence": 1,
+      "phase": "Phase N",
+      "agents_invoked": ["agent-name-1", "agent-name-2"],
+      "files_created": 0,
+      "files_modified": 0,
+      "warnings": [],
+      "errors": [],
+      "decisions": [
+        {
+          "description": "Mô tả quyết định",
+          "reason": "Lý do"
+        }
+      ]
+    }
+  ]
+}

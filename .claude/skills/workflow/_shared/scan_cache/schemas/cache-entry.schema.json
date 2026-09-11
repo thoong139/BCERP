@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cache-entry-v1",
+  "title": "Scan Cache Entry v1",
+  "description": "Entry lưu kết quả probe × file × version; TTL 14 ngày, QD3 never cached (ADR-22 rule 6).",
+  "type": "object",
+  "required": [
+    "$schema",
+    "fingerprint",
+    "probe_id",
+    "probe_version",
+    "file_path",
+    "file_content_sha",
+    "cached_at",
+    "ttl_expires_at",
+    "signals_emitted"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "cache-entry-v1"
+    },
+    "fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "sha256 chaining — xem fingerprint.py"
+    },
+    "probe_id": {
+      "type": "string",
+      "pattern": "^P-QD([1-9]|10)-[a-z0-9-]+$"
+    },
+    "probe_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-z0-9]+)?$"
+    },
+    "file_path": {
+      "type": "string",
+      "description": "Path tương đối dự án"
+    },
+    "file_content_sha": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "sha256 của file raw bytes"
+    },
+    "config_hash": {
+      "type": "string",
+      "description": "Sha256 chain của config files (optional)"
+    },
+    "cached_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ttl_expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "cached_at + 14 ngày"
+    },
+    "signals_emitted": {
+      "type": "array",
+      "description": "List Signal v2 mà probe đã emit cho file này",
+      "items": {
+        "type": "object",
+        "required": ["$schema", "probe_id", "dimension_id"],
+        "properties": {
+          "$schema": {"type": "string", "const": "signal-v2"},
+          "dimension_id": {
+            "type": "string",
+            "enum": ["QD1", "QD2", "QD4", "QD5", "QD6", "QD7", "QD8"],
+            "description": "QD3 BỊ CẤM cache — enforce ở cache_store.py:set_entry(). QD8 cache_allowed=true theo dimension_registry."
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "elapsed_ms": {"type": "number", "minimum": 0},
+        "probe_exit_code": {"type": "integer"}
+      }
+    }
+  },
+  "additionalProperties": false
+}

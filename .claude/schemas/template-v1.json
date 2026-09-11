@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "template-v1",
+  "title": "MCV3 Generic Template",
+  "description": "Catch-all permissive schema cho template files trong DEVKIT (digests, logs, registries, manifests, platforms, etc.)",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema identifier — custom string used by MCV3"
+    }
+  },
+  "additionalProperties": true
+}

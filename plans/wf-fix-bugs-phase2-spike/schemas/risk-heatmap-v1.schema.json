@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "risk-heatmap-v1",
+  "title": "Risk Heatmap — Phase 2 Spike Output",
+  "description": "Bug Risk Heat Map: file/module scoring dựa trên git churn, REQ-ID coverage, test pairing, complexity hint, domain criticality.",
+  "type": "object",
+  "required": ["$schema", "session_id", "generated_at", "scope", "files", "modules", "summary"],
+  "properties": {
+    "$schema": {"const": "risk-heatmap-v1"},
+    "session_id": {"type": "string"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "scope": {"enum": ["all", "system", "module"]},
+    "scope_name": {"type": ["string", "null"]},
+    "analysis_window_days": {"type": "integer", "default": 30},
+
+    "files": {
+      "description": "Top N risky files (limit configurable, default 50)",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "risk_score", "signals"],
+        "properties": {
+          "path": {"type": "string"},
+          "risk_score": {"type": "integer", "minimum": 0, "maximum": 100},
+          "risk_tier": {"enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"]},
+          "signals": {
+            "type": "object",
+            "properties": {
+              "git_churn_30d": {"type": "integer", "description": "Số commit touch file trong 30 ngày"},
+              "loc": {"type": "integer"},
+              "missing_req_id": {"type": "boolean"},
+              "has_paired_test": {"type": "boolean"},
+              "complexity_hint": {"enum": ["low", "medium", "high"]},
+              "domain": {
+                "type": "string",
+                "enum": ["payment", "auth", "financial", "regulatory", "api", "ui", "infrastructure", "generic"]
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "modules": {
+      "description": "Per-module aggregate risk",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["module", "score", "files_at_risk"],
+        "properties": {
+          "module": {"type": "string"},
+          "score": {"type": "integer", "minimum": 0, "maximum": 100},
+          "files_at_risk": {"type": "integer"},
+          "total_files": {"type": "integer"},
+          "dominant_domain": {"type": "string"},
+          "top_signals": {
+            "type": "object",
+            "properties": {
+              "avg_churn": {"type": "number"},
+              "req_id_coverage_pct": {"type": "number"},
+              "test_coverage_pct": {"type": "number"}
+            }
+          }
+        }
+      }
+    },
+
+    "summary": {
+      "type": "object",
+      "required": ["total_files_analyzed", "critical_count", "high_count"],
+      "properties": {
+        "total_files_analyzed": {"type": "integer"},
+        "critical_count": {"type": "integer"},
+        "high_count": {"type": "integer"},
+        "medium_count": {"type": "integer"},
+        "low_count": {"type": "integer"},
+        "missing_req_id_pct": {"type": "number"},
+        "missing_tests_pct": {"type": "number"},
+        "avg_risk_score": {"type": "number"},
+        "duration_seconds": {"type": "number"}
+      }
+    }
+  }
+}

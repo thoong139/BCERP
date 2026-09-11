@@ -1,0 +1,61 @@
+{
+  "$schema": "legacy-extract-checkpoint-v1",
+  "checkpoint_id": "CHK-EXTRACT-YYYYMMDD-NNN",
+  "extract_id": "EXTRACT-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | module_complete | user_request | error",
+    "context_used_pct": 0,
+    "module_completed": null,
+    "error_details": null
+  },
+
+  "position": {
+    "current_phase": "phase_0 | stage_3 | post_stage_3",
+    "current_phase_name": null,
+    "current_module": null,
+    "next_module": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "modules_completed": [],
+    "modules_pending": [],
+    "modules_error": [],
+    "files_created": []
+  },
+
+  "context_summary": {
+    "project_name": null,
+    "total_modules": 0,
+    "strategy_id": null,
+    "maturity_mode": "skip | delta | full",
+    "topological_order": []
+  },
+
+  "partial_state": {
+    "current_module_digest": null,
+    "pending_dedup": false,
+    "pending_divergence_detection": false,
+    "divergence_files_created": [],
+    "extraction_stats_snapshot": {
+      "total_requirements": 0,
+      "total_features": 0,
+      "avg_confidence": 0
+    }
+  },
+
+  "resume_instructions": {
+    "load_files": [
+      ".mc-data/work/legacy-scan/ledger.json",
+      ".mc-data/work/legacy-scan/legacy-scan-status.json",
+      ".mc-data/work/legacy-scan/extract-plan.md"
+    ],
+    "resume_from_module": null,
+    "next_action": "Resume module extraction or dedup pass",
+    "user_message": "Resume message to display to user"
+  }
+}

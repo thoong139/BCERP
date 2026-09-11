@@ -1,0 +1,36 @@
+{
+  "locale": "vi",
+  "description": "Vietnamese form fill sample values for HTML5 pattern-aware form filling (IMP-009)",
+  "form_fill_patterns": [
+    {
+      "label_hints": ["Mã số thuế", "MST", "Tax code", "MSDN", "mã thuế", "tax_code", "taxCode", "vat"],
+      "html5_pattern_hints": ["\\d{10}", "\\d{10}(-\\d{3})?", "[0-9]{10}", "[0-9]{10,13}"],
+      "sample_values": ["0123456789", "0123456789-001"],
+      "description": "Mã số thuế doanh nghiệp Việt Nam (10 chữ số hoặc 13 chữ số có chi nhánh)"
+    },
+    {
+      "label_hints": ["Số điện thoại", "Điện thoại", "Phone", "SĐT", "phone", "tel", "mobile", "di động"],
+      "html5_pattern_hints": ["0[35789][0-9]{8}", "\\d{10,11}", "[0-9]{10}", "(\\+84|0)[0-9]{9}"],
+      "sample_values": ["0912345678", "0356789012", "0812345678"],
+      "description": "Số điện thoại di động Việt Nam (Viettel/Mobifone/Vinaphone/Vietnamobile)"
+    },
+    {
+      "label_hints": ["CMND", "CCCD", "Số CMND", "Số CCCD", "chứng minh", "căn cước", "id_card", "nationalId"],
+      "html5_pattern_hints": ["[0-9]{9}", "[0-9]{12}", "\\d{9,12}", "[0-9]{9}|[0-9]{12}"],
+      "sample_values": ["079304012345", "123456789"],
+      "description": "Chứng minh nhân dân (9 chữ số) hoặc Căn cước công dân (12 chữ số)"
+    },
+    {
+      "label_hints": ["Zip code", "Postal code", "Mã bưu điện", "mã bưu chính", "zipCode", "postalCode"],
+      "html5_pattern_hints": ["\\d{5,6}", "[0-9]{6}", "\\d{6}"],
+      "sample_values": ["700000", "100000", "550000"],
+      "description": "Mã bưu điện Việt Nam (6 chữ số)"
+    },
+    {
+      "label_hints": ["Số tài khoản", "Tài khoản ngân hàng", "Bank account", "bankAccount", "accountNumber"],
+      "html5_pattern_hints": ["\\d{9,19}", "[0-9]{10,16}", "[0-9]{9,19}"],
+      "sample_values": ["0123456789012", "19012345678901"],
+      "description": "Số tài khoản ngân hàng Việt Nam (9-19 chữ số)"
+    }
+  ]
+}

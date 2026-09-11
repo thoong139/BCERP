@@ -1,0 +1,312 @@
+{
+  "$schema": "dimension-applicability-v1",
+  "session_id": "eureka-spike-v3-233144",
+  "generated_at": "2026-05-16T16:34:52Z",
+  "global": {
+    "signals": {
+      "has_money": true,
+      "has_auth": true,
+      "has_db": true,
+      "has_api": true,
+      "has_ui": true,
+      "has_i18n": true,
+      "has_responsive": true,
+      "has_browser_test": true,
+      "has_cross_module": true,
+      "is_multi_app": true
+    },
+    "applicable_dims": [
+      "QD1",
+      "QD8",
+      "QD2",
+      "QD3",
+      "QD4",
+      "QD5",
+      "QD7",
+      "QD6",
+      "QD9",
+      "QD10",
+      "QD11"
+    ],
+    "skip_dims": [
+      ""
+    ]
+  },
+  "modules": [
+    {
+      "module": "apps/backend",
+      "module_type": "backend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD6",
+        "QD8"
+      ],
+      "skip_dims": [
+        "QD5",
+        "QD7",
+        "QD9",
+        "QD10",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD10": "no cross-module imports",
+        "QD9": "no UI or no browser test infra",
+        "QD7": "no UI files",
+        "QD5": "no UI files"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": true,
+        "has_ui": false,
+        "has_i18n": true,
+        "has_form": false,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 0,
+        "file_count": 4116,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "apps/erktransport.com",
+      "module_type": "frontend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD5",
+        "QD7"
+      ],
+      "skip_dims": [
+        "QD6",
+        "QD8",
+        "QD9",
+        "QD10",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD10": "no cross-module imports",
+        "QD8": "no server-side signals",
+        "QD9": "no UI or no browser test infra",
+        "QD6": "no db signals"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": false,
+        "has_api": false,
+        "has_ui": true,
+        "has_i18n": true,
+        "has_form": true,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 0,
+        "file_count": 45,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "apps/erp-web",
+      "module_type": "frontend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD6",
+        "QD8",
+        "QD10"
+      ],
+      "skip_dims": [
+        "QD5",
+        "QD7",
+        "QD9",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD9": "no UI or no browser test infra",
+        "QD7": "no UI files",
+        "QD5": "no UI files"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": true,
+        "has_ui": false,
+        "has_i18n": true,
+        "has_form": true,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 111,
+        "file_count": 1785,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "apps/mobile-customer",
+      "module_type": "mobile",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD5",
+        "QD7",
+        "QD8",
+        "QD10"
+      ],
+      "skip_dims": [
+        "QD6",
+        "QD9",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD9": "no UI or no browser test infra",
+        "QD6": "no db signals"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": false,
+        "has_api": true,
+        "has_ui": true,
+        "has_i18n": true,
+        "has_form": false,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 41,
+        "file_count": 282,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "apps/mobile-staff",
+      "module_type": "mobile",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD5",
+        "QD6",
+        "QD7",
+        "QD8",
+        "QD10"
+      ],
+      "skip_dims": [
+        "QD9",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD9": "no UI or no browser test infra"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": true,
+        "has_ui": true,
+        "has_i18n": true,
+        "has_form": true,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 436,
+        "file_count": 697,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "apps/smarttax-web",
+      "module_type": "frontend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD5",
+        "QD7",
+        "QD9",
+        "QD10"
+      ],
+      "skip_dims": [
+        "QD6",
+        "QD8",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD8": "no server-side signals",
+        "QD6": "no db signals"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": false,
+        "has_api": false,
+        "has_ui": true,
+        "has_i18n": true,
+        "has_form": true,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 7,
+        "file_count": 243,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "apps/web-customer",
+      "module_type": "frontend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD5",
+        "QD6",
+        "QD7",
+        "QD8",
+        "QD9",
+        "QD10"
+      ],
+      "skip_dims": [
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": true,
+        "has_ui": true,
+        "has_i18n": true,
+        "has_form": true,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 293,
+        "file_count": 144,
+        "framework_hints": []
+      }
+    }
+  ],
+  "summary": {
+    "total_modules": 7,
+    "avg_applicable_dims": 7.714285714285714,
+    "avg_skip_dims": 3.2857142857142856,
+    "total_skippable_probes_estimate": 115,
+    "duration_seconds": 188
+  }
+}

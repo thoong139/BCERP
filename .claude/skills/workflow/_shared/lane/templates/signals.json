@@ -1,0 +1,12 @@
+{
+  "$schema": "lane-signals-v1",
+  "lane": "[LANE_NAME]",
+  "dimension": "[DIMENSION]",
+  "session_id": "[SESSION_ID]",
+  "session_dir": "[SESSION_DIR]",
+  "profile": "[PROFILE]",
+  "generated_at": "[ISO_TIMESTAMP]",
+  "probes_executed": 0,
+  "cache_policy": null,
+  "signals": []
+}

@@ -1,0 +1,242 @@
+{
+  "$schema": "planmod-status-v1",
+  "version": "1.0",
+
+  "planmod_id": "PLANMOD-YYYYMMDD-NNN",
+  "project": "[PROJECT_NAME]",
+  "mode": "simple | lite | full",
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "arguments": {
+    "graph_only": false,
+    "mvp": false,
+    "impact_module": null,
+    "skip_sprints": false
+  },
+
+  "phases": {
+    "phase_1": {
+      "name": "Registry Validation",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "module_count": 0,
+      "mode_detected": null,
+      "error": null
+    },
+    "phase_1_7": {
+      "name": "Upstream Coverage Validation",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "systems_total": 0,
+      "systems_covered": 0,
+      "orphan_systems": [],
+      "modules_without_features": [],
+      "coverage_strategy": "full | placeholders | thin_clients",
+      "user_decision_timestamp": null,
+      "thin_client_systems": [],
+      "escalated": false,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Thu thap Dependencies",
+      "status": "pending | in_progress | completed | skipped | error",
+      "parallel": true,
+      "condition": "Skipped when mode == simple or lite",
+      "started_at": null,
+      "completed_at": null,
+      "features_read": 0,
+      "dependencies_extracted": 0,
+      "orphan_deps": 0,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Phat hien Circular Dependencies",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Skipped when mode == simple or lite",
+      "started_at": null,
+      "completed_at": null,
+      "cycles_detected": 0,
+      "cycles_resolved": 0,
+      "solutions_proposed": [],
+      "error": null
+    },
+    "phase_4": {
+      "name": "Topological Sorting",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "total_layers": 0,
+      "modules_assigned": 0,
+      "modules_total": 0,
+      "layers": {},
+      "error": null
+    },
+    "phase_5": {
+      "name": "MVP Scope",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Only runs when --mvp flag set",
+      "started_at": null,
+      "completed_at": null,
+      "mvp_modules": [],
+      "mvp_size": 0,
+      "error": null
+    },
+    "phase_6": {
+      "name": "Impact Analysis",
+      "status": "pending | in_progress | completed | skipped | error",
+      "condition": "Only runs when --impact=<module> flag set",
+      "started_at": null,
+      "completed_at": null,
+      "impact_module": null,
+      "direct_deps": [],
+      "indirect_deps": [],
+      "no_impact": [],
+      "error": null
+    },
+    "phase_7": {
+      "name": "Tao Output Files",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "files_created": [],
+      "registry_updated": false,
+      "error": null
+    },
+    "phase_7a": {
+      "name": "Output Verification (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 6,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "errors_escalated": 0,
+      "validation_details": {
+        "7a.1_module_ids_valid": "pending | passed | fixed | failed",
+        "7a.2_dep_graph_nodes": "pending | passed | fixed | failed",
+        "7a.3_topo_order_valid": "pending | passed | fixed | failed",
+        "7a.4_sprint_refs_valid": "pending | passed | fixed | failed",
+        "7a.5_registry_updated": "pending | passed | fixed | failed",
+        "7a.6_json_valid": "pending | passed | fixed | failed",
+        "cqg_10_3_system_coverage": "pending | passed | warning | escalated",
+        "7a.10_placeholder_check": "pending | passed | fixed | failed | skipped",
+        "7a.11_module_plan_coverage_section": "pending | passed | fixed | failed"
+      },
+      "error": null
+    },
+    "phase_7b": {
+      "name": "Stakeholder Implementation Review (Auto-Correction Loop)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "agents_spawned": {
+        "architect": "pending | success | error",
+        "qa_lead": "pending | success | error"
+      },
+      "files_created": {
+        "SO-01-plan-review.md": "pending | created | error",
+        "SO-02-consistency-check.md": "pending | created | error",
+        "SO-03-gap-analysis.md": "pending | created | error",
+        "_index.md": "pending | created | error"
+      },
+      "findings_critical": 0,
+      "findings_high": 0,
+      "findings_resolved": 0,
+      "findings_deferred": 0,
+      "findings_pending": 0,
+      "error": null
+    }
+  },
+
+  "module_data": {
+    "total_modules": 0,
+    "modules": {},
+    "dependency_matrix": null
+  },
+
+  "system_coverage_map": [
+    {
+      "sys_id": "SYS-EXAMPLE",
+      "name": "Example System",
+      "modules_count": 0,
+      "features_count": 0,
+      "status": "COVERED | ORPHAN_SYSTEM | NO_FEATURES | THIN_CLIENT",
+      "reason": null,
+      "placeholder_path": null
+    }
+  ],
+
+  "file_progress": {
+    "total_files": 0,
+    "completed_files": 0,
+    "files": {
+      "module-plan.md": {
+        "phase": "phase_7",
+        "path": "phase5-implementation/module-plan.md",
+        "status": "pending",
+        "started_at": null,
+        "completed_at": null
+      },
+      "dependency-graph.md": {
+        "phase": "phase_7",
+        "path": "phase5-implementation/dependency-graph.md",
+        "status": "pending",
+        "started_at": null,
+        "completed_at": null
+      },
+      "P5-00-implementation-roadmap.md": {
+        "phase": "phase_7",
+        "path": "phase5-implementation/P5-00-implementation-roadmap.md",
+        "status": "pending",
+        "started_at": null,
+        "completed_at": null
+      },
+      "sprints": {
+        "phase": "phase_7",
+        "path": "phase5-implementation/sprints/",
+        "status": "pending",
+        "sprint_files": [],
+        "started_at": null,
+        "completed_at": null
+      }
+    }
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "next_action": null,
+    "trigger_reason": null,
+    "session_number": null
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "modules_analyzed": 0,
+    "dependencies_found": 0,
+    "cycles_detected": 0,
+    "layers_created": 0,
+    "sprint_plans_created": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0
+  }
+}

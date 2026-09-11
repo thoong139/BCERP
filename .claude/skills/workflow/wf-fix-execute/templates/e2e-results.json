@@ -1,0 +1,39 @@
+{
+  "$schema": "e2e-results-v1",
+  "flows_total": 0,
+  "flows_passed": 0,
+  "flows_failed": 0,
+  "flows_partial": 0,
+  "flow_details": [
+    {
+      "flow_name": "",
+      "source_doc": "",
+      "result": "PASS|FAIL|PARTIAL",
+      "priority": "HIGH|MEDIUM|LOW",
+      "steps_total": 0,
+      "steps_passed": 0,
+      "failed_steps": [
+        {
+          "step_num": 0,
+          "step_description": "",
+          "expected": "",
+          "actual": "",
+          "screenshot": null
+        }
+      ],
+      "e2e_issues": [
+        {
+          "type": "e2e_flow_broken",
+          "flow_name": "",
+          "source_doc": "",
+          "failed_step": 0,
+          "step_description": "",
+          "expected": "",
+          "actual": "",
+          "page_url": "",
+          "severity": "HIGH"
+        }
+      ]
+    }
+  ]
+}

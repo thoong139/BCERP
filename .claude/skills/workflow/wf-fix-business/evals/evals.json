@@ -1,0 +1,210 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-business",
+  "version": "1.0.0",
+  "description": "Evals cho QD2 Business Correctness Lane — stub cho C3, se duoc flesh-out trong C5.",
+  "test_cases": [
+    {
+      "id": "TC-QD2-001",
+      "name": "Standard profile chay 3 probes",
+      "description": "Profile standard phai chay P-QD2-domain-expert-review, P-QD2-calculation-check, P-QD2-hardcoded-value-detect. Skip P-QD2-domain-fixture va P-QD2-business-analyst-review.",
+      "input": {
+        "profile": "standard",
+        "session_dir": "$SESSION_DIR",
+        "req_registry": {
+          "departments": [
+            "finance"
+          ],
+          "features": []
+        }
+      },
+      "expected": {
+        "probes_run": [
+          "P-QD2-domain-expert-review",
+          "P-QD2-calculation-check",
+          "P-QD2-hardcoded-value-detect"
+        ],
+        "probes_skipped": [
+          "P-QD2-domain-fixture",
+          "P-QD2-business-analyst-review"
+        ],
+        "signals_file_exists": true,
+        "lane_report_exists": true,
+        "phase_summary_exists": true
+      },
+      "status": "stub"
+    },
+    {
+      "id": "TC-QD2-002",
+      "name": "Quick profile SKIP toan bo QD2",
+      "description": "Profile quick phai SKIP QD2 lane hoan toan (ton token nhat). Output lane-report voi status=skipped_profile_quick.",
+      "input": {
+        "profile": "quick",
+        "session_dir": "$SESSION_DIR",
+        "req_registry": {
+          "departments": [
+            "finance"
+          ],
+          "features": []
+        }
+      },
+      "expected": {
+        "probes_run": [],
+        "probes_skipped": "ALL",
+        "lane_report_status": "skipped_profile_quick",
+        "signals_file_exists": false,
+        "phase_summary_contains": "bo qua"
+      },
+      "status": "stub"
+    },
+    {
+      "id": "TC-QD2-003",
+      "name": "Deep profile chay 5 probes",
+      "description": "Profile deep phai chay tat ca 5 probes bao gom P-QD2-domain-fixture va P-QD2-business-analyst-review.",
+      "input": {
+        "profile": "deep",
+        "session_dir": "$SESSION_DIR",
+        "req_registry": {
+          "departments": [
+            "finance",
+            "sales"
+          ],
+          "features": []
+        }
+      },
+      "expected": {
+        "probes_run": [
+          "P-QD2-domain-expert-review",
+          "P-QD2-calculation-check",
+          "P-QD2-hardcoded-value-detect",
+          "P-QD2-domain-fixture",
+          "P-QD2-business-analyst-review"
+        ],
+        "probes_skipped": [],
+        "signals_file_exists": true,
+        "lane_report_exists": true,
+        "phase_summary_exists": true,
+        "multi_department": true
+      },
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-schema-uniformity-QD2",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD2 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-business voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD2-business/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD2",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD2' + signals[*].dimension_id='QD2'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD2",
+      "name": "Probe lazy-load: SKILL.md routing table list 5 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD2 lane phai liet ke 5 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-business voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-business/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 5,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 5,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 5 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD2-001",
+      "name": "Phase 3 audit: comment-as-pattern false positive trong hardcoded_value_detect",
+      "description": "Phase 3 Test Fixture: P-QD2-hardcoded-value-detect phat hien comment '// deprecated value = 0.15' la hardcoded value → false positive. Bug discovered trong Phase 3 (Phien 22) va da fix ngay. Test nay verify fix khong bi regression. Audit finding: probe phai bo qua lines co prefix '//' hoac '#'.",
+      "type": "stub",
+      "input": {
+        "scenario": "Source file co comment '// deprecated tax_rate = 0.10' tren dong code co the check. Dong thuc co gia tri hardcode la 0.15 (khong co comment).",
+        "code_snippet_with_comment": "// deprecated tax_rate = 0.10",
+        "code_snippet_real": "const TAX_RATE = 0.15;",
+        "profile": "standard",
+        "probe": "P-QD2-hardcoded-value-detect"
+      },
+      "expected": {
+        "comment_line_result": "NO signal (comment lines phai bi skip)",
+        "real_hardcode_result": "signal emitted: signal_type='hardcoded_value', severity='medium', evidence.value='0.15'",
+        "false_positive_count": 0
+      },
+      "validation": "Probe KHONG emit signal cho comment lines (// hoac #). Probe EMIT signal cho literal numeric values trong executable code. Fix verified: fixtures/qd2-test/negative/neg-03-comment-pattern.ts KHONG trigger signal. Audit Phien 22: bug found + fixed same session.",
+      "audit_ref": "03-qd2-business-audit.md Phase 3 (Phien 22) — comment-as-pattern bug discovered + fixed + fixtures/qd2-test/negative/neg-03-*",
+      "imp_target": "IMP-QD2-005 (hardcoded value detection improvement)",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD2-002",
+      "name": "D9 audit: CDG governance gap — domain_expert_review khong co CDG handler",
+      "description": "Phase 2 D9: dim.json co cdg=false nhung P-QD2-domain-expert-review spawn external AI agent ma co the bi CDG-AGENT-DOWN. Khi AI agent down, probe khong co CDG handler → silent skip hoac hang. IMP-QD2-009 (P1): them CDG handler cho domain_expert_review probe.",
+      "type": "stub",
+      "input": {
+        "scenario": "P-QD2-domain-expert-review duoc chay voi profile=deep. Mock AI agent service tra ve CDG-AGENT-DOWN (503 service unavailable). Probe khong co CDG handler.",
+        "profile": "deep",
+        "mock_agent_status": "CDG-AGENT-DOWN",
+        "probe": "P-QD2-domain-expert-review"
+      },
+      "expected": {
+        "current_behavior": "Probe hang hoac silent skip (no CDG handler for agent down)",
+        "expected_after_IMP_QD2_009": "CDG handler fires: log CDG-AGENT-DOWN, skip probe gracefully, emit warning signal",
+        "lane_continues": true,
+        "cdg_flag_emitted": "CDG-AGENT-DOWN"
+      },
+      "validation": "TRUOC IMP-QD2-009: probe khong xuong gracefully khi AI agent down → lane hang. SAU IMP-QD2-009: CDG handler phai catch CDG-AGENT-DOWN, emit warning signal, va tiep tuc sang probe tiep theo. dim.json phai duoc cap nhat cdg=true (sau fix).",
+      "audit_ref": "03-qd2-business-audit.md Phase 2 D9 + Phase 4 CDG governance gap",
+      "imp_target": "IMP-QD2-009",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD2-003",
+      "name": "CASCADE-QD2-001 CRITICAL: domain-expert bypass khi feature ngoai domain scope",
+      "description": "Phase 4 CASCADE-QD2-001 CRITICAL: Khi feature khong thuoc bat ky domain nao trong req_registry.departments, P-QD2-domain-expert-review tu dong skip → ZERO domain review cho feature. Dieu nay co nghia la feature moi co nghiep vu sai nhung khong duoc audit boi bat ky domain expert nao. IMP-QD2-011 (P2): fallback domain reviewer hoac warning cho unscoped features.",
+      "type": "stub",
+      "input": {
+        "scenario": "Registry co feature FEAT-NEWFEATURE-001 voi impl_status=done nhung khong co department tag nao khop voi danh sach domain experts (finance/sales/hr). Profile=standard.",
+        "registry_departments": ["finance", "sales"],
+        "feature_department": null,
+        "profile": "standard",
+        "probe": "P-QD2-domain-expert-review"
+      },
+      "expected": {
+        "current_behavior": "Probe silently skips FEAT-NEWFEATURE-001 (no domain match → no review)",
+        "expected_after_IMP_QD2_011": "emit warning signal: signal_type='unscoped_feature_no_review', severity='medium', evidence.feature_id='FEAT-NEWFEATURE-001'",
+        "zero_domain_review_risk": "CRITICAL — business logic errors undetected"
+      },
+      "validation": "TRUOC IMP-QD2-011: feature ngoai domain scope bi silent skip → 0% business audit coverage. SAU IMP-QD2-011: phai emit canh bao hoac assign fallback reviewer. CASCADE: probe skip → signal agg skip → QD2 report khong co findings → engineer assume business OK.",
+      "audit_ref": "03-qd2-business-audit.md Phase 4 CASCADE-QD2-001 CRITICAL + IMP-QD2-011",
+      "imp_target": "IMP-QD2-011",
+      "status": "stub"
+    }
+  ]
+}

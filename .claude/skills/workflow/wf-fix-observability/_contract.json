@@ -1,0 +1,155 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-observability",
+  "version": "1.0.0",
+  "phase": "lane",
+  "description": "QD8 Observability & Reliability Lane — phat hien thieu sot logs/metrics/traces/alerts va reliability patterns (retry, circuit breaker, timeout, health check) qua probes static + runtime. v1.0 (2026-05-09): mo rong dimension stack tu QD7 → QD8 — them production-readiness lane (observability + reliability). Owner agents: sre + devops. 7 probes: retry-circuit-breaker, timeout-config-audit, log-coverage-audit, metrics-instrumentation, health-check-probe, trace-propagation, alert-rule-audit. Profile gating: quick=2 probes, standard=5, deep=6, exhaustive=ALL.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Set by orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay."
+    },
+    {
+      "name": "--use-cache",
+      "type": "flag",
+      "required": false,
+      "description": "Opt-in scan cache cho static probes."
+    },
+    {
+      "name": "--base-url",
+      "type": "string",
+      "required": false,
+      "description": "Base URL cho probes runtime (vd P-QD8-health-check-probe)."
+    }
+  ],
+  "procedure": [
+    "procedures/pre-gate.md",
+    "procedures/post-gate.md",
+    "procedures/probes/P-QD8-retry-circuit-breaker.md",
+    "procedures/probes/P-QD8-timeout-config-audit.md",
+    "procedures/probes/P-QD8-log-coverage-audit.md",
+    "procedures/probes/P-QD8-metrics-instrumentation.md",
+    "procedures/probes/P-QD8-health-check-probe.md",
+    "procedures/probes/P-QD8-trace-propagation.md",
+    "procedures/probes/P-QD8-alert-rule-audit.md",
+    "procedures/probes/_shared.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/QD8-observability-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/evidence/",
+        "required": false,
+        "template": null,
+        "notes": "HTTP traces, health check responses."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD8 Lane KHONG ghi req-registry.json.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD8 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD8 complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/QD8-observability-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD8-observability/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  }
+}

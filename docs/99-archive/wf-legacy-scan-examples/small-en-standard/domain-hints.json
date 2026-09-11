@@ -1,0 +1,44 @@
+{
+  "$schema": "domain-hints-v1",
+  "session_id": "2026-04-22T08-00-00Z-a1b2c3d4",
+  "generated_at": "2026-04-22T08:05:32Z",
+  "phase": "IPS-B",
+  "top_domains": [
+    {
+      "domain": "ecommerce",
+      "confidence": 0.71,
+      "evidence": {
+        "keywords_en": ["cart", "product", "order", "checkout", "payment"],
+        "keywords_vn": [],
+        "file_count": 12,
+        "sample_files": ["src/cart.ts", "src/products/", "src/checkout.tsx"]
+      }
+    },
+    {
+      "domain": "general",
+      "confidence": 0.29,
+      "evidence": {
+        "keywords_en": ["user", "auth", "login"],
+        "keywords_vn": [],
+        "file_count": 5,
+        "sample_files": ["src/auth/", "src/user.ts"]
+      }
+    }
+  ],
+  "primary_domain": "ecommerce",
+  "primary_confidence": 0.71,
+  "threshold_used": 0.6,
+  "agent_routing": {
+    "L4": "code-reviewer",
+    "L5": {
+      "primary": "business-analyst",
+      "domain_expert": "ecommerce-expert",
+      "routing_reason": "confidence 0.71 >= threshold 0.6"
+    }
+  },
+  "language_mix": {
+    "en_ratio": 1.0,
+    "vn_ratio": 0.0,
+    "detected_as": "en"
+  }
+}

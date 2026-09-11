@@ -1,0 +1,3028 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-cmi",
+  "version": "3.0.0-alpha",
+  "phase": "integrity",
+  "description": "Cross-Module Integrity Orchestrator v3.0-alpha — 10-phase pipeline: Init → Discovery (13 graphs) → Invariant Artifact (3-pass LLM kế thừa QD11) → Coverage Dispatch (27 lanes v3 = 26 v2 + CD41 E2E Scenario Synthesizer, 3-WAVE PARALLEL max 10/wave) → Aggregate → Regression Map (predictive impact) → GAP + CDG → Report → [Phase 9 E2E Execute & Verify — opt-in qua --exec-scenarios] → [Phase 10 E2E Resolution — auto-run nếu Phase 9 có FAIL]. Standalone orchestrator (cùng nhóm wf-scan-target, wf-diagram) — KHÔNG thuộc main workflow. Producer của sidecar artifact `business-invariants.json` (Engine #4 — KHÔNG bump registry per ADR-cmi-002 Revised) và cross-skill artifact `integrity-impact.json` (schema integrity-impact-v3, backward-compat consumer read v1+v2+v3) cho 4 consumers downstream qua opt-in flag `--from-cmi`. v3.0.0-alpha (2026-05-16): ADD-ONLY tích hợp E2E Scenario Engine từ wf-e2e-scenario (sẽ DEPRECATE Stage 10). v2.0 backward-compat 100% — default behavior y hệt v2.0 nếu không có `--exec-scenarios`. v2.0.0 (2026-05-16): mở rộng từ 10 lanes (v1.0) → 26 active lanes Gói C++ Logistics (CD1-CD7, CD9, CD11, CD13, CD15-CD18, CD23-CD26, CD28-CD31, CD37-CD40) + 9 SKIPPED markers (CD8, CD10, CD12, CD14, CD19-22, CD27) + 5 skeleton entries CD32-CD36 (status=skeleton-v3-deferred, KHÔNG activate v2). Breaking change v1→v2: `--profile=deep` từ 10→26 lanes (~60→90 min). Wave dispatch 3-wave: Wave 1 (10 lanes graphs), Wave 2 (10 cross-layer), Wave 3 (6 final cross-ref + CD41 v3 nếu profile=deep|exhaustive). Kiến trúc CORE-032 (SKILL.md routing lean — v3.0-alpha tạm vượt 500 dòng do thêm Phase 9-10 routing, fix Stage 7 refactor + 14 procedure files lazy-load + 47+ templates). CI PRE-GATE Na/Nb/Nc (Protocol 20), graceful degradation Grep/Glob. Multi-session safe (Protocol 22 R/W lock). 4 profiles v2: quick (≥60%, 7 lanes, 5-10 min) / standard (≥80%, 13 lanes, 15-30 min) / deep (≥95%, 26 lanes + CD41 v3, 55-90 min + 10-40 min Phase 9 nếu --exec-scenarios) / exhaustive (=100%, 26 lanes + 9 deferred enable + CD41 + LLM, 120-180 min). Mobile scope v2: chỉ scan erp-web (mobile-customer/mobile-staff/web-customer/smarttax-web defer v2.1). Target chính: EUREKA-2026 ERP logistics Việt-Trung 17 modules .NET 10 + Next.js 16 + PostgreSQL 16.",
+  "migration_notes": {
+    "v1_to_v2": {
+      "breaking_changes": [
+        "Profile `deep` expanded from 10 lanes (CD1-CD10) → 26 active lanes Gói C++ Logistics. Runtime ước tính ~60 min → ~90 min. User chạy `--profile=deep` sau update sẽ trigger 3-wave dispatch (Wave 1: 10 lanes graphs / Wave 2: 10 cross-layer / Wave 3: 6 final).",
+        "Schema bumps: `integrity-status-v1` → `integrity-status-v2` (add `lanes_active_v2[]` field), `coverage-matrix-v1` → `coverage-matrix-v2` (35 dim entries: 26 active + 9 SKIPPED), `integrity-impact-v1` → `integrity-impact-v2` (cross-skill artifact bumped — consumer skills phải read được cả v1 lẫn v2 qua $schema field detection).",
+        "Lane subdirectory naming changed: `phase4-coverage/lanes/CD{N}/` → `phase4-coverage/lanes/CD{N}-{name}/` (vd `CD11-fe-component-contracts/`). Resume v1 session với v2 binary → WARN E110 và fallback legacy path."
+      ],
+      "backward_compat": [
+        "Consumer skills (wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment) PHẢI read được integrity-impact v1 (legacy session) AND v2 (new session). Detect via $schema field — read v1 nếu $schema='integrity-impact-v1', read v2 nếu 'integrity-impact-v2'.",
+        "Sidecar artifact `business-invariants.json` giữ schema v1 — APPEND-only, không breaking. Invariants legacy vẫn valid cho v2 dispatch.",
+        "--dims flag vẫn work: `--dims=CD1,CD3,CD5` cho phép subset trong cả v1 IDs và v2 IDs. Lane catalog v2 mở rộng từ CD1-CD10 → CD1-CD40 (gồm cả SKIPPED + skeleton)."
+      ],
+      "warning_resume_v1_session": "Khi --resume một session v1 với binary v2, integrity-status.json.version='1.0.0' → WARN E110 'v1 session detected with v2 binary — suggest fresh start với --profile=deep v2 (sẽ trigger 26 lanes). Continue legacy 10-lane path? [Y/n]'. Default: STOP, hướng dẫn user start fresh."
+    },
+    "v2_to_v3": {
+      "scope": "v3.0.0-alpha (2026-05-16): ADD-ONLY mở rộng E2E Scenario Engine từ wf-e2e-scenario. KHÔNG breaking — default behavior y hệt v2.0 nếu không có `--exec-scenarios`. Thêm: (1) Lane CD41 'E2E Scenario Synthesizer' ở Wave 3 (chỉ active khi profile=deep|exhaustive), (2) Phase 9 'E2E Execute & Verify' opt-in qua `--exec-scenarios` (Playwright runner + lint + 5x flakiness + screenshot evidence), (3) Phase 10 'E2E Resolution' auto-run nếu Phase 9 có ≥1 FAIL (failure analyzer 7-type + 2-phase auto-fix + loop-back gap-suggestions kind='e2e_scenario_fix'), (4) integrity-impact bump v2→v3 (consumer phải read v1+v2+v3).",
+      "additive_changes": [
+        "Lane CD41 added to lanes_defined[]. profile_activation.deep + .exhaustive .lanes_active append CD41. wave3_lanes append CD41. lane_count deep: 26→27, exhaustive: 35→36.",
+        "Phase 9-10 internal_phases entries added. Allowed-tools (SKILL.md frontmatter) thêm 13 Playwright MCP tools.",
+        "7 new args: --exec-scenarios, --scenarios-only, --show-browser, --mobile, --strict-evidence, --no-prompt, --auto-fix-source.",
+        "Schema bump integrity-impact-v2 → integrity-impact-v3 (2 new fields: e2e_execution_summary, scenarios_artifacts[]). Backward-compat: v1/v2 readers ignore new fields. Producer ALWAYS writes $schema='integrity-impact-v3' + 2 fields = null/[] nếu --exec-scenarios không bật.",
+        "Error codes E150-E199 (Phase 9-10 ranges + E195 CDG)."
+      ],
+      "backward_compat": [
+        "v2 session resume với v3 binary → behavior y v2 nếu không có --exec-scenarios. Phase 9-10 SKIP với E150 (Playwright unavailable) hoặc INFO (no scenarios from CD41 nếu profile=quick|standard).",
+        "Consumer skills (wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment) phải read được integrity-impact v1+v2+v3 qua $schema detection.",
+        "Sidecar artifact business-invariants.json giữ schema v1 — KHÔNG breaking. Loop-back gap-suggestions vẫn dùng schema gap-suggestions-v1 (chỉ thêm kind value 'e2e_scenario_fix')."
+      ],
+      "skill_md_line_count_note": "v3.0.0-beta SKILL.md = 497 dòng (≤500) sau Stage 7 refactor 2026-05-17. Đã extract Error Quick Lookup table (37 dòng) sang procedures/_error-quick-lookup.md + compress Lane Catalog table (17→6 dòng) + remove duplicate Relationship table (11 dòng). Gate G1.3 PASS — eligible for v3.0.0-stable ship.",
+      "stage_progress": {
+        "stage_1": "DONE 2026-05-16 — Foundation Refactor (SKILL.md routing + _contract.json bump + _shared.md §21-22 + 6 procedure stubs)",
+        "stage_2": "DONE 2026-05-16 — CD41 Lane (CD41.md 814 dòng + 2 templates + phase4 dispatch + agent-prompt §31)",
+        "stage_3": "DONE 2026-05-16 — Templates v3 (9 NEW + 4 UPDATE: integrity-impact v3, integrity-report E2E, coverage-matrix CD41 dim, CD-report CD41 section)",
+        "stage_4": "DONE 2026-05-16 — Phase 9 Execute Engine (3 procedure files 1625 dòng + 4 helper scripts)",
+        "stage_5": "DONE 2026-05-16 — Phase 10 Resolution Engine (_failure-analyzer.md ~520 dòng + phase10-e2e-resolution.md ~520 dòng + phase7-gap-cdg.md Step 7.11 + gap-suggestions.json e2e_scenario_fix kind)",
+        "stage_6": "DONE 2026-05-17 — Phase 8 Report v3 + Cross-skill (phase8-report.md +~250 dòng: Step 8.1 load 3 v3 sources + Step 8.3.6b compute E2E aggregates + render E2E_SECTION_BLOCK + Step 8.4.6b populate e2e_execution_summary object + scenarios_artifacts[] array + jq merge bump $schema=integrity-impact-v3 skill_version=3.0.0 + POST-GATE T5 conditional render check. _contract.json Phase 8 entry expanded với stage_6_status + 10 gates v3 + reads list + stage_6_implementation_notes)",
+        "stage_7": "DONE 2026-05-17 — Arguments + Routing refactor (SKILL.md 535→497 dòng ≤500 hard gate PASS via 3 actions: extract Error Quick Lookup → procedures/_error-quick-lookup.md + compress Lane Catalog table + remove duplicate Relationship table. phase1-init.md +~200 dòng: Step 1.1.1b parse 7 v3 args + Step 1.1.7b validate 8 v3 mutual-exclusive combinations + Step 1.14b CDG E195b Subset E2E Execute Confirm + Step 1.21 --scenarios-only route bypass + persist v3_flags + v3_cdg vào integrity-status.json + Step 1.17 flush CDG E195b token. resume-status.md v1.0→v3.0: Phase table 8→10 conditional render + Resume Routing Table thêm Phase 8→9, 9→10, 10→8 re-write loop + get_phase_name/get_phase_dir_name thêm 9 e2e-execute, 10 e2e-resolution + --scenarios-only Handler cross-reference + S7 next action suggestion thêm Phase 9 not-executed hint + failed_phase_9_or_10 case. errors_canonical thêm E016b high E195b info. 1 procedure mới (_error-quick-lookup.md 79 dòng).",
+        "stage_10": "DEFERRED 2026-05-17 — per user decision (CDG matrix Stage 10 + Decision Log #10). Lý do defer: (1) Stage 9 vừa DONE hôm nay 2026-05-17, chưa đủ 2 sprint stable buffer per spec §10 timing decision; (2) Cần thời gian discover bugs sau real usage v3.0.0 trước khi mark 10 wf-e2e-* skills deprecated (hard-to-reverse action); (3) wf-e2e-analys + 12 wf-e2e-* khác hiện diện trong codebase = 13 skills, vượt 10 trong spec gốc — cần re-scope trước DEPRECATE; (4) G10.3 yêu cầu EUREKA real smoke test PASS — coordination external chưa thực hiện. STATUS: v3.0.0 ELIGIBLE TO SHIP sau Stage 9 (4/4 gates PASS, compliance + schema sync verified, 7 NEW Phase 9-10 procedures + 5 NEW evals + 3 NEW docs files = ~99KB). Stage 10 sẽ trigger lại khi: (a) v3.0.0 ship + 2 sprint stable usage, HOẶC (b) user explicitly request DEPRECATE timing override. Files Stage 10 sẽ touch (KHI trigger): _contract.json của 10 wf-e2e-* skills (deprecated:true + replaced_by + deprecation_date) + SKILL.md headers (DEPRECATED banner + redirect /wf-cmi --exec-scenarios) + CHANGELOG entry DEPRECATION + docs/01-architecture/07-skills-catalog.md mark DEPRECATED + docs/04-skill-design/wf-cmi/13-e2e-cross-skill-removal.md (NEW migration guide) + EUREKA-2026 smoke test. wf-e2e-credentials GIỮ standalone không touch. Pre-Stage 10 checklist khi trigger: (i) Decide wf-e2e-analys + wf-e2e-browser + wf-e2e-demo case-by-case, (ii) Wait 2 sprint stable buffer, (iii) Coordinate EUREKA-2026 owner cho smoke test.",
+        "stage_8": "DONE 2026-05-17 — Quality Gates. 6/6 gates PASS: G8.1 compliance audit GRADE PASS (12/12 CRITICAL + 13/13 REQUIRED + 5/5 CONDITIONAL, 18 evals recognized — was 13 pre-Stage 8), G8.2 schema sync 1/1 PASS với 35 procedure references hợp lệ + registry scope OK + output templates exist, G8.3 SKILL.md = 497 dòng ≤500 HARD GATE PASS (no regression từ Stage 7), G8.4 Smoke test 7 scenarios §7.2 re-run via test-stage7-smoke.sh: 22/22 assertions PASS (S1-S7 scenarios + G7.3 AskUserQuestion 3 options + G7.4 --no-prompt bypass + CI auto-set), G8.5 5 TC eval TC-cmi-014→018 schema validation đầy đủ (mỗi TC: 7 assertions + 3 files + prompt + expected_output, all_assertions_have_type_and_text=true), G8.6 Browser unavailable smoke 21/21 PASS via test-browser-unavailable-smoke.sh (S1 Playwright DOWN E150 graceful + S2 no exec flag silent skip + S3 manifest empty E150b + S4 FE not running E151 + S5 positive control all PASS). ADD: 5 NEW evals TC-cmi-014→018 v3 (TC-014 v2 backward-compat no exec flag → e2e fields null + integrity-report ≤55 dòng / TC-015 CD41 synth từ MUST violation → ≥1 scenario + cross-module / TC-016 Phase 9 execute 5 scenarios → 3 PASS + 2 FAIL → Phase 10 Phase A browser-fix → 2 AUTO_CORRECTED / TC-017 Phase 10 Phase B source-fix --auto-fix-source CDG E195 → spawn 3 agents → 2 PASS + 1 ESCALATE + loop-back APPEND gap-suggestions kind=e2e_scenario_fix / TC-018 stable-registry hit 7/10 + 5x pre-flight skip + 1 quarantine). ADD: 5 fixture stubs tests/fixtures/wf-cmi/v3-{backward-compat,cd41-synth,phase9-fail,loopback,stable-registry}/ với README + req-registry.json + 4 supporting JSONs (ui-interactivity-spec, scenarios-manifest, business-invariants, stable-registry mock — 9 JSON files all jq valid). UPDATE: evals/README.md mở rộng 13→18 cases với v3 section + history table + test type filter examples + fixture links. UPDATE: evals/run-all.sh comment header 5→18 cases + get_test_type extended cho 13 entries (v2+v3) + CRLF fix qua tr -d r (Windows Git Bash compatibility). ADD: scripts/wf-cmi-e2e/test-browser-unavailable-smoke.sh ~120 dòng deterministic 5 scenarios + 21 assertions cover E150/E150b/E151 + positive control.",
+        "stage_9": "DONE 2026-05-17 — Ship Docs hoàn thành. 4/4 gates PASS: G9.1 CHANGELOG.md v3.0.0 entry đầy đủ (148 dòng giữa wf-cmi v3.0.0 và v2.0.0 marker, 12 CD41 mentions + 18 Phase 9-10 mentions + 2 TC-cmi-014→018 mentions + tất cả 7 cờ v3 + 7 quyết định scope chính + 5 NEW evals breakdown + breaking changes section NONE), G9.2 CLAUDE.md updated (wf-cmi 3 mentions + v3.0.0 (2026-05-17) appear 2x trong skill table description + skill command row, all 7 v3 flags trong argument-hint, mention CD41/Phase 9-10/integrity-impact schema v3, links đến v3-migration-notes/12-e2e-engine-arch/wf-cmi-v3-guide), G9.3 docs/04-skill-design/wf-cmi/v3-migration-notes.md (458 dòng, 10 sections: tóm tắt thay đổi v2→v3 + quyết định kiến trúc + migration consumer skills + CI/CD operators + user CLI + QA stakeholder + known limitations + v3.1 roadmap + liên kết + hỗ trợ) + 12-e2e-engine-arch.md (862 dòng architecture deep-dive 10 sections: tổng quan ADD-ONLY + CD41 lane + Phase 9 + Phase 10 + failure analyzer 7-type + stable registry + browser lock + loop-back + schema v3 backward-compat + cross-references procedures), G9.4 docs/06-user-guides/per-skill/wf-cmi-v3-guide.md (750 dòng user guide 15 sections: v3 new vs v2 + khi nào dùng + quick start 3 paths + 7 cờ chi tiết + CD41 + Phase 9 + Phase 10 + CDG E195/E195b + output files + browser unavailable + scenarios-only flow + 5 use cases + troubleshooting + migration + FAQ). Compliance audit re-verify PASS (12/12 + 13/13 + 5/5), schema sync 1/1 PASS sau update. ADD: CHANGELOG.md +148 dòng entry v3.0.0 trên top trước v2.0.0. UPDATE: CLAUDE.md wf-cmi Workflow skills block (mention v3.0.0 + 7 cờ + CD41 + Phase 9-10) + /wf-cmi skill command row (argument-hint mở rộng 7 cờ v3, description bump v2→v3 ADD-ONLY mention CD41/Phase 9-10/integrity-impact v3/backward-compat). CREATE: 3 NEW docs (v3-migration-notes 26.9KB + 12-e2e-engine-arch 40.4KB + wf-cmi-v3-guide 31.7KB = ~99KB tổng documentation v3)."
+      }
+    },
+    "v3_to_v3_1_planned": {
+      "scope": "v3.1 sẽ activate 5 vertical lanes CD32-CD36 hiện đang ở skeleton state (status=skeleton-v3-deferred): Document Lifecycle, Notification, Search & Indexing, MultiTenant Isolation, Operational Readiness. Dispatch mở rộng từ 3-wave → 4-wave (Wave 4 v3.1 = 5 vertical lanes, ~10-15 min).",
+      "preparation_in_v2": "v2.0 đã thêm 5 skeleton entries CD32-CD36 vào lanes_defined[] (status=skeleton-v3-deferred). KHÔNG có procedure file, KHÔNG có template, KHÔNG dispatch trong v2/v3.0. v3.1 sẽ activate skeleton + tạo procedure files mới + thêm Wave 4."
+    },
+    "v2_to_v2_1_planned": {
+      "scope": "v2.1 sẽ thêm CD42 Carrier Integration (logistics-critical, defer v2 do effort cao) + reactivate CD12 (FE State Integrity) + CD14 (FE i18n Coverage) + CD22 (Config & Secret) khi production go-live. Mobile scope mở rộng: thêm fe-route-graph cho mobile-staff (internal app), mobile-customer (external), web-customer, smarttax-web."
+    }
+  },
+  "lanes_defined": [
+    {
+      "id": "CD1",
+      "name": "business-domain",
+      "title": "Business domain coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "business-analyst"
+      ],
+      "consultant_agents": [
+        "domain-experts"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "MISSING_DOMAIN_INVARIANT",
+        "MISSING_COMPLIANCE_CHECK",
+        "DOMAIN_RULE_VIOLATION"
+      ]
+    },
+    {
+      "id": "CD2",
+      "name": "entity-dependency",
+      "title": "Entity dependency coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "architect"
+      ],
+      "consultant_agents": [
+        "dba"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "ORPHAN_ENTITY",
+        "MISSING_FK_ENFORCEMENT",
+        "UNCLEAR_OWNERSHIP"
+      ]
+    },
+    {
+      "id": "CD3",
+      "name": "workflow-coverage",
+      "title": "Workflow coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "architect"
+      ],
+      "consultant_agents": [
+        "business-analyst"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "DANGLING_STATE",
+        "MISSING_EVENT_HANDLER",
+        "WORKFLOW_TRACE_GAP"
+      ]
+    },
+    {
+      "id": "CD4",
+      "name": "api-contract",
+      "title": "API contract coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "api-tester"
+      ],
+      "consultant_agents": [
+        "architect"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "MISSING_REQUEST_SCHEMA",
+        "MISSING_RESPONSE_SCHEMA",
+        "MISSING_AUTH",
+        "MISSING_IDENTITY_CHECK",
+        "NAMING_CONVENTION_VIOLATION"
+      ]
+    },
+    {
+      "id": "CD5",
+      "name": "event-coverage",
+      "title": "Event coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "architect"
+      ],
+      "consultant_agents": [
+        "data-engineer"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "EVENT_ORPHAN",
+        "EVENT_GHOST",
+        "PROPAGATION_INCOMPLETE"
+      ]
+    },
+    {
+      "id": "CD6",
+      "name": "permission-rbac",
+      "title": "Permission/RBAC coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "security"
+      ],
+      "consultant_agents": [
+        "business-analyst"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "MISSING_PERMISSION",
+        "PERMISSION_ORPHAN",
+        "IDENTITY_CHECK_MISSING",
+        "OVERSCOPED_ROLE"
+      ]
+    },
+    {
+      "id": "CD7",
+      "name": "data-integrity",
+      "title": "Data integrity coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "dba"
+      ],
+      "consultant_agents": [
+        "data-engineer"
+      ],
+      "complexity": "cao",
+      "expected_signal_kinds": [
+        "FK_NOT_ENFORCED",
+        "UNIQUE_CONSTRAINT_MISSING",
+        "NOT_NULL_MISSING",
+        "SCHEMA_DRIFT"
+      ]
+    },
+    {
+      "id": "CD8",
+      "name": "observability",
+      "title": "Observability coverage",
+      "status": "skipped",
+      "skip_reason": "Defer pre-production go-live (user không cần performance trong v2 scope)",
+      "version_introduced": "1.0.0",
+      "wave": null,
+      "owner_agents": [
+        "sre"
+      ],
+      "consultant_agents": [
+        "devops"
+      ],
+      "complexity": "cao",
+      "reactivate_in": "v2.1 production hardening"
+    },
+    {
+      "id": "CD9",
+      "name": "regression-coverage",
+      "title": "Regression coverage",
+      "status": "active",
+      "version_introduced": "1.0.0",
+      "wave": 3,
+      "owner_agents": [
+        "qa-lead"
+      ],
+      "consultant_agents": [
+        "architect"
+      ],
+      "complexity": "trung",
+      "expected_signal_kinds": [
+        "TEST_MISSING_FOR_AFFECTED_MODULE",
+        "TEST_COVERAGE_INSUFFICIENT",
+        "TEST_OUTDATED"
+      ]
+    },
+    {
+      "id": "CD10",
+      "name": "documentation",
+      "title": "Documentation coverage",
+      "status": "skipped",
+      "skip_reason": "Đắt, không critical hàng ngày — defer pre-release",
+      "version_introduced": "1.0.0",
+      "wave": null,
+      "owner_agents": [
+        "tech-writer"
+      ],
+      "consultant_agents": [
+        "business-analyst"
+      ],
+      "complexity": "trung",
+      "reactivate_in": "pre-release v2.1"
+    },
+    {
+      "id": "CD11",
+      "name": "fe-component-contracts",
+      "title": "FE Component Contracts coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "frontend-developer"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 2,
+      "expected_signal_kinds": [
+        "INCOMPLETE_PROPS_TYPE",
+        "MISSING_REQUIRED_FLAG",
+        "PROP_NAMING_INCONSISTENCY",
+        "ORPHAN_COMPONENT",
+        "DUPLICATE_COMPONENT_NAME"
+      ],
+      "graph_dependency": "fe-component-graph.json",
+      "graph_dependencies": [
+        "fe-component-graph.json"
+      ],
+      "ssot_dependency": null,
+      "procedure_file": "procedures/lanes/CD11.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD12",
+      "name": "fe-state-integrity",
+      "title": "FE State Integrity coverage",
+      "status": "skipped",
+      "skip_reason": "Deep profile only — defer khi cần FE state debugging",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "frontend-developer"
+      ],
+      "consultant_agents": [
+        "architect"
+      ],
+      "complexity": "cao",
+      "reactivate_in": "khi cần FE state debugging deep"
+    },
+    {
+      "id": "CD13",
+      "name": "fe-be-contract-sync",
+      "title": "FE↔BE Contract Sync coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "architect",
+        "frontend-developer"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 3,
+      "expected_signal_kinds": [
+        "FE_CALLS_NONEXISTENT_BE_ENDPOINT",
+        "BE_ENDPOINT_UNUSED_BY_FE",
+        "HTTP_METHOD_MISMATCH",
+        "ENDPOINT_PARAM_MISSING",
+        "DTO_SHAPE_DRIFT"
+      ],
+      "graph_dependency": "fe-api-client-graph.json",
+      "graph_dependencies": [
+        "fe-api-client-graph.json",
+        "api-graph.json"
+      ],
+      "ssot_dependency": null,
+      "procedure_file": "procedures/lanes/CD13.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD14",
+      "name": "fe-i18n-coverage",
+      "title": "FE i18n Coverage",
+      "status": "skipped",
+      "skip_reason": "Deep profile only — defer khi mở rộng multi-language deep",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "frontend-developer"
+      ],
+      "consultant_agents": [
+        "ux-designer"
+      ],
+      "complexity": "trung",
+      "reactivate_in": "khi mở rộng VN/CN/EN deep"
+    },
+    {
+      "id": "CD15",
+      "name": "ui-permission-mirror",
+      "title": "UI Permission Mirror coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "frontend-developer",
+        "security"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 2,
+      "expected_signal_kinds": [
+        "ORPHAN_UI_PERMISSION",
+        "BE_AUTH_NO_UI_GATE",
+        "DYNAMIC_PERMISSION_UNVERIFIABLE",
+        "PERMISSION_NAMING_DRIFT",
+        "MISSING_PERMISSION_FOR_ADMIN_ACTION"
+      ],
+      "graph_dependency": "fe-permission-graph.json",
+      "graph_dependencies": [
+        "fe-permission-graph.json",
+        "api-graph.json"
+      ],
+      "ssot_dependency": "rbac-permission-catalog.json",
+      "procedure_file": "procedures/lanes/CD15.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD16",
+      "name": "domain-logic-integrity",
+      "title": "Domain Logic Integrity coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "architect",
+        "business-analyst"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "AGGREGATE_BOUNDARY_VIOLATION",
+        "DOMAIN_EVENT_MISSING",
+        "VALUE_OBJECT_LEAK",
+        "ANEMIC_DOMAIN_MODEL"
+      ],
+      "graph_dependency": "be-domain-graph.json",
+      "procedure_file": "procedures/lanes/CD16.md",
+      "graph_dependencies": [
+        "be-domain-graph.json",
+        "be-cqrs-graph.json"
+      ],
+      "ssot_dependency": null,
+      "ssot_optional": false,
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD17",
+      "name": "persistence-consistency",
+      "title": "Persistence Consistency coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 1,
+      "owner_agents": [
+        "dba",
+        "data-engineer"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "MIGRATION_DRIFT",
+        "MISSING_INDEX",
+        "SCHEMA_MISMATCH_ENTITY_DB",
+        "UNUSED_TABLE_COLUMN"
+      ],
+      "graph_dependency": "be-db-schema-graph.json",
+      "procedure_file": "procedures/lanes/CD17.md",
+      "graph_dependencies": [
+        "be-db-schema-graph.json",
+        "be-domain-graph.json"
+      ],
+      "ssot_dependency": null,
+      "ssot_optional": false,
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD18",
+      "name": "cqrs-pipeline-integrity",
+      "title": "CQRS Pipeline Integrity coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "architect",
+        "developer"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 3,
+      "expected_signal_kinds": [
+        "COMMAND_WITHOUT_HANDLER",
+        "COMMAND_WITHOUT_VALIDATOR",
+        "HANDLER_WITHOUT_REQUEST",
+        "NOTIFICATION_WITHOUT_HANDLER",
+        "DUPLICATE_HANDLER"
+      ],
+      "graph_dependency": "be-cqrs-graph.json",
+      "graph_dependencies": [
+        "be-cqrs-graph.json",
+        "be-domain-graph.json"
+      ],
+      "ssot_dependency": null,
+      "procedure_file": "procedures/lanes/CD18.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD19",
+      "name": "distributed-transaction",
+      "title": "Distributed Transaction coverage",
+      "status": "skipped",
+      "skip_reason": "Defer — cần SRE expertise, không critical v2",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "sre"
+      ],
+      "consultant_agents": [
+        "architect"
+      ],
+      "complexity": "cao",
+      "reactivate_in": "production hardening v2.1+"
+    },
+    {
+      "id": "CD20",
+      "name": "security-deep",
+      "title": "Security Deep coverage",
+      "status": "skipped",
+      "skip_reason": "User không cần security trong scope hiện tại — defer khi public API hoặc external user",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "security"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "reactivate_in": "khi public API / external user"
+    },
+    {
+      "id": "CD21",
+      "name": "reliability",
+      "title": "Reliability coverage",
+      "status": "skipped",
+      "skip_reason": "Deep profile only — defer monitoring readiness",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "sre"
+      ],
+      "consultant_agents": [
+        "devops"
+      ],
+      "complexity": "cao",
+      "reactivate_in": "monitoring readiness pre-go-live"
+    },
+    {
+      "id": "CD22",
+      "name": "config-secret",
+      "title": "Config & Secret coverage",
+      "status": "skipped",
+      "skip_reason": "Defer production go-live (chỉ có CD22 trim trong v2.1)",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "security",
+        "devops"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "reactivate_in": "production go-live v2.1"
+    },
+    {
+      "id": "CD23",
+      "name": "ux-design-system",
+      "title": "UX Design System Consistency coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "ui-designer",
+        "brand-guardian"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 2,
+      "expected_signal_kinds": [
+        "DESIGN_TOKEN_DRIFT",
+        "BUTTON_VARIANT_INCONSISTENT",
+        "COLOR_HARDCODED",
+        "TYPOGRAPHY_DRIFT",
+        "ICON_INCONSISTENT"
+      ],
+      "graph_dependency": "fe-component-graph.json",
+      "graph_dependencies": [
+        "fe-component-graph.json"
+      ],
+      "ssot_dependency": "ux-conventions.json",
+      "procedure_file": "procedures/lanes/CD23.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD24",
+      "name": "ux-display-format",
+      "title": "UX Display Format Consistency coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "ux-designer",
+        "frontend-developer"
+      ],
+      "consultant_agents": [],
+      "complexity": "thấp",
+      "effort_days": 2,
+      "expected_signal_kinds": [
+        "DATE_FORMAT_INCONSISTENT",
+        "NUMBER_FORMAT_INCONSISTENT",
+        "CURRENCY_FORMAT_INCONSISTENT",
+        "TIMEZONE_DRIFT",
+        "VND_DECIMAL_PRESENT"
+      ],
+      "graph_dependency": "fe-component-graph.json",
+      "graph_dependencies": [
+        "fe-component-graph.json"
+      ],
+      "ssot_dependency": "ux-conventions.json",
+      "procedure_file": "procedures/lanes/CD24.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "compliance_refs": [
+        "TT 78/2021/TT-BTC (e-invoice VN: VND no decimal)",
+        "TT 80/2021/TT-BTC (rounding HALF_UP)",
+        "国家税务总局 (CNY decimal 2)",
+        "VNACCS spec (BOL number format)",
+        "ISO 6346 (container number)"
+      ]
+    },
+    {
+      "id": "CD25",
+      "name": "ux-flow-continuity",
+      "title": "UX Flow Continuity coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "ux-researcher",
+        "frontend-developer"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 3,
+      "expected_signal_kinds": [
+        "BROKEN_USER_JOURNEY",
+        "DEAD_END_PAGE",
+        "MISSING_BREADCRUMB",
+        "INCONSISTENT_NAVIGATION",
+        "MISSING_CONFIRMATION_DIALOG"
+      ],
+      "graph_dependency": "fe-route-graph.json",
+      "graph_dependencies": [
+        "fe-route-graph.json",
+        "fe-component-graph.json"
+      ],
+      "ssot_dependency": "ux-conventions.json",
+      "procedure_file": "procedures/lanes/CD25.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD26",
+      "name": "ux-workflow-visibility",
+      "title": "UX Workflow Visibility coverage ★★★ logistics-aware",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 3,
+      "owner_agents": [
+        "ux-designer",
+        "business-analyst",
+        "logistics-expert"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "WORKFLOW_STATE_UNCLEAR_UI",
+        "MISSING_STATUS_INDICATOR",
+        "ACTOR_ROLE_AMBIGUOUS",
+        "PROGRESS_HIDDEN",
+        "MISSING_TRANSITION_HISTORY"
+      ],
+      "graph_dependency": "be-domain-graph.json",
+      "graph_dependencies": [
+        "fe-component-graph.json",
+        "fe-route-graph.json",
+        "be-domain-graph.json"
+      ],
+      "ssot_dependency": "workflow-state-machines.json",
+      "ssot_secondary": "ux-conventions.json",
+      "procedure_file": "procedures/lanes/CD26.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "logistics_critical_entities": [
+        "Booking",
+        "CustomsDeclaration",
+        "Invoice"
+      ]
+    },
+    {
+      "id": "CD27",
+      "name": "ux-microcopy",
+      "title": "UX Microcopy coverage",
+      "status": "skipped",
+      "skip_reason": "Deep profile only — defer khi UX matures",
+      "version_introduced": "2.0.0",
+      "wave": null,
+      "owner_agents": [
+        "ux-designer"
+      ],
+      "consultant_agents": [
+        "tech-writer"
+      ],
+      "complexity": "trung",
+      "reactivate_in": "khi UX matures pre-release"
+    },
+    {
+      "id": "CD28",
+      "name": "mdm-consistency",
+      "title": "MDM Consistency coverage ★★★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "data-engineer",
+        "dba",
+        "logistics-expert"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 5,
+      "expected_signal_kinds": [
+        "DUPLICATE_MASTER_ENTITY",
+        "MISSING_UNIQUE_CONSTRAINT",
+        "PARTIAL_UNIQUE_CONSTRAINT",
+        "UNAUTHORIZED_MASTER_WRITER",
+        "REFERENCE_DATA_DRIFT",
+        "MISSING_MDM_SYNC"
+      ],
+      "ssot_dependency": "mdm-canonical-entities.json",
+      "priority": "critical-for-logistics",
+      "procedure_file": "procedures/lanes/CD28.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "graph_dependencies": [
+        "entity-graph.json",
+        "be-db-schema-graph.json",
+        "be-domain-graph.json",
+        "api-graph.json"
+      ]
+    },
+    {
+      "id": "CD29",
+      "name": "audit-trail",
+      "title": "Audit Trail Completeness coverage",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 3,
+      "owner_agents": [
+        "data-engineer",
+        "compliance-expert"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 3,
+      "expected_signal_kinds": [
+        "MISSING_AUDIT_TABLE",
+        "AUDIT_ACTION_NOT_IMPLEMENTED",
+        "AUDIT_MUTABILITY_VIOLATION",
+        "TRACKED_FIELD_NOT_CAPTURED",
+        "PII_READ_NOT_LOGGED"
+      ],
+      "ssot_dependency": "audit-critical-entities.json",
+      "ssot_optional": false,
+      "priority": "critical-for-compliance",
+      "procedure_file": "procedures/lanes/CD29.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "graph_dependencies": [
+        "be-db-schema-graph.json",
+        "be-domain-graph.json",
+        "be-cqrs-graph.json",
+        "api-graph.json"
+      ],
+      "compliance_refs": [
+        "VN-PDPL (Nghị định 13/2023/NĐ-CP Điều 6)",
+        "VN-TT78/2021/TT-BTC (e-invoice immutability)",
+        "GDPR Art. 30 (records of processing)",
+        "ISO 27001 A.12.4 (audit logging)",
+        "SOC 2 CC7.2 (system monitoring)"
+      ],
+      "rule_id_prefix": "AUDIT-CD29"
+    },
+    {
+      "id": "CD30",
+      "name": "time-numbering",
+      "title": "Time & Numbering Integrity coverage ★★★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "architect",
+        "dba",
+        "logistics-expert"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "NAIVE_DATETIME_STORAGE",
+        "TIMEZONE_BOUNDARY_DRIFT",
+        "MISSING_NUMBERING_UNIQUE",
+        "NUMBERING_FORMAT_VIOLATION",
+        "MISSING_NUMBERING_RESET",
+        "DATE_TYPE_DRIFT"
+      ],
+      "priority": "critical-for-logistics",
+      "procedure_file": "procedures/lanes/CD30.md",
+      "ssot_dependency": "workflow-state-machines.json",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "graph_dependencies": [
+        "be-db-schema-graph.json",
+        "be-domain-graph.json",
+        "be-cqrs-graph.json",
+        "api-graph.json"
+      ]
+    },
+    {
+      "id": "CD31",
+      "name": "money-tax",
+      "title": "Money & Tax Integrity coverage ★★★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "finance-expert",
+        "dba",
+        "architect"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "WRONG_DECIMAL_SCALE",
+        "CRITICAL_FLOAT_MONEY",
+        "MISSING_MONEY_VALUE_OBJECT",
+        "INCOMPLETE_MONEY_TYPE",
+        "CURRENCY_MISMATCH_RISK",
+        "MIXED_CURRENCY_HEADER",
+        "EXPIRED_TAX_RATE",
+        "MISSING_ROUNDING_RULE",
+        "INCOMPLETE_TAX_BREAKDOWN",
+        "MISSING_FX_AUDIT_TRAIL",
+        "HARDCODED_FX_RATE"
+      ],
+      "priority": "critical-for-logistics",
+      "procedure_file": "procedures/lanes/CD31.md",
+      "ssot_dependency": [
+        "mdm-canonical-entities.json",
+        "compliance-mapping.json"
+      ],
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "graph_dependencies": [
+        "be-db-schema-graph.json",
+        "be-domain-graph.json",
+        "be-cqrs-graph.json",
+        "api-graph.json"
+      ]
+    },
+    {
+      "id": "CD32",
+      "name": "document-lifecycle",
+      "title": "Document Lifecycle coverage",
+      "status": "skeleton-v3-deferred",
+      "version_introduced": "2.0.0",
+      "version_planned_active": "3.0.0",
+      "wave": null,
+      "wave_planned": 4,
+      "owner_agents_planned": [
+        "tech-writer",
+        "data-engineer",
+        "compliance-expert"
+      ],
+      "complexity_estimated": "cao",
+      "scope_description": "Vòng đời tài liệu (upload → version → review → approve → archive → retention → purge). EUREKA: BOL, Invoice, Customs declaration, Manifest, Packing list, COO. Check: lifecycle policy, retention period, soft vs hard delete, document signing flow.",
+      "v3_blocker": "Cần procedure file, template, dispatcher integration. KHÔNG dispatch trong v2."
+    },
+    {
+      "id": "CD33",
+      "name": "notification",
+      "title": "Notification coverage",
+      "status": "skeleton-v3-deferred",
+      "version_introduced": "2.0.0",
+      "version_planned_active": "3.0.0",
+      "wave": null,
+      "wave_planned": 4,
+      "owner_agents_planned": [
+        "business-analyst",
+        "ux-designer",
+        "frontend-developer"
+      ],
+      "complexity_estimated": "cao",
+      "scope_description": "Email/SMS/push/in-app notification + routing + delivery tracking. EUREKA: booking confirmation, customs status, payment, container ETA. Check: notification template per business event, recipient routing (customer vs internal), multi-language VN/CN/EN, dedup, delivery failure retry.",
+      "v3_blocker": "Cần procedure file, template, dispatcher integration."
+    },
+    {
+      "id": "CD34",
+      "name": "search-indexing",
+      "title": "Search & Indexing coverage",
+      "status": "skeleton-v3-deferred",
+      "version_introduced": "2.0.0",
+      "version_planned_active": "3.0.0",
+      "wave": null,
+      "wave_planned": 4,
+      "owner_agents_planned": [
+        "architect",
+        "data-engineer",
+        "frontend-developer"
+      ],
+      "complexity_estimated": "cao",
+      "scope_description": "Full-text search, faceted search, autocomplete, search relevance, indexing freshness. EUREKA: search booking, customer, invoice, tracking BOL #. Check: search endpoint per entity, indices updated (Elasticsearch/Meilisearch), permission-aware search, multi-tenant isolation.",
+      "v3_blocker": "Cần procedure file, template, dispatcher integration."
+    },
+    {
+      "id": "CD35",
+      "name": "multitenant-isolation",
+      "title": "MultiTenant Isolation coverage",
+      "status": "skeleton-v3-deferred",
+      "version_introduced": "2.0.0",
+      "version_planned_active": "3.0.0",
+      "wave": null,
+      "wave_planned": 4,
+      "owner_agents_planned": [
+        "dba",
+        "architect",
+        "security"
+      ],
+      "complexity_estimated": "cao",
+      "scope_description": "Tenant isolation ở DB + cache + storage + queue + search index + UI. Check: mọi entity có tenant_id, query filter by tenant, cache key có tenant prefix, file storage isolated, cross-tenant data leak.",
+      "v3_blocker": "Cần procedure file, template, dispatcher integration. CONDITIONAL: chỉ apply nếu EUREKA multi-tenant SaaS."
+    },
+    {
+      "id": "CD36",
+      "name": "operational-readiness",
+      "title": "Operational Readiness coverage",
+      "status": "skeleton-v3-deferred",
+      "version_introduced": "2.0.0",
+      "version_planned_active": "3.0.0",
+      "wave": null,
+      "wave_planned": 4,
+      "owner_agents_planned": [
+        "sre",
+        "devops",
+        "architect"
+      ],
+      "complexity_estimated": "cao",
+      "scope_description": "Health checks, deployment hooks, feature flags, runbooks, backup/restore, DR. EUREKA: 17 modules K8s deploy. Check: health endpoint per service, liveness vs readiness probe, feature flag coverage, backup tested, DR runbook, graceful shutdown.",
+      "v3_blocker": "Cần procedure file, template, dispatcher integration."
+    },
+    {
+      "id": "CD37",
+      "name": "regulatory-compliance",
+      "title": "Regulatory Compliance Mapping coverage ★★★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 2,
+      "owner_agents": [
+        "compliance-expert",
+        "legal-expert",
+        "dba"
+      ],
+      "consultant_agents": [],
+      "complexity": "cao",
+      "effort_days": 5,
+      "expected_signal_kinds": [
+        "MISSING_COMPLIANCE_CHECK",
+        "REGULATORY_RULE_VIOLATION",
+        "PERSONAL_DATA_UNGOVERNED",
+        "CROSS_BORDER_COMPLIANCE_GAP",
+        "COMPLIANCE_AUDIT_STALE"
+      ],
+      "ssot_dependency": "compliance-mapping.json",
+      "ssot_optional": false,
+      "priority": "critical-for-logistics-vn-cn",
+      "procedure_file": "procedures/lanes/CD37.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16",
+      "graph_dependencies": [
+        "be-db-schema-graph.json",
+        "be-domain-graph.json",
+        "be-cqrs-graph.json",
+        "api-graph.json"
+      ],
+      "compliance_refs": [
+        "VN-TT78/2021/TT-BTC (hóa đơn điện tử)",
+        "VN-PDPL Nghị định 13/2023/NĐ-CP",
+        "VN-VNACCS (Tổng cục Hải quan)",
+        "VN-Bộ luật Lao động 2019",
+        "VN-VAT NQ 142/2024/QH15",
+        "CN-Fapiao 国家税务总局",
+        "CN-H2010 海关总署",
+        "CN-PIPL 2021",
+        "Incoterms 2020",
+        "GDPR (EU)",
+        "OFAC Sanctions (US Treasury + EU Council)"
+      ],
+      "rule_id_prefix": "COMP-CD37",
+      "logistics_critical_entities": [
+        "Invoice",
+        "Customer",
+        "CustomsDeclaration",
+        "TaxDeclaration",
+        "EmploymentContract"
+      ],
+      "cross_lane_overlap_note": "CD29 PII_READ_NOT_LOGGED check call-site (handler có gọi pii audit). CD37 PERSONAL_DATA_UNGOVERNED check structural existence (entity có ConsentTimestamp field + erasure endpoint). 2 lanes complementary."
+    },
+    {
+      "id": "CD38",
+      "name": "ui-implementation-coverage",
+      "title": "UI Implementation Coverage ★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 3,
+      "owner_agents": [
+        "ux-researcher",
+        "frontend-developer",
+        "business-analyst"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 3,
+      "expected_signal_kinds": [
+        "ORPHAN_API_ENDPOINT",
+        "MISSING_UI_FOR_USER_FACING_API",
+        "INCOMPLETE_CRUD_UI",
+        "MISSING_PERMISSION_UI_ELEMENT",
+        "WORKFLOW_STATE_NO_UI_TRIGGER"
+      ],
+      "graph_dependency": null,
+      "graph_dependencies": [
+        "fe-api-client-graph.json",
+        "fe-permission-graph.json",
+        "fe-route-graph.json",
+        "api-graph.json"
+      ],
+      "ssot_dependency": "ui-interactivity-spec.json",
+      "template_ready": "plans/wf-cmi/ui-interactivity-spec.eureka-template.json",
+      "procedure_file": "procedures/lanes/CD38.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD39",
+      "name": "error-ux-recovery",
+      "title": "Error UX & Recovery coverage ★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 3,
+      "owner_agents": [
+        "ux-designer",
+        "frontend-developer"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 3,
+      "expected_signal_kinds": [
+        "MISSING_ERROR_BOUNDARY",
+        "RAW_ERROR_LEAKED_TO_USER",
+        "MISSING_RECOVERY_ACTION",
+        "ERROR_MESSAGE_NOT_VIETNAMESE",
+        "INCONSISTENT_ERROR_DISPLAY"
+      ],
+      "graph_dependency": null,
+      "graph_dependencies": [
+        "fe-component-graph.json",
+        "fe-route-graph.json"
+      ],
+      "ssot_dependency": "error-code-catalog.json",
+      "ssot_optional": true,
+      "procedure_file": "procedures/lanes/CD39.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD40",
+      "name": "print-export-consistency",
+      "title": "Print & Export Consistency coverage ★",
+      "status": "active",
+      "version_introduced": "2.0.0",
+      "wave": 3,
+      "owner_agents": [
+        "ui-designer",
+        "frontend-developer",
+        "tech-writer"
+      ],
+      "consultant_agents": [],
+      "complexity": "trung",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "PRINT_TEMPLATE_DRIFT",
+        "PDF_FONT_MISSING",
+        "EXCEL_FORMULA_BROKEN",
+        "BRAND_LOGO_MISSING_DOC",
+        "EXPORT_DATA_MISMATCH_UI"
+      ],
+      "graph_dependency": null,
+      "graph_dependencies": [
+        "fe-component-graph.json",
+        "fe-route-graph.json",
+        "api-graph.json"
+      ],
+      "ssot_dependency": "print-export-templates.json",
+      "ssot_optional": true,
+      "priority": "logistics-document-heavy",
+      "procedure_file": "procedures/lanes/CD40.md",
+      "stage_4_status": "lane-procedure-DONE-2026-05-16"
+    },
+    {
+      "id": "CD41",
+      "name": "e2e-scenario-synth",
+      "title": "E2E Scenario Synthesizer (v3.0 NEW)",
+      "status": "active",
+      "version_introduced": "3.0.0-alpha",
+      "wave": 3,
+      "owner_agents": [
+        "qa-lead"
+      ],
+      "consultant_agents": [
+        "ux-researcher",
+        "business-analyst"
+      ],
+      "complexity": "cao",
+      "effort_days": 4,
+      "expected_signal_kinds": [
+        "E2E_SCENARIO_SYNTHESIZED",
+        "E2E_SCENARIO_CROSS_MODULE",
+        "E2E_SCENARIO_SKIPPED_LOW_CONFIDENCE"
+      ],
+      "graph_dependency": null,
+      "graph_dependencies": [
+        "workflow-graph.json",
+        "api-graph.json",
+        "fe-route-graph.json"
+      ],
+      "ssot_dependency": "ui-interactivity-spec.json",
+      "ssot_optional": true,
+      "priority": "v3-e2e-engine-core",
+      "procedure_file": "procedures/lanes/CD41.md",
+      "stage_1_status": "stub-created-2026-05-16",
+      "stage_2_status": "lane-procedure-DONE-2026-05-16",
+      "input_dependency": "phase3-invariants/business-invariants.json + phase4-coverage signals-aggregated.jsonl (W1+W2 done) + workflow-graph + api-graph + fe-route-graph",
+      "output_dependency": "phase4-coverage/lanes/CD41-e2e-synth/scenarios/test-scenario-CMI-{NN}-{slug}.md × N + scenarios-manifest.json (consumed by Phase 9 PRE-GATE nếu --exec-scenarios)",
+      "concurrency_budget": 1,
+      "time_budget_min": [
+        8,
+        15
+      ],
+      "synth_filter": "violations severity ∈ {MUST, HIGH} AND dim ∈ {CD9, CD11, CD13, CD15, CD23, CD24, CD25, CD26, CD38, CD39}",
+      "profile_activation": {
+        "quick": "SKIP",
+        "standard": "SKIP",
+        "deep": "ACTIVE",
+        "exhaustive": "ACTIVE"
+      }
+    }
+  ],
+  "profile_activation": {
+    "quick": {
+      "threshold_pct": 60,
+      "lanes_active": [
+        "CD1",
+        "CD2",
+        "CD3",
+        "CD4",
+        "CD7",
+        "CD16",
+        "CD17"
+      ],
+      "lane_count": 7,
+      "duration_estimate_min": [
+        5,
+        10
+      ],
+      "llm_pass_count": 0,
+      "playwright_mode": "none",
+      "cache_policy": "aggressive_24h",
+      "wave_dispatch": {
+        "wave1_count": 7,
+        "wave2_count": 0,
+        "wave3_count": 0
+      },
+      "note": "Fast feedback — chỉ core 5 + BE 2 (CD16, CD17). KHÔNG có FE/UX/Compliance lanes."
+    },
+    "standard": {
+      "threshold_pct": 80,
+      "lanes_active": [
+        "CD1",
+        "CD2",
+        "CD3",
+        "CD4",
+        "CD5",
+        "CD6",
+        "CD7",
+        "CD9",
+        "CD11",
+        "CD13",
+        "CD16",
+        "CD17",
+        "CD18"
+      ],
+      "lane_count": 13,
+      "duration_estimate_min": [
+        15,
+        30
+      ],
+      "llm_pass_count": 1,
+      "playwright_mode": "assisted",
+      "cache_policy": "normal_24h",
+      "wave_dispatch": {
+        "wave1_count": 10,
+        "wave2_count": 2,
+        "wave3_count": 1
+      },
+      "note": "Standard — core 8 + FE 2 (CD11, CD13) + BE 3 (CD16-CD18). KHÔNG có UX/Logistics/Compliance/Implementation. CD9 ở Wave 3."
+    },
+    "deep": {
+      "threshold_pct": 95,
+      "lanes_active": [
+        "CD1",
+        "CD2",
+        "CD3",
+        "CD4",
+        "CD5",
+        "CD6",
+        "CD7",
+        "CD9",
+        "CD11",
+        "CD13",
+        "CD15",
+        "CD16",
+        "CD17",
+        "CD18",
+        "CD23",
+        "CD24",
+        "CD25",
+        "CD26",
+        "CD28",
+        "CD29",
+        "CD30",
+        "CD31",
+        "CD37",
+        "CD38",
+        "CD39",
+        "CD40",
+        "CD41"
+      ],
+      "lane_count": 27,
+      "duration_estimate_min": [
+        55,
+        90
+      ],
+      "llm_pass_count": 3,
+      "playwright_mode": "full",
+      "cache_policy": "selective_4h",
+      "wave_dispatch": {
+        "wave1_count": 10,
+        "wave2_count": 10,
+        "wave3_count": 7
+      },
+      "wave1_lanes": [
+        "CD1",
+        "CD2",
+        "CD3",
+        "CD4",
+        "CD5",
+        "CD6",
+        "CD7",
+        "CD11",
+        "CD16",
+        "CD17"
+      ],
+      "wave2_lanes": [
+        "CD13",
+        "CD15",
+        "CD18",
+        "CD23",
+        "CD24",
+        "CD25",
+        "CD28",
+        "CD30",
+        "CD31",
+        "CD37"
+      ],
+      "wave3_lanes": [
+        "CD9",
+        "CD26",
+        "CD29",
+        "CD38",
+        "CD39",
+        "CD40",
+        "CD41"
+      ],
+      "note": "Gói C++ Logistics FULL — 26 v2 lanes + CD41 v3 E2E Scenario Synthesizer = 27 lanes. BREAKING change v1 → v2: deep v1 = 10 lanes, deep v2 = 26 lanes. v2→v3 KHÔNG breaking — CD41 chỉ synth scenarios (artifact-only); Phase 9 execute opt-in qua --exec-scenarios."
+    },
+    "exhaustive": {
+      "threshold_pct": 100,
+      "lanes_active": [
+        "CD1",
+        "CD2",
+        "CD3",
+        "CD4",
+        "CD5",
+        "CD6",
+        "CD7",
+        "CD8",
+        "CD9",
+        "CD10",
+        "CD11",
+        "CD12",
+        "CD13",
+        "CD14",
+        "CD15",
+        "CD16",
+        "CD17",
+        "CD18",
+        "CD19",
+        "CD20",
+        "CD21",
+        "CD22",
+        "CD23",
+        "CD24",
+        "CD25",
+        "CD26",
+        "CD27",
+        "CD28",
+        "CD29",
+        "CD30",
+        "CD31",
+        "CD37",
+        "CD38",
+        "CD39",
+        "CD40",
+        "CD41"
+      ],
+      "lane_count": 36,
+      "duration_estimate_min": [
+        120,
+        180
+      ],
+      "llm_pass_count": 3,
+      "playwright_mode": "full_cross_browser",
+      "cache_policy": "skip",
+      "wave_dispatch": {
+        "wave1_count": 10,
+        "wave2_count": 10,
+        "wave3_count": 11,
+        "wave_deferred_count": 5
+      },
+      "note": "Audit/compliance mode — activate cả 9 SKIPPED lanes (CD8, CD10, CD12, CD14, CD19-22, CD27) ngoài 26 deep + CD41 v3 = 36 lanes total. KHÔNG bao gồm 5 skeleton v3-deferred (CD32-CD36). Threshold 100% mọi dim, KHÔNG cho user skip gap."
+    }
+  },
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      ".mc-data/docs/phase3-architecture/"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "registry_fields": [
+      "requirements",
+      "features",
+      "modules"
+    ],
+    "forensic_validation": "jq -e '.requirements | length > 0' req-registry.json + test -d .mc-data/docs/phase3-architecture + src/apps có >= 1 source file (CORE-011, Protocol 10.4)."
+  },
+  "inputs": [
+    {
+      "name": "--scope",
+      "type": "string",
+      "required": false,
+      "default": "system",
+      "description": "Phạm vi: system | module=<name> | feat=FEAT-<id>. Regex ^(system|module=[a-z0-9-]+|feat=FEAT-[A-Z]+-[A-Z0-9-]+)$. E010 nếu invalid."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Quyết định coverage threshold + lane activation matrix. Detail xem 05-execution-profiles.md."
+    },
+    {
+      "name": "--dims",
+      "type": "string",
+      "required": false,
+      "description": "Comma-separated subset lanes (vd CD1,CD13,CD28). Mỗi item match CD[1-9]|CD[1-3][0-9]|CD40. Override profile activation. v2.0 range: CD1-CD40 (26 active + 9 SKIPPED + 5 skeleton-v3-deferred). Chỉ active lanes mới actual dispatch — SKIPPED/skeleton sẽ WARN E110 và skip. Xem `lanes_defined[]` cho full catalog."
+    },
+    {
+      "name": "--since",
+      "type": "string",
+      "required": false,
+      "description": "Git ref cho regression-aware mode (vd main, HEAD~10, v1.2.0). Phải pass git rev-parse --verify. E014 nếu invalid."
+    },
+    {
+      "name": "--from-fix-bugs",
+      "type": "flag",
+      "required": false,
+      "description": "Consume fix-impact.json từ wf-fix-bugs (last session) làm input seed Phase 1."
+    },
+    {
+      "name": "--from-verify-sync",
+      "type": "flag",
+      "required": false,
+      "description": "Consume verify-sync-impact.json từ wf-verify-sync làm input seed."
+    },
+    {
+      "name": "--from-impl",
+      "type": "flag",
+      "required": false,
+      "description": "Consume impl-status.json từ wf-implement-feature (per FEAT) làm input seed."
+    },
+    {
+      "name": "--auto-suggest",
+      "type": "flag",
+      "required": false,
+      "description": "Phase 7 đề xuất artifact bổ sung (test case, invariant rule, contract) qua CDG. Mutually exclusive với --ci (E012)."
+    },
+    {
+      "name": "--dry-run",
+      "type": "flag",
+      "required": false,
+      "description": "Mô phỏng — KHÔNG ghi sidecar artifact, KHÔNG record CDG decisions. Phase 7 chỉ report đề xuất."
+    },
+    {
+      "name": "--ci",
+      "type": "flag",
+      "required": false,
+      "description": "GitHub Action mode: read-only, KHÔNG update sidecar, output JSON + post lên PR. Yêu cầu $CI=true hoặc $GITHUB_ACTIONS=true (E100 WARN downgrade nếu env vắng)."
+    },
+    {
+      "name": "--resume",
+      "type": "flag",
+      "required": false,
+      "description": "Resume session đang dở (đọc integrity-status.json → route next phase). Override --scope, --profile từ session cũ."
+    },
+    {
+      "name": "--status",
+      "type": "flag",
+      "required": false,
+      "description": "In trạng thái session hiện tại (không chạy phases) → exit 0."
+    },
+    {
+      "name": "--session-id",
+      "type": "string",
+      "required": false,
+      "description": "Manual session ID (format YYYY-MM-DD-{scope}-{slug}-NN). Dùng cho --resume ambiguous. E015 nếu sai format."
+    },
+    {
+      "name": "--no-cache",
+      "type": "flag",
+      "required": false,
+      "description": "Bỏ qua scan cache + CI cache, force fresh scan."
+    },
+    {
+      "name": "--show-graphs",
+      "type": "flag",
+      "required": false,
+      "description": "Phase 8 render Mermaid diagrams cho 6 graphs vào integrity-report.md."
+    }
+  ],
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase1-init.md",
+    "procedures/phase2-discovery.md",
+    "procedures/phase3-invariant-artifact.md",
+    "procedures/phase4-coverage-dispatch.md",
+    "procedures/phase5-aggregate.md",
+    "procedures/phase6-regression.md",
+    "procedures/phase7-gap-cdg.md",
+    "procedures/phase8-report.md",
+    "procedures/resume-status.md",
+    "procedures/lanes/CD11.md",
+    "procedures/lanes/CD13.md",
+    "procedures/lanes/CD15.md",
+    "procedures/lanes/CD18.md",
+    "procedures/lanes/CD28.md",
+    "procedures/lanes/CD30.md",
+    "procedures/lanes/CD31.md",
+    "procedures/lanes/CD38.md",
+    "procedures/lanes/CD39.md",
+    "procedures/lanes/CD40.md",
+    "procedures/lanes/CD16.md",
+    "procedures/lanes/CD17.md",
+    "procedures/lanes/CD23.md",
+    "procedures/lanes/CD24.md",
+    "procedures/lanes/CD25.md",
+    "procedures/lanes/CD26.md",
+    "procedures/lanes/CD29.md",
+    "procedures/lanes/CD37.md",
+    "procedures/lanes/CD41.md",
+    "procedures/phase9-e2e-execute.md",
+    "procedures/phase10-e2e-resolution.md",
+    "procedures/_e2e-runner.md",
+    "procedures/_failure-analyzer.md",
+    "procedures/_screenshot-evidence.md",
+    "procedures/_error-quick-lookup.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/integrity-status.json",
+        "template": "templates/integrity-status.json",
+        "schema": "integrity-status-v2",
+        "notes": "SSOT pipeline state (8 phases). Owned by orchestrator (Phase 1 init), updated atomically sau mỗi POST-GATE. v2.0 schema bump: thêm field `lanes_active_v2[]` (array CD IDs từ profile_activation), `wave_status{wave1, wave2, wave3}` track dispatch progress per-wave. Backward-compat: v1 reader skip field unknown gracefully."
+      },
+      {
+        "path": "$SESSION_DIR/session-log.json",
+        "template": "templates/_common/session-log.json",
+        "notes": "CORE-026 execution trace. APPEND-only START/COMPLETE/FAIL events."
+      },
+      {
+        "path": "$SESSION_DIR/error-ledger.json",
+        "template": "templates/_common/error-ledger.json",
+        "notes": "CORE-034 namespaced error tracking. APPEND-only JSONL."
+      },
+      {
+        "path": "$SESSION_DIR/.lock",
+        "template": null,
+        "notes": "Session lock (cmi-lock-v1). Acquire + heartbeat daemon. Released by cleanup trap. Stale ≥30 min → auto-release (E008 WARN)."
+      },
+      {
+        "path": "$SESSION_DIR/phase1-init/Phase1-report.md",
+        "template": "templates/Phase1-report.md",
+        "notes": "Phase 1 report (CORE-028 ≤15 dòng tiếng Việt): flags, CI status, session info, args validation."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/entity-graph.json",
+        "template": "templates/entity-graph.json",
+        "schema": "entity-graph-v1",
+        "notes": "Domain entities + FK relations (Discovery #1). Source: GitNexus clusters + Serena find_symbol / fallback Glob Entities/."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/module-graph.json",
+        "template": "templates/module-graph.json",
+        "schema": "module-graph-v1",
+        "notes": "Module dependencies (Discovery #2). Source: GitNexus query(key_concept) / fallback Grep using.*Modules."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/workflow-graph.json",
+        "template": "templates/workflow-graph.json",
+        "schema": "workflow-graph-v1",
+        "notes": "Business workflows + state transitions (Discovery #3). Source: CQRS Commands/Handlers + state machines."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/api-graph.json",
+        "template": "templates/api-graph.json",
+        "schema": "api-graph-v1",
+        "notes": "API endpoints + request/response schemas (Discovery #4). Source: GitNexus route_map / fallback Grep MapPost|MapGet."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/event-graph.json",
+        "template": "templates/event-graph.json",
+        "schema": "event-graph-v1",
+        "notes": "Events + producers/consumers + broker config (Discovery #5). Source: GitNexus cypher + Serena find_refs / fallback Grep IntegrationEvent|DomainEvent."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/rbac-matrix.json",
+        "template": "templates/rbac-matrix.json",
+        "schema": "rbac-matrix-v1",
+        "notes": "Actors × Actions × Resources permission matrix (Discovery #6). 90+ RBAC permissions trong EUREKA."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/fe-component-graph.json",
+        "template": "templates/fe-component-graph.json",
+        "schema": "fe-component-graph-v1",
+        "notes": "v2.0 Discovery Plugin #7 (Stage 2 vertical slice + Stage 2.1 FE plugin set). FE component contracts + props + import edges từ apps/erp-web/components/**/*.tsx. Builder: .claude/scripts/wf-cmi/build-fe-component-graph.sh. Parser v1.0 Grep-based; upgrade path v2.1 → ts-morph AST. OPTIONAL — skip gracefully nếu erp-web không tồn tại (E137 WARN, write skipped placeholder). Consumed by lane CD11 (FE Component Contracts) qua graph_dependency. Stage 2.1 thêm 3 FE plugin graphs (fe-api-client/fe-permission/fe-route) cho CD13/CD15/CD25/CD38. BE plugin graphs (be-db-schema, be-domain, be-cqrs) PLANNED Stage 2.2 — chưa implement, lanes CD16/CD17/CD18 fallback Serena/Grep với WARN E133-E135."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/fe-api-client-graph.json",
+        "template": "templates/fe-api-client-graph.json",
+        "schema": "fe-api-client-graph-v1",
+        "notes": "v2.0 Discovery Plugin #8 (Stage 2.1 FE plugin). FE→BE API consumption: React Query hooks (useQuery/useMutation/useInfiniteQuery), Refit interfaces (IXxxApi với [Get/Post/Put/Delete/Patch] attributes), raw fetch()/axios.X() calls. Builder: .claude/scripts/wf-cmi/build-fe-api-client-graph.sh. Parser v1.0 Grep-based (mutationFn HTTP method default POST, endpoint_path heuristic 10 lines); upgrade path v2.1 → ts-morph cho full Refit signature + RQ generic type extraction. Sentinel prefix `EPv1:::` cho endpoint_path để bypass Git Bash MSYS POSIX path conversion. OPTIONAL — skip gracefully nếu apps/erp-web/ không tồn tại (E137 WARN). Consumed by lanes CD13 (FE↔BE Contract Sync) + CD38 (UI Implementation Coverage)."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/fe-permission-graph.json",
+        "template": "templates/fe-permission-graph.json",
+        "schema": "fe-permission-graph-v1",
+        "notes": "v2.0 Discovery Plugin #9 (Stage 2.1 FE plugin). UI permission guards: <PermissionGate permission=...>, usePermission(...), <Can permission=...|do=...on=...>, hasPermission(...) imperative, authorize/requireAuth/withAuth HOCs. Builder: .claude/scripts/wf-cmi/build-fe-permission-graph.sh. Parser v1.0 Grep-based (dynamic permission expressions → marked dynamic_or_variable); upgrade path v2.1 → ts-morph dynamic perm resolution. OPTIONAL — skip gracefully nếu apps/erp-web/ không tồn tại (E137 WARN). Consumed by lanes CD15 (UI Permission Mirror) + CD38 (UI Implementation Coverage). Cross-validate với rbac-permission-catalog.json SSOT."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/fe-route-graph.json",
+        "template": "templates/fe-route-graph.json",
+        "schema": "fe-route-graph-v1",
+        "notes": "v2.0 Discovery Plugin #10 (Stage 2.1 FE plugin). Next.js App Router structure: page.tsx, layout.tsx, middleware.ts, loading.tsx, error.tsx, not-found.tsx, template.tsx. Dynamic segments [param], route groups (group), protected route group (protected) convention. Builder: .claude/scripts/wf-cmi/build-fe-route-graph.sh. Parser v1.0 filesystem-based (KHÔNG cần AST). Sentinel prefix `ROUTEv1:::` cho route_path để bypass Git Bash MSYS POSIX path conversion (e.g. /dashboard không bị convert thành C:/Program Files/Git/dashboard). Upgrade path v2.1 → AST cho generateMetadata() + middleware matcher config parse. OPTIONAL — skip gracefully nếu apps/erp-web/app/ không tồn tại (E137 WARN). Consumed by lanes CD25 (UX Flow Continuity) + CD38 (UI Implementation Coverage)."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/be-domain-graph.json",
+        "template": "templates/be-domain-graph.json",
+        "schema": "be-domain-graph-v1",
+        "notes": "v2.0 Discovery Plugin #11 (Stage 2.2 BE plugin set COMPLETE — 2026-05-16). C# .NET 10 DDD patterns: AggregateRoot<TId> / Entity<TId> / ValueObject / IDomainEvent / IDomainEventHandler<TEvent> / Specification<T> / IRepository*. Builder: .claude/scripts/wf-cmi/build-be-domain-graph.sh (Grep + Python helper cho multi-base parsing + --slurpfile cho large data bypass). Parser v1.0: Grep base type matching, line-based class declaration parse, properties_count heuristic. Edges: inherits_from (per base) + handles_event (IDomainEventHandler<EventName>) + raises_event (RaiseDomainEvent/AddDomainEvent attribute to LAST aggregate in file). Smoke-tested với EUREKA-2026: 944 nodes / 1338 edges / 18 modules / kinds={aggregate_root:283, entity:510, value_object:19, domain_event:81, domain_event_handler:47, specification:4, repository_interface:0}. Upgrade path v2.1 → Roslyn syntax tree analyzer cho full type resolution + multi-aggregate raises_event attribution + Repository interface scan trong Infrastructure/Persistence/. OPTIONAL — skip gracefully nếu apps/backend/ hoặc */Domain/ subdirs không tồn tại (E137 WARN). Consumed by lane CD16 (Domain Logic Integrity) qua graph_dependency. Cross-validate với mdm-canonical-entities.json SSOT. Stage 2.2 BE plugin set COMPLETE 2026-05-16 — be-db-schema-graph (Plugin #12) + be-cqrs-graph (Plugin #13) implemented song song."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/be-db-schema-graph.json",
+        "template": "templates/be-db-schema-graph.json",
+        "schema": "be-db-schema-graph-v1",
+        "notes": "v2.0 Discovery Plugin #12 (Stage 2.2 BE plugin set COMPLETE — 2026-05-16). EF Core 6+ DB schema cumulative state từ DbContextModelSnapshot.cs (primary) + Migrations/*.cs (fallback). Builder: .claude/scripts/wf-cmi/build-be-db-schema-graph.sh (Python helper inline cho fluent API multi-line parsing — HasColumnType/HasMaxLength/IsRequired/HasIndex/HasOne span lines until `;`). Parser v1.0: tables (CREATE TABLE + ToTable), columns (Property<Type>), primary keys (HasKey), indexes (HasIndex with IsUnique/HasFilter), foreign keys (HasOne+HasForeignKey+OnDelete). Smoke-tested với EUREKA-2026: 1249 tables / 13827 columns / 0 FKs (snapshot HasOne không có) / 2121 indexes (313 unique) / modules=[Infrastructure, Migration] (single DbContext aggregates). Upgrade path v2.1 → `dotnet ef dbcontext info --json` cho full metadata + Roslyn OnModelCreating analysis + per-module table attribution. Max file size 16MB (snapshots cho enterprise có thể 3-10MB). OPTIONAL — skip gracefully nếu không có DbContextModelSnapshot.cs hoặc Migrations/*.cs (E137 WARN). Consumed by lane CD17 (Persistence Consistency) qua graph_dependency. Cross-validate với mdm-canonical-entities.json SSOT."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/be-cqrs-graph.json",
+        "template": "templates/be-cqrs-graph.json",
+        "schema": "be-cqrs-graph-v1",
+        "notes": "v2.0 Discovery Plugin #13 (Stage 2.2 BE plugin set COMPLETE — 2026-05-16). MediatR + FluentValidation CQRS pipeline patterns: command/query (IRequest<TResponse>), request_handler (IRequestHandler<TReq,TResp>), validator (AbstractValidator<TReq>), pipeline_behavior (IPipelineBehavior<TReq,TResp>), notification (INotification), notification_handler (INotificationHandler<TNotif>). Builder: .claude/scripts/wf-cmi/build-be-cqrs-graph.sh (Python single-pass per file → JSON Lines accumulator, bulk jq aggregate — avoids O(n²) jq-append pattern cho 2000+ Application/ files). Coverage indicators: requests_without_handler / requests_without_validator / handlers_without_request (cho lane CD18 early warning). Edges: handles (handler→request), validates (validator→request), notifies (handler→notification). Smoke-tested với EUREKA-2026: 3260 nodes / 2698 edges / 18 modules / kinds={command:296, query:257, request_handler:1825, validator:855, pipeline_behavior:7, notification:1, notification_handler:19} / coverage={reqs_no_handler:33, reqs_no_validator:359, handlers_no_request:1288} (handlers_no_request cao do v1.0 dùng module heuristic — handler target có thể cross-module, v2.1 Roslyn fix). Performance: 2336 files ≈ 5-6 min. Upgrade path v2.1 → Roslyn syntax tree analyzer cho full namespace resolution + partial class dedup + cross-module link. OPTIONAL — skip gracefully nếu không có apps/backend/*/Application/ (E137 WARN). Consumed by lane CD18 (CQRS Pipeline Integrity) qua graph_dependency."
+      },
+      {
+        "path": "$SESSION_DIR/phase2-discovery/Phase2-report.md",
+        "template": "templates/Phase2-report.md",
+        "notes": "Phase 2 report (CORE-028 ≤18 dòng v2 relaxed cho 5 plugins): 6 core graphs + 5 plugin v2.0 summary (4 FE Stage 2.1 + 1 BE Stage 2.2 be-domain) + node/edge counts."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-invariants/business-invariants.json",
+        "template": "templates/business-invariants.json",
+        "schema": "business-invariants-v1",
+        "notes": "Per-session DRAFT (proposed status). 3-pass LLM inference output: Pass 1 cross-module pattern → Pass 2 domain heuristic → Pass 3 registry gap. Sync sang canonical sidecar tại Phase 7 sau CDG ACCEPT."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-invariants/invariants-diff.json",
+        "template": null,
+        "notes": "Per-session diff (optional) — invariant mới phát hiện so với canonical sidecar trước đó."
+      },
+      {
+        "path": "$SESSION_DIR/phase3-invariants/Phase3-report.md",
+        "template": "templates/Phase3-report.md",
+        "notes": "Phase 3 report (CORE-028 ≤15 dòng): N invariants candidate + confidence distribution + domain experts spawned."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/lanes/CD{N}-{name}/signals.json",
+        "template": "templates/signals.json",
+        "schema": "signals-v1",
+        "notes": "Per-lane signals output (shared schema với wf-fix-bugs lane signals). 1 file = 1 writer (lane agent ownership). v2.0: subdirectory format `CD{N}-{name}` (vd `CD11-fe-component-contracts/`) thay vì `CD{N}` để phân biệt 26 lanes."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/lanes/CD{N}-{name}/lane-status.json",
+        "template": "templates/lane-status.json",
+        "notes": "Per-lane execution status: pending/running/completed/failed/skipped + duration_sec + wave (1/2/3)."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/lanes/CD{N}-{name}/CD{N}-{name}-report.md",
+        "template": "templates/CD-report.md",
+        "notes": "Per-lane CORE-028 Vietnamese report (≤15 dòng). 1 per active lane (7-26 reports tùy profile)."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/lanes/CD41-e2e-synth/scenarios-manifest.json",
+        "template": "templates/scenarios-manifest.json",
+        "schema": "scenarios-manifest-v1",
+        "notes": "v3.0 NEW (Stage 2). CD41-specific output: manifest inventory cho Phase 9 PRE-GATE consume. Schema `scenarios-manifest-v1` — fields: session_id/lane=CD41/mode=browser|api-only/total_synthesized/total_valid/total_skipped_low_confidence/total_cross_module/scenarios[]/metadata.filter_dims/filter_severities/max_scenarios_cap. Atomic write via Step CD41.5. Phase 9 consume làm input load scenarios."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/lanes/CD41-e2e-synth/scenarios/test-scenario-CMI-{NN}-{slug}.md",
+        "template": "templates/test-scenario.template.md",
+        "schema": "scenario-md-v1",
+        "notes": "v3.0 NEW (Stage 2). CD41-specific output: scenario files render từ template. Frontmatter YAML với 14 fields bắt buộc (scenario_id/generated_by/generated_at/session_id/source_violation_id/source_invariant_id/source_dim/severity/scenario_type/modules_involved/cross_module/confidence/entry_url/actor; mode optional). Bảng Bước trong body (5 columns: Bước|Hành động|Kết quả mong đợi|Kết quả thực tế|Pass/Fail). Phase 9 runner sẽ fill 2 cột cuối sau execute. Compatible với wf-e2e-scenario lint-scenario.sh (Stage 4 sẽ port). 1 file per qualifying violation (cap MAX_SCENARIOS=40)."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/Phase4-report.md",
+        "template": "templates/Phase4-report.md",
+        "notes": "Phase 4 report (CORE-028 ≤15 dòng): lanes activated + signals count total + per-wave PASS/FAIL/TIMEOUT breakdown."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/wave-status.json",
+        "template": "templates/wave-status.json",
+        "notes": "v2.0 Stage 5 Dispatcher refinement (2026-05-16). Schema `wave-status-v1` — per-wave execution tracking (wave_1/2/3 + overall_status + current_wave + all_waves_complete). Written atomic bởi `.claude/scripts/wf-cmi/wave-coordinator.sh` subcommands (init/start/end/status/gate-check). Init ở Phase 4 Step 4.2, start before Agent batch spawn, end sau batch return với gate threshold check (≥3 fail W1/W2 → E120/E121; ≥2 fail W3 → E122; 1-2 fail → E123 PARTIAL_FAIL). Exit codes: 0=PASS, 1=FAIL_THRESHOLD (STOP dispatch), 2=PARTIAL_FAIL (continue + retry). Idempotent: re-run `end` cùng wave KHÔNG double-count totals. Cho phép --resume mid-wave."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-coverage/probe-failures.log",
+        "template": null,
+        "notes": "JSONL log probe failures (timeout, crash, schema invalid). APPEND-only — KHÔNG WRITE template content vào file output."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-aggregate/coverage-matrix.json",
+        "template": "templates/coverage-matrix.json",
+        "schema": "coverage-matrix-v2",
+        "notes": "Aggregated coverage 35 dims (26 active + 9 SKIPPED markers). v2.0 schema bump: dimensions{} mở rộng từ CD1-CD10 → CD1-CD40 (gồm SKIPPED status='SKIPPED' với coverage_pct=null). CD32-CD36 (skeleton v3-deferred) KHÔNG present trong matrix v2. Threshold check tại đây — deep ≥95%, exhaustive =100% mọi active dim."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-aggregate/coverage-report.md",
+        "template": "templates/coverage-report.md",
+        "notes": "User-facing coverage table (CORE-028 ≤15 dòng tiếng Việt): per-dim coverage_pct + status."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-aggregate/signals-aggregated.jsonl",
+        "template": null,
+        "notes": "APPEND-only JSONL aggregated signals từ tất cả lanes (post-dedup fingerprint)."
+      },
+      {
+        "path": "$SESSION_DIR/phase5-aggregate/Phase5-report.md",
+        "template": "templates/Phase5-report.md",
+        "notes": "Phase 5 report (CORE-028 ≤15 dòng): overall coverage + threshold status + CDG E090 trigger nếu < threshold."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-regression/regression-map.json",
+        "template": "templates/regression-map.json",
+        "schema": "regression-map-v1",
+        "notes": "Predictive impact map: changed_files × predicted_modules × confidence + test_plan. Skip nếu --profile=quick hoặc --since không set."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-regression/regression-report.md",
+        "template": "templates/regression-report.md",
+        "notes": "Regression scope report (CORE-028 ≤15 dòng tiếng Việt): changed files + affected modules + test plan."
+      },
+      {
+        "path": "$SESSION_DIR/phase6-regression/Phase6-report.md",
+        "template": "templates/Phase6-report.md",
+        "notes": "Phase 6 report (CORE-028 ≤15 dòng): predictive vs diff-aware mode + confidence stats."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-gap-cdg/gap-suggestions.json",
+        "template": "templates/gap-suggestions.json",
+        "schema": "gap-suggestions-v1",
+        "notes": "Suggestions per kind (test_case, invariant_rule, api_contract) — status proposed/accepted/rejected/deferred."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-gap-cdg/gap-report.md",
+        "template": "templates/gap-report.md",
+        "notes": "GAP detection + auto-suggestions report (CORE-028 ≤30 dòng tiếng Việt)."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-gap-cdg/cdg-decisions.jsonl",
+        "template": null,
+        "notes": "APPEND-only CDG decision log: per-suggestion ACCEPT/REJECT/DEFER + approver email + timestamp + lý do (E094, E095 audit)."
+      },
+      {
+        "path": "$SESSION_DIR/phase7-gap-cdg/Phase7-report.md",
+        "template": "templates/Phase7-report.md",
+        "notes": "Phase 7 report (CORE-028 ≤15 dòng): N suggestions + N accepted + N sidecar APPEND."
+      },
+      {
+        "path": "$SESSION_DIR/phase8-report/integrity-report.md",
+        "template": "templates/integrity-report.md",
+        "notes": "Báo cáo user-facing chính v3 (CORE-028 ≤70 dòng max bound: 55 dòng v2 base + 15 dòng E2E Execution Summary conditional; 44-48 dòng typical 0-3 violations + --exec-scenarios off): 7-8 grouped sections (Core/Frontend/Backend/UX/Logistics ★★★/Compliance ★★★/Implementation ★) + Wave dispatch summary (W1/W2/W3) + Top 10 violations severity-weighted + [E2E Execution Summary v3 conditional khi --exec-scenarios bật] + Đề xuất + Regression scope + Khuyến nghị. Stage 3 v3 update 2026-05-16."
+      },
+      {
+        "path": "$SESSION_DIR/phase8-report/integrity-impact.json",
+        "template": "templates/integrity-impact.json",
+        "schema": "integrity-impact-v3",
+        "notes": "Cross-skill artifact PRIMARY (CORE-036). Consumed bởi 4 skills downstream qua --from-cmi + wf-e2e-credentials (v3 NEW). v3.0 schema bump (2026-05-16): thêm `e2e_execution_summary` (null nếu KHÔNG --exec-scenarios) + `scenarios_artifacts[]` ([] nếu KHÔNG --exec-scenarios) cho Phase 9-10 E2E Engine. ALL fields v1 + v2 preserved 100%. BACKWARD-COMPAT REQUIRED: consumer skills (wf-verify-sync/wf-fix-bugs/wf-implement-feature/wf-prepare-deployment) PHẢI read được cả $schema='integrity-impact-v1' (legacy) AND 'integrity-impact-v2' (v2 session) AND 'integrity-impact-v3' (v3 session). v1/v2 readers ignore v3 NEW fields. PHẢI có $schema + audit_chain.source + audit_chain.checksum + git_commit + git_branch + author."
+      },
+      {
+        "path": "$SESSION_DIR/phase8-report/Phase8-report.md",
+        "template": "templates/Phase8-report.md",
+        "notes": "Phase 8 report (CORE-028 ≤15 dòng): pipeline DONE + artifact paths + next step recommendations."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/e2e-execution-report.md",
+        "template": "templates/e2e-execution-report.md",
+        "notes": "Phase 9 user-facing report (v3 NEW): chi tiết execute từng scenario qua Playwright MCP. 6 sections: Tổng quan + Setup environment + Per scenario detail + Cross-module + Quarantined + Phase Summary. CHỈ tạo khi --exec-scenarios + ≥1 scenario CD41 sinh ra."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/e2e-results.json",
+        "template": "templates/e2e-results.json",
+        "schema": "e2e-results-v1",
+        "notes": "Phase 9 structured output (v3 NEW): per-scenario execution result với evidence paths + timing + auto-fix outcome. Consumed by Phase 10 (resolution input) + Phase 8 (E2E Summary aggregation) + integrity-impact-v3.scenarios_artifacts[]."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/lint-report.json",
+        "template": "templates/lint-report.json",
+        "schema": "lint-report-v1",
+        "notes": "Phase 9 §G1.1 output (v3 NEW): lint scenarios PRE-GATE. PASS/WARN/FAIL per scenario với errors[]. has_critical_errors=true → BLOCK Phase 9 execute. Stage 4 script lint-scenario.sh sẽ render template này."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/lint-fixes.md",
+        "template": "templates/lint-fixes.md",
+        "notes": "Phase 9 §G1.1 user-facing fix guide (v3 NEW): suggestions khi lint FAIL/WARN. CHỈ tạo khi lint-report.json has_critical_errors=true HOẶC has_warnings=true."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/stable-registry.json",
+        "template": "templates/stable-registry.json",
+        "schema": "stable-registry-v1",
+        "notes": "Phase 9 §G1.3 output (v3 NEW): track scenarios verified stable 5/5 pre-flight. TTL 30 ngày. Cross-session shared (registry_owner=wf-cmi v3.0). Stable hit → skip 5x pre-flight cho scenario hash match."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/quarantine-report.json",
+        "template": "templates/quarantine-report.json",
+        "schema": "quarantine-report-v1",
+        "notes": "Phase 9 §G1.5 output (v3 NEW): scenarios bị quarantine (flaky/lint_fail/persistent_fail). 1 file per session aggregate (KHÔNG 1 per scenario như wf-e2e-scenario legacy). Quarantined SKIP Phase 9 execute + Phase 10 resolution."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/screenshots/scenario-{NN}-{slug}.png × N",
+        "template": null,
+        "notes": "Phase 9 Step 9.6 evidence (v3 NEW): browser_take_screenshot per scenario. Path stored vào e2e-results.json.scenarios[].evidence.screenshot_path. --strict-evidence: thiếu screenshot → mark scenario evidence_missing."
+      },
+      {
+        "path": "$SESSION_DIR/phase9-e2e-execute/Phase9-report.md",
+        "template": "templates/Phase9-report.md",
+        "notes": "Phase 9 report (v3 NEW, CORE-028 ≤15 dòng tiếng Việt): scenarios executed + pass/fail + auto-corrected + quarantined + cross-module + duration + next step."
+      },
+      {
+        "path": "$SESSION_DIR/phase10-e2e-resolution/resolution-report.md",
+        "template": "templates/resolution-report.md",
+        "notes": "Phase 10 user-facing report (v3 NEW): failure analysis 7-type + 2-phase auto-fix outcomes + loop-back gap-suggestions APPEND. 6 sections: Tổng quan + Classification matrix + Per-failure resolution + Auto-fix outcomes + Loop-back suggestions + Phase Summary. CHỈ tạo khi Phase 9 có ≥1 FAIL."
+      },
+      {
+        "path": "$SESSION_DIR/phase10-e2e-resolution/Phase10-report.md",
+        "template": "templates/Phase10-report.md",
+        "notes": "Phase 10 report (v3 NEW, CORE-028 ≤15 dòng tiếng Việt): FAIL classified per type + auto-fix outcomes + loop-back APPEND count + next step."
+      },
+      {
+        "path": ".mc-data/work/wf-cmi/business-invariants.json",
+        "template": "templates/business-invariants.json",
+        "schema": "business-invariants-v1",
+        "notes": "CANONICAL SIDECAR ARTIFACT (project-scoped, APPEND-only). Sync từ Phase 7 sau CDG E094 ACCEPT. audit_chain.source_registry_checksum detect stale. Consumers đọc qua --from-cmi flag hoặc implicit (wf-design / wf-add-scope). ADR-cmi-002 Revised — KHÔNG bump registry."
+      },
+      {
+        "path": ".mc-data/work/wf-cmi/_index/sessions.jsonl",
+        "template": null,
+        "notes": "APPEND-only JSONL session index. Git-friendly. Dual-write: global index + per-session log."
+      },
+      {
+        "path": ".mc-data/work/wf-cmi/_locks/business-invariants.rwlock",
+        "template": null,
+        "notes": "Cross-session R/W lock (Protocol 22). Read-heavy phases (1-6) acquire READ lock; Phase 7 sidecar sync acquire WRITE lock."
+      }
+    ],
+    "docs": [],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "none",
+      "description": "wf-cmi KHÔNG touch req-registry.json (ADR-cmi-002 Revised — sidecar artifact pattern). Read-only consumer."
+    }
+  },
+  "registry_scope": {
+    "write_role": "NONE",
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006 — wf-cmi không có quyền write registry. Mọi invariant đi vào sidecar artifact business-invariants.json riêng (ADR-cmi-002 Revised).",
+    "notes": "Read-only consumer của req-registry.json để cross-link invariants qua req_id_ref. Producer của sidecar artifact (canonical sidecar pattern)."
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "orchestrates": [],
+    "internal_phases": [
+      {
+        "phase": 1,
+        "name": "Init + CI PRE-GATE",
+        "procedure_file": "procedures/phase1-init.md",
+        "trigger": "SKILL.md entry (fresh run)",
+        "writes": [
+          "integrity-status.json",
+          "session-log.json",
+          "error-ledger.json",
+          "phase1-init/Phase1-report.md",
+          ".lock"
+        ],
+        "mode": "SEQUENTIAL"
+      },
+      {
+        "phase": 2,
+        "name": "Discovery (6 core + 1 plugin v2.0)",
+        "procedure_file": "procedures/phase2-discovery.md",
+        "trigger": "Phase 1 POST-GATE pass",
+        "writes": [
+          "phase2-discovery/entity-graph.json",
+          "phase2-discovery/module-graph.json",
+          "phase2-discovery/workflow-graph.json",
+          "phase2-discovery/api-graph.json",
+          "phase2-discovery/event-graph.json",
+          "phase2-discovery/rbac-matrix.json",
+          "phase2-discovery/fe-component-graph.json (v2.0 plugin — optional, skip nếu erp-web không có)",
+          "phase2-discovery/Phase2-report.md"
+        ],
+        "mode": "HYBRID",
+        "concurrency": "6 core graph builders parallel + 1 plugin builder (fe-component) via delegated script `.claude/scripts/wf-cmi/build-fe-component-graph.sh`. v2.0 Stage 2 vertical slice. PLANNED v2.0: 6 more plugin graphs (fe-api-client, fe-permission, fe-route, be-db-schema, be-domain, be-cqrs) sẽ scale từ pattern này."
+      },
+      {
+        "phase": 3,
+        "name": "Invariant Artifact",
+        "procedure_file": "procedures/phase3-invariant-artifact.md",
+        "trigger": "Phase 2 POST-GATE pass",
+        "writes": [
+          "phase3-invariants/business-invariants.json (per-session draft)",
+          "phase3-invariants/invariants-diff.json",
+          "phase3-invariants/Phase3-report.md"
+        ],
+        "mode": "PARALLEL",
+        "concurrency": "Max 10 domain experts (CORE-025) route theo department. 3-pass LLM kế thừa QD11.",
+        "gates": [
+          "E091 Cross-domain conflict"
+        ]
+      },
+      {
+        "phase": 4,
+        "name": "Coverage Dispatch (26 lanes Gói C++ Logistics)",
+        "procedure_file": "procedures/phase4-coverage-dispatch.md",
+        "trigger": "Phase 3 POST-GATE pass",
+        "writes": [
+          "phase4-coverage/lanes/CD*/signals.json",
+          "phase4-coverage/lanes/CD*/lane-status.json",
+          "phase4-coverage/lanes/CD*/CD*-report.md",
+          "phase4-coverage/Phase4-report.md",
+          "phase4-coverage/wave-status.json",
+          "phase4-coverage/probe-failures.log"
+        ],
+        "mode": "3-WAVE PARALLEL (max 10 concurrent per wave)",
+        "concurrency": "Lane activation matrix theo profile: quick=7 lanes (Wave 1 only), standard=13 lanes (W1=10, W2=2, W3=1), deep=26 lanes (W1=10, W2=10, W3=6), exhaustive=35 lanes (W1=10, W2=10, W3=10, W_deferred=5). KHÔNG dispatch CD32-CD36 trong v2.0 (skeleton v3-deferred). Per-wave gate check qua `.claude/scripts/wf-cmi/wave-coordinator.sh end $SESSION_DIR $WAVE_ID` (v2.0 Stage 5 NEW): exit 0=PASS (continue), exit 1=FAIL_THRESHOLD (≥3 W1/W2 hoặc ≥2 W3 → E120/E121/E122 STOP dispatch), exit 2=PARTIAL_FAIL (1-2 fail → E123 WARN + retry per Step 4.7)."
+      },
+      {
+        "phase": 5,
+        "name": "Aggregate (26 dims active + 9 SKIPPED markers)",
+        "procedure_file": "procedures/phase5-aggregate.md",
+        "trigger": "Phase 4 POST-GATE pass",
+        "writes": [
+          "phase5-aggregate/coverage-matrix.json",
+          "phase5-aggregate/coverage-report.md",
+          "phase5-aggregate/signals-aggregated.jsonl",
+          "phase5-aggregate/Phase5-report.md"
+        ],
+        "mode": "SEQUENTIAL",
+        "early_exit": "Coverage 100% + 0 violations → E005 healthy → skip Phase 6-7, jump Phase 8.",
+        "gates": [
+          "E090 Coverage threshold"
+        ],
+        "matrix_dims": "v2.0: 35 dim entries (26 active dispatched + 9 SKIPPED với status='SKIPPED', coverage_pct=null). CD32-CD36 KHÔNG present trong matrix v2 (skeleton). Threshold: quick≥60%, standard≥80%, deep≥95%, exhaustive=100% mọi active dim."
+      },
+      {
+        "phase": 6,
+        "name": "Regression Map",
+        "procedure_file": "procedures/phase6-regression.md",
+        "trigger": "Phase 5 POST-GATE pass",
+        "writes": [
+          "phase6-regression/regression-map.json",
+          "phase6-regression/regression-report.md",
+          "phase6-regression/Phase6-report.md"
+        ],
+        "mode": "SEQUENTIAL",
+        "skip_condition": "--profile=quick OR --since không set → skip với INFO."
+      },
+      {
+        "phase": 7,
+        "name": "GAP + CDG",
+        "procedure_file": "procedures/phase7-gap-cdg.md",
+        "trigger": "Phase 5 POST-GATE pass (hoặc skip Phase 6)",
+        "writes": [
+          "phase7-gap-cdg/gap-suggestions.json",
+          "phase7-gap-cdg/gap-report.md",
+          "phase7-gap-cdg/cdg-decisions.jsonl",
+          "phase7-gap-cdg/Phase7-report.md",
+          ".mc-data/work/wf-cmi/business-invariants.json (APPEND sidecar)"
+        ],
+        "mode": "HYBRID",
+        "gates": [
+          "E094 Sidecar APPEND confirm",
+          "E095 Multi-user dual-approval"
+        ]
+      },
+      {
+        "phase": 8,
+        "name": "Report (v3 mở rộng E2E Summary)",
+        "procedure_file": "procedures/phase8-report.md",
+        "stage_6_status": "phase8-report-v3-DONE-2026-05-17",
+        "trigger": "Phase 7 POST-GATE pass (HOẶC Phase 10 POST-GATE pass nếu Phase 9-10 chạy — re-write integrity-report v3 + integrity-impact v3 với 2 fields populated)",
+        "writes": [
+          "phase8-report/integrity-report.md (v3: ≤55 dòng v2 base / ≤70 dòng v3 max bound với E2E section)",
+          "phase8-report/integrity-impact.json (schema v3: $schema=integrity-impact-v3, skill_version=3.0.0, readable_by=[v1,v2,v3], 2 v3 fields e2e_execution_summary + scenarios_artifacts)",
+          "phase8-report/Phase8-report.md (CORE-028 ≤15 dòng tiếng Việt)"
+        ],
+        "reads": [
+          "phase5-aggregate/coverage-matrix.json (v2/v3 36 dims)",
+          "phase5-aggregate/signals-aggregated.jsonl",
+          "phase3-invariants/business-invariants.json",
+          "phase6-regression/regression-map.json (optional, skip nếu không có)",
+          "phase7-gap-cdg/gap-suggestions.json (v3 đọc thêm e2e_scenario_fix entries cho N_E2E_FIX placeholder)",
+          "phase9-e2e-execute/e2e-results.json (v3 conditional — Phase 9 đã chạy)",
+          "phase4-coverage/lanes/CD41-e2e-synth/scenarios-manifest.json (v3 conditional — CD41 đã dispatch)",
+          "phase10-e2e-resolution/resolution-report.md (v3 conditional — Phase 10 đã chạy)",
+          "integrity-status.json (.phases_completed + .phase10_summary cho phase10_duration_ms)"
+        ],
+        "mode": "SEQUENTIAL",
+        "auto_fix_budget": "3 retries",
+        "time_estimate_sec": "45-60 v2 base + 10-15 v3 nếu Phase 9-10 chạy",
+        "gates": [
+          "PRE-GATE T1 Phase 1-7 PASS (+Phase 9-10 nếu v3 trigger)",
+          "PRE-GATE T2 templates exist (integrity-report.md, integrity-impact.json, Phase8-report.md)",
+          "PRE-GATE T3 coverage-matrix valid schema (v2 hoặc v3)",
+          "PRE-GATE T4 phase8-report/ writable",
+          "POST-GATE T1 3 output files exist",
+          "POST-GATE T2 (v3) integrity-impact.json schema integrity-impact-v3 + skill_version=3.0.0 + readable_by=[v1,v2,v3] + has(e2e_execution_summary) + has(scenarios_artifacts) + v2 fields preserved (lanes_v2.active, wave_breakdown.wave_1, group_breakdown.logistics.critical, logistics_critical_signals_count.total) + audit_chain.checksum",
+          "POST-GATE T3 integrity-report ≤55 v2 base / ≤70 v3 max bound + 0 leftover placeholders",
+          "POST-GATE T4 cross-skill artifact paths khớp produces_for{} (4 consumers)",
+          "POST-GATE T5 (v3 NEW) E2E section conditional render — Phase 9 chạy → có '## 3.5. E2E Execution Summary'; Phase 9 không chạy → KHÔNG có section",
+          "audit_chain.checksum verify"
+        ],
+        "v3_note": "v3.0: integrity-report.md thêm section E2E Execution Summary conditional --exec-scenarios. integrity-impact.json schema bumped v2→v3 (2 fields mới = null/[] nếu Phase 9-10 không chạy). Sau Phase 10 (nếu chạy) → Phase 8 re-write 2 fields với actual data từ e2e-results.json.",
+        "stage_6_implementation_notes": "Step 8.1 load thêm 3 v3 sources (e2e-results.json + resolution-report.md + scenarios-manifest.json). Step 8.3.6b NEW compute E2E aggregates (N_SYNTH/N_EXEC/N_PASS/N_FAIL/N_QUARANTINED/N_CROSS_MODULE/PHASE9_DURATION/PHASE10_DURATION) + render E2E_SECTION_BLOCK ≤15 dòng. Step 8.3.7 sed thêm 2 placeholders mới ([ACTION_FOR_E2E], [N_E2E_FIX]). Awk insert thêm pass cho [E2E_SECTION] (4 temp files: tmp/tmp2/tmp3/tmp4). Step 8.4.6b NEW build e2e_execution_summary object + scenarios_artifacts[] array (per-scenario entry inherit từ manifest cross-ref). Step 8.4.13 jq merge bump $schema=v3 + skill_version=3.0.0 + thêm 2 v3 fields + del template reference objects (_e2e_execution_summary_template, _scenarios_artifacts_template_entry). POST-GATE T5 NEW conditional render check."
+      },
+      {
+        "phase": 9,
+        "name": "E2E Execute & Verify (v3.0 NEW — opt-in)",
+        "procedure_file": "procedures/phase9-e2e-execute.md",
+        "trigger": "Phase 8 POST-GATE pass AND --exec-scenarios ON AND scenarios-manifest.json (từ CD41) exists AND Playwright MCP available",
+        "skip_conditions": [
+          "--exec-scenarios không bật → SKIP Phase 9-10",
+          "CD41 không sinh scenarios (profile=quick|standard với 0 MUST/HIGH violation) → SKIP với E150b INFO",
+          "Playwright MCP unavailable (PRE-GATE T2 fail) → SKIP với E150 WARN, integrity-report v3 vẫn xuất với e2e_execution_summary=null"
+        ],
+        "writes": [
+          "phase9-e2e-execute/e2e-execution-report.md",
+          "phase9-e2e-execute/e2e-results.json",
+          "phase9-e2e-execute/screenshots/scenario-{NN}-{slug}.png × N",
+          "phase9-e2e-execute/lint-report.json",
+          "phase9-e2e-execute/lint-fixes.md (nếu lint FAIL)",
+          "phase9-e2e-execute/stable-registry.json (TTL 30 ngày)",
+          "phase9-e2e-execute/quarantine-report.json (nếu auto-quarantine)",
+          "phase9-e2e-execute/Phase9-report.md"
+        ],
+        "mode": "SEQUENTIAL",
+        "concurrency": "Browser-mcp.lock single — 1 scenario tại 1 thời điểm. PID + ISO timestamp, TTL 30 min, stale auto-release.",
+        "auto_fix_budget": "3 retries/scenario (browser-fix only — source-fix defer Phase 10)",
+        "engine": "Lazy-load procedures/_e2e-runner.md (port từ wf-e2e-scenario scenario-runner.md) + procedures/_screenshot-evidence.md",
+        "gates": [
+          "T1 scenarios-manifest exists",
+          "T2 Playwright MCP available",
+          "T3 FE running (HTTP 200 on baseURL)",
+          "T4 browser-mcp.lock acquirable",
+          "G1.1 Lint scenarios PASS (BLOCK fail)",
+          "G1.3 5x flakiness pre-flight (≤3/5 → auto-quarantine)"
+        ]
+      },
+      {
+        "phase": 10,
+        "name": "E2E Resolution (v3.0 NEW — auto-run)",
+        "procedure_file": "procedures/phase10-e2e-resolution.md",
+        "stage_5_status": "phase10-resolution-engine-DONE-2026-05-16",
+        "trigger": "Phase 9 POST-GATE pass AND e2e-results.json có ≥1 FAIL entry",
+        "skip_conditions": [
+          "Phase 9 0 FAIL → SKIP với INFO 'all scenarios PASS'",
+          "Phase 9 KHÔNG chạy → SKIP"
+        ],
+        "writes": [
+          "phase10-e2e-resolution/resolution-report.md",
+          "phase10-e2e-resolution/Phase10-report.md",
+          "UPDATE phase9-e2e-execute/e2e-results.json (enrich failure_type + layer + owner + auto_fix_attempts + final_status)",
+          "UPDATE phase7-gap-cdg/gap-suggestions.json (APPEND kind=e2e_scenario_fix, schema vẫn gap-suggestions-v1)"
+        ],
+        "mode": "HYBRID",
+        "concurrency": "Analysis sequential per issue + spawn agents PARALLEL max 3 (Phase B source-fix)",
+        "auto_fix_budget": "3 retries/issue (Phase A browser-fix x2 + Phase B source-fix x1 tổng)",
+        "engine": "Lazy-load procedures/_failure-analyzer.md (Stage 5 port từ wf-e2e-scenario failure-analyzer.md với CMI context enrich invariant_id+modules_involved+source_dim). Failure classify 7-type priority: AUTH_FAILURE > NETWORK_ERROR > DATA_MISSING > TEST_SELECTOR > UI_BUG > BUSINESS_RULE > UNKNOWN.",
+        "loop_back_guard": "APPEND gap-suggestions CHỈ kind='e2e_scenario_fix' (mới). KHÔNG re-trigger CD41 → tránh infinite loop. Per-session, scenario synth chỉ 1 lần ở Phase 4 Wave 3.",
+        "phase_b_guard": "Source-fix chỉ trigger khi --auto-fix-source ON + CDG E195 user Confirm. Default --auto-fix-source=OFF (an toàn).",
+        "gates": [
+          "T1 e2e-results.json có ≥1 FAIL",
+          "T2 failure-analyzer engine loadable",
+          "T3 agents available (qa-lead, developer, frontend-developer, dba, security, architect)",
+          "POST-GATE T1 resolution-report.md non-empty",
+          "POST-GATE T2 mỗi FAIL có resolution entry",
+          "POST-GATE T3 gap-suggestions.json schema gap-suggestions-v1 intact + có e2e_scenario_fix entries",
+          "POST-GATE T4 Phase10-report.md ≤15 dòng (CORE-028)",
+          "E195 CDG: source-fix confirm khi --auto-fix-source bật lần đầu trong session"
+        ]
+      }
+    ],
+    "execution_model": {
+      "mode": "inline",
+      "rationale": "wf-cmi spawn agents (domain experts Phase 3 + lane agents Phase 4) trực tiếp qua Agent tool — KHÔNG spawn sub-skill. Inline cho mọi project size; max concurrency 10 (CORE-025).",
+      "configurable_env_vars": {
+        "MCV3_CMI_MAX_CONCURRENCY": "Max parallel agents (default 10, range 1-10)",
+        "MCV3_CMI_LANE_TIMEOUT_SEC": "Timeout per lane (default 180s = 3 min)",
+        "MCV3_CMI_LOCK_STALE_MIN": "Stale lock threshold (default 30 min)",
+        "MCV3_CMI_CACHE_TTL_HOURS": "Scan cache TTL (default 24h quick/standard, 4h deep, 0 exhaustive)"
+      }
+    },
+    "produces_for": {
+      "wf-verify-sync": [
+        "phase8-report/integrity-impact.json (integrity-impact-v3) qua --from-cmi. Consumer PHẢI detect $schema field — v1+v2 reader OK với v3 artifact (v1+v2 fields preserved, ignore v3-only fields e2e_execution_summary/scenarios_artifacts)."
+      ],
+      "wf-fix-bugs": [
+        "phase8-report/integrity-impact.json (integrity-impact-v3) qua --from-cmi. Seed Phase 1 với MUST violations[] severity-weighted top 10. v2 thêm logistics_critical_signals_count.must_severity_count. v3 thêm e2e_execution_summary.fail_count để ưu tiên fix-bugs lane mapping với E2E FAIL signals."
+      ],
+      "wf-implement-feature": [
+        "phase8-report/integrity-impact.json (integrity-impact-v3) qua --from-cmi. Warn nếu touch invariant đang violate hoặc scenario đang FAIL trong scenarios_artifacts[]."
+      ],
+      "wf-prepare-deployment": [
+        "phase8-report/integrity-impact.json (integrity-impact-v3) qua --from-cmi. v3 BLOCK release thêm logic: e2e_execution_summary.fail_count > 0 HOẶC e2e_execution_summary.quarantined_count > 0. v2 BLOCK logic: logistics_critical_signals_count.must_severity_count > 0 HOẶC wave_breakdown.wave_X.gate_status == 'FAIL_THRESHOLD'. v1 reader fallback: coverage_matrix_summary.status == 'FAIL'."
+      ],
+      "wf-design": [
+        ".mc-data/work/wf-cmi/business-invariants.json (business-invariants-v1) — implicit read khi design module mới"
+      ],
+      "wf-add-scope": [
+        ".mc-data/work/wf-cmi/business-invariants.json — implicit read khi validate module/feature mới"
+      ],
+      "wf-e2e-credentials": [
+        "phase9-e2e-execute/e2e-credentials-request.json (e2e-credentials-request-v1) — implicit Phase 9 query vault nếu test scenario có auth (NEW v3, optional)"
+      ]
+    },
+    "produces_for_schema_compat": {
+      "$schema_field_in_artifact": "integrity-impact-v3",
+      "readable_by": [
+        "integrity-impact-v1",
+        "integrity-impact-v2",
+        "integrity-impact-v3"
+      ],
+      "backward_compat_contract": "Consumer skills (wf-verify-sync, wf-fix-bugs, wf-implement-feature, wf-prepare-deployment) MUST detect $schema field. If 'integrity-impact-v1' → v1 reader logic (legacy session). If 'integrity-impact-v2' → v1 reader OK (all v1 fields preserved) HOẶC v2 reader (lanes_v2/wave_breakdown/group_breakdown/logistics_critical_signals_count). If 'integrity-impact-v3' → v1+v2 reader OK (v1+v2 fields preserved) HOẶC v3 reader (full access e2e_execution_summary + scenarios_artifacts[]). Producer wf-cmi v3 ALWAYS writes $schema='integrity-impact-v3' + complete v1+v2+v3 fields. v3 fields = null/[] nếu --exec-scenarios không bật. Stage 6 v3 contract định nghĩa 2026-05-16."
+    },
+    "consumes_from": {
+      "wf-brainstorm": [
+        ".mc-data/docs/_meta/req-registry.json (BẮT BUỘC, READ-ONLY)"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/phase1-business/*.md (BẮT BUỘC)",
+        ".mc-data/docs/_meta/dept-digests.json (BẮT BUỘC)"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/[sys]/[mod]/[feat].md (BẮT BUỘC)"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/*.md (BẮT BUỘC)",
+        ".mc-data/docs/_meta/design-input-digest.json (BẮT BUỘC)"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/work/wf-implement-feature/{sys}/{feat}/sessions/{id}/impl-status.json (impl-status-v2) — OPTIONAL --from-impl"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-fix-bugs/sessions/{id}/phase7-verify/fix-impact.json (fix-impact-v1) — OPTIONAL --from-fix-bugs"
+      ],
+      "wf-verify-sync": [
+        ".mc-data/work/wf-verify-sync/sessions/{id}/verify-sync-impact.json — OPTIONAL --from-verify-sync"
+      ],
+      "wf-e2e-finding": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/cross-module-gaps.md per FEAT — OPTIONAL"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/project-context.md (CORE-021 LEGACY_MODE auto-detect)",
+        ".mc-data/work/legacy-scan/module-code-mapping.json — OPTIONAL"
+      ]
+    }
+  },
+  "orchestrator_gates": [
+    {
+      "phase": 1,
+      "name": "Scope × Profile auto-upgrade CDG",
+      "procedure_file": "procedures/phase1-init.md",
+      "trigger": "--scope=system + --profile=quick",
+      "user_question": "Scope=system với profile=quick có thể miss coverage. Upgrade → standard?",
+      "error_codes": [
+        "E091"
+      ]
+    },
+    {
+      "phase": 1,
+      "name": "Parallel-session conflict CDG (E090b)",
+      "procedure_file": "procedures/phase1-init.md",
+      "trigger": "Peer session đang chạy cùng scope hoặc cùng cache key",
+      "user_question": "Phiên Y đang chạy. Wait / Cancel / Force release?",
+      "error_codes": [
+        "E090b"
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Cross-domain conflict CDG",
+      "procedure_file": "procedures/phase3-invariant-artifact.md",
+      "trigger": "≥2 domain experts opinion lệch nhau về 1 invariant",
+      "anti_loop_guard": "max 2 reject per CDG-id → ESCALATE",
+      "error_codes": [
+        "E091",
+        "E036"
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Coverage threshold CDG (E090)",
+      "procedure_file": "procedures/phase5-aggregate.md",
+      "trigger": "Bất kỳ dim < threshold per profile",
+      "user_question": "Coverage X% < threshold Y%. Accept gap / Generate artifacts / Cancel?",
+      "default_action": "ABORT",
+      "error_codes": [
+        "E090"
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "Sidecar APPEND confirmation CDG (E094)",
+      "procedure_file": "procedures/phase7-gap-cdg.md",
+      "trigger": "Sắp APPEND N invariants vào canonical sidecar business-invariants.json",
+      "user_question": "Sẽ APPEND N invariants vào sidecar artifact. Confirm?",
+      "default_action": "ABORT",
+      "anti_loop_guard": "max 2 reject → ESCALATE",
+      "error_codes": [
+        "E094"
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "Multi-user dual-approval CDG (E095)",
+      "procedure_file": "procedures/phase7-gap-cdg.md",
+      "trigger": "Invariant `severity=MUST` được approve bởi Dev A, cần Dev B (current user) approve",
+      "user_question": "Dev A approved invariant X. Bạn (Dev B) approve to commit?",
+      "default_action": "DEFER",
+      "error_codes": [
+        "E095"
+      ]
+    }
+  ],
+  "resume_routing": {
+    "description": "--resume & --status handlers trong procedures/resume-status.md. --status: 7 steps display phase table + CI status + lock status + next action. --resume: 10 steps find session → read state → stale check (≥30 min auto-release) → acquire lock → route to next_action phase.",
+    "procedure_file": "procedures/resume-status.md",
+    "stale_threshold_min": 30,
+    "session_id_format": "YYYY-MM-DD-{scope}-{slug}-NN"
+  },
+  "errors": {
+    "E001": {
+      "code": "E001",
+      "severity": "critical",
+      "description": "POST-GATE fail sau 3 retries — auto-fix budget hết, DỪNG phase, escalate AskUserQuestion."
+    },
+    "E002": {
+      "code": "E002",
+      "severity": "medium",
+      "description": "User REJECT CDG decision — Checkpoint, thông báo --resume."
+    },
+    "E003": {
+      "code": "E003",
+      "severity": "critical",
+      "description": "Registry thiếu/rỗng (Phase 1 T1-T3 fail) — STOP, hướng dẫn /wf-brainstorm hoặc /existing-project."
+    },
+    "E004": {
+      "code": "E004",
+      "severity": "critical",
+      "description": "Procedure file không tồn tại — STOP workflow."
+    },
+    "E005": {
+      "code": "E005",
+      "severity": "info",
+      "description": "0 violations + 100% coverage — system healthy, early-exit OK. Phase 5/7/8 jump."
+    },
+    "E008": {
+      "code": "E008",
+      "severity": "medium",
+      "description": "Stale lock detected (≥30 min) — auto-release, WARN, continue."
+    },
+    "E009": {
+      "code": "E009",
+      "severity": "critical",
+      "description": "Context budget >90% — FORCE STOP (CORE-038), checkpoint bắt buộc, hướng dẫn --resume."
+    },
+    "E010": {
+      "code": "E010",
+      "severity": "critical",
+      "description": "Phase 1: Registry missing (req-registry.json không tồn tại) — ESCALATE → /wf-brainstorm hoặc /existing-project."
+    },
+    "E011": {
+      "code": "E011",
+      "severity": "critical",
+      "description": "Phase 1: Registry schema invalid (jq parse fail) — ESCALATE user fix manual."
+    },
+    "E012": {
+      "code": "E012",
+      "severity": "high",
+      "description": "Phase 1: Registry empty (requirements.length == 0) hoặc args conflict (--auto-suggest + --ci mutually exclusive) — ESCALATE."
+    },
+    "E013": {
+      "code": "E013",
+      "severity": "high",
+      "description": "Phase 1: Phase 3 architecture docs missing — ESCALATE → /wf-design trước."
+    },
+    "E014": {
+      "code": "E014",
+      "severity": "high",
+      "description": "Phase 1: --since=<ref> invalid (git rev-parse fail) — ESCALATE user fix ref."
+    },
+    "E015": {
+      "code": "E015",
+      "severity": "medium",
+      "description": "Phase 1: --session-id format invalid — Re-generate auto session ID, WARN."
+    },
+    "E016": {
+      "code": "E016",
+      "severity": "medium",
+      "description": "Phase 1: Args conflict v2 (vd --resume + --scope explicit) — Resolve theo priority rules, WARN."
+    },
+    "E016b": {
+      "code": "E016b",
+      "severity": "high",
+      "description": "Phase 1 v3.0: Mutual-exclusive flag combination invalid — STOP, hướng dẫn user fix. Trigger: (a) --scenarios-only thiếu --session-id, (b) --scenarios-only + --resume cùng lúc, (c) --scenarios-only nhưng target session không hợp lệ (không tồn tại / pipeline_status không phải DONE|failed_phase_9_or_10 / thiếu Phase 8 output / scenarios-manifest empty). Implement: phase1-init.md Step 1.1.7b + Step 1.21."
+    },
+    "E017": {
+      "code": "E017",
+      "severity": "high",
+      "description": "Phase 1: Session dir creation fail (disk/permission) — Retry x3, ESCALATE."
+    },
+    "E018": {
+      "code": "E018",
+      "severity": "high",
+      "description": "Phase 1: Lock acquire fail (peer session running) — Retry x3 với 5s delay, ESCALATE."
+    },
+    "E019": {
+      "code": "E019",
+      "severity": "high",
+      "description": "Phase 1: Heartbeat daemon spawn fail — Retry x1, ESCALATE."
+    },
+    "E020": {
+      "code": "E020",
+      "severity": "high",
+      "description": "Phase 2: Phase 1 state missing (integrity-status.json) — Re-run Phase 1."
+    },
+    "E021": {
+      "code": "E021",
+      "severity": "high",
+      "description": "Phase 2: State inconsistency (current_phase ≠ 2) — Reset state."
+    },
+    "E022": {
+      "code": "E022",
+      "severity": "high",
+      "description": "Phase 2: Code unreachable (CI + Grep fallback đều fail) — ESCALATE user check permissions."
+    },
+    "E023": {
+      "code": "E023",
+      "severity": "high",
+      "description": "Phase 2: Module-code drift (CORE-013) — registry modules ≠ folder structure. ESCALATE → /wf-legacy-scan."
+    },
+    "E024": {
+      "code": "E024",
+      "severity": "medium",
+      "description": "Phase 2: Entity graph build fail (parser error) — Retry x2, fallback heuristic Grep."
+    },
+    "E025": {
+      "code": "E025",
+      "severity": "medium",
+      "description": "Phase 2: Workflow graph build fail (no CQRS pattern) — Skip workflow graph, WARN."
+    },
+    "E026": {
+      "code": "E026",
+      "severity": "medium",
+      "description": "Phase 2: API graph build fail (endpoint pattern không nhận) — Try alternative parsers."
+    },
+    "E027": {
+      "code": "E027",
+      "severity": "medium",
+      "description": "Phase 2: Event graph build fail (no broker config) — Skip event graph, WARN."
+    },
+    "E028": {
+      "code": "E028",
+      "severity": "medium",
+      "description": "Phase 2: RBAC matrix build fail — Try alternative auth patterns."
+    },
+    "E029": {
+      "code": "E029",
+      "severity": "low",
+      "description": "Phase 2: Graph empty (≥1 graph có 0 nodes) — WARN, mark dim N/A."
+    },
+    "E030": {
+      "code": "E030",
+      "severity": "high",
+      "description": "Phase 3: Phase 2 outputs incomplete (graphs missing) — Re-run Phase 2."
+    },
+    "E031": {
+      "code": "E031",
+      "severity": "high",
+      "description": "Phase 3: Graphs empty (no nodes) — ESCALATE (scope quá hẹp / code chưa scannable)."
+    },
+    "E032": {
+      "code": "E032",
+      "severity": "medium",
+      "description": "Phase 3: Domain expert knowledge file missing (team-expert/{domain}/) — Fallback business-analyst, WARN."
+    },
+    "E033": {
+      "code": "E033",
+      "severity": "medium",
+      "description": "Phase 3: Profile-phase mismatch (vd profile=quick skip 3-pass LLM) — Auto-skip (info), không error."
+    },
+    "E034": {
+      "code": "E034",
+      "severity": "high",
+      "description": "Phase 3: LLM API call timeout (>5 min/domain) — Retry x1, ESCALATE."
+    },
+    "E035": {
+      "code": "E035",
+      "severity": "medium",
+      "description": "Phase 3: LLM output schema invalid — Re-prompt với clarified output contract."
+    },
+    "E036": {
+      "code": "E036",
+      "severity": "medium",
+      "description": "Phase 3: Cross-domain conflict detected (>3 conflicts/session) — CDG E091 escalate batch."
+    },
+    "E037": {
+      "code": "E037",
+      "severity": "medium",
+      "description": "Phase 3: Invariant source_doc broken link — Re-link or DROP candidate."
+    },
+    "E038": {
+      "code": "E038",
+      "severity": "low",
+      "description": "Phase 3: Confidence too low (<0.5) — Status `proposed` only, không `accepted` auto."
+    },
+    "E039": {
+      "code": "E039",
+      "severity": "high",
+      "description": "Phase 3: Sidecar artifact schema migration fail — ESCALATE manual migration."
+    },
+    "E040": {
+      "code": "E040",
+      "severity": "high",
+      "description": "Phase 4: Lane dispatch fail — agent spawn error. Retry per-agent x1, ESCALATE batch."
+    },
+    "E041": {
+      "code": "E041",
+      "severity": "medium",
+      "description": "Phase 4: Probe timeout (>MCV3_CMI_LANE_TIMEOUT_SEC) — Mark lane TIMEOUT, continue others."
+    },
+    "E042": {
+      "code": "E042",
+      "severity": "high",
+      "description": "Phase 4: System resource limit (cannot spawn 10 agents) — Reduce concurrency to 5, WARN."
+    },
+    "E043": {
+      "code": "E043",
+      "severity": "medium",
+      "description": "Phase 4: Lane activation mismatch (profile expected X lanes, got Y) — Re-validate profile config."
+    },
+    "E044": {
+      "code": "E044",
+      "severity": "high",
+      "description": "Phase 4: Sidecar artifact schema mismatch — ESCALATE → Phase 3 re-run."
+    },
+    "E045": {
+      "code": "E045",
+      "severity": "medium",
+      "description": "Phase 4: Invariant incomplete (missing required fields) — Re-prompt agent."
+    },
+    "E046": {
+      "code": "E046",
+      "severity": "medium",
+      "description": "Phase 4: Orphan invariant (source_doc path not found) — Re-link or DROP."
+    },
+    "E047": {
+      "code": "E047",
+      "severity": "high",
+      "description": "Phase 4: DATA INCONSISTENCY — claimed signal count ≠ actual files. ESCALATE possible agent corruption."
+    },
+    "E048": {
+      "code": "E048",
+      "severity": "medium",
+      "description": "Phase 4: Signal schema validation fail — Drop invalid signals, log."
+    },
+    "E049": {
+      "code": "E049",
+      "severity": "low",
+      "description": "Phase 4: Fingerprint collision — Dedupe, INFO log."
+    },
+    "E050": {
+      "code": "E050",
+      "severity": "high",
+      "description": "Phase 5: Lane outputs missing (≥1 active lane không có signals.json) — Re-spawn missing lane (max 1)."
+    },
+    "E051": {
+      "code": "E051",
+      "severity": "high",
+      "description": "Phase 5: Signal schema invalid — Skip invalid, log."
+    },
+    "E052": {
+      "code": "E052",
+      "severity": "medium",
+      "description": "Phase 5: Invalid dim value (not CD1-CD10) — DROP signal, WARN."
+    },
+    "E053": {
+      "code": "E053",
+      "severity": "low",
+      "description": "Phase 5: Fingerprint collision cross-lane — Dedupe."
+    },
+    "E054": {
+      "code": "E054",
+      "severity": "medium",
+      "description": "Phase 5: Coverage compute fail (division by zero — no entities) — Mark dim N/A."
+    },
+    "E055": {
+      "code": "E055",
+      "severity": "medium",
+      "description": "Phase 5: Matrix template fill error — Re-build từ template."
+    },
+    "E056": {
+      "code": "E056",
+      "severity": "medium",
+      "description": "Phase 5: coverage-report.md vi phạm ≤15 dòng — Re-format, truncate."
+    },
+    "E057": {
+      "code": "E057",
+      "severity": "low",
+      "description": "Phase 5: Lane SKIPPED nhưng aggregate cố compute — Mark dim SKIPPED."
+    },
+    "E058": {
+      "code": "E058",
+      "severity": "medium",
+      "description": "Phase 5: Cross-lane signal aggregation conflict — Pick higher severity, log."
+    },
+    "E059": {
+      "code": "E059",
+      "severity": "low",
+      "description": "Phase 5: Workload estimator overflow (>10K signals total) — Truncate per dim, WARN."
+    },
+    "E060": {
+      "code": "E060",
+      "severity": "high",
+      "description": "Phase 6: Aggregation missing — Re-run Phase 5."
+    },
+    "E061": {
+      "code": "E061",
+      "severity": "high",
+      "description": "Phase 6: --since ref invalid — ESCALATE."
+    },
+    "E062": {
+      "code": "E062",
+      "severity": "medium",
+      "description": "Phase 6: GitNexus impact unavailable + git fallback only — Downgrade predictive → diff-aware, WARN."
+    },
+    "E063": {
+      "code": "E063",
+      "severity": "medium",
+      "description": "Phase 6: Scope mismatch (changed files ngoài scope) — Filter, WARN."
+    },
+    "E064": {
+      "code": "E064",
+      "severity": "medium",
+      "description": "Phase 6: Predictive confidence too low cho >50% predictions — Downgrade to diff-aware, WARN."
+    },
+    "E065": {
+      "code": "E065",
+      "severity": "low",
+      "description": "Phase 6: No changed files since ref — EXIT 0 với report 'no changes detected'."
+    },
+    "E066": {
+      "code": "E066",
+      "severity": "medium",
+      "description": "Phase 6: Test plan generation fail (no test files discovered) — Skip test plan, WARN."
+    },
+    "E067": {
+      "code": "E067",
+      "severity": "low",
+      "description": "Phase 6: Cross-module prediction confidence threshold not met — Filter low-confidence predictions."
+    },
+    "E068": {
+      "code": "E068",
+      "severity": "medium",
+      "description": "Phase 6: Affected module count > 10 (system-wide impact) — WARN, log all but cap report."
+    },
+    "E069": {
+      "code": "E069",
+      "severity": "low",
+      "description": "Phase 6: Git log history limited (<5 commits) — Use partial history, WARN."
+    },
+    "E070": {
+      "code": "E070",
+      "severity": "high",
+      "description": "Phase 7: Phase 5-6 outputs missing — Re-run prerequisite phases."
+    },
+    "E071": {
+      "code": "E071",
+      "severity": "high",
+      "description": "Phase 7: CDG mode invalid trong --ci context — ESCALATE user fix args."
+    },
+    "E072": {
+      "code": "E072",
+      "severity": "high",
+      "description": "Phase 7: Unresolved CDG decision blocking Phase 7 — Re-prompt CDG (max 1), ESCALATE."
+    },
+    "E073": {
+      "code": "E073",
+      "severity": "medium",
+      "description": "Phase 7: Suggestion generation fail (LLM error) — Retry x1, skip."
+    },
+    "E074": {
+      "code": "E074",
+      "severity": "medium",
+      "description": "Phase 7: Suggestion missing actionable target — Re-generate."
+    },
+    "E075": {
+      "code": "E075",
+      "severity": "medium",
+      "description": "Phase 7: User REJECT all suggestions in session — INFO log, no auto-fix."
+    },
+    "E076": {
+      "code": "E076",
+      "severity": "medium",
+      "description": "Phase 7: Suggestion duplicate of existing artifact — DROP, WARN."
+    },
+    "E077": {
+      "code": "E077",
+      "severity": "low",
+      "description": "Phase 7: Suggestion confidence below threshold — Mark proposed, KHÔNG accepted auto."
+    },
+    "E078": {
+      "code": "E078",
+      "severity": "medium",
+      "description": "Phase 7: Approver chain missing (multi-user collaboration) — ESCALATE manual review."
+    },
+    "E079": {
+      "code": "E079",
+      "severity": "low",
+      "description": "Phase 7: CDG decision log corruption (cannot append) — Retry write, ESCALATE."
+    },
+    "E080": {
+      "code": "E080",
+      "severity": "high",
+      "description": "Phase 8: Pipeline incomplete (Phase 1-7 chưa PASS hết) — Re-validate, ESCALATE."
+    },
+    "E081": {
+      "code": "E081",
+      "severity": "high",
+      "description": "Phase 8: Template file missing — Re-locate templates path, ESCALATE."
+    },
+    "E082": {
+      "code": "E082",
+      "severity": "high",
+      "description": "Phase 8: Matrix schema invalid for downstream — Re-build matrix."
+    },
+    "E083": {
+      "code": "E083",
+      "severity": "high",
+      "description": "Phase 8: Cannot write integrity-impact.json (permission/disk) — Retry x3, ESCALATE."
+    },
+    "E084": {
+      "code": "E084",
+      "severity": "medium",
+      "description": "Phase 8: integrity-report.md >30 dòng — Re-format, truncate."
+    },
+    "E085": {
+      "code": "E085",
+      "severity": "medium",
+      "description": "Phase 8: audit_chain.checksum compute fail — Retry x1."
+    },
+    "E086": {
+      "code": "E086",
+      "severity": "medium",
+      "description": "Phase 8: Cross-skill artifact path mismatch contract — Re-validate paths."
+    },
+    "E087": {
+      "code": "E087",
+      "severity": "low",
+      "description": "Phase 8: Phase{N}-report.md vi phạm ≤15 dòng — Re-format."
+    },
+    "E088": {
+      "code": "E088",
+      "severity": "medium",
+      "description": "Phase 8: --show-graphs Mermaid render fail — Skip diagrams, WARN."
+    },
+    "E089": {
+      "code": "E089",
+      "severity": "low",
+      "description": "Phase 8: CI mode JSON output unparsable — Re-format JSON."
+    },
+    "E090": {
+      "code": "E090",
+      "severity": "medium",
+      "description": "CDG: Coverage below threshold per profile. AskUserQuestion 3 options: accept gap / generate artifacts / cancel. Default ABORT."
+    },
+    "E090b": {
+      "code": "E090b",
+      "severity": "medium",
+      "description": "CDG: Parallel session conflict (BASE_URL or write lock). AskUserQuestion: Wait / Cancel / Force release. Default WAIT. Bypass cho CI: MCV3_CMI_ALLOW_PARALLEL=1."
+    },
+    "E091": {
+      "code": "E091",
+      "severity": "medium",
+      "description": "CDG: Cross-domain invariant conflict — 2 domain experts opinion lệch. AskUserQuestion: Choose A / B / Defer. Default DEFER. Anti-loop max 2 reject per CDG-id."
+    },
+    "E092": {
+      "code": "E092",
+      "severity": "medium",
+      "description": "CDG: System integrity degraded (>3 cross-module dependencies missing). AskUserQuestion: Continue / Generate artifacts / Cancel. Default CONTINUE WITH WARN."
+    },
+    "E093": {
+      "code": "E093",
+      "severity": "medium",
+      "description": "CDG: Domain compliance check fail (GDPR/HS Code/GAAP). AskUserQuestion: Continue / Abort. Default ABORT."
+    },
+    "E094": {
+      "code": "E094",
+      "severity": "high",
+      "description": "CDG: Sidecar APPEND confirm — sẽ APPEND N invariants vào canonical business-invariants.json. AskUserQuestion: Confirm / Cancel. Default ABORT. Anti-loop max 2 reject."
+    },
+    "E095": {
+      "code": "E095",
+      "severity": "medium",
+      "description": "CDG: Multi-user dual approval — Dev A approved, cần Dev B approve. AskUserQuestion: Approve / Defer / Reject. Default DEFER."
+    },
+    "E096": {
+      "code": "E096",
+      "severity": "medium",
+      "description": "CDG: Profile auto-upgrade recommended (scope=system + profile=quick). AskUserQuestion: Upgrade → standard / Continue quick. Default CONTINUE QUICK."
+    },
+    "E097": {
+      "code": "E097",
+      "severity": "low",
+      "description": "CDG: Stale CDG decision (>7 days, registry changed since). AskUserQuestion: Re-confirm / Defer. Default DEFER."
+    },
+    "E098": {
+      "code": "E098",
+      "severity": "medium",
+      "description": "CDG: Cost estimate exceeds budget (LLM > $5 cho deep/exhaustive). AskUserQuestion: Continue / Downgrade / Cancel. Default CONFIRM."
+    },
+    "E099": {
+      "code": "E099",
+      "severity": "medium",
+      "description": "CDG: Destructive op (REJECT N existing invariants → mark stale). AskUserQuestion: Confirm / Cancel. Default ABORT."
+    },
+    "E100": {
+      "code": "E100",
+      "severity": "low",
+      "description": "WARNING: CI tool absent — fallback Grep. LOG, continue."
+    },
+    "E101": {
+      "code": "E101",
+      "severity": "low",
+      "description": "WARNING: CI index stale (light/strong). LOG, suggest `gitnexus analyze`, continue."
+    },
+    "E102": {
+      "code": "E102",
+      "severity": "low",
+      "description": "WARNING: Invariant unverified (no code/test ref found). LOG, mark verified_by: []."
+    },
+    "E103": {
+      "code": "E103",
+      "severity": "low",
+      "description": "WARNING: Predictive scoring low confidence. LOG, downgrade to diff-aware."
+    },
+    "E104": {
+      "code": "E104",
+      "severity": "low",
+      "description": "WARNING: Lane SKIPPED per profile activation. LOG per-lane."
+    },
+    "E105": {
+      "code": "E105",
+      "severity": "low",
+      "description": "WARNING: Domain expert knowledge file partial. Fallback business-analyst, LOG."
+    },
+    "E106": {
+      "code": "E106",
+      "severity": "low",
+      "description": "WARNING: Cache stale (>TTL). Refresh, LOG."
+    },
+    "E107": {
+      "code": "E107",
+      "severity": "low",
+      "description": "WARNING: Multi-user collaboration — peer session detected. LOG peer session_id + author."
+    },
+    "E108": {
+      "code": "E108",
+      "severity": "low",
+      "description": "WARNING: Profile auto-downgrade applied (vd --ci + deep → standard timeout risk). LOG reason."
+    },
+    "E109": {
+      "code": "E109",
+      "severity": "low",
+      "description": "WARNING: Sidecar artifact business-invariants regenerated. LOG migration_from version."
+    },
+    "E110": {
+      "code": "E110",
+      "severity": "high",
+      "description": "v2.0 MIGRATION: Resume v1 session với v2 binary detected (integrity-status.json.version='1.0.0'). AskUserQuestion: Continue legacy 10-lane path / Start fresh v2 26-lane deep. Default: STOP, hướng dẫn fresh start."
+    },
+    "E111": {
+      "code": "E111",
+      "severity": "medium",
+      "description": "v2.0 MIGRATION: --dims=CD{N} với N ∈ {32,33,34,35,36} requested → skeleton v3-deferred lane, KHÔNG dispatch. WARN, drop from active set."
+    },
+    "E112": {
+      "code": "E112",
+      "severity": "medium",
+      "description": "v2.0 MIGRATION: --dims=CD{N} với N ∈ SKIPPED list ({8,10,12,14,19,20,21,22,27}) requested. Override SKIPPED via explicit --dims. WARN, dispatch as if exhaustive."
+    },
+    "E120": {
+      "code": "E120",
+      "severity": "medium",
+      "description": "Phase 4 Wave 1 dispatch fail: ≥3 of 10 lanes timeout/fail (CD1-CD7, CD11, CD16, CD17 batch). STOP wave dispatch, ESCALATE E040 batch."
+    },
+    "E121": {
+      "code": "E121",
+      "severity": "medium",
+      "description": "Phase 4 Wave 2 dispatch fail: ≥3 of 10 lanes timeout/fail (CD13, CD15, CD18, CD23-CD25, CD28, CD30, CD31, CD37 batch). STOP wave dispatch, ESCALATE."
+    },
+    "E122": {
+      "code": "E122",
+      "severity": "medium",
+      "description": "Phase 4 Wave 3 dispatch fail: ≥2 of 6 lanes timeout/fail (CD9, CD26, CD29, CD38, CD39, CD40 batch). STOP wave dispatch, ESCALATE."
+    },
+    "E123": {
+      "code": "E123",
+      "severity": "low",
+      "description": "Phase 4 Wave gate check: 1-2 lanes fail in a wave — WARN, continue to next wave with retry."
+    },
+    "E130": {
+      "code": "E130",
+      "severity": "medium",
+      "description": "Lane CD11 FE Component Contracts: fe-component-graph.json missing (Phase 2 graph builder fail). Fallback Grep `apps/erp-web/components/**/*.tsx`, downgrade signals confidence."
+    },
+    "E131": {
+      "code": "E131",
+      "severity": "medium",
+      "description": "Lane CD13 FE↔BE Contract Sync: fe-api-client-graph.json missing OR be api-graph.json mismatch. Fallback Grep `useQuery|useMutation|fetch|axios`, partial coverage WARN."
+    },
+    "E132": {
+      "code": "E132",
+      "severity": "medium",
+      "description": "Lane CD15 UI Permission Mirror: fe-permission-graph.json missing OR rbac-matrix.json out of sync. Fallback Grep `<PermissionGate>|usePermission`, partial coverage."
+    },
+    "E133": {
+      "code": "E133",
+      "severity": "high",
+      "description": "Lane CD16 Domain Logic Integrity: be-domain-graph.json missing. Serena `find_symbol` fallback fail. ESCALATE — yêu cầu user activate Serena hoặc skip lane."
+    },
+    "E134": {
+      "code": "E134",
+      "severity": "high",
+      "description": "Lane CD17 Persistence Consistency: be-db-schema-graph.json missing or skipped. Builder build-be-db-schema-graph.sh (IMPLEMENTED 2026-05-16) parses DbContextModelSnapshot.cs primary + Migrations/*.cs fallback. Skip nếu không có snapshot/migration files. Lane fallback Grep EF patterns (graceful)."
+    },
+    "E135": {
+      "code": "E135",
+      "severity": "medium",
+      "description": "Lane CD18 CQRS Pipeline: be-cqrs-graph.json missing or skipped. Builder build-be-cqrs-graph.sh (IMPLEMENTED 2026-05-16) parses MediatR/FluentValidation patterns trong Application/. Skip nếu không có Application/ subdirs. Lane fallback Grep IRequest/IRequestHandler/AbstractValidator patterns (partial coverage)."
+    },
+    "E137": {
+      "code": "E137",
+      "severity": "low",
+      "description": "v2.0 Plugin graph skip: prerequisite path không tồn tại (vd `apps/erp-web/components/` cho fe-component-graph). WARN, write empty skipped graph với metadata.skipped=true, KHÔNG block Phase 2. Downstream lane (CD11/CD13/...) sẽ fallback Grep với WARN E130-E135."
+    },
+    "E138": {
+      "code": "E138",
+      "severity": "medium",
+      "description": "v2.0 Plugin graph builder script failed (parser exception, hoặc >20% file fail parse). WARN, write empty skipped placeholder, downstream lane fallback Grep. KHÔNG block Phase 2. Xem stderr log tại `$SESSION_DIR/phase2-discovery/.{graph-name}-stderr.log`."
+    },
+    "E139": {
+      "code": "E139",
+      "severity": "low",
+      "description": "v2.0 Plugin graph non-skipped nhưng nodes=[] sau parse (Grep fallback returned no matches hoặc real empty project). WARN, downstream lane sẽ Grep fallback với confidence downgrade."
+    },
+    "E140": {
+      "code": "E140",
+      "severity": "high",
+      "description": "Lane CD28 MDM Consistency ★★★: ssot file `mdm-canonical-entities.json` missing tại `.mc-data/docs/_meta/`. ESCALATE — yêu cầu data-engineer + logistics-expert define ngay. Lane CRITICAL cho logistics."
+    },
+    "E141": {
+      "code": "E141",
+      "severity": "high",
+      "description": "Lane CD30 Time & Numbering ★★★: timezone hoặc numbering sequence config missing. EUREKA cần Asia/Ho_Chi_Minh + Asia/Shanghai. ESCALATE architect."
+    },
+    "E142": {
+      "code": "E142",
+      "severity": "high",
+      "description": "Lane CD31 Money & Tax ★★★: currency config (VND/CNY/USD) OR tax rule missing. ESCALATE finance-expert."
+    },
+    "E143": {
+      "code": "E143",
+      "severity": "high",
+      "description": "Lane CD37 Regulatory Compliance ★★★: ssot file `compliance-mapping.json` missing. ESCALATE compliance-expert + legal-expert define cho VN+CN logistics regulations."
+    },
+    "E144": {
+      "code": "E144",
+      "severity": "medium",
+      "description": "Lane CD23-CD26 UX lanes: ssot file `ux-conventions.json` OR `workflow-state-machines.json` missing. WARN, partial coverage với fallback heuristic."
+    },
+    "E145": {
+      "code": "E145",
+      "severity": "medium",
+      "description": "Lane CD29 Audit Trail: ssot file `audit-critical-entities.json` missing. WARN, fallback scan tất cả entities (overhead lớn)."
+    },
+    "E146": {
+      "code": "E146",
+      "severity": "medium",
+      "description": "Lane CD38 UI Implementation Coverage ★: ssot file `ui-interactivity-spec.json` missing tại `.mc-data/docs/_meta/`. Template available tại `plans/wf-cmi/ui-interactivity-spec.eureka-template.json` — hướng dẫn user copy + customize. ESCALATE."
+    },
+    "E147": {
+      "code": "E147",
+      "severity": "medium",
+      "description": "Lane CD39 Error UX & Recovery ★: ssot file `error-code-catalog.json` missing. WARN, fallback heuristic detect raw error leaked to UI."
+    },
+    "E148": {
+      "code": "E148",
+      "severity": "medium",
+      "description": "Lane CD40 Print & Export Consistency ★: ssot file `print-export-templates.json` missing. WARN, fallback scan template files trong project."
+    },
+    "E149": {
+      "code": "E149",
+      "severity": "low",
+      "description": "v3.0 PREPARATION: CD32-CD36 skeleton lanes referenced in --dims OR exhaustive activation. WARN: skeleton-v3-deferred, KHÔNG dispatch trong v2. v3.1 sẽ activate."
+    },
+    "E150": {
+      "code": "E150",
+      "severity": "info",
+      "description": "v3 Phase 9 PRE-GATE T2 fail: Playwright MCP unavailable. SKIP Phase 9-10, vẫn xuất integrity-report v3 với e2e_execution_summary=null. WARN log + suggestion install Playwright MCP."
+    },
+    "E150b": {
+      "code": "E150b",
+      "severity": "info",
+      "description": "v3 Phase 9 SKIP: CD41 không sinh scenario (profile=quick|standard với 0 MUST/HIGH violation). INFO log, integrity-report v3 với e2e_execution_summary=null."
+    },
+    "E151": {
+      "code": "E151",
+      "severity": "high",
+      "description": "v3 Phase 9 Lint scenarios FAIL (G1.1). BLOCK Phase 9 execute, ghi lint-fixes.md với suggestions. AskUserQuestion: fix scenario / skip / cancel."
+    },
+    "E152": {
+      "code": "E152",
+      "severity": "medium",
+      "description": "v3 Phase 9 Scenario flaky (5x pre-flight ≤3/5 PASS). Auto-quarantine, SKIP scenario, continue others. Append quarantine-report.json."
+    },
+    "E153": {
+      "code": "E153",
+      "severity": "high",
+      "description": "v3 Phase 9 browser-mcp.lock conflict ≥30 min (stale). Auto-release stale, retry x1 acquire, ESCALATE nếu vẫn fail."
+    },
+    "E154": {
+      "code": "E154",
+      "severity": "high",
+      "description": "v3 Phase 9 FE not running (T3 fail: HTTP probe baseURL không 200). ESCALATE — yêu cầu user start FE."
+    },
+    "E155": {
+      "code": "E155",
+      "severity": "high",
+      "description": "v3 Phase 9 scenarios-manifest.json invalid hoặc empty (T1 fail). BLOCK, hướng dẫn re-run profile=deep để CD41 sinh manifest."
+    },
+    "E160": {
+      "code": "E160",
+      "severity": "medium",
+      "description": "v3 Phase 9 Scenario step execute fail (navigate/click/fill timeout). Retry x3 với smart classification, mark FAIL nếu vẫn fail, defer Phase 10."
+    },
+    "E161": {
+      "code": "E161",
+      "severity": "medium",
+      "description": "v3 Phase 9 browser_snapshot fail (DOM unable to capture). Skip snapshot verify, mark scenario UNDETERMINED, continue."
+    },
+    "E162": {
+      "code": "E162",
+      "severity": "medium",
+      "description": "v3 Phase 9 Navigate fail (entry URL unreachable). Retry x3 với re-login, mark scenario FAIL nếu vẫn fail."
+    },
+    "E170": {
+      "code": "E170",
+      "severity": "low",
+      "description": "v3 Phase 9 Stable-registry corruption (JSON invalid). Re-init registry (empty), WARN log, tiếp tục 5x pre-flight cho mọi scenario."
+    },
+    "E171": {
+      "code": "E171",
+      "severity": "low",
+      "description": "v3 Phase 9 Strict-evidence violation: screenshot file_size < 1KB hoặc missing. Mark scenario partial nếu --strict-evidence không bật, BLOCK nếu bật."
+    },
+    "E180": {
+      "code": "E180",
+      "severity": "medium",
+      "description": "v3 Phase 10 Failure classification UNKNOWN (7-type matcher không match). Log warning, set failure_type=UNKNOWN, skip auto-fix, manual triage prompt."
+    },
+    "E181": {
+      "code": "E181",
+      "severity": "low",
+      "description": "v3 Phase 10 Evidence partial (console/network/DOM capture không complete). Tiếp tục classify với partial data, set evidence_partial=true."
+    },
+    "E190": {
+      "code": "E190",
+      "severity": "high",
+      "description": "v3 Phase 10 Phase B spawn agent fail (agent timeout hoặc returns invalid). Retry x1, ESCALATE nếu vẫn fail. Append resolution-report.md với spawn failure log."
+    },
+    "E191": {
+      "code": "E191",
+      "severity": "medium",
+      "description": "v3 Phase 10 HMR reload timeout (sau source-fix, FE không hot-reload trong 30s). Manual page reload, re-run scenario."
+    },
+    "E192": {
+      "code": "E192",
+      "severity": "medium",
+      "description": "v3 Phase 10 Post-fix verify FAIL (re-run scenario sau fix vẫn fail). Mark issue UNRESOLVED, append gap-suggestions với confidence=0.3 (low)."
+    },
+    "E195": {
+      "code": "E195",
+      "severity": "info",
+      "description": "v3 Phase 10 CDG user-facing: --auto-fix-source bật lần đầu trong session. AskUserQuestion: Confirm spawn agent sửa source / Reject (chỉ browser-fix) / Skip-this-time. Default: Reject (an toàn)."
+    },
+    "E195b": {
+      "code": "E195b",
+      "severity": "info",
+      "description": "v3 Phase 1 CDG user-facing: --exec-scenarios + profile=quick|standard + NOT --no-prompt → trigger Subset E2E Execute Confirm. AskUserQuestion: Execute all (CD41 force-activate MUST+HIGH violations) / Execute MUST-only (Recommended quick — CD41 subset chỉ MUST) / Cancel (SKIP Phase 9-10, xuất Phase 8 report v3 với e2e_execution_summary=null). --no-prompt → silent default = Execute MUST-only (balanced safety cho CI). Implement: phase1-init.md Step 1.14b. Decision persist vào integrity-status.json.v3_cdg.e195b_decision."
+    }
+  },
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "role": "orchestrator",
+    "pattern": "CI PRE-GATE Na/Nb/Nc (Protocol 20 §20.8) → CI context injection into 6 graph builders (Phase 2) + 10 lane agents (Phase 4) + impact analysis (Phase 6).",
+    "ci_route_matrix": true,
+    "primary_tools": {
+      "entity_graph": "GitNexus clusters + Serena find_symbol",
+      "module_graph": "GitNexus query(key_concept)",
+      "api_graph": "GitNexus route_map",
+      "event_graph": "GitNexus cypher + Serena find_refs",
+      "regression_impact": "GitNexus impact() + detect_changes()",
+      "rename_safety": "Serena rename_symbol (Phase 7 suggestion validation)"
+    },
+    "fallback_tools": [
+      "Grep",
+      "Glob",
+      "git diff",
+      "git log"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Grep/Glob. Non-git → skip regression (Phase 6 INFO E065). Zero regression.",
+    "cache_ttl_hours": {
+      "gitnexus_available": 24,
+      "gitnexus_absent": 4,
+      "serena_available": 24,
+      "serena_absent": 1
+    }
+  },
+  "evals": {
+    "primary": "evals/evals.json",
+    "test_cases": [
+      {
+        "id": "TC-cmi-001",
+        "type": "smoke",
+        "scope": "EUREKA fixture 1 module (CRM)",
+        "profile": "quick",
+        "expected_runtime_sec": 300,
+        "requires_fixture": true,
+        "fixture_path": "tests/fixtures/wf-cmi/minimal/"
+      },
+      {
+        "id": "TC-cmi-002",
+        "type": "integration",
+        "scope": "EUREKA fixture 3 modules (CRM+Orders+Finance)",
+        "profile": "standard",
+        "expected_runtime_sec": 1800,
+        "requires_fixture": true,
+        "fixture_path": "tests/fixtures/wf-cmi/realistic/"
+      },
+      {
+        "id": "TC-cmi-003",
+        "type": "edge",
+        "scope": "Registry corruption inject mid-Phase 3",
+        "profile": "standard",
+        "expected_outcome": "E039 + ESCALATE exit 2",
+        "requires_fixture": true,
+        "fixture_path": "tests/fixtures/wf-cmi/corrupt/"
+      },
+      {
+        "id": "TC-cmi-004",
+        "type": "resume",
+        "scope": "Interrupted at Phase 4 lane CD3",
+        "profile": "standard",
+        "expected_outcome": "Resume from CD3, skip already-PASS lanes",
+        "requires_fixture": true,
+        "fixture_path": "tests/fixtures/wf-cmi/realistic/"
+      },
+      {
+        "id": "TC-cmi-005",
+        "type": "concurrent",
+        "scope": "2 sessions parallel cùng máy",
+        "profile": "standard",
+        "expected_outcome": "E090b CDG → wait OR graceful escalate",
+        "requires_fixture": true,
+        "fixture_path": "tests/fixtures/wf-cmi/concurrent/"
+      }
+    ],
+    "ci_workflow": ".github/workflows/devkit-skill-tests.yml (sẽ thêm wf-cmi job khi Step 10 done)",
+    "runner": "evals/run-all.sh (sẽ tạo Step 6)"
+  }
+}

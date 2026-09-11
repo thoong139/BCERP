@@ -1,0 +1,67 @@
+{
+  "_template_notes": "Template cho implement-required.json — file SSOT liệt kê các tests/features bị block do thiếu implementation code, cần F4 wf-e2e-implement implement trước khi test pass được. Owners: F1 wf-e2e-analys + F2 wf-e2e-browser APPEND khi phát hiện Nhóm 3 (Not Implemented). Consumer: F4 wf-e2e-implement UPDATE status (pending→in_progress→done|skipped). Pattern atomic-write theo CORE-035: build temp → jq validate → tmp+mv. Mỗi entry mới = compute next IMPL-REQ-NNN từ max(id)+1. KHÔNG xóa metadata _template_notes / _schema_notes khi WRITE — agent phải strip trước khi populate (CORE-031). Khi F4 hoàn tất entry: set status=done + implemented_at + implementer + delegate_session_id + code_refs[] + retest_result.",
+  "_schema_notes": {
+    "id": "Format IMPL-REQ-NNN, auto-increment từ max hiện có",
+    "blocking_reason": "Enum: endpoint_missing | ui_screen_missing | validation_missing | business_rule_missing | seed_schema_missing | feature_deferred | feature_not_implemented",
+    "suggested_action": "Enum: implement_feature | implement_endpoint | implement_ui | implement_validation | implement_seed_data | implement_code",
+    "priority": "Enum: P0 (block test critical) | P1 (block test high) | P2 (nice-to-have)",
+    "status": "Enum: pending (chưa implement) | in_progress (F4 đang chạy) | done (F4 hoàn tất + verified) | skipped (F4 không implement được, manual fallback)",
+    "expected_behavior": "Mô tả ngắn (≤200 chars) hành vi kỳ vọng",
+    "delegate_session_id": "Session ID của wf-implement-feature delegate (nếu F4 delegate)",
+    "related_blk_id": "BLK-NNN trong block-test.json — link 2 chiều",
+    "retest_after_impl": "Bool — F4 mark true để F5 retest sau impl",
+    "retest_result": "Enum: PASS | FAIL | PENDING (sau F5 retest)"
+  },
+  "$schema": "wf-e2e-implement-required-v1",
+  "session_id": "{SESSION_ID}",
+  "feat_id": "{FEAT-ID}",
+  "created_at": "{ISO-8601}",
+  "last_updated": "{ISO-8601}",
+  "entries": [
+    {
+      "id": "IMPL-REQ-001",
+      "discovered_at": "{ISO-8601}",
+      "discovered_by_skill": "wf-e2e-analys",
+      "discovered_in_phase": 3,
+      "test_ref": "POST /api/v1/crm/customers — validation duplicate email",
+      "feat_id": "FEAT-EW-CRM-001",
+      "req_id": "REQ-CRM-001",
+      "blocking_reason": "validation_missing",
+      "suggested_action": "implement_validation",
+      "location_hint": "apps/backend/Eureka.Api/Endpoints/CrmEndpoints.cs",
+      "expected_behavior": "POST trả 400 với code DUPLICATE_EMAIL nếu email đã tồn tại trong company",
+      "priority": "P0",
+      "status": "pending",
+      "implemented_at": null,
+      "implementer": null,
+      "delegate_session_id": null,
+      "code_refs": [],
+      "related_blk_id": "BLK-003",
+      "related_iss_ids": [],
+      "retest_after_impl": true,
+      "retest_result": "PENDING"
+    }
+  ],
+  "summary": {
+    "total": 0,
+    "by_status": {
+      "pending": 0,
+      "in_progress": 0,
+      "done": 0,
+      "skipped": 0
+    },
+    "by_priority": {
+      "P0": 0,
+      "P1": 0,
+      "P2": 0
+    },
+    "by_action": {
+      "implement_feature": 0,
+      "implement_endpoint": 0,
+      "implement_ui": 0,
+      "implement_validation": 0,
+      "implement_seed_data": 0,
+      "implement_code": 0
+    }
+  }
+}

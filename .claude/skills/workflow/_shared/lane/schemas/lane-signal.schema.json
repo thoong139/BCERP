@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "lane-signal-v1",
+  "title": "Lane Signal",
+  "description": "Schema cho output của 1 lane trong linear workflow skills",
+  "type": "object",
+  "required": ["lane_key", "lane_type", "items", "metadata"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "lane-signal-v1"
+    },
+    "lane_key": {
+      "type": "string",
+      "description": "Định danh lane (vd: department-sales, system-crm)",
+      "minLength": 1
+    },
+    "lane_type": {
+      "type": "string",
+      "enum": ["department", "system", "feature-group", "spec-type", "role"],
+      "description": "Loại lane — xác định grouping strategy"
+    },
+    "items": {
+      "type": "array",
+      "description": "Danh sách items từ lane",
+      "items": {
+        "type": "object"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "agent_type": {
+          "type": "string",
+          "description": "Loại agent đã chạy lane"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "description": "Thời gian chạy (ms)"
+        },
+        "profile": {
+          "type": "string",
+          "description": "Profile đã dùng"
+        }
+      }
+    }
+  }
+}

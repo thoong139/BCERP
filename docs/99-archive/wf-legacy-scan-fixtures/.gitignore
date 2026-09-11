@@ -1,0 +1,26 @@
+# Fixture content (populated files) — optional ignore để giữ repo nhẹ.
+# UNCOMMENT các dòng dưới nếu fixtures content lớn (>50MB) và không cần track trong git.
+# Baseline outputs (*.baseline-v4.1/) LUÔN LUÔN commit để backward-compat verification.
+
+# Uncomment nếu cần:
+# small-en/node_modules/
+# small-en/dist/
+# medium-vn/bin/
+# medium-vn/obj/
+# medium-vn/node_modules/
+# large-mixed/.turbo/
+# large-mixed/node_modules/
+# large-mixed/**/dist/
+
+# Common build artifacts — always ignore
+**/node_modules/
+**/dist/
+**/build/
+**/.turbo/
+**/bin/
+**/obj/
+**/.next/
+**/.nuxt/
+
+# Mc-data (scan outputs go to baseline folders, not within fixtures/)
+**/.mc-data/

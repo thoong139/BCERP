@@ -1,0 +1,50 @@
+{
+  "$schema": "e2e-batch-v1",
+  "_template_notes": "Populate tất cả placeholders. Xóa _template_notes khi output (CORE-031).",
+  "batch_id": "{batch_id}",
+  "scope": "{scope | empty string nếu dùng --feats}",
+  "started_at": "{ISO-8601}",
+  "completed_at": "{ISO-8601}",
+  "feats_total": 0,
+  "feats_completed": 0,
+  "feats_failed": 0,
+  "feats_blocked": 0,
+  "pass_rate": 0,
+  "overall_status": "COMPLETED | PARTIAL | FAILED | BLOCKED",
+  "feat_results": [
+    {
+      "feat_id": "{feat_id}",
+      "status": "completed | failed | blocked",
+      "scenarios_pass": 0,
+      "scenarios_fail": 0,
+      "issues_open": 0,
+      "issues_fixed": 0,
+      "duration_sec": 0,
+      "session_dir": "{path to wf-e2e-verify session}"
+    }
+  ],
+  "gate_results": [
+    {
+      "gate_num": 1,
+      "batch_id": "{batch_id}",
+      "feats_checked": ["{feat_ids}"],
+      "pass": true,
+      "issues": [],
+      "checked_at": "{ISO-8601}"
+    }
+  ],
+  "chain_rollback_decisions": [
+    {
+      "feat_b": "{dependent feat}",
+      "feat_a": "{upstream feat}",
+      "dependency_type": "feat-to-feat",
+      "blocking_level": "hard",
+      "min_completion": "test_passed",
+      "feat_b_status": "failed",
+      "policy_applied": "MARK_A_SUSPECT | CONTINUE_A_STANDALONE | ROLLBACK_A",
+      "justification": "{lý do}",
+      "executed_at": "{ISO-8601}"
+    }
+  ],
+  "audit_chain": "{sha256 của toàn bộ content trước khi có trường này}"
+}

@@ -1,0 +1,138 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "status",
+  "version": "1.4.0",
+  "phase": "utility",
+  "description": "Hien thi project progress dashboard — read-only utility, tong hop tu registry + roadmap + work artifacts cua 5 skills (wf-implement-feature v4.0, wf-verify-sync, wf-fix-bugs, wf-preflight, wf-legacy-scan). Khong tao files, khong spawn agents, khong ghi registry.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "requirements"
+    ],
+    "notes": "Yeu cau registry ton tai va co it nhat 1 requirement. Moi input khac deu optional voi graceful degradation."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry — nguon chinh cho impl_status per REQ-ID",
+      "required": true
+    },
+    {
+      "path": ".mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md",
+      "description": "Roadmap — sprint progress context",
+      "required": false
+    },
+    {
+      "path": ".mc-data/docs/phase5-implementation/sprints/S0X-*.md",
+      "description": "Sprint detail files cho --sprint=S0X mode",
+      "required": false
+    },
+    {
+      "path": ".mc-data/docs/phase5-implementation/tasks/[sys]/[mod]/*-impl.md",
+      "description": "Task files cho --detailed mode",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/wf-implement-feature/{system-slug}/{feature-slug}/current.txt",
+      "description": "v4.0+ session pointer — resolve active session per feature",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/wf-implement-feature/{system-slug}/{feature-slug}/sessions/{session-id}/impl-status.json",
+      "description": "v4.0+ per-feature session-isolated impl status (consumed via current.txt)",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/wf-implement-feature/{system-slug}/{feature-slug}/impl-status.json",
+      "description": "v3.x flat layout fallback (backward compat)",
+      "required": false
+    },
+    {
+      "path": ".mc-data/docs/_meta/verify-sync.md",
+      "description": "Sync rate report tu /wf-verify-sync — Implementation Coverage section",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/sessions/{session-id}/fix-status.json",
+      "description": "Bug fix session status (multi-session) — recommended next action input",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/wf-preflight/preflight-report.md",
+      "description": "Preflight health check score — recommended next action input",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "LEGACY_MODE detection sentinel (CORE-021): size > 500 bytes => LEGACY_MODE = true",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/ledger.json",
+      "description": "Legacy pipeline status (pipeline_status field) cho Phase 2L Legacy Dashboard",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [],
+    "terminal_output": {
+      "description": "Dashboard hien thi truc tiep trong terminal — khong tao files",
+      "format": "markdown table + summary stats"
+    },
+    "trace": [
+      {
+        "path": ".mc-data/work/_trace/session-log.json",
+        "action": "append-only",
+        "description": "CORE-026 execution trace: START/COMPLETE/FAIL entries (output-only, khong doc lai)"
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "read-only",
+      "description": "Chi doc registry, khong ghi (CORE-006: NONE role)"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "role": "NONE",
+    "notes": "Read-only utility skill — khong bao gio ghi registry"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-plan-modules": [
+        ".mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md",
+        ".mc-data/docs/phase5-implementation/sprints/S0X-*.md",
+        ".mc-data/docs/phase5-implementation/tasks/[sys]/[mod]/*-impl.md"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/work/wf-implement-feature/{system-slug}/{feature-slug}/current.txt",
+        ".mc-data/work/wf-implement-feature/{system-slug}/{feature-slug}/sessions/{session-id}/impl-status.json",
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-verify-sync": [
+        ".mc-data/docs/_meta/verify-sync.md"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-fix-bugs/sessions/{session-id}/fix-status.json"
+      ],
+      "wf-preflight": [
+        ".mc-data/work/wf-preflight/preflight-report.md"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/ledger.json"
+      ]
+    }
+  }
+}

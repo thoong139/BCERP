@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "authorization-matrix-spec-v1",
+  "title": "MCV3 Authorization Matrix Specification v1",
+  "description": "Schema validation cho authorization-matrix.yaml files. Dat tai: .mc-data/docs/phase3-architecture/auth-matrix/<system>.yaml. Su dung boi probe P-QD10-auth-matrix-check de xac minh code co role guard dung cho moi action trong tung module.",
+  "type": "object",
+  "required": ["matrix_id", "version", "modules"],
+  "additionalProperties": false,
+
+  "properties": {
+    "matrix_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "ID duy nhat cua authorization matrix (kebab-case, e.g. auth-erp-v1)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Phien ban spec (semantic version, e.g. 1.0.0)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Mo ta ngan ve muc dich cua authorization matrix nay"
+    },
+    "system_id": {
+      "type": "string",
+      "description": "System identifier (optional, e.g. ERP, MC, WEB)"
+    },
+    "roles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/role_def" },
+      "description": "Dinh nghia tat ca cac roles trong he thong (optional — dung cho documentation)"
+    },
+    "modules": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/module_auth" },
+      "minItems": 1,
+      "description": "Danh sach module va cac actions voi phan quyen tuong ung"
+    }
+  },
+
+  "$defs": {
+    "role_def": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Role identifier (e.g. admin, sales_rep, manager)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Mo ta vai tro trong he thong"
+        },
+        "inherits": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Roles ma role nay ke thua quyen (e.g. admin inherits [manager])"
+        }
+      }
+    },
+
+    "module_auth": {
+      "type": "object",
+      "required": ["module_id", "actions"],
+      "additionalProperties": false,
+      "properties": {
+        "module_id": {
+          "type": "string",
+          "pattern": "^MOD-",
+          "description": "Module ID tu req-registry.json (e.g. MOD-CRM, MOD-QUOTATION)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Mo ta module (optional)"
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/action_auth" },
+          "minItems": 1,
+          "description": "Danh sach actions va phan quyen cho tung action trong module"
+        }
+      }
+    },
+
+    "action_auth": {
+      "type": "object",
+      "required": ["action", "roles_allowed"],
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ten action (e.g. create_customer, approve_quotation, delete_order)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Mo ta action (optional)"
+        },
+        "roles_allowed": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "minItems": 1,
+          "description": "Danh sach roles duoc phep thuc hien action nay. Neu muon allow tat ca roles dung ['*']."
+        },
+        "roles_forbidden": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Danh sach roles TUONG MINH bi cam (ngay ca khi role co inherits vao allowed role)"
+        },
+        "guard_hint": {
+          "type": "string",
+          "description": "Goi y ve guard implementation (e.g. 'NestJS @Roles decorator', 'Django permission_required')"
+        },
+        "public": {
+          "type": "boolean",
+          "default": false,
+          "description": "true = action nay khong can authentication (e.g. login, health-check). Probe se SKIP kiem tra guard."
+        }
+      }
+    }
+  }
+}

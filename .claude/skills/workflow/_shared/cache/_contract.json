@@ -1,0 +1,54 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "cache",
+  "version": "0.1.0",
+  "phase": "phase1-prereq",
+  "description": "Content-hash cache adapter cho linear skills. 2-tier: session (in-memory) + project (disk). Wraps scan_cache/.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-OPT-09"],
+  "core_refs": [],
+  "inputs": [
+    {
+      "name": "skill_name",
+      "type": "string",
+      "required": true,
+      "notes": "Tên skill cần cache"
+    },
+    {
+      "name": "content_hash",
+      "type": "string",
+      "required": true,
+      "notes": "SHA256 hash của input content"
+    },
+    {
+      "name": "output_key",
+      "type": "string",
+      "required": true,
+      "notes": "Key cho loại output (vd: dept-analysis)"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "cache_entry",
+      "kind": "file",
+      "template": null,
+      "notes": "Cache entry JSON trong .mc-data-cache/linear/{skill}/"
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from cache import get_cached, set_cached, invalidate_cache, compute_content_hash",
+      "kind": "python-import",
+      "called_by": "4 linear skills (trừ brainstorm)"
+    }
+  ],
+  "dependencies": {
+    "internal": ["scan_cache/ (wraps fingerprint logic)"],
+    "external": []
+  },
+  "status": "phase1-new",
+  "testing": {
+    "min_cases": 3,
+    "notes": "Test get/set/invalidate, content hash, TTL expiry"
+  }
+}

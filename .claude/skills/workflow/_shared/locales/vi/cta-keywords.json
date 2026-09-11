@@ -1,0 +1,32 @@
+{
+  "locale": "vi",
+  "description": "Vietnamese CTA (Call-To-Action) keyword patterns for UI probe detection",
+  "cta_patterns": [
+    {"text": "mua ngay",          "category": "purchase",      "regex": "mua\\s+ngay"},
+    {"text": "mua hàng",          "category": "purchase",      "regex": "mua\\s+h[àa]ng"},
+    {"text": "thêm vào giỏ",      "category": "purchase",      "regex": "th[eê]m\\s+v[àa]o\\s+gi[oỏ]"},
+    {"text": "đặt hàng",          "category": "purchase",      "regex": "[dđ][aặ]t\\s+h[àa]ng"},
+    {"text": "thanh toán",        "category": "purchase",      "regex": "thanh\\s+to[aá]n"},
+    {"text": "đăng ký",           "category": "registration",  "regex": "[dđ][aă]ng\\s+k[yý]"},
+    {"text": "bắt đầu",           "category": "registration",  "regex": "b[aắ]t\\s+[dđ][aầ]u"},
+    {"text": "tạo tài khoản",     "category": "registration",  "regex": "t[aạ]o\\s+t[àa]i\\s+kho[aả]n"},
+    {"text": "tham gia",          "category": "registration",  "regex": "tham\\s+gia"},
+    {"text": "đăng nhập",         "category": "auth",          "regex": "[dđ][aă]ng\\s+nh[aậ]p"},
+    {"text": "xem thêm",          "category": "discovery",     "regex": "xem\\s+th[eê]m"},
+    {"text": "tìm hiểu thêm",     "category": "discovery",     "regex": "t[iì]m\\s+hi[eể]u"},
+    {"text": "khám phá",          "category": "discovery",     "regex": "kh[aá]m\\s+ph[aá]"},
+    {"text": "đặt ngay",          "category": "booking",       "regex": "[dđ][aặ]t\\s+ngay"},
+    {"text": "đặt lịch",          "category": "booking",       "regex": "[dđ][aặ]t\\s+l[iị]ch"},
+    {"text": "liên hệ",           "category": "contact",       "regex": "li[eê]n\\s+h[eệ]"},
+    {"text": "nhận tư vấn",       "category": "contact",       "regex": "nh[aậ]n\\s+t[uư]\\s+v[aấ]n"},
+    {"text": "dùng thử",          "category": "subscription",  "regex": "d[uù]ng\\s+th[uử]"},
+    {"text": "dùng thử miễn phí", "category": "subscription",  "regex": "mi[eễ]n\\s+ph[iÍ]"},
+    {"text": "tải xuống",         "category": "download",      "regex": "t[aả]i\\s+xu[oố]ng"},
+    {"text": "tải về",            "category": "download",      "regex": "t[aả]i\\s+v[eề]"},
+    {"text": "xác nhận",          "category": "form",          "regex": "x[aá]c\\s+nh[aậ]n"},
+    {"text": "tiếp tục",          "category": "form",          "regex": "ti[eế]p\\s+t[uụ]c"},
+    {"text": "gửi",               "category": "form",          "regex": "g[uử]i"},
+    {"text": "nộp",               "category": "form",          "regex": "n[oộ]p"},
+    {"text": "ứng tuyển",         "category": "application",   "regex": "[uứ]ng\\s+tuy[eể]n"}
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "legacy-scan-error-ledger-v1",
+
+  "project": "",
+
+  "errors": [],
+
+  "warnings": [],
+
+  "self_diagnostics": [],
+
+  "total_errors": 0,
+  "total_warnings": 0,
+  "total_diagnostics": 0,
+  "last_updated": "",
+
+  "_schema_notes": {
+    "self_diagnostics_item": {
+      "stage": "classify|extract|normalize",
+      "check": "coverage_check|module_completeness|cross_validation",
+      "expected": "description of expected state",
+      "actual": "description of actual state",
+      "auto_fix_attempts": 0,
+      "auto_fix_result": "fixed|failed|not_attempted",
+      "resolution": "auto_fixed|user_approved|escalated",
+      "timestamp": ""
+    },
+    "error_codes_ref": "SSOT: .claude/skills/workflow/wf-legacy-scan/procedures/_shared.md §Error Handling. Template nay KHONG duplicate vocabulary de tranh drift giua runtime va docs."
+  }
+}

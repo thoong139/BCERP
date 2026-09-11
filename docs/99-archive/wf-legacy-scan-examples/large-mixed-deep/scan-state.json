@@ -1,0 +1,40 @@
+{
+  "$schema": "scan-state-v1",
+  "session": {
+    "id": "2026-04-22T10-00-00Z-i9j0k1l2",
+    "created": "2026-04-22T10:00:00Z",
+    "project_path": "/projects/erp-platform",
+    "profile": "deep",
+    "strategy": "S4",
+    "maturity_level": "LEGACY"
+  },
+  "depth_map": {
+    "L1": "full",
+    "L2": "full",
+    "L3": "full",
+    "L4": "deep",
+    "L5": "deep",
+    "L6": "full"
+  },
+  "synthesis_mode": "full+insights",
+  "layers": {
+    "L1": { "status": "completed" },
+    "L2": { "status": "completed" },
+    "L3": { "status": "completed" },
+    "L4": { "status": "completed", "depth": "deep", "batches_total": 12, "batches_done": 12 },
+    "L5": { "status": "completed", "depth": "deep" },
+    "L6": { "status": "completed" }
+  },
+  "status": "completed",
+  "last_completed": "L6",
+  "error_log": [
+    {
+      "layer": "L4",
+      "batch": 7,
+      "code": "E004",
+      "message": "Classify batch 7 timeout — retried + completed on attempt 2",
+      "resolved": true
+    }
+  ],
+  "resume_hint": null
+}

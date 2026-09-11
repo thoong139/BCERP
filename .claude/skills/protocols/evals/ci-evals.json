@@ -1,0 +1,352 @@
+{
+  "protocol": "20-code-intelligence",
+  "description": "Code Intelligence Integration evals — auto-detection, per-tool TTL, lock, freshness, migration, agent injection, graceful degradation, concurrency",
+  "total_evals": 26,
+  "evals": [
+    {
+      "id": "CI-E01",
+      "category": "Detection",
+      "prompt": "ci-detect.sh — Both GitNexus + Serena available. Test: cache miss (first run), MCP tools accessible.",
+      "expected_output": "Phase 1 (no args): exit 0, JSON status=needs_scan hoac all_fresh. Phase 2 (--write-cache): exit 0, cache co gitnexus.available=true, serena.available=true, per-tool checked_at + ttl_hours va gitnexus.repo khac unknown.",
+      "assertions": [
+        {"text": "ci-detect.sh (Phase 1) exit 0 — signal skill agent correctly", "type": "behavior"},
+        {"text": "ci-detect.sh --write-cache exit 0 — both tools available", "type": "behavior"},
+        {"text": "Cache: gitnexus.available=true, serena.available=true", "type": "file_content"},
+        {"text": "Cache: gitnexus.checked_at co gia tri ISO 8601, khong rong", "type": "file_content"},
+        {"text": "Cache: serena.checked_at co gia tri ISO 8601, khong rong", "type": "file_content"},
+        {"text": "Cache: gitnexus.ttl_hours=24, serena.ttl_hours=24 (both available)", "type": "file_content"},
+        {"text": "Cache: gitnexus.repo khac unknown (resolved from git remote)", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E02",
+      "category": "Detection",
+      "prompt": "ci-detect.sh — Only GitNexus available, Serena NOT available. Test: simulate GitNexus-only MCP environment.",
+      "expected_output": "ci-detect.sh --write-cache exit 0 (GitNexus available). Cache: gitnexus.available=true, serena.available=false, serena.ttl_hours=1.",
+      "assertions": [
+        {"text": "ci-detect.sh --write-cache exit 0 — at least GitNexus available", "type": "behavior"},
+        {"text": "Cache: gitnexus.available=true, serena.available=false", "type": "file_content"},
+        {"text": "Cache: serena.ttl_hours=1 (absent → re-check nhanh)", "type": "file_content"},
+        {"text": "Cache: gitnexus.ttl_hours=24 (available)", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E03",
+      "category": "Detection",
+      "prompt": "ci-detect.sh — Only Serena available, GitNexus NOT available. Test: simulate Serena-only MCP environment.",
+      "expected_output": "ci-detect.sh --write-cache exit 0 (Serena available). Cache: gitnexus.available=false, gitnexus.ttl_hours=4, serena.available=true.",
+      "assertions": [
+        {"text": "ci-detect.sh --write-cache exit 0 — at least Serena available", "type": "behavior"},
+        {"text": "Cache: gitnexus.available=false, serena.available=true", "type": "file_content"},
+        {"text": "Cache: gitnexus.ttl_hours=4 (absent → re-check moderate)", "type": "file_content"},
+        {"text": "Cache: serena.ttl_hours=24 (available)", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E04",
+      "category": "Detection",
+      "prompt": "ci-detect.sh — Neither GitNexus nor Serena available. Test: simulate no-CI MCP environment.",
+      "expected_output": "ci-detect.sh --write-cache exit 1 (no CI tools). Cache: both.available=false. ci-inject-context.sh exit 1. Agent context NOT injected.",
+      "assertions": [
+        {"text": "ci-detect.sh --write-cache exit 1 — no CI tools available", "type": "behavior"},
+        {"text": "Cache: gitnexus.available=false, serena.available=false", "type": "file_content"},
+        {"text": "ci-inject-context.sh exit 1 — no context to inject", "type": "behavior"},
+        {"text": "Agent spawn prompt does NOT contain 'Code Intelligence' section", "type": "behavior"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E05",
+      "category": "Per-Tool TTL",
+      "prompt": "ci-detect.sh — Serena absent, TTL=1h expired. Test: set serena.checked_at > 1h ago, serena.available=false.",
+      "expected_output": "ci-detect.sh Phase 1: JSON status=needs_scan (Serena TTL stale). Re-detect Serena. Cache updated: serena.checked_at moi > cu, serena.ttl_hours moi.",
+      "assertions": [
+        {"text": "ci-detect.sh (Phase 1) exit 0, status=needs_scan", "type": "behavior"},
+        {"text": "Serena checked_at cu > 1h ago → stale → re-scan triggered", "type": "behavior"},
+        {"text": "After re-scan: serena.checked_at updated to current time", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E06",
+      "category": "Per-Tool TTL",
+      "prompt": "ci-detect.sh — GitNexus present, TTL=24h valid. Test: set gitnexus.checked_at within 24h, gitnexus.available=true.",
+      "expected_output": "ci-detect.sh Phase 1: JSON status=all_fresh (both within TTL). Skip MCP detection. Cache unchanged.",
+      "assertions": [
+        {"text": "ci-detect.sh (Phase 1) exit 0, status=all_fresh", "type": "behavior"},
+        {"text": "GitNexus checked_at < 24h ago → fresh → skip re-scan", "type": "behavior"},
+        {"text": "Cache file gitnexus.checked_at unchanged after ci-detect (no re-write)", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E07",
+      "category": "Per-Tool TTL",
+      "prompt": "ci-detect.sh — GitNexus absent, TTL=4h expired. Test: set gitnexus.checked_at > 4h ago, gitnexus.available=false.",
+      "expected_output": "ci-detect.sh Phase 1: JSON status=needs_scan (GitNexus TTL stale). Re-detect GitNexus. Cache updated: gitnexus.checked_at moi.",
+      "assertions": [
+        {"text": "ci-detect.sh (Phase 1) exit 0, status=needs_scan", "type": "behavior"},
+        {"text": "GitNexus checked_at > 4h ago (absent) → stale → re-scan triggered", "type": "behavior"},
+        {"text": "After re-scan: gitnexus.checked_at updated, ttl_hours per new availability", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E08",
+      "category": "Per-Tool TTL",
+      "prompt": "ci-detect.sh — MCV3_CI_RESCAN=1 force re-scan. Test: set env var, both tools within TTL.",
+      "expected_output": "ci-detect.sh Phase 1: JSON status=needs_scan (env var forces re-scan). Stderr: 'MCV3_CI_RESCAN=1 — forcing re-scan'.",
+      "assertions": [
+        {"text": "MCV3_CI_RESCAN=1 triggers re-scan even when all_fresh", "type": "behavior"},
+        {"text": "Stderr contains 'MCV3_CI_RESCAN=1 — forcing re-scan'", "type": "behavior"},
+        {"text": "ci-detect.sh acquires lock before re-scan (respects concurrency)", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E09",
+      "category": "Lock & Concurrency",
+      "prompt": "ci-detect.sh — Lock acquired successfully. Test: clean state, no existing lock.",
+      "expected_output": "Lock acquired. Lock file .mc-data/work/_meta/.ci-cache.lock ton tai voi format PID|host|user|acquired_at|heartbeat_at.",
+      "assertions": [
+        {"text": "Lock file created via atomic noclobber", "type": "behavior"},
+        {"text": "Lock file format: PID|hostname|username|acquired_at|heartbeat_at (pipe-separated)", "type": "file_content"},
+        {"text": "Lock file has 5 fields separated by |", "type": "file_content"},
+        {"text": "heartbeat_at is ISO 8601 timestamp", "type": "file_content"},
+        {"text": "After --write-cache: lock released (file removed)", "type": "behavior"}
+      ],
+      "files": [".mc-data/work/_meta/.ci-cache.lock"]
+    },
+    {
+      "id": "CI-E10",
+      "category": "Lock & Concurrency",
+      "prompt": "ci-detect.sh — Lock held by another session. Test: create valid lock file (heartbeat < 60s ago), run ci-detect.sh.",
+      "expected_output": "ci-detect.sh exit 2. JSON status=lock_held, action=fallback_grep. Lock file unchanged (not broken). Skill uses Grep, khong block.",
+      "assertions": [
+        {"text": "ci-detect.sh exit 2 — lock held by another session", "type": "behavior"},
+        {"text": "JSON status=lock_held, action=fallback_grep", "type": "behavior"},
+        {"text": "Lock file NOT modified (not broken when valid)", "type": "file_content"},
+        {"text": "Lock file NOT deleted (still held by active session)", "type": "file_content"},
+        {"text": "Skill agent falls back to Grep — zero regression", "type": "behavior"}
+      ],
+      "files": [".mc-data/work/_meta/.ci-cache.lock"]
+    },
+    {
+      "id": "CI-E11",
+      "category": "Lock & Concurrency",
+      "prompt": "ci-detect.sh — Stale lock > 60 giay. Test: create lock file with heartbeat_at > 60s ago.",
+      "expected_output": "ci-detect.sh breaks stale lock. Stderr: 'Breaking stale lock (>60s)'. New lock acquired. Cache scanned + written. Lock released.",
+      "assertions": [
+        {"text": "Stderr contains 'Breaking stale lock (>60s)'", "type": "behavior"},
+        {"text": "Old lock file removed", "type": "behavior"},
+        {"text": "New lock file created with current PID|host|user", "type": "file_content"},
+        {"text": "ci-detect.sh exit 0 (not exit 2 — lock NOT treated as valid)", "type": "behavior"},
+        {"text": "Cache scanned successfully after breaking stale lock", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/.ci-cache.lock"]
+    },
+    {
+      "id": "CI-E12",
+      "category": "Lock & Concurrency",
+      "prompt": "ci-detect.sh — 2 terminal dong thoi (cache miss). Test: Terminal 1 acquires lock first, Terminal 2 arrives during scan.",
+      "expected_output": "Terminal 1: acquire lock → scan MCP → write cache → release lock. Terminal 2: lock held → exit 2 → fallback Grep. Cache file valid JSON, khong corrupt.",
+      "assertions": [
+        {"text": "Terminal 1 acquires lock → runs CI tools → writes cache → releases lock", "type": "behavior"},
+        {"text": "Terminal 2: lock held → ci-detect.sh exit 2 → fallback Grep/Glob", "type": "behavior"},
+        {"text": "Terminal 2 does NOT wait for lock — immediate fallback", "type": "behavior"},
+        {"text": "Cache file is valid JSON (jq -e passes) after Terminal 1 writes", "type": "file_content"},
+        {"text": "Cache file NOT corrupt — both gitnexus and serena fields present", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E13",
+      "category": "Index Freshness",
+      "prompt": "ci-freshness-check.sh — HEAD == index_commit. Test: set cache index_commit = git rev-parse HEAD.",
+      "expected_output": "ci-freshness-check.sh exit 0. JSON status=ok, behind=0.",
+      "assertions": [
+        {"text": "ci-freshness-check.sh exit 0", "type": "behavior"},
+        {"text": "JSON status=ok, behind=0", "type": "behavior"},
+        {"text": "index_commit matches HEAD in output", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E14",
+      "category": "Index Freshness",
+      "prompt": "ci-freshness-check.sh — HEAD ahead by 3 commits. Test: set index_commit 3 commits behind HEAD.",
+      "expected_output": "ci-freshness-check.sh exit 1. JSON status=warning, level=light, behind=3. Message includes 'may miss recent changes'.",
+      "assertions": [
+        {"text": "ci-freshness-check.sh exit 1", "type": "behavior"},
+        {"text": "JSON status=warning, level=light, behind=3", "type": "behavior"},
+        {"text": "Message: 'may miss recent changes'", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E15",
+      "category": "Index Freshness",
+      "prompt": "ci-freshness-check.sh — HEAD ahead by 15 commits. Test: set index_commit 15 commits behind HEAD.",
+      "expected_output": "ci-freshness-check.sh exit 2. JSON status=warning, level=strong, behind=15. Message: 'significantly behind (15 commits). Consider: gitnexus analyze'.",
+      "assertions": [
+        {"text": "ci-freshness-check.sh exit 2", "type": "behavior"},
+        {"text": "JSON status=warning, level=strong, behind=15", "type": "behavior"},
+        {"text": "Message includes 'significantly behind' and 'gitnexus analyze'", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E16",
+      "category": "Index Freshness",
+      "prompt": "ci-freshness-check.sh — HEAD ahead by 50 commits. Test: set index_commit 50 commits behind HEAD.",
+      "expected_output": "ci-freshness-check.sh exit 3. JSON status=warning, level=severe, behind=50. Message: 'likely incomplete. Recommend re-index before continuing'.",
+      "assertions": [
+        {"text": "ci-freshness-check.sh exit 3", "type": "behavior"},
+        {"text": "JSON status=warning, level=severe, behind=50", "type": "behavior"},
+        {"text": "Message includes 'likely incomplete' and 're-index before continuing'", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E17",
+      "category": "Index Freshness",
+      "prompt": "ci-freshness-check.sh — index_commit missing in cache. Test: cache has gitnexus.available=true but index_commit field empty/null.",
+      "expected_output": "ci-freshness-check.sh exit 0. JSON status=unknown, reason='index_commit missing in cache'. Skip gracefully, khong block.",
+      "assertions": [
+        {"text": "ci-freshness-check.sh exit 0 (graceful skip)", "type": "behavior"},
+        {"text": "JSON status=unknown, reason='index_commit missing in cache'", "type": "behavior"},
+        {"text": "Does NOT block execution — zero regression", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E18",
+      "category": "Index Freshness",
+      "prompt": "ci-freshness-check.sh — Not a git repo. Test: run outside git repo (ex: non-git project dir).",
+      "expected_output": "ci-freshness-check.sh exit 0. JSON status=skipped, reason='not a git repository'. Short-circuit ngay lap tuc.",
+      "assertions": [
+        {"text": "ci-freshness-check.sh exit 0 (short-circuit)", "type": "behavior"},
+        {"text": "JSON status=skipped, reason='not a git repository'", "type": "behavior"},
+        {"text": "Exits immediately without checking cache file", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E19",
+      "category": "Cache Migration",
+      "prompt": "ci-detect.sh — Cache schema v1 detected. Test: create cache file with schema_version=1, gitnexus.available, serena.available but no per-tool TTL fields.",
+      "expected_output": "Stderr: 'Cache schema v1 detected — forcing re-scan for v2 migration'. Old cache removed. New cache written in v2 schema with all required fields.",
+      "assertions": [
+        {"text": "Stderr contains 'Cache schema v1 detected — forcing re-scan for v2 migration'", "type": "behavior"},
+        {"text": "Old v1 cache file removed", "type": "behavior"},
+        {"text": "New cache has schema_version=2", "type": "file_content"},
+        {"text": "New cache has gitnexus.ttl_hours and serena.ttl_hours", "type": "file_content"},
+        {"text": "New cache has gitnexus.index_commit (khong co trong v1)", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    },
+    {
+      "id": "CI-E20",
+      "category": "Agent Context Injection",
+      "prompt": "ci-inject-context.sh — Both tools available, index fresh. Test: cache with gitnexus.available=true, serena.available=true, ci-freshness-check.sh exit 0.",
+      "expected_output": "ci-inject-context.sh exit 0. Output: Both-OK template. Contains 'GitNexus + Serena' title. Contains repo name, symbols, flows. Content < 600 chars. NO freshness warning.",
+      "assertions": [
+        {"text": "ci-inject-context.sh exit 0", "type": "behavior"},
+        {"text": "Output contains '## Code Intelligence: GitNexus + Serena'", "type": "behavior"},
+        {"text": "Output contains repo name (not '?')", "type": "behavior"},
+        {"text": "Output contains 'System-level' and 'Symbol-level' guidance", "type": "behavior"},
+        {"text": "Output does NOT contain 'WARNING' (index fresh)", "type": "behavior"},
+        {"text": "Output < 600 chars", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E21",
+      "category": "Agent Context Injection",
+      "prompt": "ci-inject-context.sh — Both tools + freshness SEVERE (>20 behind). Test: cache with both available, ci-freshness-check.sh exit 3 (severe).",
+      "expected_output": "ci-inject-context.sh exit 0. Output: Both-Stale template. Contains 'WARNING' + severity level. Contains 'Serena (real-time, unaffected by index)'. Content < 700 chars.",
+      "assertions": [
+        {"text": "ci-inject-context.sh exit 0", "type": "behavior"},
+        {"text": "Output contains 'WARNING' with severe description", "type": "behavior"},
+        {"text": "Output contains 'Serena (real-time, unaffected by index)'", "type": "behavior"},
+        {"text": "Output contains 'INCOMPLETE' or 'incomplete'", "type": "behavior"},
+        {"text": "Output < 700 chars", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E22",
+      "category": "Agent Context Injection",
+      "prompt": "ci-inject-context.sh — GitNexus-only + freshness LIGHT (1-5 behind). Test: cache gitnexus.available=true, serena.available=false, ci-freshness-check.sh exit 1.",
+      "expected_output": "ci-inject-context.sh exit 0. Output: GitNexus template. Contains 'gitnexus_impact' + 'gitnexus_query' + 'gitnexus_rename' guidance. Contains freshness light warning. Content < 500 chars.",
+      "assertions": [
+        {"text": "ci-inject-context.sh exit 0", "type": "behavior"},
+        {"text": "Output contains '## Code Intelligence: GitNexus' (not '+ Serena')", "type": "behavior"},
+        {"text": "Output contains 'gitnexus_impact({target, direction'", "type": "behavior"},
+        {"text": "Output contains 'gitnexus_rename' usage guidance", "type": "behavior"},
+        {"text": "Output contains freshness WARNING (light level)", "type": "behavior"},
+        {"text": "Output < 500 chars", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E23",
+      "category": "Agent Context Injection",
+      "prompt": "ci-inject-context.sh — Serena-only. Test: cache gitnexus.available=false, serena.available=true. ci-freshness-check.sh exit 0 (skipped — no gitnexus).",
+      "expected_output": "ci-inject-context.sh exit 0. Output: Serena template. Contains 'real-time, always current'. Contains 'find_definition', 'find_references', 'rename_symbol', 'get_symbols_overview'. NO freshness warning. Content < 400 chars.",
+      "assertions": [
+        {"text": "ci-inject-context.sh exit 0", "type": "behavior"},
+        {"text": "Output contains '## Code Intelligence: Serena' (not GitNexus)", "type": "behavior"},
+        {"text": "Output contains 'real-time, always current'", "type": "behavior"},
+        {"text": "Output contains 'find_definition' and 'find_references'", "type": "behavior"},
+        {"text": "Output contains 'rename_symbol' and 'get_symbols_overview'", "type": "behavior"},
+        {"text": "Output does NOT contain 'WARNING' (Serena is real-time)", "type": "behavior"},
+        {"text": "Output < 400 chars", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E24",
+      "category": "Graceful Degradation",
+      "prompt": "ci-detect.sh — No CI tools available. Test: ci-detect.sh returns exit 1 (no_git or no tools), ci-inject-context.sh exit 1.",
+      "expected_output": "All skills fallback to Grep/Glob. No ERROR emitted. Skill execution continues binh thuong. Zero regression.",
+      "assertions": [
+        {"text": "ci-detect.sh exit 1 — no CI tools", "type": "behavior"},
+        {"text": "Skill does NOT block execution", "type": "behavior"},
+        {"text": "Skill uses Grep/Glob (current behavior, zero regression)", "type": "behavior"},
+        {"text": "No ERROR message about missing CI tools", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E25",
+      "category": "Graceful Degradation",
+      "prompt": "ci-detect.sh — Lock held → fallback. Test: concurrent lock scenario, ci-detect exit 2.",
+      "expected_output": "Skill uses Grep/Glob instead of CI tools. Does NOT wait for lock. Does NOT attempt MCP calls. Zero regression — same behavior as pre-CI integration.",
+      "assertions": [
+        {"text": "ci-detect.sh exit 2 → skill reads JSON action=fallback_grep", "type": "behavior"},
+        {"text": "Skill does NOT block or wait for lock release", "type": "behavior"},
+        {"text": "Skill falls back to Grep/Glob seamlessly", "type": "behavior"},
+        {"text": "No MCP tool calls attempted (no gitnexus_* or serena_* tools used)", "type": "behavior"}
+      ],
+      "files": []
+    },
+    {
+      "id": "CI-E26",
+      "category": "Graceful Degradation",
+      "prompt": "ci-detect.sh — Cache corrupt. Test: create cache file with invalid JSON (e.g., truncated).",
+      "expected_output": "Stderr: 'Corrupt cache file detected — removing for re-scan'. Old cache deleted. Fresh scan performed. New valid cache written.",
+      "assertions": [
+        {"text": "Stderr contains 'Corrupt cache file detected — removing for re-scan'", "type": "behavior"},
+        {"text": "Corrupt cache file deleted", "type": "behavior"},
+        {"text": "ci-detect.sh proceeds with fresh scan (not infinite loop)", "type": "behavior"},
+        {"text": "New cache file is valid JSON (jq -e passes)", "type": "file_content"},
+        {"text": "New cache has schema_version=2 with all required fields", "type": "file_content"}
+      ],
+      "files": [".mc-data/work/_meta/code-intelligence.json"]
+    }
+  ]
+}

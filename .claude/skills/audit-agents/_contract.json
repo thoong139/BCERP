@@ -1,0 +1,116 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "audit-agents",
+  "version": "3.0.0",
+  "phase": "devkit-audit",
+  "description": "Audit agent, procedure & knowledge definitions compliance theo Agent & Knowledge Construction Specification. v3.0.0: refactor thành orchestrator + 6 phase procedure files + _shared.md (lazy loading), bổ sung session isolation và resume support.",
+  "prerequisites": {
+    "files": [
+      ".claude/agents/spec/README.md",
+      ".claude/agents/spec/agent-definition-template.md",
+      ".claude/agents/spec/knowledge-template.md",
+      ".claude/skills/audit-agents/procedures/_shared.md",
+      ".claude/skills/audit-agents/procedures/phase0-init.md"
+    ],
+    "registry_fields": [],
+    "notes": "Yêu cầu agent spec template tồn tại. Knowledge template chỉ cần cho --references/--full scope. Procedure files (phase0-init..phase5-report) phải tồn tại — SKILL.md lazy-load chúng."
+  },
+  "inputs": [
+    {
+      "path": ".claude/agents/",
+      "description": "Toàn bộ agent definition files",
+      "required": true
+    },
+    {
+      "path": ".claude/agents/procedures/",
+      "description": "Toàn bộ procedure files (audited target)",
+      "required": false
+    },
+    {
+      "path": ".claude/agents/spec/README.md",
+      "description": "Agent, Knowledge & Procedure construction specification",
+      "required": true
+    },
+    {
+      "path": ".claude/references/team-expert/",
+      "description": "Knowledge files cho domain experts",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": "docs/audit/reports/agent-audit-[date].md",
+        "template": null,
+        "notes": "Inline template trong procedures/phase5-report.md — Output Template section",
+        "contract_key": "agent-audit-report",
+        "required": true,
+        "description": "Báo cáo audit agents/procedures/knowledge với findings theo severity"
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/audit-agents/[session-id]/status.json",
+        "template": null,
+        "notes": "Checkpoint + resume state. Schema xem procedures/_shared.md §Schemas — status.json",
+        "contract_key": "audit-agents-status",
+        "required": true,
+        "description": "Session state cho resume support"
+      },
+      {
+        "path": ".mc-data/work/audit-agents/[session-id]/findings-agents.json",
+        "template": null,
+        "notes": "Phase 1 output, append per batch. Array of Finding objects.",
+        "contract_key": "audit-agents-findings-agents",
+        "required": false,
+        "description": "Findings từ Phase 1 (agent definition audit)"
+      },
+      {
+        "path": ".mc-data/work/audit-agents/[session-id]/findings-procedures.json",
+        "template": null,
+        "notes": "Phase 2 output. Array of Finding objects.",
+        "contract_key": "audit-agents-findings-procedures",
+        "required": false,
+        "description": "Findings từ Phase 2 (procedure audit)"
+      },
+      {
+        "path": ".mc-data/work/audit-agents/[session-id]/findings-knowledge.json",
+        "template": null,
+        "notes": "Phase 3 output. Array of Finding objects.",
+        "contract_key": "audit-agents-findings-knowledge",
+        "required": false,
+        "description": "Findings từ Phase 3 (knowledge audit)"
+      },
+      {
+        "path": ".mc-data/work/audit-agents/[session-id]/findings-crossref.json",
+        "template": null,
+        "notes": "Phase 4 output. Array of Finding objects (X1-X6).",
+        "contract_key": "audit-agents-findings-crossref",
+        "required": false,
+        "description": "Findings từ Phase 4 (cross-reference audit)"
+      },
+      {
+        "path": ".mc-data/work/audit-agents/[session-id]/audit-result.json",
+        "template": null,
+        "notes": "Phase 5 merged output. Schema xem procedures/_shared.md §Schemas — audit-result.json",
+        "contract_key": "audit-agents-result",
+        "required": true,
+        "description": "Merged findings + summary metrics + verdict"
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Không cập nhật registry — chỉ đọc và báo cáo"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Read-only — không ghi registry"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {}
+  }
+}

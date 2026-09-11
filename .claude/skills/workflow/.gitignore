@@ -1,0 +1,3 @@
+# v4.1 backup snapshot — superseded by git tag legacy-scan-v4.1.0-baseline (when approved).
+# Do not commit binary backup into git — tag is the source of truth.
+.v4.1.bak/

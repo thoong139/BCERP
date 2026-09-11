@@ -1,0 +1,46 @@
+{
+  "$schema": "issue-registry-v2",
+  "fix_id": "{{FIX_ID}}",
+  "session_dir": "{{SESSION_DIR}}",
+  "engine_version": "v8",
+  "generated_at": "{{GENERATED_AT}}",
+  "dimensions_run": [],
+  "total_issues": 0,
+  "issues": [],
+  "dedup_stats": {
+    "signals_ingested": 0,
+    "signals_deduplicated": 0,
+    "issues_after_dedup": 0
+  },
+  "coverage": {
+    "dimensions_with_issues": [],
+    "dimensions_without_issues": [],
+    "coverage_rate_pct": 0
+  },
+  "_valid_issue_types": [
+    "api_mismatch",
+    "broken_ui",
+    "build_error",
+    "config_error",
+    "data_integrity",
+    "db_schema_drift",
+    "deprecated_api",
+    "frontend_error",
+    "i18n_missing",
+    "import_error",
+    "missing_endpoint",
+    "missing_test",
+    "orphan_ui_action",
+    "orphan_ui_screen",
+    "orphan_ui_flow",
+    "runtime_error",
+    "security_vulnerability",
+    "style_mismatch",
+    "test_failure",
+    "type_error",
+    "ui_label_inconsistent",
+    "unreachable_code",
+    "unused_import",
+    "visual_design_mismatch"
+  ]
+}

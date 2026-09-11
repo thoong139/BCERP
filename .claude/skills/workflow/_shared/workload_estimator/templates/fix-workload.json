@@ -1,0 +1,35 @@
+{
+  "$schema": "fix-workload-v1",
+  "workload_id": "WL-20260420-001",
+  "estimated_at": "2026-04-20T00:00:00+00:00",
+  "profile": "standard",
+  "scope": {
+    "type": "all"
+  },
+  "file_count": 0,
+  "selected_dims": ["QD1", "QD2", "QD5"],
+  "lanes": [
+    {
+      "dim": "QD1",
+      "probes_count": 3,
+      "files_covered": 0,
+      "estimated_sec": 0
+    },
+    {
+      "dim": "QD2",
+      "probes_count": 2,
+      "files_covered": 0,
+      "estimated_sec": 0
+    },
+    {
+      "dim": "QD5",
+      "probes_count": 3,
+      "files_covered": 0,
+      "estimated_sec": 0
+    }
+  ],
+  "total_estimated_sec": 0,
+  "gate_threshold_sec": 2700,
+  "gate_triggered": false,
+  "partition_plans": []
+}

@@ -1,0 +1,32 @@
+{
+  "_template_notes": {
+    "purpose": "Entity dependency graph — Discovery #1. Domain entities + FK relations + ownership. Source: GitNexus clusters + Serena find_symbol / fallback Glob backend/Modules/*/Domain/Entities/. Engine #3 + #14.",
+    "populate": [
+      "nodes[]: 1 entry per entity class — {id, module, fields[], primary_key, fingerprint}",
+      "edges[]: 1 entry per FK relation — {from_entity, to_entity, from_field, to_field, type=FK|composition|aggregation, nullable, cascade}",
+      "metadata.build_at: ISO 8601 timestamp khi graph built",
+      "metadata.module_filter: scope.modules nếu scope=module|feat, [] nếu scope=system",
+      "metadata.source_method: 'gitnexus|serena|grep_fallback'",
+      "metadata.ci_index_freshness: từ CI PRE-GATE Nb"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "entity-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "module_filter": [],
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "node_count": 0,
+    "edge_count": 0,
+    "modules_covered": []
+  }
+}

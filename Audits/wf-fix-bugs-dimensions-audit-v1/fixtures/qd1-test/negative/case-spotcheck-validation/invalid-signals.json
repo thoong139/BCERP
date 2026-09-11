@@ -1,0 +1,75 @@
+{
+  "$schema": "lane-signals-v1",
+  "lane": "wf-fix-functional",
+  "dimension": "QD1",
+  "probe_id": "P-QD1-req-registry-xref",
+  "profile": "standard",
+  "generated_at": "2026-05-09T00:00:00Z",
+  "signals": [
+    {
+      "signal_id": "SIG-001-desc-too-short",
+      "_comment": "INVALID: description is only 12 chars, min is 50",
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "signal_type": "orphan_annotation",
+      "description": "Short desc.",
+      "target": { "kind": "code", "file_path": "N/A", "line_range": [1, 1] },
+      "suggested_severity": "medium",
+      "confidence": 0.8,
+      "evidence": { "code_snippet": "// REQ-ID: REQ-ORPHAN-001" },
+      "dedup_hints": ["orphan:REQ-ORPHAN-001"]
+    },
+    {
+      "signal_id": "SIG-002-bad-filepath",
+      "_comment": "INVALID: evidence.file_path points to non-existent file",
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "signal_type": "coverage_gap",
+      "description": "Feature FEAT-CRM-001 has impl_status=done but no code file was found containing REQ-CRM-001 annotation.",
+      "target": { "kind": "code", "file_path": "/nonexistent/path/that/does/not/exist.ts", "line_range": [1, 1] },
+      "suggested_severity": "high",
+      "confidence": 0.9,
+      "evidence": { "code_snippet": "// REQ-ID: REQ-CRM-001" },
+      "dedup_hints": ["coverage:FEAT-CRM-001"]
+    },
+    {
+      "signal_id": "SIG-003-bad-confidence",
+      "_comment": "INVALID: confidence = 1.5, must be in [0.0, 1.0]",
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "signal_type": "orphan_feat_annotation",
+      "description": "FEAT-ID FEAT-CATALOG-003 found in code but no matching requirement in req-registry.json — orphan feature annotation.",
+      "target": { "kind": "code", "file_path": "N/A", "line_range": [1, 1] },
+      "suggested_severity": "medium",
+      "confidence": 1.5,
+      "evidence": { "code_snippet": "// FEAT-ID: FEAT-CATALOG-003" },
+      "dedup_hints": ["orphan_feat:FEAT-CATALOG-003"]
+    },
+    {
+      "signal_id": "SIG-004-missing-snippet",
+      "_comment": "INVALID: evidence has no code_snippet field",
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "signal_type": "coverage_gap",
+      "description": "Feature FEAT-INV-LIST-002 has impl_status=done in registry but no corresponding REQ-ID annotation found in any source file — possible traceability gap.",
+      "target": { "kind": "code", "file_path": "N/A", "line_range": [1, 1] },
+      "suggested_severity": "high",
+      "confidence": 0.75,
+      "evidence": { "log_excerpt": "Scanned 42 files, no match for REQ-INV-002" },
+      "dedup_hints": ["coverage:FEAT-INV-LIST-002"]
+    },
+    {
+      "signal_id": "SIG-005-valid",
+      "_comment": "VALID: all fields correct, should PASS validation",
+      "probe_id": "P-QD1-req-registry-xref",
+      "dimension_id": "QD1",
+      "signal_type": "orphan_annotation",
+      "description": "REQ-ID REQ-SALES-007 found in src/sales/order-service.ts but has no matching entry in req-registry.json — orphan annotation will cause wf-verify-sync failure.",
+      "target": { "kind": "code", "file_path": "N/A", "line_range": [42, 42] },
+      "suggested_severity": "medium",
+      "confidence": 0.85,
+      "evidence": { "code_snippet": "// REQ-ID: REQ-SALES-007\nexport class OrderService {" },
+      "dedup_hints": ["orphan:REQ-SALES-007"]
+    }
+  ]
+}

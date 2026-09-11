@@ -1,0 +1,408 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD10",
+  "dimension_name": "Cross-Module Integration",
+  "short_name": "Integration",
+  "owner_agent": "architect",
+  "version": "1.0.0",
+  "description": "Phat hien loi tich hop giua cac modules: cross-module reference drift, API contract violations, event handler coverage gaps, orphan FK references runtime, multi-platform entity sync issues, cache staleness, state machine errors, business flow violations, authorization matrix missing guards. Tieu thu cross_module_dependencies[] tu req-registry.json + YAML specs (state-machine, business-flow, authorization-matrix). Static probes parallel max 3; runtime probes sequential (DB/API connection limit).",
+  "probes": [
+    {
+      "id": "P-QD10-cross-module-ref-static",
+      "name": "Cross-Module Reference Drift (Static)",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "serena+grep",
+        "config": "procedures/probes/P-QD10-cross-module-ref-static.md"
+      },
+      "required_inputs": [
+        "registry",
+        "code"
+      ],
+      "outputs": [
+        "signal",
+        "cross-module-map.json"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD10-api-contract-drift",
+      "name": "API Contract Drift Detect",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "serena+grep",
+        "config": "procedures/probes/P-QD10-api-contract-drift.md"
+      },
+      "required_inputs": [
+        "registry",
+        "openapi_or_dto"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 3500
+      }
+    },
+    {
+      "id": "P-QD10-event-handler-coverage",
+      "name": "Event Handler Coverage",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "gitnexus+grep",
+        "config": "procedures/probes/P-QD10-event-handler-coverage.md"
+      },
+      "required_inputs": [
+        "registry",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD10-orphan-reference-runtime",
+      "name": "Orphan FK Reference (DB Runtime)",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+sql",
+        "config": "procedures/probes/P-QD10-orphan-reference-runtime.md"
+      },
+      "required_inputs": [
+        "db_url_dev_only",
+        "registry"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": true,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 2500
+      }
+    },
+    {
+      "id": "P-QD10-multi-platform-entity-sync",
+      "name": "Multi-Platform Entity Sync (ERP <-> Mobile)",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "procedures/probes/P-QD10-multi-platform-entity-sync.md"
+      },
+      "required_inputs": [
+        "base_url_set",
+        "registry"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 2500
+      }
+    },
+    {
+      "id": "P-QD10-cache-staleness-probe",
+      "name": "Cache Staleness Probe (opt-in mutation)",
+      "type": "runtime",
+      "depth": [
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "procedures/probes/P-QD10-cache-staleness-probe.md"
+      },
+      "required_inputs": [
+        "base_url_dev_only",
+        "test_cache_sync_flag"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": true,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 2500
+      }
+    },
+    {
+      "id": "P-QD10-state-machine-correctness",
+      "name": "State Machine Correctness (YAML spec)",
+      "type": "static",
+      "depth": [
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "python+yaml+grep",
+        "config": "procedures/probes/P-QD10-state-machine-correctness.md"
+      },
+      "required_inputs": [
+        "state_machine_specs",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD10-business-flow-runtime",
+      "name": "Business Flow Runtime (E2E Driver)",
+      "type": "runtime",
+      "depth": [
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "procedures/probes/P-QD10-business-flow-runtime.md"
+      },
+      "required_inputs": [
+        "business_flow_specs",
+        "base_url",
+        "auth-session"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD10-auth-matrix-check",
+      "name": "Authorization Matrix Check (RBAC vs spec)",
+      "type": "static",
+      "depth": [
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "python+yaml+serena+grep",
+        "config": "procedures/probes/P-QD10-auth-matrix-check.md"
+      },
+      "required_inputs": [
+        "authorization_matrix_specs",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD10-llm-analysis",
+      "name": "LLM-Augmented Integration Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd10-integration.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [],
+      "max_signals_per_probe": 0,
+      "notes": "QD10 SKIP hoan toan trong quick profile — cross-module analysis can registry + spec files. Lane status = skipped + ly do."
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD10-cross-module-ref-static",
+        "P-QD10-api-contract-drift",
+        "P-QD10-event-handler-coverage"
+      ],
+      "max_signals_per_probe": 50,
+      "notes": "3 static probes — bao phu reference drift + API contract + event handlers. Khong can DB/dev server."
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD10-cross-module-ref-static",
+        "P-QD10-api-contract-drift",
+        "P-QD10-event-handler-coverage",
+        "P-QD10-orphan-reference-runtime",
+        "P-QD10-multi-platform-entity-sync",
+        "P-QD10-llm-analysis"
+      ],
+      "max_signals_per_probe": 100,
+      "notes": "Static + 2 runtime probes (orphan FK, multi-platform sync). Can DB credentials + base_url cho mobile/erp apps."
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300,
+      "notes": "All 9 probes. Cache-staleness opt-in via --test-cache-sync (mutation safety). State-machine + business-flow + auth-matrix can YAML specs (graceful skip neu thieu)."
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "Orphan FK reference: consumer rows reference provider rows khong ton tai (data integrity violation)",
+      "Authorization matrix missing guard tren endpoint mutation (Broken Access Control — OWASP Top 10)"
+    ],
+    "high_triggers": [
+      "API contract field removed/renamed (breaking change without migration)",
+      "State machine cho phep illegal transition (vd: PENDING -> COMPLETED khong qua APPROVED)",
+      "Business flow step unreachable hoac assertion fail (Q2C flow broken)",
+      "Event handler completely missing for declared event subscription",
+      "Multi-platform entity response shape mismatch (mobile <-> erp)",
+      "Authorization matrix thieu role guard tren endpoint can authentication"
+    ],
+    "medium_triggers": [
+      "Consumer importing deprecated provider export",
+      "API contract type mismatch non-breaking (vd: number -> bigint)",
+      "Cache staleness > 5s on entity sync",
+      "Multi-platform entity field mismatch (subset of fields differ)",
+      "Event handler partial coverage (some event types subscribed, some missing)",
+      "Authorization matrix over-permissive (roles_forbidden contains role nhung code accept role do)"
+    ],
+    "low_triggers": [
+      "Consumer missing optional field that is now used in provider",
+      "Cross-module reference uses internal symbol (not exported officially)"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [
+      "psql",
+      "mysql",
+      "sqlite3",
+      "curl",
+      "python3",
+      "PyYAML"
+    ],
+    "agents": [
+      "architect",
+      "data-engineer",
+      "security",
+      "business-analyst"
+    ],
+    "_agents_note": "v9.0.3: 'domain-experts' deprecated (no agent file ton tai). Domain-specific dispatch dung QD2 P-QD2-domain-expert-review pattern (resolve {domain}-expert.md theo registry.departments[])."
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/QD10-integration-report.md",
+    "coordination_files": [
+      "$SESSION_DIR/phase4-find-bugs/lanes/QD10-integration/cross-module-map.json"
+    ]
+  },
+  "execution_order": [
+    "P-QD10-cross-module-ref-static",
+    "P-QD10-api-contract-drift",
+    "P-QD10-event-handler-coverage",
+    "P-QD10-state-machine-correctness",
+    "P-QD10-auth-matrix-check",
+    "P-QD10-orphan-reference-runtime",
+    "P-QD10-multi-platform-entity-sync",
+    "P-QD10-cache-staleness-probe",
+    "P-QD10-business-flow-runtime",
+    "P-QD10-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD10-cross-module-ref-static",
+      "P-QD10-api-contract-drift",
+      "P-QD10-event-handler-coverage"
+    ],
+    [
+      "P-QD10-state-machine-correctness",
+      "P-QD10-auth-matrix-check"
+    ],
+    [
+      "P-QD10-orphan-reference-runtime"
+    ],
+    [
+      "P-QD10-multi-platform-entity-sync"
+    ],
+    [
+      "P-QD10-cache-staleness-probe"
+    ],
+    [
+      "P-QD10-business-flow-runtime"
+    ],
+    [
+      "P-QD10-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "Static probes Wave 2 (cross-module-ref + api-contract-drift + event-handler-coverage) chay PARALLEL max 3 (CORE-025 — static class, no shared state). State-machine + auth-matrix (static, exhaustive) parallel max 2 (YAML parse cheap, parallel safe). Runtime probes SEQUENTIAL: orphan-FK truoc (read-only DB) -> multi-platform sync (curl GET nhieu base_urls) -> cache-staleness (mutation, opt-in) -> business-flow-runtime cuoi cung (E2E flow co the mutate state, cleanup quan trong). Tach 4 groups runtime de tranh DB connection contention + giup resume per-probe checkpoint."
+}

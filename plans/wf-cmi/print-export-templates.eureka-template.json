@@ -1,0 +1,459 @@
+{
+  "$schema": "print-export-templates-v1",
+  "project": "EUREKA-2026",
+  "version": "1.0.0-template",
+  "last_updated": "2026-05-16",
+  "description": "Template SSOT cho CD40 (Print & Export Consistency). Logistics document-heavy: HĐĐT, tờ khai HQ, BOL, packing list, invoice, vendor report. Định nghĩa template registry: format (PDF/Excel/CSV), engine (jsPDF/QuestPDF/ClosedXML), layout, branding, watermark, footer. Người chạy /wf-cmi cần copy file này vào .mc-data/docs/_meta/ và điều chỉnh theo thực tế project.",
+  "_template_notes": "PHẢI xóa các field bắt đầu bằng _ trước khi commit. Đây là TEMPLATE — không phải runtime config.",
+
+  "_instructions": {
+    "how_to_use": "1) Copy file này vào .mc-data/docs/_meta/print-export-templates.json. 2) Strip metadata. 3) Update theo templates EUREKA đã có. 4) Chạy /wf-cmi --dims=CD40 để verify.",
+    "default_behavior": "Endpoint export/print KHÔNG declare template → render ad-hoc (rủi ro inconsistent). → ORPHAN_EXPORT_ENDPOINT (severity HIGH). Template declare nhưng KHÔNG match style guide → STYLE_DRIFT.",
+    "compliance_focus": "HĐĐT TT78 và tờ khai HQ VNACCS có format chuẩn bắt buộc — kiểm tra strict."
+  },
+
+  "config": {
+    "default_paper_size": "A4",
+    "default_orientation": "portrait",
+    "default_language": "vi",
+    "supported_languages": ["vi", "en", "zh"],
+    "supported_currencies": ["VND", "CNY", "USD"],
+    "default_font_family": "Inter",
+    "default_font_size_pt": 10,
+    "enforce_brand_consistency": true,
+    "watermark_for_draft": true,
+    "include_correlation_id": true,
+    "_comment_paper": "A4 (210x297mm) chuẩn VN/CN. Letter chỉ khi export cho US client.",
+    "_comment_watermark": "Document chưa final phải có watermark 'NHÁP' / 'DRAFT' / 'CHƯA PHÁT HÀNH'.",
+    "_comment_correlation": "Footer phải có correlation_id để trace ngược về session."
+  },
+
+  "branding": {
+    "description": "Brand identity cho mọi export/print.",
+    "logo": {
+      "primary": "/assets/brand/eureka-logo-color.svg",
+      "monochrome": "/assets/brand/eureka-logo-mono.svg",
+      "position": "top-left",
+      "max_width_mm": 40
+    },
+    "color_palette": {
+      "primary": "#0066CC",
+      "secondary": "#003D7A",
+      "accent": "#FF6B35",
+      "text_primary": "#1A1A1A",
+      "text_secondary": "#666666",
+      "border": "#E0E0E0",
+      "watermark": "#CCCCCC"
+    },
+    "typography": {
+      "heading_font": "Inter",
+      "body_font": "Inter",
+      "monospace_font": "JetBrains Mono",
+      "_comment": "Inter có support tốt cho tiếng Việt + tiếng Trung simplified"
+    },
+    "footer": {
+      "include_page_number": true,
+      "include_generated_at": true,
+      "include_generated_by": true,
+      "include_correlation_id": true,
+      "format_vi": "Trang {page} / {total} · Tạo lúc {generated_at} bởi {user} · Mã: {correlation_id}",
+      "format_en": "Page {page} of {total} · Generated at {generated_at} by {user} · Ref: {correlation_id}"
+    }
+  },
+
+  "templates": {
+    "description": "Registry mọi templates print/export.",
+
+    "Invoice_PDF": {
+      "category": "compliance",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "Finance",
+      "endpoint": "GET /api/v1/finance/invoices/{id}/pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "layout": {
+        "header": "logo + company_info + invoice_number",
+        "body": "customer_info + items_table + tax_summary + totals + qr_code",
+        "footer": "signature_block + tax_authority_code + page_number"
+      },
+      "required_fields": [
+        "InvoiceNumber", "EInvoiceCode", "TaxAuthorityCode",
+        "CustomerName", "CustomerTaxCode", "CustomerAddress",
+        "Items[]", "Subtotal", "TaxAmount", "Total",
+        "Currency", "IssuedAt", "PaymentTerms", "QRCode"
+      ],
+      "compliance_tags": ["VN-TT78-eInvoice"],
+      "watermark_when_draft": "NHÁP",
+      "must_include_qr_code": true,
+      "languages": ["vi", "en"],
+      "_comment_compliance": "Theo TT78/2021 — phải có mã CQT + QR code + signature digital"
+    },
+
+    "Invoice_CN_Fapiao_PDF": {
+      "category": "compliance",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "Finance",
+      "endpoint": "GET /api/v1/finance/invoices/{id}/fapiao-pdf",
+      "paper_size": "A4",
+      "orientation": "landscape",
+      "compliance_tags": ["CN-FAPIAO"],
+      "required_fields": [
+        "FapiaoCode", "FapiaoNumber", "BuyerName", "BuyerTaxCode",
+        "SellerName", "SellerTaxCode", "Items[]", "TaxAmount", "Total",
+        "QRCode", "ElectronicSignature"
+      ],
+      "languages": ["zh", "en"],
+      "_comment": "Fapiao format khác hoàn toàn HĐĐT VN — layout dọc, có ô đỏ"
+    },
+
+    "CustomsDeclaration_PDF": {
+      "category": "compliance",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "Customs",
+      "endpoint": "GET /api/v1/customs/declarations/{id}/pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "compliance_tags": ["VN-VNACCS"],
+      "required_fields": [
+        "DeclarationNumber", "RegistrationNumber",
+        "ExporterInfo", "ImporterInfo", "ConsigneeInfo",
+        "Items[]", "HSCodes[]", "Values[]", "Currency",
+        "Incoterm", "PortOfLoading", "PortOfDischarge",
+        "VnaccsBarcode", "OfficialStamp"
+      ],
+      "languages": ["vi", "en"]
+    },
+
+    "BillOfLading_PDF": {
+      "category": "logistics_document",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "TMS",
+      "endpoint": "GET /api/v1/tms/bookings/{id}/bol-pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "required_fields": [
+        "BillOfLadingNumber", "ShipperInfo", "ConsigneeInfo", "NotifyPartyInfo",
+        "VesselName", "VoyageNumber", "PortOfLoading", "PortOfDischarge",
+        "PlaceOfReceipt", "PlaceOfDelivery",
+        "Containers[]", "Marks", "Description", "GrossWeight", "Measurement",
+        "FreightTerms", "Incoterm", "IssuedAt", "Signature"
+      ],
+      "languages": ["vi", "en"]
+    },
+
+    "PackingList_PDF": {
+      "category": "logistics_document",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "WMS",
+      "endpoint": "GET /api/v1/wms/shipments/{id}/packing-list-pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "required_fields": [
+        "ShipmentNumber", "ExporterInfo", "ConsigneeInfo",
+        "Containers[]", "Cartons[]", "ItemDetails[]",
+        "GrossWeight", "NetWeight", "Measurement", "TotalPackages"
+      ],
+      "languages": ["vi", "en"]
+    },
+
+    "Quotation_PDF": {
+      "category": "commercial",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "Quotation",
+      "endpoint": "GET /api/v1/quotation/quotes/{id}/pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "required_fields": [
+        "QuotationNumber", "CustomerInfo", "ValidUntil",
+        "Items[]", "Subtotal", "Discount", "Tax", "Total",
+        "Currency", "PaymentTerms", "DeliveryTerms", "Notes"
+      ],
+      "watermark_when_draft": "NHÁP - chưa gửi KH",
+      "languages": ["vi", "en", "zh"]
+    },
+
+    "PurchaseOrder_PDF": {
+      "category": "commercial",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "Sourcing",
+      "endpoint": "GET /api/v1/sourcing/pos/{id}/pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "required_fields": [
+        "PONumber", "VendorInfo", "DeliveryAddress",
+        "Items[]", "Subtotal", "Tax", "Total",
+        "Currency", "PaymentTerms", "DeliveryDate", "ApprovedBy"
+      ],
+      "languages": ["vi", "en", "zh"]
+    },
+
+    "TariffSheet_PDF": {
+      "category": "commercial",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "TMS",
+      "endpoint": "GET /api/v1/tms/tariffs/{id}/pdf",
+      "paper_size": "A4",
+      "orientation": "landscape",
+      "required_fields": [
+        "TariffCode", "EffectiveDate", "ExpiryDate",
+        "Routes[]", "ContainerTypes[]", "Prices[]", "Currency", "Notes"
+      ]
+    },
+
+    "EmploymentContract_PDF": {
+      "category": "hr_document",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "HRM",
+      "endpoint": "GET /api/v1/hrm/employees/{id}/contract-pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "compliance_tags": ["VN-LABOR-CODE"],
+      "required_fields": [
+        "EmployeeFullName", "EmployeeNationalId", "EmployeeAddress",
+        "Position", "Department", "Salary", "WorkLocation",
+        "ContractTerm", "WorkingHours", "SocialInsuranceCode",
+        "SignatureBlock"
+      ],
+      "languages": ["vi"]
+    },
+
+    "PayslipPDF": {
+      "category": "hr_document",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "HRM",
+      "endpoint": "GET /api/v1/hrm/payslips/{id}/pdf",
+      "paper_size": "A4",
+      "required_fields": [
+        "EmployeeName", "EmployeeCode", "Period",
+        "BaseSalary", "Allowances[]", "Deductions[]", "Tax", "NetPay"
+      ],
+      "languages": ["vi"]
+    },
+
+    "ComplianceReport_PDF": {
+      "category": "report",
+      "format": "PDF",
+      "engine": "QuestPDF",
+      "owner_module": "Compliance",
+      "endpoint": "GET /api/v1/compliance/reports/{type}/{period}/pdf",
+      "paper_size": "A4",
+      "orientation": "portrait",
+      "required_fields": [
+        "ReportType", "Period", "GeneratedAt", "GeneratedBy",
+        "Sections[]", "Findings[]", "Recommendations[]"
+      ]
+    },
+
+    "BookingList_Excel": {
+      "category": "operational_export",
+      "format": "XLSX",
+      "engine": "ClosedXML",
+      "owner_module": "TMS",
+      "endpoint": "POST /api/v1/tms/bookings/export-excel",
+      "max_rows_per_export": 100000,
+      "columns": [
+        "BookingNumber", "CustomerName", "Origin", "Destination",
+        "CarrierName", "ContainerType", "Status", "BookingDate", "ETD", "ETA",
+        "TotalAmount", "Currency"
+      ],
+      "freeze_header_row": true,
+      "auto_filter": true
+    },
+
+    "Inventory_Excel": {
+      "category": "operational_export",
+      "format": "XLSX",
+      "engine": "ClosedXML",
+      "owner_module": "WMS",
+      "endpoint": "POST /api/v1/wms/inventory/export-excel",
+      "columns": [
+        "SKU", "ProductName", "WarehouseLocation", "OnHandQty",
+        "ReservedQty", "AvailableQty", "UnitOfMeasure", "LastMovementAt"
+      ]
+    },
+
+    "RevenueReport_Excel": {
+      "category": "financial_report",
+      "format": "XLSX",
+      "engine": "ClosedXML",
+      "owner_module": "Finance",
+      "endpoint": "POST /api/v1/finance/reports/revenue/export-excel",
+      "sheets": [
+        {"name": "Summary", "description": "Tổng quan doanh thu"},
+        {"name": "By Customer", "description": "Phân tích theo khách"},
+        {"name": "By Module", "description": "Phân tích theo loại dịch vụ"},
+        {"name": "Detail", "description": "Chi tiết từng giao dịch"}
+      ]
+    },
+
+    "CustomerList_CSV": {
+      "category": "data_export",
+      "format": "CSV",
+      "engine": "CsvHelper",
+      "owner_module": "CRM",
+      "endpoint": "POST /api/v1/crm/customers/export-csv",
+      "encoding": "UTF-8-BOM",
+      "_comment": "BOM cho Excel mở đúng tiếng Việt"
+    },
+
+    "AuditLog_CSV": {
+      "category": "compliance_export",
+      "format": "CSV",
+      "engine": "CsvHelper",
+      "owner_module": "Compliance",
+      "endpoint": "POST /api/v1/compliance/audit-log/export-csv",
+      "compliance_tags": ["VN-PDPL", "audit-immutable"],
+      "must_be_audit_logged": true,
+      "_comment": "Bản thân action export PHẢI ghi vào audit_export_log"
+    }
+  },
+
+  "label_print_templates": {
+    "description": "Templates cho in label nhỏ (Zebra printer).",
+
+    "ContainerLabel": {
+      "format": "ZPL",
+      "engine": "ZebraNetWebServices",
+      "size_mm": "100x50",
+      "endpoint": "POST /api/v1/wms/containers/{id}/print-label",
+      "required_fields": ["ContainerNumber", "SealNumber", "BookingNumber", "Barcode"]
+    },
+
+    "PalletLabel": {
+      "format": "ZPL",
+      "engine": "ZebraNetWebServices",
+      "size_mm": "100x100",
+      "endpoint": "POST /api/v1/wms/pallets/{id}/print-label",
+      "required_fields": ["PalletNumber", "SKU", "Quantity", "BatchNumber", "ExpiryDate", "Barcode"]
+    },
+
+    "ShippingLabel": {
+      "format": "ZPL",
+      "engine": "ZebraNetWebServices",
+      "size_mm": "100x150",
+      "endpoint": "POST /api/v1/tms/shipments/{id}/print-shipping-label",
+      "required_fields": ["TrackingNumber", "ShipperAddress", "ConsigneeAddress", "Weight", "Barcode", "Carrier"]
+    }
+  },
+
+  "export_security": {
+    "description": "Security rules cho export.",
+    "rules": [
+      {
+        "id": "EXPORT-SEC-001",
+        "rule": "Mọi export PHẢI check permission tương ứng (vd crm.customer.export)",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "EXPORT-SEC-002",
+        "rule": "Export PII PHẢI log vào audit_export_log với reason",
+        "severity": "CRITICAL",
+        "compliance_tags": ["VN-PDPL"]
+      },
+      {
+        "id": "EXPORT-SEC-003",
+        "rule": "Export > 10K rows PHẢI async queue + email link (không stream real-time)",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "EXPORT-SEC-004",
+        "rule": "Export link tạm thời PHẢI expire trong 24h",
+        "severity": "HIGH"
+      },
+      {
+        "id": "EXPORT-SEC-005",
+        "rule": "Customer client KHÔNG được export data quy mô lớn (chỉ own records)",
+        "severity": "HIGH"
+      }
+    ]
+  },
+
+  "validation_rules": {
+    "description": "Top-level rules cho CD40.",
+    "rules": [
+      {
+        "id": "RULE-CD40-001",
+        "name": "endpoint_must_have_template",
+        "description": "Endpoint export/print PHẢI có template declared trong catalog",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD40-002",
+        "name": "branding_consistent",
+        "description": "Mọi PDF PHẢI có logo + footer chuẩn theo branding",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "RULE-CD40-003",
+        "name": "compliance_template_correct_format",
+        "description": "Template có compliance_tags=[VN-TT78-eInvoice] PHẢI match TT78 layout (QR code, mã CQT)",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD40-004",
+        "name": "i18n_supported",
+        "description": "Template support nhiều ngôn ngữ PHẢI có translation keys cho mọi label",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD40-005",
+        "name": "watermark_for_draft",
+        "description": "Document chưa final PHẢI có watermark 'NHÁP' khi watermark_when_draft declared",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD40-006",
+        "name": "footer_correlation_id_present",
+        "description": "Footer PHẢI có correlation_id cho audit trace",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "RULE-CD40-007",
+        "name": "encoding_utf8_bom_for_csv",
+        "description": "CSV PHẢI có UTF-8 BOM (Excel-friendly cho tiếng Việt)",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD40-008",
+        "name": "export_pii_audit_logged",
+        "description": "Export PII PHẢI audit log",
+        "severity": "CRITICAL",
+        "compliance_tags": ["VN-PDPL"]
+      }
+    ]
+  },
+
+  "exclusions": {
+    "description": "Endpoints/templates explicitly excluded.",
+    "endpoint_exclusions": [
+      {"endpoint": "GET /api/health/**", "reason": "Health check không phải document"},
+      {"endpoint": "GET /api/metrics/**", "reason": "Prometheus metrics"}
+    ]
+  },
+
+  "_appendix": {
+    "_changelog": [
+      {
+        "version": "1.0.0-template",
+        "date": "2026-05-16",
+        "changes": "Initial template cho EUREKA-2026. 16 print/export templates + 3 label templates + branding + security rules."
+      }
+    ],
+    "_references": [
+      ".claude/skills/workflow/wf-cmi/SKILL.md (CD40 spec)",
+      ".claude/agents/business/brand-guardian.md",
+      "EUREKA-2026/apps/backend/Eureka.Common/Reporting/"
+    ],
+    "_maintenance": "Update khi: (a) thêm export endpoint mới (b) đổi branding (c) compliance authority update layout (vd TT mới về HĐĐT). Khuyến nghị: auto-scan QuestPDF Document classes + ClosedXML workbook generators."
+  }
+}

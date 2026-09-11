@@ -1,0 +1,22 @@
+{
+  "$schema": "feature-briefs-v1",
+  "_comment": "WORKING artifact nội bộ cho Phase 1 creation. Schema KHÁC với digest template (_digests/feature-briefs.template.json). Field 'feat_id' là intentional cho working context — digest dùng 'feature_id'.",
+  "project": "",
+  "generated_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "source_handoff": ".mc-data/work/wf-analyze-requirements/phase1-handoff.json",
+  "features": [
+    {
+      "feat_id": "",
+      "system": "",
+      "module": "",
+      "feature_name": "",
+      "req_ids": [],
+      "actors": [],
+      "business_rules": [],
+      "cross_dependencies": [],
+      "acceptance_criteria_required": true,
+      "output_path": "",
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,330 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD3",
+  "dimension_name": "Security Vulnerabilities",
+  "short_name": "Security",
+  "owner_agent": "security",
+  "version": "1.0.0",
+  "description": "Phat hien loi bao mat: dependency vulnerabilities, OWASP Top 10, dangerous deserialization, hard-coded secrets, auth flow issues, CORS misconfig, missing security headers.",
+  "probes": [
+    {
+      "id": "P-QD3-dependency-vuln-scan",
+      "name": "Dependency Vulnerability Scan",
+      "type": "static+runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+jq",
+        "config": "probes/P-QD3-dependency-vuln-scan.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD3-owasp-top-ten",
+      "name": "OWASP Top 10 Static Analysis",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD3-owasp-top-ten.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD3-dangerous-deserialize",
+      "name": "Dangerous Deserialization Detection",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD3-dangerous-deserialize.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD3-secret-detection",
+      "name": "Hard-coded Secret Detection",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD3-secret-detection.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": true,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD3-auth-flow-verify",
+      "name": "Authentication Flow Verification",
+      "type": "runtime+agent",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "agent",
+        "agent": "security",
+        "config": "probes/P-QD3-auth-flow-verify.md"
+      },
+      "required_inputs": [
+        "code",
+        "phase3-architecture"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 10000
+      }
+    },
+    {
+      "id": "P-QD3-cors-policy-check",
+      "name": "CORS Policy Check",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "probes/P-QD3-cors-policy-check.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 1500
+      }
+    },
+    {
+      "id": "P-QD3-security-header-audit",
+      "name": "Security Header Audit",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "probes/P-QD3-security-header-audit.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "never",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 1500
+      }
+    },
+    {
+      "id": "P-QD3-llm-analysis",
+      "name": "LLM-Augmented Security Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd3-security.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD3-dependency-vuln-scan",
+        "P-QD3-owasp-top-ten",
+        "P-QD3-dangerous-deserialize"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD3-dependency-vuln-scan",
+        "P-QD3-owasp-top-ten",
+        "P-QD3-dangerous-deserialize",
+        "P-QD3-secret-detection",
+        "P-QD3-auth-flow-verify",
+        "P-QD3-cors-policy-check"
+      ],
+      "max_signals_per_probe": 100
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD3-dependency-vuln-scan",
+        "P-QD3-owasp-top-ten",
+        "P-QD3-dangerous-deserialize",
+        "P-QD3-secret-detection",
+        "P-QD3-auth-flow-verify",
+        "P-QD3-cors-policy-check",
+        "P-QD3-security-header-audit",
+        "P-QD3-llm-analysis"
+      ],
+      "max_signals_per_probe": 200
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 500
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "P-QD3-secret-detection: exposed secret",
+      "P-QD3-auth-flow-verify: authentication bypass",
+      "P-QD3-owasp-top-ten: SQL/command injection"
+    ],
+    "high_triggers": [
+      "P-QD3-owasp-top-ten: XSS/CSRF pattern",
+      "P-QD3-dangerous-deserialize: unsafe dynamic code execution",
+      "P-QD3-dependency-vuln-scan: known CVE with exploit"
+    ],
+    "medium_triggers": [
+      "P-QD3-security-header-audit: missing header",
+      "P-QD3-cors-policy-check: overly permissive CORS"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [
+      "curl"
+    ],
+    "agents": [
+      "security"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/QD3-security-report.md"
+  },
+  "execution_order": [
+    "P-QD3-dependency-vuln-scan",
+    "P-QD3-secret-detection",
+    "P-QD3-owasp-top-ten",
+    "P-QD3-dangerous-deserialize",
+    "P-QD3-cors-policy-check",
+    "P-QD3-security-header-audit",
+    "P-QD3-auth-flow-verify",
+    "P-QD3-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD3-dependency-vuln-scan",
+      "P-QD3-secret-detection"
+    ],
+    [
+      "P-QD3-owasp-top-ten",
+      "P-QD3-dangerous-deserialize",
+      "P-QD3-cors-policy-check",
+      "P-QD3-security-header-audit"
+    ],
+    [
+      "P-QD3-auth-flow-verify"
+    ],
+    [
+      "P-QD3-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "security probes defense-first, dep-vuln+secret early, agent-last"
+}

@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory-dependency-graph-v1",
+  "title": "Inventory: Dependency Graph",
+  "description": "Package dependencies and import analysis during legacy scan Stage 1. Output: .mc-data/work/legacy-scan/inventory/dependency-graph.json",
+  "type": "object",
+  "required": ["dependencies", "import_groups", "circular"],
+  "properties": {
+    "dependencies": {
+      "type": "object",
+      "description": "Map package_name → version từ package.json/requirements.txt/pom.xml/v.v.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "import_groups": {
+      "type": "array",
+      "description": "Thống kê nhóm import (external packages, internal modules, v.v.)",
+      "items": {
+        "type": "object",
+        "required": ["group", "count"],
+        "properties": {
+          "group": {
+            "type": "string",
+            "description": "Tên nhóm — vd: external, internal, relative, stdlib"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "circular": {
+      "type": "array",
+      "description": "Danh sách circular dependencies phát hiện. Empty array nếu không có.",
+      "items": {
+        "type": "string",
+        "description": "Mô tả circular dependency — vd: moduleA → moduleB → moduleA"
+      }
+    }
+  }
+}

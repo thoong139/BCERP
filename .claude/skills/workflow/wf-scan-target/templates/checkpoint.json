@@ -1,0 +1,84 @@
+{
+  "$schema": "scan-target-checkpoint-v1",
+  "_template_notes": "GAP-05 fix (Sprint 2 — Resume + Checkpoint). Skeleton checkpoint cho /wf-scan-target. Phase 0 dispatch logic đọc file này để route khi --resume. Tất cả runtime values populate trong sessions/{id}/checkpoint.json — KHÔNG modify template gốc.",
+  "checkpoint_id": "{{CHECKPOINT_ID}}",
+  "session_id": "{{SESSION_ID}}",
+  "skill_version": "{{SKILL_VERSION}}",
+  "target": "{{TARGET}}",
+  "target_fingerprint": "{{TARGET_FINGERPRINT}}",
+  "created_at": "{{CREATED_AT_ISO8601}}",
+  "updated_at": "{{UPDATED_AT_ISO8601}}",
+
+  "trigger": {
+    "reason": "context_limit",
+    "context_used_pct": null,
+    "phase_completed": null,
+    "layer_completed": null,
+    "notes": null
+  },
+
+  "phase_states": {
+    "phase_0": "pending",
+    "phase_1": "pending",
+    "phase_2": "pending",
+    "phase_3": "pending",
+    "phase_4": "skipped",
+    "phase_5": "pending"
+  },
+
+  "layer_states": {
+    "L1": "pending",
+    "L2": "pending",
+    "L3": "pending",
+    "L4": "pending"
+  },
+
+  "intermediate_outputs": {
+    "tech_stack_json": null,
+    "l1_result": null,
+    "l2_result": null,
+    "l3_result": null,
+    "l3_partial": null,
+    "l4_result": null,
+    "synthesis_data": null,
+    "gap_data": null
+  },
+
+  "next_action": {
+    "phase": null,
+    "layer": null,
+    "step": null,
+    "context_needed": []
+  },
+
+  "args_snapshot": {
+    "target": "",
+    "module": null,
+    "compare": null,
+    "depth": "deep",
+    "output": null
+  },
+
+  "resume_instructions": {
+    "command": "/wf-scan-target --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-scan-target/sessions/{{SESSION_ID}}/scan-status.json",
+      ".mc-data/work/wf-scan-target/sessions/{{SESSION_ID}}/checkpoint.json",
+      ".mc-data/work/wf-scan-target/sessions/{{SESSION_ID}}/intermediate/"
+    ],
+    "context_recovery": [
+      "Đọc scan-status.json để biết phase_states (overview)",
+      "Đọc checkpoint.json để biết next_action chi tiết",
+      "Đọc intermediate/*.json để có partial layer data đã hoàn tất",
+      "Verify target_fingerprint khớp với target hiện tại — nếu khác thì CDG hỏi user",
+      "Tiếp tục từ next_action.step với phase/layer tương ứng"
+    ]
+  },
+
+  "lock_status": {
+    "lock_file": ".lock",
+    "_notes": "Lock file design (Sprint 2). Implementation đầy đủ heartbeat/cleanup ở Sprint 6 (multi-dev safety). Sprint 2 chỉ document path, KHÔNG enforce."
+  },
+
+  "notes": null
+}

@@ -1,0 +1,9 @@
+{
+  "$schema": "aggregation-result-v1",
+  "_template_notes": "Template cho aggregation result. Strip _template_notes trước khi ghi.",
+  "total_input": 0,
+  "total_output": 0,
+  "duplicates": 0,
+  "conflicts": [],
+  "items": []
+}

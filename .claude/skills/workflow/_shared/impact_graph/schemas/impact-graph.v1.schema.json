@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "impact-graph.v1",
+  "title": "Impact Graph v1",
+  "description": "Đồ thị phụ thuộc giữa các file source được sinh bởi wf-fix-bugs Lane Dispatch (QD1/QD2 probe). Tiêu thụ bởi wf-fix-execute Phase 5 (Verify Ripple — ADR-22 rule 2).",
+  "type": "object",
+  "required": ["$schema", "built_at", "nodes", "edges", "stats"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "const": "impact-graph.v1",
+      "description": "Schema ID — cố định; consumer kiểm tra trước khi đọc."
+    },
+    "built_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC timestamp thời điểm graph được build."
+    },
+    "scope": {
+      "type": "object",
+      "description": "Metadata scope của lần build (thông tin, không lọc runtime).",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["all", "system", "module"]
+        },
+        "name": {
+          "type": "string",
+          "description": "Tên system/module khi type != 'all'."
+        }
+      },
+      "additionalProperties": false
+    },
+    "stats": {
+      "type": "object",
+      "required": ["file_count", "edge_count"],
+      "properties": {
+        "file_count": { "type": "integer", "minimum": 0 },
+        "edge_count": { "type": "integer", "minimum": 0 },
+        "files_skipped": { "type": "integer", "minimum": 0 },
+        "repo_root": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Mỗi node là 1 source file.",
+      "items": {
+        "type": "object",
+        "required": ["id", "lang", "loc"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Relative POSIX path từ repo_root.",
+            "minLength": 1
+          },
+          "lang": {
+            "type": "string",
+            "enum": ["ts", "tsx", "js", "jsx", "py", "java", "cs", "go", "rs", "unknown"]
+          },
+          "loc": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Ước lượng LOC (dòng non-empty)."
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Mỗi edge là 1 import quan hệ source → target (strength trong [0.1, 1.0]).",
+      "items": {
+        "type": "object",
+        "required": ["source", "target", "edge_type", "strength", "evidence_line"],
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Node id của file chứa import statement.",
+            "minLength": 1
+          },
+          "target": {
+            "type": "string",
+            "description": "Node id của file bị import.",
+            "minLength": 1
+          },
+          "edge_type": {
+            "type": "string",
+            "enum": ["import", "call", "data"]
+          },
+          "strength": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0,
+            "description": "Strength heuristic — ≥ 0.5 là ngưỡng ADR-22 rule 2 default."
+          },
+          "evidence_line": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Line number (1-based) trong source nơi import xuất hiện; 0 nếu không xác định."
+          }
+        }
+      }
+    }
+  }
+}

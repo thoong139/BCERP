@@ -1,0 +1,300 @@
+{
+  "skill_name": "wf-annotate-code",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-annotate-code --module=customer-management",
+      "expected_output": "PRE-GATE pass: req-registry.json + module-code-mapping.json + gap-report.md đều tồn tại. Phase 1 đọc gap report → xác định files cần annotate cho module customer-management. Phase 2 group features by file. Phase 3 inject REQ-ID + FEAT-ID comments vào từng file (idempotent: skip nếu đã có). Phase 4 ghi annotation-report.md + annotation-map.json. Phase 4 update ledger.json (annotate stage = done). Output: số files annotated, số REQ-IDs injected, danh sách files skipped (đã annotate trước). Traceability score before→after được hiển thị.",
+      "assertions": [
+        {
+          "text": "PRE-GATE check: req-registry.json có .features non-empty (CORE-011 forensic validation, không chỉ test -f)",
+          "type": "behavior"
+        },
+        {
+          "text": "PRE-GATE check: module-code-mapping.json tồn tại VÀ có entry cho module customer-management",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3: language-specific insert position được áp dụng — Go files inject sau 'package' declaration, Python files inject sau shebang/encoding, không phải dòng 1 (BUG-03 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3: in-memory backup ($FILE_BACKUP_CACHE) được tạo trước mỗi Edit — E042 rollback dùng cache, không phải git (BUG-06 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3 inject REQ-ID/FEAT-ID comments (format theo ngôn ngữ: // REQ-ID cho C#/TS/JS, # REQ-ID cho Python) vào sau file header — KHÔNG sửa logic code. Idempotent: Grep REQ-ID trước khi inject",
+          "type": "behavior"
+        },
+        {
+          "text": "Files đã có REQ-ID comment trước đó được skip (không double-annotate)",
+          "type": "behavior"
+        },
+        {
+          "text": "traceability_before và traceability_after được tính với zero-guard: nếu total_mapped_files = 0 → WARN thay vì crash (BUG-02 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "File .mc-data/work/legacy-scan/annotation-report.md được tạo",
+          "type": "file_exists"
+        },
+        {
+          "text": "File .mc-data/work/legacy-scan/annotation-map.json được tạo và là valid JSON với schema đúng (entries[].req_ids non-empty, entries[].confidence ∈ {high, medium, low})",
+          "type": "file_exists"
+        },
+        {
+          "text": "ledger.json field 'annotate' stage được update thành completed sau khi xong",
+          "type": "behavior"
+        },
+        {
+          "text": "KHÔNG update req-registry.json (annotate-code không có registry write permission per CORE-006)",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-annotate-code",
+      "scenario": "PRE-GATE FAIL — thiếu module-code-mapping.json",
+      "preconditions": "ledger.json tồn tại với stages.gap_analysis.status=completed, req-registry.json tồn tại với features[], gap-report.md tồn tại, legacy-scan-status.json tồn tại. module-code-mapping.json KHÔNG tồn tại.",
+      "expected_output": "PRE-GATE FAIL: thiếu .mc-data/work/legacy-scan/module-code-mapping.json. Skill BLOCK với error message rõ ràng. KHÔNG thực hiện annotation.",
+      "assertions": [
+        {
+          "text": "Skill phát hiện thiếu module-code-mapping.json và STOP execution với E001",
+          "type": "behavior"
+        },
+        {
+          "text": "Error message liệt kê file thiếu và đề xuất skill cần chạy trước (/wf-legacy-extract)",
+          "type": "output_contains"
+        },
+        {
+          "text": "KHÔNG có file code nào bị modify (annotation không chạy)",
+          "type": "behavior"
+        },
+        {
+          "text": "KHÔNG có file annotation-report.md hay annotation-map.json bị tạo",
+          "type": "behavior"
+        },
+        {
+          "text": "PRE-GATE check là forensic (CORE-011): kiểm tra content non-empty, không chỉ test -f file existence",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-annotate-code --module=billing --dry-run",
+      "scenario": "Dry-run preview — không ghi vào code",
+      "expected_output": "Dry-run mode: PRE-GATE pass, Phase 1-2 chạy bình thường. Phase 3 KHÔNG ghi vào code files. annotation-report.md có banner 'DRY-RUN: NO FILES MODIFIED'. Diff preview hiển thị planned changes per file.",
+      "assertions": [
+        {
+          "text": "annotation-map.json được tạo với entries: file_path, req_ids[], feat_id, confidence, module — schema đầy đủ",
+          "type": "file_exists"
+        },
+        {
+          "text": "annotation-report.md có header/banner đánh dấu '# DRY-RUN: NO FILES MODIFIED'",
+          "type": "file_content"
+        },
+        {
+          "text": "annotation-report.md có pseudo-diff preview cho từng file (planned comment + 3 lines context)",
+          "type": "file_content"
+        },
+        {
+          "text": "KHÔNG có code source file nào bị modify",
+          "type": "behavior"
+        },
+        {
+          "text": "ledger.json KHÔNG update annotate stage thành completed (vì dry-run chưa thực hiện)",
+          "type": "behavior"
+        },
+        {
+          "text": "annotate-status.json.status = 'dry_run_completed', phases.phase_3.status = 'skipped'",
+          "type": "behavior"
+        },
+        {
+          "text": "Output cuối liệt kê tổng số files SẼ annotate + số REQ-IDs SẼ inject + projected traceability score",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-annotate-code --resume",
+      "scenario": "Resume từ checkpoint hợp lệ sau context interrupt ở Phase 3 batch 3/8",
+      "preconditions": "annotate-checkpoint.json tồn tại với trigger.reason='batch_completed', position.current_phase='phase_3', position.next_batch_start_index=150, annotation-map.json có user_confirmed=true, phases_completed=['phase_0','phase_1','phase_2']",
+      "expected_output": "Resume flow: Phase 0 KHÔNG overwrite checkpoint (BUG-01 fix). Filesystem reconciliation: grep actual annotated files vs checkpoint.progress. Freshness check: compare registry.features.length vs checkpoint.partial_state.features_count. Tiếp tục từ batch 4/8. Hoàn thành Phase 3-4.",
+      "assertions": [
+        {
+          "text": "Phase 0 Step 0.15 với --resume: KHÔNG ghi đè annotate-checkpoint.json bằng init state mới (BUG-01 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "Filesystem reconciliation chạy: grep actual annotated files, so sánh với checkpoint.progress.files_done, WARN nếu lệch",
+          "type": "behavior"
+        },
+        {
+          "text": "Freshness check: so sánh registry.features.length vs checkpoint.partial_state.features_count. Nếu khác → WARN user và hỏi CONTINUE/RESTART (BUG-04 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3 chỉ xử lý pending[] files (không re-annotate files đã done)",
+          "type": "behavior"
+        },
+        {
+          "text": "annotate-checkpoint.json.position.current_phase = 'phase_3' được preserved — không bị reset về phase_0",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4 chạy sau khi Phase 3 hoàn thành — report và ledger update đúng",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-annotate-code",
+      "scenario": "E046 annotation conflict — file có REQ-ID khác target. Test batch-confirm mechanism",
+      "preconditions": "5+ files trong annotation map có existing REQ-IDs khác target REQ-IDs (không phải superset). 3 files có existing là subset của target (APPEND_NEW case).",
+      "expected_output": "E046 lần đầu: hiển thị diff (existing vs target), offer UPDATE/SKIP/APPEND_NEW (cho superset case) + batch options UA/SA/AA. Sau khi user chọn batch decision, các conflicts còn lại áp dụng automatically. annotation_conflicts_count được track trong annotate-status.json.",
+      "assertions": [
+        {
+          "text": "E046 lần đầu: hiển thị rõ existing REQ-IDs và target REQ-IDs (diff format), loại conflict (CONFLICT hoặc APPEND_NEW)",
+          "type": "behavior"
+        },
+        {
+          "text": "E046: khi target là superset của existing → offer APPEND_NEW option (chỉ thêm IDs mới) thay vì chỉ UPDATE/SKIP (BUG-09 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "E046: offer batch-decision options UA/SA/AA — nếu user chọn UA, các conflicts tiếp theo trong session KHÔNG hỏi lại (BUG-05 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "annotate-status.json.phases.phase_3.annotation_conflicts_count tăng đúng số conflict (BUG-05 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "annotation-report.md §Errors liệt kê E046 count và loại resolution được chọn",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-annotate-code --status",
+      "scenario": "--status handler — hiển thị trạng thái mà không chạy annotation",
+      "preconditions": "annotate-status.json tồn tại (in_progress, 3/8 batches done). annotate-checkpoint.json tồn tại.",
+      "expected_output": "Hiển thị trạng thái đầy đủ rồi STOP. KHÔNG chạy bất kỳ phase nào.",
+      "assertions": [
+        {
+          "text": "Output hiển thị: status, progress_pct, phases status (✅/⏳/❌), annotation_stats (files_annotated, REQ-IDs injected)",
+          "type": "output_contains"
+        },
+        {
+          "text": "Output hiển thị file existence check: ✅/❌ cho annotation-report.md, annotation-map.json, annotate-status.json, annotate-plan.md",
+          "type": "output_contains"
+        },
+        {
+          "text": "Output hiển thị last checkpoint: batch index, files_done/total, timestamp",
+          "type": "output_contains"
+        },
+        {
+          "text": "Skill STOP sau khi hiển thị status — KHÔNG annotate bất kỳ file nào",
+          "type": "behavior"
+        },
+        {
+          "text": "Không có output file nào mới được tạo hay modified",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-annotate-code",
+      "scenario": "NEAR_COMPLETE maturity — diverged_only mode. gap-categories.json tồn tại với 12 diverged files.",
+      "preconditions": "ledger.json với maturity.level='NEAR_COMPLETE'. gap-categories.json tồn tại với entries có status='diverged' (12 files) và status='aligned' (50 files).",
+      "expected_output": "Phase 0 Mode Check: detect NEAR_COMPLETE, kiểm tra gap-categories.json tồn tại. $ANNOTATION_MODE = 'diverged_only'. Phase 1 chỉ process 12 diverged files, bỏ qua 50 aligned files. annotation-map.json chỉ có 12 entries.",
+      "assertions": [
+        {
+          "text": "Phase 0 Mode Check: validate gap-categories.json tồn tại trước khi set diverged_only mode. Nếu thiếu → E001 STOP với message rõ ràng (BUG-08 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 1 Step 1.8: chỉ giữ files có status='diverged' trong gap-categories.json — 'aligned' files bị loại",
+          "type": "behavior"
+        },
+        {
+          "text": "annotation-map.json.annotation_mode = 'diverged_only'",
+          "type": "file_content"
+        },
+        {
+          "text": "annotation-map.json.total_entries = 12 (chỉ diverged files, không phải tất cả 62 files)",
+          "type": "behavior"
+        },
+        {
+          "text": "annotation-report.md §Summary ghi mode = 'diverged_only' và số aligned files đã skip",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-annotate-code",
+      "scenario": "NEAR_COMPLETE maturity — gap-categories.json KHÔNG tồn tại → E001 STOP",
+      "preconditions": "ledger.json với maturity.level='NEAR_COMPLETE'. gap-categories.json KHÔNG tồn tại.",
+      "expected_output": "Phase 0 Mode Check: NEAR_COMPLETE detected nhưng gap-categories.json thiếu → E001 STOP với message chỉ cách fix.",
+      "assertions": [
+        {
+          "text": "Skill STOP tại Phase 0 Mode Check với E001: 'gap-categories.json không tìm thấy — required cho NEAR_COMPLETE mode'",
+          "type": "behavior"
+        },
+        {
+          "text": "Error message đề xuất chạy lại wf-legacy-classify hoặc wf-design để tạo gap-categories.json",
+          "type": "output_contains"
+        },
+        {
+          "text": "KHÔNG có code file nào bị modify",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-annotate-code",
+      "scenario": "Mixed-language project — module có cả .cs, .py, .go, .ts files",
+      "preconditions": "module-code-mapping.json maps 'core-service' module với directories chứa 10 .cs, 5 .py, 3 .go, 8 .ts files.",
+      "expected_output": "Phase 1 detect language từ extension per file. Phase 3 inject với correct comment format per language. Go files inject AFTER package declaration. Python files inject AFTER shebang/encoding. C# files inject AFTER file header, BEFORE using statements.",
+      "assertions": [
+        {
+          "text": ".cs và .ts files: comment format '// REQ-ID: ...' + '// FEAT-ID: ...' đặt sau file header, trước using/import",
+          "type": "behavior"
+        },
+        {
+          "text": ".py files: comment format '# REQ-ID: ...' + '# FEAT-ID: ...' đặt SAU shebang/encoding lines nếu có",
+          "type": "behavior"
+        },
+        {
+          "text": ".go files: comment format '// REQ-ID: ...' đặt AFTER 'package xxx' declaration — KHÔNG trước package (BUG-03 fix)",
+          "type": "behavior"
+        },
+        {
+          "text": "annotation-map.json entries có 'language' field đúng per file: 'csharp', 'python', 'go', 'typescript'",
+          "type": "file_content"
+        },
+        {
+          "text": "Không có E042 (file corrupt) do inject sai position — go compiler-safe",
+          "type": "behavior"
+        }
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "state-machine-spec-v1",
+  "title": "MCV3 State Machine Specification v1",
+  "description": "Schema validation cho state-machine-spec.yaml files. Dat tai: .mc-data/docs/phase3-architecture/state-machines/<entity>.yaml. Su dung boi probe P-QD10-state-machine-correctness de xac minh code tuan thu vong doi entity.",
+  "type": "object",
+  "required": ["entity", "version", "states", "initial_state", "transitions"],
+  "additionalProperties": false,
+
+  "properties": {
+    "entity": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ten entity quan ly boi state machine (e.g. Quotation, Order, Invoice)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Phien ban spec (semantic version, e.g. 1.0.0)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Mo ta ngan ve vong doi entity"
+    },
+    "module_id": {
+      "type": "string",
+      "pattern": "^MOD-",
+      "description": "Module ID tu req-registry.json (e.g. MOD-QUOTATION)"
+    },
+    "states": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 2,
+      "uniqueItems": true,
+      "description": "Danh sach tat ca trang thai hop le cua entity"
+    },
+    "initial_state": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Trang thai khoi dau (phai co trong states[])"
+    },
+    "terminal_states": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true,
+      "description": "Trang thai ket thuc — khong co transition ra khoi state nay (e.g. CONVERTED, REJECTED)"
+    },
+    "transitions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/transition" },
+      "minItems": 1,
+      "description": "Danh sach cac transition hop le giua cac trang thai"
+    },
+    "forbidden_transitions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/forbidden_transition" },
+      "description": "Danh sach cac transition KHONG duoc phep (tuong minh hoa de probe kiem tra)"
+    },
+    "guards": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/guard" },
+      "description": "Dieu kien bao ve per-state: ai duoc phep o trang thai nay, can gi de vao/roi"
+    },
+    "actions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/action_def" },
+      "description": "Dinh nghia tuong minh cac actions (optional — actions co the dinh nghia inline trong transitions)"
+    }
+  },
+
+  "$defs": {
+    "transition": {
+      "type": "object",
+      "required": ["from", "to", "action", "role"],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Trang thai nguon"
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Trang thai dich"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ten hanh dong kich hoat transition (e.g. submit, approve, reject, expire)"
+        },
+        "role": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "description": "Vai tro duoc phep thuc hien transition (string don)"
+            },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1,
+              "description": "Nhieu vai tro duoc phep thuc hien transition"
+            }
+          ],
+          "description": "Vai tro duoc phep thuc hien transition"
+        },
+        "condition": {
+          "type": "string",
+          "description": "Dieu kien guard phai thoa man truoc khi thuc hien transition (optional, e.g. 'items.length > 0')"
+        },
+        "side_effects": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Danh sach hieu ung phu sau transition (e.g. send_email, update_inventory, notify_system)"
+        }
+      }
+    },
+
+    "forbidden_transition": {
+      "type": "object",
+      "required": ["from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Trang thai nguon bi cam"
+        },
+        "to": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Trang thai dich bi cam"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Ly do tuong minh chua transition nay bi cam (de probe emit signal ro rang)"
+        }
+      }
+    },
+
+    "guard": {
+      "type": "object",
+      "required": ["state"],
+      "additionalProperties": false,
+      "properties": {
+        "state": {
+          "type": "string",
+          "minLength": 1,
+          "description": "State ap dung guard nay"
+        },
+        "role_required": {
+          "oneOf": [
+            { "type": "string", "minLength": 1 },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1
+            }
+          ],
+          "description": "Role can thiet de duoc o state nay hoac trigger transitions tu state nay"
+        },
+        "prerequisite": {
+          "type": "string",
+          "description": "Dieu kien can thoa man truoc khi vao state nay (e.g. 'accepted_at != null')"
+        }
+      }
+    },
+
+    "action_def": {
+      "type": "object",
+      "required": ["id", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Action ID (khop voi action field trong transitions)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Mo ta hanh dong cho developer va domain expert"
+        },
+        "idempotent": {
+          "type": "boolean",
+          "description": "true = co the goi nhieu lan, ket qua nhu nhau (e.g. expire)"
+        },
+        "reversible": {
+          "type": "boolean",
+          "description": "true = co the hoan tac (e.g. cancel draft); false = khong hoan tac (e.g. convert_to_order)"
+        }
+      }
+    }
+  }
+}

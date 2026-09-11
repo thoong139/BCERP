@@ -1,0 +1,201 @@
+{
+  "$schema": "dimension-applicability-v1",
+  "session_id": "mcv3-spike-v2-233459",
+  "generated_at": "2026-05-16T16:35:10Z",
+  "global": {
+    "signals": {
+      "has_money": true,
+      "has_auth": true,
+      "has_db": true,
+      "has_api": true,
+      "has_ui": true,
+      "has_i18n": true,
+      "has_responsive": true,
+      "has_browser_test": false,
+      "has_cross_module": true,
+      "is_multi_app": true
+    },
+    "applicable_dims": [
+      "QD1",
+      "QD8",
+      "QD2",
+      "QD3",
+      "QD4",
+      "QD5",
+      "QD7",
+      "QD6",
+      "QD10",
+      "QD11"
+    ],
+    "skip_dims": [
+      "QD9"
+    ]
+  },
+  "modules": [
+    {
+      "module": "./Audits",
+      "module_type": "frontend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD5",
+        "QD6",
+        "QD7",
+        "QD8"
+      ],
+      "skip_dims": [
+        "QD9",
+        "QD10",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD10": "no cross-module imports",
+        "QD9": "no UI or no browser test infra"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": true,
+        "has_ui": true,
+        "has_i18n": true,
+        "has_form": true,
+        "has_responsive": false,
+        "has_state_machine": true,
+        "imports_from_other_modules": 0,
+        "file_count": 100,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "./docs",
+      "module_type": "backend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD6",
+        "QD8"
+      ],
+      "skip_dims": [
+        "QD5",
+        "QD7",
+        "QD9",
+        "QD10",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD10": "no cross-module imports",
+        "QD9": "no UI or no browser test infra",
+        "QD7": "no UI files",
+        "QD5": "no UI files"
+      },
+      "signals": {
+        "has_money": false,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": false,
+        "has_ui": false,
+        "has_i18n": true,
+        "has_form": false,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 0,
+        "file_count": 3,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "./tests",
+      "module_type": "backend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD4",
+        "QD6",
+        "QD8"
+      ],
+      "skip_dims": [
+        "QD3",
+        "QD5",
+        "QD7",
+        "QD9",
+        "QD10",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD10": "no cross-module imports",
+        "QD9": "no UI or no browser test infra",
+        "QD3": "no auth/api signals",
+        "QD7": "no UI files",
+        "QD5": "no UI files"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": false,
+        "has_db": true,
+        "has_api": false,
+        "has_ui": false,
+        "has_i18n": true,
+        "has_form": false,
+        "has_responsive": false,
+        "has_state_machine": false,
+        "imports_from_other_modules": 0,
+        "file_count": 12,
+        "framework_hints": []
+      }
+    },
+    {
+      "module": "./tools",
+      "module_type": "backend",
+      "applicable_dims": [
+        "QD1",
+        "QD2",
+        "QD3",
+        "QD4",
+        "QD6",
+        "QD8",
+        "QD10"
+      ],
+      "skip_dims": [
+        "QD5",
+        "QD7",
+        "QD9",
+        "QD11"
+      ],
+      "skip_reasons": {
+        "QD11": "evaluated at global level only",
+        "QD9": "no UI or no browser test infra",
+        "QD7": "no UI files",
+        "QD5": "no UI files"
+      },
+      "signals": {
+        "has_money": true,
+        "has_auth": true,
+        "has_db": true,
+        "has_api": false,
+        "has_ui": false,
+        "has_i18n": true,
+        "has_form": false,
+        "has_responsive": true,
+        "has_state_machine": true,
+        "imports_from_other_modules": 3,
+        "file_count": 27,
+        "framework_hints": []
+      }
+    }
+  ],
+  "summary": {
+    "total_modules": 4,
+    "avg_applicable_dims": 6.5,
+    "avg_skip_dims": 4.5,
+    "total_skippable_probes_estimate": 90,
+    "duration_seconds": 11
+  }
+}

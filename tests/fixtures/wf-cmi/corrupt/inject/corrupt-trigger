@@ -1,0 +1,18 @@
+# Corruption trigger file — used by test harness only.
+#
+# Sự tồn tại của file này báo cho test harness biết:
+# Khi pipeline `wf-cmi` chạy qua fixture corrupt/, harness phải swap req-registry.json
+# bằng phiên bản broken JSON (`req-registry.corrupted.json`) sau khi Phase 2 PASS.
+#
+# Trigger timing: AFTER Phase 2 POST-GATE PASS, BEFORE Phase 3 PRE-GATE T2.
+#
+# Sau khi swap, Phase 3 PRE-GATE T2 sẽ fail (jq parse error) → trigger E039 + auto-fix budget.
+#
+# Test harness contract:
+#   - Đọc file này khi setup fixture
+#   - Move req-registry.json → req-registry.backup.json
+#   - Copy req-registry.corrupted.json → req-registry.json
+#   - Sau khi test, restore: mv req-registry.backup.json → req-registry.json
+#
+created_at: 2026-05-16T00:00:00+07:00
+purpose: TC-cmi-003 edge test — verify auto-fix budget 3 retries + ESCALATE E039

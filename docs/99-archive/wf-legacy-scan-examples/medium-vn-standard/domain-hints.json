@@ -1,0 +1,47 @@
+{
+  "$schema": "domain-hints-v1",
+  "session_id": "2026-04-22T09-00-00Z-e5f6g7h8",
+  "generated_at": "2026-04-22T09:08:15Z",
+  "phase": "IPS-B",
+  "top_domains": [
+    {
+      "domain": "hr",
+      "confidence": 0.88,
+      "evidence": {
+        "keywords_en": ["employee", "payroll", "leave", "attendance", "department"],
+        "keywords_vn": ["nhân viên", "lương", "nghỉ phép", "chấm công", "phòng ban", "tuyển dụng", "onboarding"],
+        "file_count": 67,
+        "sample_files": [
+          "src/nhan-vien/", "src/luong/", "src/nghi-phep/",
+          "src/cham-cong/", "docs/nghiep-vu-nhan-su.md"
+        ]
+      }
+    },
+    {
+      "domain": "finance",
+      "confidence": 0.41,
+      "evidence": {
+        "keywords_en": ["salary", "tax", "payslip"],
+        "keywords_vn": ["lương net", "thuế TNCN", "bảo hiểm xã hội"],
+        "file_count": 23,
+        "sample_files": ["src/luong/tinh-thue.ts", "src/bhxh/"]
+      }
+    }
+  ],
+  "primary_domain": "hr",
+  "primary_confidence": 0.88,
+  "threshold_used": 0.6,
+  "agent_routing": {
+    "L4": "code-reviewer",
+    "L5": {
+      "primary": "business-analyst",
+      "domain_expert": "hr-expert",
+      "routing_reason": "confidence 0.88 >= threshold 0.6"
+    }
+  },
+  "language_mix": {
+    "en_ratio": 0.32,
+    "vn_ratio": 0.68,
+    "detected_as": "vn"
+  }
+}

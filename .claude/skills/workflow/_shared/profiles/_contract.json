@@ -1,0 +1,59 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "profiles",
+  "version": "0.1.0",
+  "phase": "phase1-prereq",
+  "description": "Profile system 3 cấp (quick/standard/deep) cho linear workflow skills. Depth_map theo phase_key thay vì QD dimension.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-OPT-06"],
+  "core_refs": ["CORE-023"],
+  "inputs": [
+    {
+      "name": "cli_profile",
+      "type": "string | null",
+      "required": false,
+      "notes": "User chỉ định trực tiếp (--profile=deep). Priority cao nhất."
+    },
+    {
+      "name": "recommendation",
+      "type": "dict | null",
+      "required": false,
+      "notes": "Recommendation từ ISG hoặc previous skill, có thể chứa profile key."
+    },
+    {
+      "name": "is_production",
+      "type": "bool",
+      "required": false,
+      "notes": "True → enforce safety floor (≥ standard)"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "resolved_profile",
+      "kind": "value",
+      "template": null,
+      "notes": "Trả về string profile name, không emit artifact."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from profiles import resolve_profile, validate_safety_floor, get_depth_for_phase, estimate_time",
+      "kind": "python-import",
+      "called_by": "wf-analyze-requirements, wf-define-features, wf-design, wf-design-ux"
+    },
+    {
+      "command": "python3 profiles/profile_resolver.py resolve --skill=wf-design --profile=deep",
+      "kind": "python-cli",
+      "called_by": "SKILL.md inline script"
+    }
+  ],
+  "dependencies": {
+    "internal": ["profiles.json"],
+    "external": []
+  },
+  "status": "phase1-new",
+  "testing": {
+    "min_cases": 3,
+    "notes": "Test resolve priority, safety floor enforcement, depth_map lookup, estimate_time"
+  }
+}

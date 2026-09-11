@@ -1,0 +1,97 @@
+{
+  "$schema": "linear-profiles-v1",
+  "profiles": {
+    "quick": {
+      "description": "Overview nhanh — stubs/summary only",
+      "depth_map": {
+        "requirements": "summary",
+        "features": "stub",
+        "design": "outline",
+        "ux": "wireframe"
+      },
+      "estimated_time_minutes": 15,
+      "lanes_max_parallel": 2,
+      "thresholds": {
+        "max_pages": 10,
+        "bundle_warn_kb": 500,
+        "bundle_fail_kb": 1500,
+        "api_latency_warn_ms": 1500,
+        "api_latency_fail_ms": 5000,
+        "color_contrast_min_ratio": 4.5,
+        "api_version_severity_default": "high",
+        "infra_retry_count": 3,
+        "infra_retry_interval_sec": 5
+      }
+    },
+    "standard": {
+      "description": "Đầy đủ — default, backward-compat với behavior hiện tại",
+      "depth_map": {
+        "requirements": "full",
+        "features": "full",
+        "design": "full",
+        "ux": "full"
+      },
+      "estimated_time_minutes": 45,
+      "lanes_max_parallel": 3,
+      "thresholds": {
+        "max_pages": 30,
+        "bundle_warn_kb": 500,
+        "bundle_fail_kb": 1000,
+        "api_latency_warn_ms": 1000,
+        "api_latency_fail_ms": 3000,
+        "color_contrast_min_ratio": 4.5,
+        "api_version_severity_default": "high",
+        "infra_retry_count": 3,
+        "infra_retry_interval_sec": 5
+      }
+    },
+    "deep": {
+      "description": "Chi tiết — edge cases, compliance, a11y, animations",
+      "depth_map": {
+        "requirements": "deep",
+        "features": "deep",
+        "design": "deep",
+        "ux": "deep"
+      },
+      "estimated_time_minutes": 90,
+      "lanes_max_parallel": 3,
+      "thresholds": {
+        "max_pages": 100,
+        "bundle_warn_kb": 300,
+        "bundle_fail_kb": 1000,
+        "api_latency_warn_ms": 800,
+        "api_latency_fail_ms": 2000,
+        "color_contrast_min_ratio": 4.5,
+        "api_version_severity_default": "high",
+        "infra_retry_count": 3,
+        "infra_retry_interval_sec": 5
+      }
+    },
+    "exhaustive": {
+      "description": "Toàn diện — mọi edge case, compliance, a11y, full pagination",
+      "depth_map": {
+        "requirements": "deep",
+        "features": "deep",
+        "design": "deep",
+        "ux": "deep"
+      },
+      "estimated_time_minutes": 180,
+      "lanes_max_parallel": 4,
+      "thresholds": {
+        "max_pages": 300,
+        "bundle_warn_kb": 200,
+        "bundle_fail_kb": 800,
+        "api_latency_warn_ms": 500,
+        "api_latency_fail_ms": 1500,
+        "color_contrast_min_ratio": 4.5,
+        "api_version_severity_default": "high",
+        "infra_retry_count": 5,
+        "infra_retry_interval_sec": 3
+      }
+    }
+  },
+  "safety_floor": {
+    "rule": "production-bound projects PHẢI dùng standard hoặc deep",
+    "applies_to": ["standard", "deep", "exhaustive"]
+  }
+}

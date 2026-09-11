@@ -1,0 +1,288 @@
+{
+  "$schema": "vn-keywords-v1",
+  "version": "1.1",
+  "last_updated": "2026-04-22",
+  "source_doc": "docs/design/skills/wf-legacy-scan/10-vietnamese-keywords.md §2",
+  "normalization": {
+    "strip_diacritics": true,
+    "lowercase": true,
+    "d_to_d": true,
+    "strip_separators": ["-", "_", "/", "."]
+  },
+  "matching_rules": {
+    "exact_weight_multiplier": 1.0,
+    "substring_weight_multiplier": 0.7,
+    "multi_signal_boost": 0.15,
+    "multi_signal_min_keywords": 3,
+    "cross_domain_penalty": 0.6,
+    "abbreviation_exact_only_chars_max": 3
+  },
+  "thresholds": {
+    "strong_match": 0.75,
+    "moderate_match": 0.6,
+    "weak_fallback": 0.6
+  },
+  "domains": {
+    "finance": {
+      "expert_agent": "finance-expert",
+      "keywords": [
+        {"keyword": "hoadon", "variants": ["hoa-don", "hóa-đơn"], "weight": 0.3, "exact_only": false},
+        {"keyword": "thanhtoan", "variants": ["thanh-toan", "thanh-toán"], "weight": 0.25, "exact_only": false},
+        {"keyword": "giaodich", "variants": ["giao-dich", "giao-dịch"], "weight": 0.2, "exact_only": false},
+        {"keyword": "congno", "variants": ["cong-no", "công-nợ"], "weight": 0.3, "exact_only": false},
+        {"keyword": "ketoan", "variants": ["ke-toan", "kế-toán"], "weight": 0.3, "exact_only": false},
+        {"keyword": "thue", "variants": ["thuế"], "weight": 0.25, "exact_only": false},
+        {"keyword": "thuevat", "variants": ["thue-vat"], "weight": 0.25, "exact_only": false},
+        {"keyword": "nganhang", "variants": ["ngan-hang", "ngân-hàng"], "weight": 0.2, "exact_only": false},
+        {"keyword": "ngansach", "variants": ["ngan-sach", "ngân-sách"], "weight": 0.2, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "gd", "weight": 0.2, "exact_only": true},
+        {"keyword": "kt", "weight": 0.2, "exact_only": true, "cross_domain_warning": "compliance:kiemtoan"},
+        {"keyword": "nh", "weight": 0.2, "exact_only": true}
+      ]
+    },
+    "hr": {
+      "expert_agent": "hr-expert",
+      "keywords": [
+        {"keyword": "nhansu", "variants": ["nhan-su", "nhân-sự"], "weight": 0.4, "exact_only": false},
+        {"keyword": "chamcong", "variants": ["cham-cong", "chấm-công"], "weight": 0.4, "exact_only": false},
+        {"keyword": "bangluong", "variants": ["bang-luong", "bảng-lương"], "weight": 0.4, "exact_only": false},
+        {"keyword": "nghiphep", "variants": ["nghi-phep", "nghỉ-phép"], "weight": 0.35, "exact_only": false},
+        {"keyword": "nhanvien", "variants": ["nhan-vien", "nhân-viên"], "weight": 0.25, "exact_only": false},
+        {"keyword": "tuyendung", "variants": ["tuyen-dung", "tuyển-dụng"], "weight": 0.3, "exact_only": false},
+        {"keyword": "daotao", "variants": ["dao-tao", "đào-tạo"], "weight": 0.25, "exact_only": false},
+        {"keyword": "hopdongld", "variants": ["hop-dong-ld"], "weight": 0.3, "exact_only": false},
+        {"keyword": "bhxh", "variants": ["baohiemxh"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "ns", "weight": 0.25, "exact_only": true},
+        {"keyword": "qlns", "weight": 0.4, "exact_only": true},
+        {"keyword": "cc", "weight": 0.25, "exact_only": true},
+        {"keyword": "nv", "weight": 0.2, "exact_only": true},
+        {"keyword": "dt", "weight": 0.15, "exact_only": true},
+        {"keyword": "hdld", "weight": 0.25, "exact_only": true}
+      ]
+    },
+    "sales": {
+      "expert_agent": "sales-expert",
+      "keywords": [
+        {"keyword": "khachhang", "variants": ["khach-hang", "khách-hàng"], "weight": 0.4, "exact_only": false},
+        {"keyword": "banhang", "variants": ["ban-hang", "bán-hàng"], "weight": 0.35, "exact_only": false},
+        {"keyword": "donhang", "variants": ["don-hang", "đơn-hàng"], "weight": 0.35, "exact_only": false},
+        {"keyword": "baogia", "variants": ["bao-gia", "báo-giá"], "weight": 0.3, "exact_only": false},
+        {"keyword": "hopdong", "variants": ["hop-dong", "hợp-đồng"], "weight": 0.25, "exact_only": false, "cross_domain_warning": "legal:hopdong"},
+        {"keyword": "cohoi", "variants": ["co-hoi", "cơ-hội"], "weight": 0.25, "exact_only": false},
+        {"keyword": "chamsoc", "variants": ["cham-soc", "chăm-sóc"], "weight": 0.3, "exact_only": false},
+        {"keyword": "cskh", "variants": ["cham-soc-khach-hang"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "kh", "weight": 0.25, "exact_only": true},
+        {"keyword": "qlkh", "weight": 0.4, "exact_only": true},
+        {"keyword": "bh", "weight": 0.2, "exact_only": true, "cross_domain_warning": "insurance:baohiem"},
+        {"keyword": "dh", "weight": 0.2, "exact_only": true},
+        {"keyword": "bg", "weight": 0.2, "exact_only": true},
+        {"keyword": "hd", "weight": 0.15, "exact_only": true, "cross_domain_warning": "legal:hopdong,sales:hopdong"}
+      ]
+    },
+    "procurement": {
+      "expert_agent": "procurement-expert",
+      "keywords": [
+        {"keyword": "muahang", "variants": ["mua-hang", "mua-hàng"], "weight": 0.4, "exact_only": false},
+        {"keyword": "muasam", "variants": ["mua-sam", "mua-sắm"], "weight": 0.4, "exact_only": false},
+        {"keyword": "nhacungcap", "variants": ["nha-cung-cap", "nhà-cung-cấp"], "weight": 0.4, "exact_only": false},
+        {"keyword": "dathang", "variants": ["dat-hang", "đặt-hàng"], "weight": 0.35, "exact_only": false},
+        {"keyword": "donmuahang", "variants": ["don-mua-hang"], "weight": 0.35, "exact_only": false},
+        {"keyword": "yeucauchao", "variants": ["yeu-cau-chao"], "weight": 0.3, "exact_only": false},
+        {"keyword": "daugia", "variants": ["dau-gia", "đấu-giá"], "weight": 0.25, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "mh", "weight": 0.25, "exact_only": true},
+        {"keyword": "ncc", "weight": 0.4, "exact_only": true},
+        {"keyword": "ycbg", "weight": 0.3, "exact_only": true}
+      ]
+    },
+    "ecommerce": {
+      "expert_agent": "ecommerce-expert",
+      "keywords": [
+        {"keyword": "giohang", "variants": ["gio-hang", "giỏ-hàng", "cart"], "weight": 0.35, "exact_only": false},
+        {"keyword": "sanpham", "variants": ["san-pham", "sản-phẩm"], "weight": 0.3, "exact_only": false},
+        {"keyword": "danhmuc", "variants": ["danh-muc", "danh-mục", "category"], "weight": 0.2, "exact_only": false},
+        {"keyword": "vanchuyen", "variants": ["van-chuyen", "vận-chuyển"], "weight": 0.25, "exact_only": false, "cross_domain_warning": "logistics:vanchuyen"},
+        {"keyword": "khuyenmai", "variants": ["khuyen-mai", "khuyến-mãi", "voucher"], "weight": 0.25, "exact_only": false},
+        {"keyword": "thanhtoan", "variants": ["thanh-toan", "thanh-toán", "checkout"], "weight": 0.25, "exact_only": false, "cross_domain_warning": "finance:thanhtoan"},
+        {"keyword": "taikhoan", "variants": ["tai-khoan", "tài-khoản", "account"], "weight": 0.2, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "sp", "weight": 0.2, "exact_only": true},
+        {"keyword": "dm", "weight": 0.15, "exact_only": true},
+        {"keyword": "vc", "weight": 0.2, "exact_only": true, "cross_domain_warning": "logistics:vanchuyen"},
+        {"keyword": "km", "weight": 0.2, "exact_only": true}
+      ]
+    },
+    "operations": {
+      "expert_agent": "operations-expert",
+      "keywords": [
+        {"keyword": "kho", "variants": ["warehouse"], "weight": 0.4, "exact_only": false},
+        {"keyword": "quanlykho", "variants": ["quan-ly-kho"], "weight": 0.4, "exact_only": false},
+        {"keyword": "nhapkho", "variants": ["nhap-kho", "nhập-kho"], "weight": 0.4, "exact_only": false},
+        {"keyword": "xuatkho", "variants": ["xuat-kho", "xuất-kho"], "weight": 0.4, "exact_only": false},
+        {"keyword": "tonkho", "variants": ["ton-kho", "tồn-kho"], "weight": 0.4, "exact_only": false},
+        {"keyword": "hanghoa", "variants": ["hang-hoa", "hàng-hoá"], "weight": 0.25, "exact_only": false},
+        {"keyword": "vattu", "variants": ["vat-tu", "vật-tư"], "weight": 0.3, "exact_only": false},
+        {"keyword": "dieuchuyen", "variants": ["dieu-chuyen", "điều-chuyển"], "weight": 0.3, "exact_only": false},
+        {"keyword": "kiemke", "variants": ["kiem-ke", "kiểm-kê"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "qlkho", "weight": 0.4, "exact_only": true},
+        {"keyword": "hh", "weight": 0.15, "exact_only": true},
+        {"keyword": "vt", "weight": 0.2, "exact_only": true}
+      ]
+    },
+    "compliance": {
+      "expert_agent": "compliance-expert",
+      "keywords": [
+        {"keyword": "tuanthu", "variants": ["tuan-thu", "tuân-thủ"], "weight": 0.4, "exact_only": false},
+        {"keyword": "kiemtoan", "variants": ["kiem-toan", "kiểm-toán"], "weight": 0.35, "exact_only": false, "cross_domain_warning": "finance:ketoan"},
+        {"keyword": "quyche", "variants": ["quy-che", "quy-chế"], "weight": 0.3, "exact_only": false},
+        {"keyword": "phaply", "variants": ["phap-ly", "pháp-lý"], "weight": 0.3, "exact_only": false, "cross_domain_warning": "legal:phaply"},
+        {"keyword": "bienban", "variants": ["bien-ban", "biên-bản"], "weight": 0.25, "exact_only": false},
+        {"keyword": "ruiro", "variants": ["rui-ro", "rủi-ro"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "pl", "weight": 0.2, "exact_only": true, "cross_domain_warning": "legal:phaply"},
+        {"keyword": "bb", "weight": 0.15, "exact_only": true},
+        {"keyword": "rr", "weight": 0.2, "exact_only": true}
+      ]
+    },
+    "healthcare": {
+      "expert_agent": "healthcare-expert",
+      "keywords": [
+        {"keyword": "benhnhan", "variants": ["benh-nhan", "bệnh-nhân"], "weight": 0.5, "exact_only": false},
+        {"keyword": "khambenh", "variants": ["kham-benh", "khám-bệnh"], "weight": 0.4, "exact_only": false},
+        {"keyword": "hosoba", "variants": ["ho-so-ba"], "weight": 0.5, "exact_only": false},
+        {"keyword": "donthuoc", "variants": ["don-thuoc", "đơn-thuốc"], "weight": 0.45, "exact_only": false},
+        {"keyword": "bhyt", "variants": ["baohiemyte"], "weight": 0.5, "exact_only": false},
+        {"keyword": "xetnghiem", "variants": ["xet-nghiem", "xét-nghiệm"], "weight": 0.4, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "bn", "weight": 0.3, "exact_only": true},
+        {"keyword": "kb", "weight": 0.25, "exact_only": true},
+        {"keyword": "hsba", "weight": 0.5, "exact_only": true},
+        {"keyword": "xn", "weight": 0.3, "exact_only": true}
+      ]
+    },
+    "logistics": {
+      "expert_agent": "logistics-expert",
+      "keywords": [
+        {"keyword": "vanchuyen", "variants": ["van-chuyen", "vận-chuyển"], "weight": 0.4, "exact_only": false},
+        {"keyword": "giaonhan", "variants": ["giao-nhan", "giao-nhận"], "weight": 0.4, "exact_only": false},
+        {"keyword": "haiquan", "variants": ["hai-quan", "hải-quan"], "weight": 0.5, "exact_only": false},
+        {"keyword": "xuatnhapkhau", "variants": ["xuat-nhap-khau"], "weight": 0.5, "exact_only": false},
+        {"keyword": "vandon", "variants": ["van-don", "vận-đơn"], "weight": 0.4, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "vc", "weight": 0.2, "exact_only": true},
+        {"keyword": "gn", "weight": 0.25, "exact_only": true},
+        {"keyword": "hq", "weight": 0.3, "exact_only": true},
+        {"keyword": "xnk", "weight": 0.45, "exact_only": true}
+      ]
+    },
+    "education": {
+      "expert_agent": "education-expert",
+      "keywords": [
+        {"keyword": "hocvien", "variants": ["hoc-vien", "học-viên"], "weight": 0.5, "exact_only": false},
+        {"keyword": "hocsinh", "variants": ["hoc-sinh", "học-sinh"], "weight": 0.5, "exact_only": false},
+        {"keyword": "khoahoc", "variants": ["khoa-hoc", "khoá-học"], "weight": 0.5, "exact_only": false},
+        {"keyword": "giaovien", "variants": ["giao-vien", "giáo-viên"], "weight": 0.5, "exact_only": false},
+        {"keyword": "lophoc", "variants": ["lop-hoc", "lớp-học"], "weight": 0.45, "exact_only": false},
+        {"keyword": "thoikhoabieu", "variants": ["tkb"], "weight": 0.4, "exact_only": false},
+        {"keyword": "baithi", "variants": ["bai-thi", "bài-thi"], "weight": 0.4, "exact_only": false},
+        {"keyword": "chungchi", "variants": ["chung-chi", "chứng-chỉ"], "weight": 0.35, "exact_only": false},
+        {"keyword": "hocphi", "variants": ["hoc-phi", "học-phí"], "weight": 0.4, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "hv", "weight": 0.3, "exact_only": true},
+        {"keyword": "gv", "weight": 0.3, "exact_only": true},
+        {"keyword": "tkb", "weight": 0.4, "exact_only": true}
+      ]
+    },
+    "manufacturing": {
+      "expert_agent": "manufacturing-expert",
+      "keywords": [
+        {"keyword": "sanxuat", "variants": ["san-xuat", "sản-xuất"], "weight": 0.4, "exact_only": false},
+        {"keyword": "dinhmuc", "variants": ["dinh-muc", "định-mức", "bom"], "weight": 0.4, "exact_only": false},
+        {"keyword": "daychuyen", "variants": ["day-chuyen", "dây-chuyền"], "weight": 0.35, "exact_only": false},
+        {"keyword": "lenhsx", "variants": ["lenh-sx", "lệnh-sx"], "weight": 0.35, "exact_only": false},
+        {"keyword": "congviec", "variants": ["cong-viec", "công-việc"], "weight": 0.2, "exact_only": false},
+        {"keyword": "nguyenlieu", "variants": ["nguyen-lieu", "nguyên-liệu"], "weight": 0.3, "exact_only": false},
+        {"keyword": "thanhpham", "variants": ["thanh-pham", "thành-phẩm"], "weight": 0.35, "exact_only": false},
+        {"keyword": "banthanhpham", "variants": ["ban-thanh-pham", "bán-thành-phẩm"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "sx", "weight": 0.3, "exact_only": true},
+        {"keyword": "bom", "weight": 0.35, "exact_only": true},
+        {"keyword": "dc", "weight": 0.2, "exact_only": true},
+        {"keyword": "nl", "weight": 0.2, "exact_only": true},
+        {"keyword": "tp", "weight": 0.2, "exact_only": true},
+        {"keyword": "btp", "weight": 0.25, "exact_only": true}
+      ]
+    },
+    "retail": {
+      "expert_agent": "retail-expert",
+      "keywords": [
+        {"keyword": "cuahang", "variants": ["cua-hang", "cửa-hàng"], "weight": 0.4, "exact_only": false},
+        {"keyword": "diemban", "variants": ["diem-ban", "điểm-bán"], "weight": 0.4, "exact_only": false},
+        {"keyword": "thungan", "variants": ["thu-ngan", "thu-ngân", "pos"], "weight": 0.4, "exact_only": false},
+        {"keyword": "thetv", "variants": ["the-thanh-vien", "thẻ-thành-viên", "loyalty"], "weight": 0.35, "exact_only": false},
+        {"keyword": "cabanhang", "variants": ["ca-ban-hang", "ca-bán-hàng", "shift"], "weight": 0.3, "exact_only": false},
+        {"keyword": "caidat", "variants": ["cai-dat", "cài-đặt"], "weight": 0.1, "exact_only": false, "cross_domain_warning": "operations:caidat"}
+      ],
+      "abbreviations": [
+        {"keyword": "ch", "weight": 0.2, "exact_only": true},
+        {"keyword": "db", "weight": 0.2, "exact_only": true},
+        {"keyword": "pos", "weight": 0.4, "exact_only": true},
+        {"keyword": "ca", "weight": 0.15, "exact_only": true}
+      ]
+    },
+    "legal": {
+      "expert_agent": "legal-expert",
+      "keywords": [
+        {"keyword": "hopdong", "variants": ["hop-dong", "hợp-đồng", "contract"], "weight": 0.25, "exact_only": false, "cross_domain_warning": "sales:hopdong"},
+        {"keyword": "phaply", "variants": ["phap-ly", "pháp-lý"], "weight": 0.45, "exact_only": false, "cross_domain_warning": "compliance:phaply"},
+        {"keyword": "dieukhoan", "variants": ["dieu-khoan", "điều-khoản"], "weight": 0.4, "exact_only": false},
+        {"keyword": "thoathuan", "variants": ["thoa-thuan", "thoả-thuận"], "weight": 0.35, "exact_only": false},
+        {"keyword": "tranhchap", "variants": ["tranh-chap", "tranh-chấp"], "weight": 0.4, "exact_only": false},
+        {"keyword": "trongtai", "variants": ["trong-tai", "trọng-tài"], "weight": 0.35, "exact_only": false},
+        {"keyword": "toaan", "variants": ["toa-an", "toà-án"], "weight": 0.35, "exact_only": false},
+        {"keyword": "luatsu", "variants": ["luat-su", "luật-sư"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "hd", "weight": 0.15, "exact_only": true, "cross_domain_warning": "sales:hopdong,legal:hopdong"},
+        {"keyword": "pl", "weight": 0.2, "exact_only": true, "cross_domain_warning": "compliance:phaply"},
+        {"keyword": "dk", "weight": 0.2, "exact_only": true}
+      ]
+    },
+    "insurance": {
+      "expert_agent": "insurance-expert",
+      "keywords": [
+        {"keyword": "baohiem", "variants": ["bao-hiem", "bảo-hiểm"], "weight": 0.5, "exact_only": false, "cross_domain_warning": "sales:banhang"},
+        {"keyword": "boithuong", "variants": ["boi-thuong", "bồi-thường"], "weight": 0.5, "exact_only": false},
+        {"keyword": "hopdongbh", "variants": ["hop-dong-bh", "hợp-đồng-bh"], "weight": 0.5, "exact_only": false},
+        {"keyword": "phibh", "variants": ["phi-bh", "phí-bh", "premium"], "weight": 0.4, "exact_only": false},
+        {"keyword": "thamdinh", "variants": ["tham-dinh", "thẩm-định"], "weight": 0.35, "exact_only": false},
+        {"keyword": "nhantho", "variants": ["nhan-tho", "nhân-thọ"], "weight": 0.4, "exact_only": false},
+        {"keyword": "phinhatho", "variants": ["phi-nhan-tho", "phi-nhân-thọ"], "weight": 0.4, "exact_only": false},
+        {"keyword": "daily", "variants": ["dai-ly", "đại-lý"], "weight": 0.3, "exact_only": false}
+      ],
+      "abbreviations": [
+        {"keyword": "bh", "weight": 0.2, "exact_only": true, "cross_domain_warning": "sales:banhang"},
+        {"keyword": "hdbh", "weight": 0.5, "exact_only": true}
+      ]
+    }
+  },
+  "_audit_notes": {
+    "v1.0_to_v1.1": "Phase C: ecommerce bumped tu 5 keywords -> 7 (thanhtoan, taikhoan). Removed _phase_c_note placeholders.",
+    "cross_domain_warnings": "Keywords xuat hien trong >=2 domain duoc danh dau cross_domain_warning. Detection logic apply 0.6x penalty."
+  }
+}

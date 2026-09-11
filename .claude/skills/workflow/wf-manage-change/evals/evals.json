@@ -1,0 +1,301 @@
+{
+  "skill_name": "wf-manage-change",
+  "version": "3.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "modify-feature-fee-calculation",
+      "prompt": "Thay doi cach tinh phi don hang — hien tai phi van chuyen tinh theo trong luong, muon doi sang tinh theo khoang cach va trong luong. He thong ERP co module Don hang va module Tai chinh.",
+      "expected_output": "Skill phan tich: xac dinh MODIFY_FEATURE, phat hien anh huong cross-system (orders + finance). Tao affected-artifacts.json voi code files lien quan den fee calculation. Impact report phai co risk assessment. Change plan phai co thu tu: registry → docs → code → tests.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-analysis.md duoc tao (Phase 1 DEEP mode output)"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/affected-artifacts.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = MODIFY_FEATURE"},
+        {"type": "content_check", "text": "File $SESSION_DIR/affected-artifacts.json co cross_system_impacts.length >= 1 (anh huong ca don hang va tai chinh)"},
+        {"type": "file_content", "text": "File $SESSION_DIR/impact-report.md co heading '## Cross-system Impacts' (khop chinh xac voi template)"},
+        {"type": "file_content", "text": "File $SESSION_DIR/impact-report.md co heading '## Thay doi chinh'"},
+        {"type": "file_content", "text": "File $SESSION_DIR/impact-report.md co heading '## Regression Risk Assessment'"},
+        {"type": "behavior", "text": "Skill phat hien anh huong cross-system: ca module Don hang va module Tai chinh bi anh huong boi thay doi cach tinh phi"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "add-feature-to-existing-module",
+      "prompt": "Bo sung tinh nang xuat bao cao doanh thu theo thang cho module Bao cao. Hien tai module bao cao chi co bao cao ton kho.",
+      "expected_output": "Skill xac dinh ADD_FEATURE vao module da co. Phat hien can them feature moi vao registry. Tao feature spec moi. Impact assessment hien thi MEDIUM risk (them moi, khong sue code cu).",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-analysis.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = ADD_FEATURE"},
+        {"type": "content_check", "text": "File $SESSION_DIR/affected-artifacts.json co registry_changes.features_to_add.length >= 1"},
+        {"type": "file_content", "text": "File $SESSION_DIR/impact-report.md co heading '## Regression Risk Assessment'"},
+        {"type": "behavior", "text": "Impact assessment hien thi risk level MEDIUM hoac LOW vi them feature moi khong sua code cu"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "delete-feature-clarification",
+      "prompt": "Xoa tinh nang xuat Excel khoi module don hang — khong ai dung nua va bao tri phi.",
+      "expected_output": "Skill xac dinh DELETE_FEATURE. Impact assessment hien thi rui ro (code references can remove). Check co code nao depend vao tinh nang xuat Excel khong. Registry update: feature impl_status = 'skipped'.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/affected-artifacts.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = DELETE_FEATURE"},
+        {"type": "content_check", "text": "File $SESSION_DIR/affected-artifacts.json co registry_changes.features_to_delete.length >= 1"},
+        {"type": "file_content", "text": "File $SESSION_DIR/impact-report.md co heading '## Dependency Analysis' hoac '## Cross-system Impacts'"},
+        {"type": "behavior", "text": "Change plan co task remove hoac deprecate code lien quan den tinh nang xuat Excel"}
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "unclear-vague-request",
+      "prompt": "Toi muon thay doi luong cong viec cua don hang — hien tai no chay khong on.",
+      "expected_output": "Skill phat hien UNCLEAR, chuyen sang DEEP mode. Hoi user lam ro: 'luong cong viec' la gi? 'chay khong on' la sao? Sau brainstorm, xac dinh change type cu the.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co analysis_mode = deep"},
+        {"type": "content_check", "text": "File $SESSION_DIR/change-intake.json co unclear_points.length >= 1 vi prompt 'chay khong on' la vague"},
+        {"type": "behavior", "text": "Skill hoi user it nhat 1 lan qua AskUserQuestion de lam ro 'luong cong viec' va 'chay khong on' la gi"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = UNCLEAR"}
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "dry-run-mode",
+      "prompt": "Thay doi cach hien thi trang thai don hang — them trang thai 'dang van chuyen'. --dry-run",
+      "expected_output": "Skill chay binh thuong den Phase 3 (Plan) nhung DUNG lai truoc Phase 4 (Execute). Khong sua bat ky file nao. Change-status thong bao dry-run=true. Thong bao cho user day la dry-run.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-status.json co flags.dry_run = true"},
+        {"type": "behavior", "text": "Skill KHONG chay Phase 4 (Execute) va KHONG sua bat ky file code/doc nao vi --dry-run (DRY-RUN STOP GATE trong flow-new.md Phase 4 preamble)"},
+        {"type": "behavior", "text": "Skill thong bao cho user biet day la dry-run va khong co thay doi thuc te nao duoc thuc hien"},
+        {"type": "behavior", "text": "[S7 fix] DRY-RUN STOP GATE append sessions.jsonl --status=completed truoc khi STOP — sessions.jsonl co entry completed cho session nay"},
+        {"type": "behavior", "text": "[S7 fix] DRY-RUN STOP GATE release session lock (mc-release-lock.sh) + kill heartbeat + disable EXIT trap — session lock khong con ton tai sau dry-run"}
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "resume-from-checkpoint",
+      "prompt": "--resume",
+      "expected_output": "Skill doc index.json de lay active_session, set $CHANGE_ID va $SESSION_DIR, sau do doc $SESSION_DIR/checkpoint.json, xac dinh current_phase (dung format phase0/phase1/... khong co underscore), va tiep tuc tu next_action. Khong lap lai cac phase da hoan thanh.",
+      "notes": "Eval nay yeu cau index.json va $SESSION_DIR/checkpoint.json ton tai truoc. Nen chay sau eval 1-5 neu co session truoc. Kiem tra: (1) doc index.json truoc, (2) lay active_session, (3) current_phase dung format phase0 (khong phai phase_0).",
+      "assertions": [
+        {"type": "file_exists", "text": "File .mc-data/work/wf-manage-change/index.json duoc doc de lay active_session (CORE-030)"},
+        {"type": "behavior", "text": "Skill lay $CHANGE_ID tu index.json.active_session, khong tim checkpoint.json truc tiep o root folder"},
+        {"type": "behavior", "text": "Skill doc $SESSION_DIR/change-status.json va $SESSION_DIR/checkpoint.json voi $SESSION_DIR = .mc-data/work/wf-manage-change/$CHANGE_ID/"},
+        {"type": "behavior", "text": "Skill khong lap lai cac phase da hoan thanh (kiem tra phases_completed trong checkpoint)"},
+        {"type": "behavior", "text": "Skill thong bao cho user vi tri resume ($CHANGE_ID, current_phase) va next action"},
+        {"type": "content_check", "text": "checkpoint.json co current_phase dung format 'phase0'/'phase1'/... (khong phai 'phase_0'/'phase_1'/...) de routing table trong flow-new.md hoat dong dung"}
+      ],
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "clarify-requirement",
+      "prompt": "Bo sung them thong tin cho REQ-SALES-001 — yeu cau hien tai chua mo ta ro rang dieu kien ap dung chiet khau cho khach hang VIP. Can ghi ro: chi ap dung khi don hang tren 10 trieu va khach hang co ma VIP cap do Gold tro len.",
+      "expected_output": "Skill xac dinh CLARIFY_REQ (khong phai MODIFY_FEATURE). Dung QUICK mode (lam ro thong tin, it anh huong ky thuat). Registry update: chi append them vao fields description/acceptance_criteria cua REQ-SALES-001. KHONG tao feature moi, KHONG thay doi impl_status cua features hien co. Impact LOW.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = CLARIFY_REQ"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co analysis_mode = quick (CLARIFY_REQ default la QUICK)"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/impact-report.md co risk level LOW hoac MEDIUM (clarify khong sua logic)"},
+        {"type": "behavior", "text": "Registry update chi APPEND them thong tin vao requirements[] cua REQ-SALES-001 — KHONG tao REQ-ID moi, KHONG thay doi features[]"},
+        {"type": "behavior", "text": "Skill KHONG downgrade impl_status cua bat ky feature nao da done"}
+      ],
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "core-compliance-trace-summary",
+      "id_note": "Was id=7 before adding CLARIFY_REQ eval (id=7)",
+      "prompt": "Thay doi gioi han don dat hang toi da tu 10 san pham len 50 san pham cho tat ca khach hang VIP.",
+      "expected_output": "Skill chay day du 7 phases. Ket qua phai co: (1) session-log.json co START entry (CORE-026), (2) phase-summary.md duoc tao bang tieng Viet don gian (CORE-028), (3) change-report.md day du.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-analysis.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/phase-summary.md duoc tao (CORE-028)"},
+        {"type": "file_exists", "text": "File .mc-data/work/_trace/session-log.json co entry START cua wf-manage-change (CORE-026)"},
+        {"type": "behavior", "text": "phase-summary.md viet bang tieng Viet don gian, giai thich nhung gi da thay doi cho nguoi khong chuyen"}
+      ],
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "code-update-phase4b",
+      "prompt": "Thay doi gia tri thue VAT mac dinh tu 10% sang 8% cho module Hoa don. He thong co module Hoa don va module Tai chinh, code da co san.",
+      "expected_output": "Skill chay den Phase 4b (Code Update). Code files bi modify co backup (.pre-change-*). Code thay doi preserve REQ-ID comments. Mini-verify sau moi file. Checkpoint duoc save sau Phase 4b.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/affected-artifacts.json duoc tao voi code_affected.length >= 1"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao voi Group 3 (Code Changes) co it nhat 1 task"},
+        {"type": "behavior", "text": "Code files trong code_affected[] co file backup .pre-change-* truoc khi modify (Step 4b.0.5)"},
+        {"type": "behavior", "text": "Mini-verify chay sau moi code file modify — check syntax errors va import resolution (Step 4b.3)"},
+        {"type": "behavior", "text": "Checkpoint duoc save sau Phase 4b (Step 4b.4)"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-status.json co phase4b.status = completed hoac in_progress"}
+      ],
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "verify-phase5",
+      "prompt": "Sua lai logic tinh giam gia cho module Ban hang — hien tai giam gia chi ap dung cho don > 5 trieu, muon doi thanh ap dung cho tat ca don hang. Code da co san.",
+      "expected_output": "Skill chay den Phase 5 (Verify). Invoke wf-preflight voi change context cu the (khong generic). Invoke verify-sync focus vao affected modules. Cross-validation so sanh predicted vs actual artifacts.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/affected-artifacts.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao"},
+        {"type": "behavior", "text": "Phase 5 Step 5.1 invoke wf-preflight voi change context cu the ($CHANGE_ID, affected files, change type) — KHONG dung prompt generic"},
+        {"type": "behavior", "text": "Phase 5 Step 5.2 invoke verify-sync focus vao modules changed — truyen affected modules list"},
+        {"type": "behavior", "text": "Phase 5 Step 5.3 cross-validation: so sanh affected-artifacts.json (predicted) voi actual changes tu change-status.json"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-status.json co phase5.status = completed hoac in_progress"}
+      ],
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "legacy-mode-deprecated-exclusion",
+      "prompt": "Thay doi cach tinh phi don hang. LEGACY_MODE — du an da scan, co module 'legacy-import' bi DEPRECATE trong legacy-decisions.json.",
+      "notes": "Eval nay yeu cau LEGACY_MODE setup: (1) .mc-data/work/legacy-scan/project-context.md (> 500 bytes), (2) .mc-data/work/wf-brainstorm/legacy-decisions.json co modules[] voi action=DEPRECATE cho 'legacy-import'.",
+      "expected_output": "Skill detect LEGACY_MODE (CORE-021). Doc legacy-decisions.json (CORE-022). Set DEPRECATED_MODULES. Loai bo artifacts thuoc deprecated modules khoi match results. KHONG phan tich, KHONG de nghi thay doi gi lien quan den deprecated modules.",
+      "assertions": [
+        {"type": "behavior", "text": "Skill detect LEGACY_MODE bang cach check .mc-data/work/legacy-scan/project-context.md size > 500 bytes (CORE-021, Step 0.4)"},
+        {"type": "behavior", "text": "Skill doc .mc-data/work/wf-brainstorm/legacy-decisions.json va extract DEPRECATED_MODULES (Step 0.4b, CORE-022)"},
+        {"type": "behavior", "text": "Skill KHONG bao gom bat ky artifact nao thuoc deprecated modules trong match results (Step 0.8)"},
+        {"type": "behavior", "text": "affected-artifacts.json KHONG chua file/req-id/feature nao thuoc deprecated modules"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json khong reference bat ky artifact nao tu deprecated modules"},
+        {"type": "behavior", "text": "Neu legacy-decisions.json khong ton tai → skill hien CANH BAO va tiep tuc voi DEPRECATED_MODULES = [] (graceful degradation)"}
+      ],
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "clarify-req-registry-only-no-code-docs",
+      "prompt": "Bo sung ghi chu cho REQ-INVENTORY-002: ap dung cho kho mien Bac, khong ap dung cho kho mien Nam. Khong can thay doi code hay tai lieu — chi can ghi chu them vao requirement.",
+      "notes": "Eval nay test GAP-5: CLARIFY_REQ voi code_affected=[] va docs_affected=[]. Phase 1 POST-GATE KHONG duoc fail. Phase 4b PHAI duoc skip. Cross-validation (Phase 5) phai xu ly |predicted|=0 khong chia cho 0 (GAP-6).",
+      "expected_output": "Skill xac dinh CLARIFY_REQ. Phase 1 POST-GATE pass voi docs_affected=[] va code_affected=[] (chi co registry_changes non-empty). Phase 4b skip (khong co code changes). Phase 5 cross-validation: vi CLARIFY_REQ nen coverage=100% (skip), khong STOP. Registry update: chi APPEND notes vao requirements[REQ-INVENTORY-002].",
+      "assertions": [
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = CLARIFY_REQ"},
+        {"type": "content_check", "text": "File $SESSION_DIR/affected-artifacts.json co registry_changes.requirements non-empty (co it nhat REQ-INVENTORY-002)"},
+        {"type": "behavior", "text": "Phase 1 POST-GATE PASS du cho code_affected=[] va docs_affected=[] vi change_type=CLARIFY_REQ (GAP-5 fix)"},
+        {"type": "behavior", "text": "Phase 4b SKIP hoac khong co code tasks vi code_affected rong — change-status.json.phases.phase4b.status = skipped hoac not_applicable"},
+        {"type": "behavior", "text": "Phase 5 cross-validation khong gap loi chia cho 0 khi predicted set rong — skill tiep tuc binh thuong (GAP-6 fix)"},
+        {"type": "behavior", "text": "Registry update chi APPEND notes/description vao requirements[REQ-INVENTORY-002] — KHONG tao REQ-ID moi, KHONG thay doi features[]"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-report.md duoc tao — skill hoan thanh thanh cong"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/phase-summary.md duoc tao (CORE-028)"}
+      ],
+      "files": []
+    },
+    {
+      "id": 14,
+      "name": "phase2-user-rejects-rescopes-then-approves",
+      "prompt": "Thay doi toan bo he thong tinh gia ban hang — ap dung gia dong theo moi doi tuong khach hang (VIP, Thuong, Moi).",
+      "notes": "Eval nay test Phase 2 User Gate retry: impact report HIGH risk (cross-system) → user tu choi → user thu hep scope (chi ap dung cho khach VIP) → impact report lan 2 → user chap nhan. Kiem tra: retry_count duoc ghi lai, scope thay doi duoc phan anh trong affected-artifacts lan 2.",
+      "expected_output": "Skill phan tich MODIFY_FEATURE cross-system, Phase 2 tao impact report voi HIGH risk. User tu choi lan 1 (scope qua lon). Skill quay lai Phase 1 Step 1.5 de re-brainstorm → user thu hep scope chi cho khach VIP. Impact report lan 2 giam scope → risk MEDIUM → user chap nhan. change-status phan anh retry_count >= 1.",
+      "assertions": [
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = MODIFY_FEATURE"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "behavior", "text": "Phase 2 User Gate Step 2.7 xu ly 'Dieu chinh scope' — quay lai Phase 1 Step 1.5 de brainstorm lai (khong terminate session)"},
+        {"type": "behavior", "text": "Sau khi re-brainstorm, affected-artifacts.json duoc cap nhat voi scope thu hep (chi khach VIP) — cross_systems giam so voi lan dau"},
+        {"type": "content_check", "text": "change-status.json co phase2.retry_count >= 1 hoac error_log co entry phase=phase2 action=user_rejected"},
+        {"type": "behavior", "text": "Phase 3 chi chay SAU KHI user chap nhan impact report lan cuoi cung"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao sau khi user approve"}
+      ],
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "modify-requirement-structural",
+      "prompt": "Thay doi yeu cau business — hien tai module Dat hang xu ly ca don hang Online va Offline, can tach thanh 2 requirements rieng biet: REQ-ORDERS-001 (Don hang Online) va REQ-ORDERS-002 (Don hang Offline). He thong co module Dat hang va module Thanh toan.",
+      "expected_output": "Skill xac dinh MODIFY_REQUIREMENT (thay doi yeu cau business, phan tach). DEEP mode do la thay doi co cau truc. Registry update chi target requirements[] — UPDATE existing REQ-ORDERS-001 description + APPEND new REQ-ORDERS-002. KHONG thay doi features[] tru khi can. Impact assessment co dependency analysis.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co change_type_preliminary = MODIFY_REQUIREMENT"},
+        {"type": "file_content", "text": "File $SESSION_DIR/change-intake.json co analysis_mode = deep (MODIFY_REQUIREMENT default DEEP)"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/affected-artifacts.json duoc tao"},
+        {"type": "content_check", "text": "File $SESSION_DIR/affected-artifacts.json co registry_changes.requirements_to_update.length >= 1 (update REQ-ORDERS-001)"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/impact-report.md duoc tao"},
+        {"type": "behavior", "text": "Registry update chi UPDATE requirements[] — KHONG thay doi features[].impl_status, KHONG tao FEAT-ID moi"},
+        {"type": "behavior", "text": "Impact assessment hien thi dependency analysis giua module Dat hang va Thanh toan vi thay doi cau truc requirement"}
+      ],
+      "files": []
+    },
+    {
+      "id": 15,
+      "name": "phase4b-fail-rollback-registry-consistency",
+      "prompt": "Sua module xu ly don hang — them truong ket_qua_xu_ly vao response cua Order API. He thong co code san co.",
+      "notes": "Eval nay test GAP-3: Phase 4a update registry (impl_status=in_progress), sau do Phase 4b mini-verify fail (code syntax error gia dinh). Kiem tra: registry phai duoc rollback ve trang thai truoc Phase 4a. Backup files phai ton tai. change-status phai ghi E010 entry.",
+      "expected_output": "Skill chay Phase 4a: tao registry backup, set impl_status='in_progress'. Phase 4b fail mini-verify. ESCALATE PROCEDURE: (1) rollback code files tu backup, (2) rollback registry tu req-registry.json.pre-change-* ve trang thai cu (impl_status khong con 'in_progress'). change-status.error_log co E010 entry co registry_rollback=true. Skill STOP voi message ro rang.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-intake.json duoc tao"},
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-plan.md duoc tao voi code_changes group"},
+        {"type": "behavior", "text": "Phase 4a tao registry backup tai req-registry.json.pre-change-[timestamp] truoc khi thay doi registry"},
+        {"type": "behavior", "text": "Phase 4b mini-verify fail → rollback code files tu .pre-change-* backup → retry 1 lan → neu van fail → ESCALATE (E010)"},
+        {"type": "behavior", "text": "GAP-3 fix: Khi escalate E010, skill rollback registry tu backup — req-registry.json tro ve trang thai truoc Phase 4a (impl_status khong phai 'in_progress')"},
+        {"type": "content_check", "text": "change-status.json.error_log co entry voi code=E010 va registry_rollback=true (hoac registry_rollback_attempted=true)"},
+        {"type": "behavior", "text": "Backup files .pre-change-* van ton tai sau khi rollback — khong bi xoa"},
+        {"type": "content_check", "text": "change-status.json.phases.phase4b.status = failed — skill STOP, khong tiep tuc Phase 5"}
+      ],
+      "files": []
+    },
+    {
+      "id": 16,
+      "name": "lock-acquire-release",
+      "prompt": "Thay doi gia tri thue VAT tu 10% sang 8% cho module Hoa don.",
+      "expected_output": "Skill acquire session lock o Phase 0 Step 0.1 (tao .session.lock). Heartbeat chay background. Registry lock acquire truoc Phase 4a.5b. Registry lock release sau write. Session lock release o Phase 6 Step 6.4b.",
+      "assertions": [
+        {"type": "behavior", "text": "Phase 0 Step 0.1 acquire session lock — $SESSION_DIR/.session.lock duoc tao"},
+        {"type": "behavior", "text": "mc-heartbeat.sh chay background (HEARTBEAT_PID duoc capture)"},
+        {"type": "behavior", "text": "Phase 4a Step 4a.5a acquire registry lock truoc khi update — .locks/registry.lock ton tai trong khi update registry"},
+        {"type": "behavior", "text": "Phase 4a Step 4a.5c release registry lock ngay sau khi validate xong — .locks/registry.lock khong ton tai sau Phase 4a"},
+        {"type": "behavior", "text": "Phase 6 Step 6.4b release session lock — $SESSION_DIR/.session.lock khong ton tai sau session complete"},
+        {"type": "behavior", "text": "EXIT trap duoc set o Phase 0 Step 0.1c — dam bao lock release ca khi session bi ngat bat ngo"}
+      ],
+      "files": []
+    },
+    {
+      "id": 17,
+      "name": "change-impact-json-output",
+      "prompt": "Them tinh nang xuat bao cao theo thang cho module Ban hang.",
+      "expected_output": "change-impact.json duoc tao o Phase 6 Step 6.0.5. Co day du 8 base fields. Schema = change-impact-v1. audit_chain co checksum_pre va checksum_post. verify_evidence duoc populate o Step 6.0.5b.",
+      "assertions": [
+        {"type": "file_exists", "text": "File $SESSION_DIR/change-impact.json duoc tao"},
+        {"type": "content_check", "text": "change-impact.json co '\"$schema\": \"change-impact-v1\"'"},
+        {"type": "content_check", "text": "change-impact.json co change_id khop voi $CHANGE_ID cua session"},
+        {"type": "content_check", "text": "change-impact.json co tat ca 8 base fields: change_id, change_type, risk_level, registry_changes, files_modified, docs_modified, generated_at, audit_chain"},
+        {"type": "content_check", "text": "change-impact.json co audit_chain.checksum_pre (hash registry truoc thay doi)"},
+        {"type": "behavior", "text": "Phase 6 Step 6.0.5b populate verify_evidence tu phase5 results (preflight_status, sync_rate, cross_validation_coverage)"}
+      ],
+      "files": []
+    },
+    {
+      "id": 18,
+      "name": "sessions-jsonl-append",
+      "prompt": "Bo sung thong tin cho REQ-INVENTORY-002 — ap dung cho kho mien Bac.",
+      "expected_output": "sessions.jsonl co entry status=in_progress khi session bat dau (Phase 0 Step 0.1b). Co entry status=completed khi session ket thuc (Phase 6 Step 6.3b). index.json dong bo voi sessions.jsonl.",
+      "assertions": [
+        {"type": "behavior", "text": "Phase 0 Step 0.1b: _index/sessions.jsonl co entry voi change_id=$CHANGE_ID va status=in_progress"},
+        {"type": "behavior", "text": "Phase 6 Step 6.3b: _index/sessions.jsonl co entry APPEND moi voi status=completed (KHONG modify entry in_progress cu)"},
+        {"type": "behavior", "text": "index.json duoc cap nhat dong bo voi sessions.jsonl sau moi write (dual-write)"},
+        {"type": "content_check", "text": "sessions.jsonl co it nhat 2 entries cho session nay: 1 in_progress + 1 completed"},
+        {"type": "behavior", "text": "sessions.jsonl la append-only — entry cu khong bi overwrite hay delete"}
+      ],
+      "files": []
+    }
+  ]
+}

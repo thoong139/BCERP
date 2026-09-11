@@ -1,0 +1,85 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "isg",
+  "version": "0.1.0-skeleton",
+  "phase": "phase5-fix",
+  "description": "Interactive Selection Gate — cổng tương tác cho user chọn QD dimensions + enforce safety floor ADR-22 rule 1 + CDG CORE-027.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-14", "ADR-22"],
+  "core_refs": ["CORE-006", "CORE-007", "CORE-027"],
+  "inputs": [
+    {
+      "name": "git-diff",
+      "type": "command",
+      "source": "git diff --name-only [--since <ref>]",
+      "required": false
+    },
+    {
+      "name": "preflight-report",
+      "path": ".mc-data/work/wf-preflight/preflight-report.md",
+      "required": false
+    },
+    {
+      "name": "req-registry",
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "required": true
+    },
+    {
+      "name": "profile",
+      "type": "enum",
+      "values": ["quick", "standard", "deep", "exhaustive"],
+      "default": "standard"
+    },
+    {
+      "name": "scope",
+      "type": "object",
+      "shape": {
+        "type": "all | system | module",
+        "name": "string (required when type != all)"
+      }
+    }
+  ],
+  "outputs": [
+    {
+      "name": "dim-selection",
+      "path": "$SESSION_DIR/dim-selection.json",
+      "schema": "schemas/dim-selection.schema.json",
+      "template": "templates/dim-selection.json",
+      "notes": "Emit khi user xác nhận selection; atomic write; tôn trọng safety floor. Template dim-selection-v1 (CORE-031 Protocol 19)."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "isg-prompt.sh",
+      "kind": "shell-orchestrator",
+      "called_by": "/wf-fix-bugs orchestrator Phase 0"
+    },
+    {
+      "command": "isg_recommender.py analyze|render|enforce|emit",
+      "kind": "python-cli",
+      "called_by": "isg-prompt.sh"
+    }
+  ],
+  "safety_guarantees": [
+    {
+      "id": "SF-ISG-1",
+      "rule": "ADR-22 rule 1",
+      "description": "Profile ∈ {standard, deep, exhaustive} không được emit selection nếu selected ∩ {QD1, QD2, QD5} = ∅",
+      "enforced_in": "isg_recommender.py:enforce_safety_floor()",
+      "violation_exit_code": 2
+    },
+    {
+      "id": "SF-ISG-2",
+      "rule": "CORE-027 CDG",
+      "description": "Các lựa chọn nguy hiểm (vd: bỏ QD1 ở profile standard) phải có user confirmation token trước khi emit",
+      "enforced_in": "isg_recommender.py:check_cdg()",
+      "violation_exit_code": 1
+    }
+  ],
+  "status": "B1-skeleton",
+  "testing": {
+    "b1": "Không có test — skeleton raises NotImplementedError",
+    "b3": "Wire-up test với wf-fix-functional/wf-fix-business",
+    "b4": "Fixture safety-floor-violation.json"
+  }
+}

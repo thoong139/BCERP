@@ -1,0 +1,111 @@
+{
+  "$schema": "scan-state-v1",
+  "_template_notes": "Skeleton tu Phase A.6 — schema canonical tu 04-data-model.md §1.1. Phase B/C se populate runtime values.",
+  "session": {
+    "id": "{{SESSION_ID}}",
+    "created": "{{CREATED_AT_ISO8601}}",
+    "project_path": "{{PROJECT_PATH}}",
+    "profile": "standard",
+    "strategy": "{{STRATEGY}}",
+    "maturity_level": "{{MATURITY_LEVEL}}",
+    "workload_id": null,
+    "chunk_id": null
+  },
+  "depth_map": {
+    "L1": "full",
+    "L2": "full",
+    "L3": "full",
+    "L4": "standard",
+    "L5": "standard",
+    "L6": "full"
+  },
+  "synthesis_mode": "full",
+  "config": {
+    "batch_size": 100,
+    "max_files_cap_api": 500,
+    "max_files_cap_screens": 500,
+    "concurrency": {
+      "global_max": 8,
+      "per_layer_max": 3,
+      "per_probe_max": 4,
+      "reserved_for_synthesis": 2,
+      "per_agent_timeout_sec": 300,
+      "per_agent_timeout_deep_sec": 600
+    },
+    "cache": {
+      "session_cache_enabled": true,
+      "project_cache_enabled": false,
+      "ttl_days": 14
+    },
+    "incremental": false,
+    "since_ref": null
+  },
+  "layers": {
+    "L1": {
+      "name": "discovery",
+      "status": "not_started",
+      "started": null,
+      "completed": null,
+      "outputs": [],
+      "checkpoint": null
+    },
+    "L2": {
+      "name": "assessment",
+      "status": "not_started",
+      "started": null,
+      "completed": null,
+      "outputs": [],
+      "checkpoint": null
+    },
+    "L3": {
+      "name": "inventory",
+      "status": "not_started",
+      "started": null,
+      "completed": null,
+      "outputs": [],
+      "checkpoint": null
+    },
+    "L4": {
+      "name": "classification",
+      "status": "not_started",
+      "started": null,
+      "completed": null,
+      "depth": "standard",
+      "batch_progress": null,
+      "partial": null,
+      "outputs": []
+    },
+    "L5": {
+      "name": "extraction",
+      "status": "not_started",
+      "started": null,
+      "completed": null,
+      "depth": "standard",
+      "module_progress": null,
+      "partial": null,
+      "outputs": []
+    },
+    "L6": {
+      "name": "synthesis",
+      "status": "not_started",
+      "started": null,
+      "completed": null,
+      "synthesis_mode": "full",
+      "outputs": []
+    }
+  },
+  "ips": {
+    "phase_a": null,
+    "phase_b": null
+  },
+  "workload": null,
+  "last_completed": "init",
+  "status": "in_progress",
+  "error_log": [],
+  "resume_hint": "",
+  "legacy_ledger": {
+    "generated_at": null,
+    "schema_version": "legacy-v4.1",
+    "note": "Generated 1x tai POST Phase 4 synthesize (v2.1 — no reverse-sync). Ref: ADR-LS04 revised."
+  }
+}

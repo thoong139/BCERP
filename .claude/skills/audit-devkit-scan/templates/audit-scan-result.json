@@ -1,0 +1,38 @@
+{
+  "$schema": "audit-scan-result-v1",
+  "session_id": "{{SESSION_ID}}",
+  "merged_at": "{{TIMESTAMP_ISO}}",
+  "scope": "{{SCOPE}}",
+  "source_files": [
+    "findings-agents-business-a.json",
+    "findings-agents-business-b.json",
+    "findings-agents-engineering.json",
+    "findings-agents-design-testing.json",
+    "findings-agents-review.json",
+    "findings-skills-workflow.json",
+    "findings-skills-other.json",
+    "findings-templates-a.json",
+    "findings-templates-b.json",
+    "findings-rules.json",
+    "findings-hooks.json",
+    "findings-scripts.json"
+  ],
+  "findings": [],
+  "dedup_log": [
+    {
+      "kept": "{{KEPT_ID}}",
+      "removed": "{{REMOVED_ID}}",
+      "tier": "tier1_or_tier2",
+      "reason": "{{REASON}}"
+    }
+  ],
+  "summary": {
+    "total_scanned": 0,
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "auto_fixable": 0,
+    "manual": 0,
+    "total": 0
+  }
+}

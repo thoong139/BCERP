@@ -1,0 +1,102 @@
+{
+  "$schema": "design-checkpoint-v1",
+  "checkpoint_id": "CP-DESIGN-YYYYMMDD-NNN",
+  "skill_id": "DESIGN-YYYYMMDD-NNN",
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session_number": 1,
+
+  "trigger": {
+    "reason": "context_limit | user_request | phase_complete | error",
+    "context_used_pct": 0,
+    "phase_completed": null,
+    "error_details": null
+  },
+
+  "scope": {
+    "type": "platform | system | module",
+    "target": "[System/Module Name]",
+    "context": "new | onboard"
+  },
+
+  "position": {
+    "current_phase": null,
+    "current_phase_name": null,
+    "current_step": null,
+    "parallel_group": null,
+    "next_phase": null,
+    "next_action": null
+  },
+
+  "progress": {
+    "phases_completed": [],
+    "current_phase": {
+      "id": null,
+      "name": null,
+      "status": null,
+      "progress_pct": 0
+    },
+    "pending_phases": [],
+    "files_completed": [],
+    "file_in_progress": {
+      "name": null,
+      "path": null,
+      "lines_written": 0,
+      "sections_completed": [],
+      "sections_pending": [],
+      "progress_pct": 0
+    }
+  },
+
+  "files_state": {
+    "completed": [],
+    "in_progress": null,
+    "pending": [
+      "phase3-architecture/P3-01-architecture.md",
+      "phase3-architecture/technical-specs/api-contract.md",
+      "phase3-architecture/technical-specs/database-design.md",
+      "phase3-architecture/technical-specs/integration-map.md",
+      "phase3-architecture/technical-specs/infra-spec.md"
+    ]
+  },
+
+  "parallel_state": {
+    "group_A": {
+      "phases": ["phase_2a", "phase_2b", "phase_2d"],
+      "started_at": null,
+      "completed_phases": [],
+      "in_progress": [],
+      "pending": ["phase_2a", "phase_2b", "phase_2d"]
+    }
+  },
+
+  "coverage_state": {
+    "total_req_ids": 0,
+    "covered_req_ids": [],
+    "uncovered_count": 0,
+    "coverage_pct": 0
+  },
+
+  "next_action": {
+    "description": null,
+    "phase": null,
+    "step": null,
+    "file": null,
+    "context_needed": []
+  },
+
+  "resume_instructions": {
+    "command": "/wf-design --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-design/design-status.json",
+      ".mc-data/work/wf-design/design-plan.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "context_recovery": [
+      "Read design-status.json for current state",
+      "Read design-plan.md for session breakdown",
+      "Continue from next_action.step"
+    ]
+  },
+
+  "notes": null
+}

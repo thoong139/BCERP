@@ -1,0 +1,14 @@
+{
+  "$schema": "session-history-v1",
+  "skill": "",
+  "entries": [
+    {
+      "session_id": "",
+      "timestamp": "ISO-8601",
+      "status": "completed",
+      "scope_description": "",
+      "files_created": 0,
+      "files_modified": 0
+    }
+  ]
+}

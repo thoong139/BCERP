@@ -1,0 +1,324 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD5",
+  "dimension_name": "UX Consistency + Accessibility",
+  "short_name": "Accessibility",
+  "owner_agent": "ux-researcher",
+  "version": "1.0.0",
+  "description": "Dimension QD5: UX Consistency + Accessibility",
+  "probes": [
+    {
+      "id": "P-QD5-ui-traversal-deep",
+      "name": "Deep UI Traversal",
+      "type": "runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD5-ui-traversal-deep.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal",
+        "catalog"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 8000
+      }
+    },
+    {
+      "id": "P-QD5-label-consistency",
+      "name": "Label Consistency",
+      "type": "static+runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD5-label-consistency.md"
+      },
+      "required_inputs": [
+        "code",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD5-accessibility-check",
+      "name": "Accessibility Check",
+      "type": "runtime+agent",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "agent",
+        "agent": "accessibility-auditor",
+        "config": "probes/P-QD5-accessibility-check.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 180,
+        "tokens": 15000
+      }
+    },
+    {
+      "id": "P-QD5-color-contrast-audit",
+      "name": "Color Contrast Audit",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD5-color-contrast-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD5-keyboard-nav-check",
+      "name": "Keyboard Nav Check",
+      "type": "runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD5-keyboard-nav-check.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    },
+    {
+      "id": "P-QD5-responsive-layout",
+      "name": "Responsive Layout",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD5-responsive-layout.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "phase4-ux"
+      ],
+      "outputs": [
+        "signal",
+        "catalog"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    },
+    {
+      "id": "P-QD5-aria-attribute-scan",
+      "name": "ARIA Attribute Scan",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD5-aria-attribute-scan.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 30,
+        "tokens": 2000
+      }
+    },
+    {
+      "id": "P-QD5-llm-analysis",
+      "name": "LLM-Augmented UX & Accessibility Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd5-ux-a11y.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD5-ui-traversal-deep",
+        "P-QD5-label-consistency",
+        "P-QD5-accessibility-check"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD5-ui-traversal-deep",
+        "P-QD5-label-consistency",
+        "P-QD5-accessibility-check",
+        "P-QD5-color-contrast-audit",
+        "P-QD5-keyboard-nav-check",
+        "P-QD5-aria-attribute-scan"
+      ],
+      "max_signals_per_probe": 100
+    },
+    "deep": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 200
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 500
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "WCAG Level A violation tren primary flow"
+    ],
+    "high_triggers": [
+      "Missing alt text",
+      "Keyboard trap",
+      "Label mismatch"
+    ],
+    "medium_triggers": [
+      "Color contrast < 4.5:1",
+      "Missing ARIA label"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "agents": [
+      "ux-researcher",
+      "accessibility-auditor"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD5-ux-a11y/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD5-ux-a11y/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD5-ux-a11y/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD5-ux-a11y/QD5-ux-a11y-report.md"
+  },
+  "execution_order": [
+    "P-QD5-label-consistency",
+    "P-QD5-aria-attribute-scan",
+    "P-QD5-color-contrast-audit",
+    "P-QD5-accessibility-check",
+    "P-QD5-keyboard-nav-check",
+    "P-QD5-responsive-layout",
+    "P-QD5-ui-traversal-deep",
+    "P-QD5-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD5-label-consistency",
+      "P-QD5-aria-attribute-scan",
+      "P-QD5-color-contrast-audit"
+    ],
+    [
+      "P-QD5-accessibility-check"
+    ],
+    [
+      "P-QD5-keyboard-nav-check",
+      "P-QD5-responsive-layout"
+    ],
+    [
+      "P-QD5-ui-traversal-deep"
+    ],
+    [
+      "P-QD5-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "static a11y checks first, non-traversal playwright parallel, full traversal last"
+}

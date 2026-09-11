@@ -1,0 +1,57 @@
+{
+  "$schema": "impact-graph-v1",
+  "session_id": "2026-04-22T10-00-00Z-i9j0k1l2",
+  "generated_at": "2026-04-22T10:48:22Z",
+  "synthesis_mode": "full+insights",
+  "nodes": [
+    { "id": "auth",      "label": "Authentication",    "type": "shared",  "file_count": 24 },
+    { "id": "ke-toan",   "label": "Kế toán (GL)",      "type": "module",  "file_count": 187 },
+    { "id": "cong-no",   "label": "Công nợ (AR/AP)",   "type": "module",  "file_count": 143 },
+    { "id": "ngan-sach", "label": "Ngân sách",         "type": "module",  "file_count": 67 },
+    { "id": "nhan-su",   "label": "Nhân sự",           "type": "module",  "file_count": 89 },
+    { "id": "luong",     "label": "Lương + BHXH",      "type": "module",  "file_count": 112 },
+    { "id": "kho",       "label": "Kho hàng",          "type": "module",  "file_count": 78 },
+    { "id": "bao-cao",   "label": "Báo cáo BI",        "type": "module",  "file_count": 54 },
+    { "id": "db",        "label": "Database (shared)", "type": "shared",  "file_count": 18 }
+  ],
+  "edges": [
+    { "from": "ke-toan",   "to": "auth",      "relation": "depends_on", "strength": "strong" },
+    { "from": "ke-toan",   "to": "cong-no",   "relation": "depends_on", "strength": "strong" },
+    { "from": "cong-no",   "to": "ke-toan",   "relation": "depends_on", "strength": "medium", "note": "CIRCULAR — scope isolation needed" },
+    { "from": "ngan-sach", "to": "ke-toan",   "relation": "depends_on", "strength": "strong" },
+    { "from": "luong",     "to": "nhan-su",   "relation": "depends_on", "strength": "strong" },
+    { "from": "luong",     "to": "auth",      "relation": "depends_on", "strength": "medium" },
+    { "from": "bao-cao",   "to": "ke-toan",   "relation": "depends_on", "strength": "strong" },
+    { "from": "bao-cao",   "to": "cong-no",   "relation": "depends_on", "strength": "strong" },
+    { "from": "bao-cao",   "to": "luong",     "relation": "depends_on", "strength": "medium" },
+    { "from": "bao-cao",   "to": "kho",       "relation": "depends_on", "strength": "medium" },
+    { "from": "ke-toan",   "to": "db",        "relation": "uses",       "strength": "strong" },
+    { "from": "cong-no",   "to": "db",        "relation": "uses",       "strength": "strong" }
+  ],
+  "circular_dependencies": [
+    {
+      "cycle": ["ke-toan", "cong-no"],
+      "type": "bidirectional",
+      "severity": "high",
+      "recommendation": "Extract shared interface hoặc tạo shared-accounting module"
+    }
+  ],
+  "high_fanout_nodes": [
+    { "id": "ke-toan", "fanout": 5, "note": "bao-cao, ngan-sach, cong-no phụ thuộc vào ke-toan" },
+    { "id": "auth",    "fanout": 4, "note": "hầu hết modules phụ thuộc vào auth" }
+  ],
+  "change_impact": {
+    "auth":      ["ke-toan", "cong-no", "nhan-su", "luong", "kho"],
+    "ke-toan":   ["cong-no", "ngan-sach", "bao-cao"],
+    "cong-no":   ["ke-toan", "bao-cao"],
+    "nhan-su":   ["luong"],
+    "luong":     ["bao-cao"],
+    "kho":       ["bao-cao"]
+  },
+  "stats": {
+    "total_nodes": 9,
+    "total_edges": 12,
+    "circular_count": 1,
+    "max_depth": 4
+  }
+}

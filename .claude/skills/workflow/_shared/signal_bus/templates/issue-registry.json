@@ -1,0 +1,38 @@
+{
+  "$schema": "issue-registry-v2",
+  "generated_at": "2026-04-20T00:00:00+00:00",
+  "issues": [
+    {
+      "$schema": "issue-v2",
+      "issue_id": "ISS-20260420-001",
+      "created_at": "2026-04-20T00:00:00+00:00",
+      "dimensions": ["QD1"],
+      "target": {
+        "kind": "code",
+        "file_path": "src/example/module.ts",
+        "line_range": [10, 25],
+        "symbol": "exampleFunction"
+      },
+      "title": "Tiêu đề ngắn tiếng Việt có dấu — ≥10 ký tự",
+      "description_md": "Mô tả Markdown tiếng Việt có dấu — ≥20 ký tự để đạt ngưỡng tối thiểu theo schema.",
+      "probe_sources": [
+        {
+          "probe_id": "P-QD1-example-probe",
+          "probe_version": "0.1.0"
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "code_snippet",
+          "content": "// Trích đoạn code minh hoạ.",
+          "source_signal_id": "SIG-20260420-001"
+        }
+      ],
+      "dedup_key": "0000000000000000000000000000000000000000000000000000000000000000",
+      "severity": null,
+      "fixability": null,
+      "triage_status": "pending",
+      "dedup_merged_signals": []
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+# devkit-skill-tests.yml — CI cho /wf-fix-bugs regression + e2e tests.
+#
+# Mục đích: bắt scale-related bugs (timeout silent failure, O(N×M) algorithms)
+# trước khi merge vào main. Chạy 4 regression tests + 1 e2e trên synthetic
+# large-codebase fixture (50k files generated on-the-fly).
+#
+# Trigger: PR đụng `.claude/skills/workflow/wf-fix-bugs/**` hoặc
+# `.claude/scripts/wf-fix-*`. Skip khi chỉ thay đổi docs (*.md).
+#
+# Tham chiếu: .mc-data/work/wf-fix-bugs/_issues_log/skill-issues-2026-05-09.md
+# (6 bugs phát hiện qua manual run trên EUREKA-2026 — fixture mô phỏng scale này).
+
+name: devkit-skill-tests
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.claude/skills/workflow/wf-fix-bugs/**'
+      - '.claude/skills/workflow/_shared/**'
+      - '.claude/scripts/wf-fix-*'
+      - '.github/workflows/devkit-skill-tests.yml'
+    paths-ignore:
+      - '**.md'
+      - '**/CHANGELOG.md'
+  workflow_dispatch:
+    inputs:
+      fixture_files:
+        description: 'Số files trong fixture (default 50000)'
+        required: false
+        default: '50000'
+
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.13'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: Regression tests cho 4 bugs đã fix (Bug #1, #2, #3, #4)
+  # Lightweight, < 2 phút, chạy trước e2e để fail-fast nếu fix bị regression.
+  # ---------------------------------------------------------------------------
+  regression-tests:
+    name: Regression tests (Bug #1-#4)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install jq + verify tooling
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq
+          jq --version
+          python3 --version
+
+      - name: Test #1 — ISG --name narrowing (Bug #1)
+        run: bash .claude/skills/workflow/wf-fix-bugs/evals/regression-tests/test-isg-name-narrowing.sh
+
+      - name: Test #2 — init-status --url + --credentials (Bug #2)
+        run: bash .claude/skills/workflow/wf-fix-bugs/evals/regression-tests/test-init-status-flags.sh
+
+      - name: Test #3 — probe timeout NOT silent (Bug #3)
+        run: bash .claude/skills/workflow/wf-fix-bugs/evals/regression-tests/test-probe-timeout-not-silent.sh
+
+      - name: Test #4 — xref O(1) on N orphans (Bug #4)
+        run: bash .claude/skills/workflow/wf-fix-bugs/evals/regression-tests/test-xref-on-N-orphans.sh
+
+      - name: Upload artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-test-cache
+          path: .cache/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # ---------------------------------------------------------------------------
+  # Job 2: E2E trên large-codebase fixture (50k files, profile=deep, 3 lanes).
+  # Mục tiêu: < 5 phút, no probe failures, total_issues > 0.
+  # ---------------------------------------------------------------------------
+  e2e-large-codebase:
+    name: E2E large-codebase (50k files)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: regression-tests
+
+    env:
+      WF_FIX_FIXTURE_FILES: ${{ github.event.inputs.fixture_files || '50000' }}
+      WF_FIX_LARGE_FIXTURE: ${{ github.workspace }}/.cache/wf-fix-large-fixture
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install jq
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq jq
+
+      - name: Cache fixture (idempotent regen by marker)
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.WF_FIX_LARGE_FIXTURE }}
+          key: wf-fix-fixture-v1-${{ env.WF_FIX_FIXTURE_FILES }}-seed42
+
+      - name: Generate fixture (cache miss path)
+        run: |
+          python3 .claude/skills/workflow/wf-fix-bugs/evals/fixtures/large-codebase/scripts/generate-fixture.py \
+            --out-dir "$WF_FIX_LARGE_FIXTURE" \
+            --target-files "$WF_FIX_FIXTURE_FILES" \
+            --target-features 300
+
+      - name: Run e2e-large-codebase test
+        run: bash .claude/skills/workflow/wf-fix-bugs/evals/e2e-large-codebase.test.sh
+
+      - name: Upload session artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-session-${{ github.run_id }}
+          path: |
+            ${{ env.WF_FIX_LARGE_FIXTURE }}/.session-e2e/
+            ${{ env.WF_FIX_LARGE_FIXTURE }}/.fixture-marker.json
+          if-no-files-found: ignore
+          retention-days: 7

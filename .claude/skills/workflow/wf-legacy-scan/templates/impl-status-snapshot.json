@@ -1,0 +1,41 @@
+{
+  "$schema": "legacy-scan-impl-status-snapshot-v1",
+
+  "generated_at": "",
+  "project_path": "",
+
+  "features": [
+    {
+      "feature_id": "TMP-FEAT-XXX",
+      "feature_name": "",
+      "module": "",
+      "system": "",
+      "status": "",
+      "confidence": 0.0,
+      "code_refs": [],
+      "test_refs": [],
+      "gaps": []
+    }
+  ],
+
+  "summary": {
+    "total_features": 0,
+    "by_status": {
+      "DONE": 0,
+      "PARTIAL": 0,
+      "NOT_STARTED": 0
+    }
+  },
+
+  "_status_criteria": {
+    "DONE": "confidence >= 0.8 AND test files found AND tests referenced",
+    "PARTIAL": "code files found nhung confidence < 0.8 hoac gaps detected",
+    "NOT_STARTED": "khong tim thay code files lien quan"
+  },
+
+  "_lifecycle": {
+    "note": "Tao 1 lan duy nhat boi Stage 4. READ-ONLY sau khi tao. Dung de SEED initial impl_status vao registry trong /wf-define-features. Sau khi seed → registry takes over, snapshot khong con lien quan.",
+    "owner": "wf-legacy-scan Stage 4",
+    "consumer": "wf-define-features Phase 0.5 (seed impl_status — 1 lan duy nhat)"
+  }
+}

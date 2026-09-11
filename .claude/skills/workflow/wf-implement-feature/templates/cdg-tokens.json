@@ -1,0 +1,7 @@
+{
+  "$schema": "cdg-tokens-v1",
+  "feature_slug": "{{FEATURE_SLUG}}",
+  "session_id": "{{SESSION_ID}}",
+  "created_at": "{{TIMESTAMP_ISO}}",
+  "decisions": []
+}

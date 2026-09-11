@@ -1,0 +1,21 @@
+{
+  "$schema": "phase1-handoff-v1",
+  "project": "",
+  "generated_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "project_intent_digest": ".mc-data/work/wf-brainstorm/project-intent-digest.json",
+  "req_clusters": [],
+  "actors": [],
+  "business_rule_keywords": [],
+  "cross_department_dependencies": [],
+  "departments": [
+    {
+      "department": "",
+      "req_ids": [],
+      "actors": [],
+      "summary": "",
+      "source_file": ""
+    }
+  ],
+  "deferred_issues_file": ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+  "stakeholder_review_file": ".mc-data/docs/phase1-business/stakeholder-review.md"
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "probe-failure-v1",
+  "_template_notes": "probe-failures.log — JSONL format (1 JSON object per line, APPEND-only). Ghi khi probe bị fail (timeout, script crash, tool error). Schema: probe-failure-v1. File này là *schema reference* — runtime tạo file MỚI RỖNG và APPEND từng record JSONL (không copy template).",
+  "_schema_notes": "JSONL: mỗi dòng là 1 JSON object. Required fields: timestamp, lane, probe_id, error_code, reason. Optional: returncode, retry_count, message. APPEND-only — không đọc lại làm input context (CORE-026 output-only pattern).",
+  "_how_to_use": "QUAN TRỌNG: KHÔNG copy nguyên template này ra file output. File này là *schema reference* — runtime tạo file mới rỗng và APPEND từng record. Pattern đúng: `echo '{\"timestamp\":\"...\",\"lane\":\"...\",\"probe_id\":\"...\",...}' >> $SESSION_DIR/phase4-find-bugs/probe-failures.log`. Mỗi record là 1 dòng JSON valid (no pretty-print, no trailing newline trong record).",
+  "_example": {
+    "timestamp": "2026-05-14T10:30:00+07:00",
+    "phase": 4,
+    "lane": "QD1-functional-correctness",
+    "probe_id": "P-QD1-req-registry-xref",
+    "error_code": "E040",
+    "reason": "timeout",
+    "returncode": null,
+    "retry_count": 1,
+    "message": "Script wf-fix-probe-static-xref.sh vượt timeout 300s"
+  }
+}

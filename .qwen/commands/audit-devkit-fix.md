@@ -1,0 +1,1 @@
+Read and execute the skill definition at '.claude/skills/audit-devkit-fix/SKILL.md'. Arguments: $ARGUMENTS

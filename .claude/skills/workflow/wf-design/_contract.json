@@ -1,0 +1,326 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-design",
+  "version": "4.0.0",
+  "phase": "phase3-architecture",
+  "description": "Architecture, API, database design — sinh Phase 3 technical specification docs. v4.0.0: 5 ADR-OPT (Lane Dispatch per system, Session Isolation, Workload Gate, Signal Aggregation dual-dedup, Template Strip). Phase structure: 0→0.5→1→2→3→4→5→6→[7 LEGACY]→8.",
+  "procedure": "procedures/phase0-context.md",
+  "procedure_map": {
+    "phase0": "procedures/phase0-context.md",
+    "phase0_5": "procedures/phase0.5-workload-gate.md",
+    "phase1": "procedures/phase1-architecture.md",
+    "phase2": "procedures/phase2-specs-parallel.md",
+    "phase3": "procedures/phase3-integration.md",
+    "phase4": "procedures/phase4-crossval.md",
+    "phase5": "procedures/phase5-review.md",
+    "phase6": "procedures/phase6-finalize.md",
+    "phase7": "procedures/phase7-gap.md",
+    "phase8": "procedures/phase8-digest-summary.md",
+    "shared": "procedures/_shared.md"
+  },
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/phase2-features/",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "features"
+    ],
+    "notes": "Requires completed Phase 2 feature specs and populated features[] in registry. wf-design KHÔNG thiết kế module không có trong registry (CORE-004)."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/phase2-features/**/**/*.md",
+      "description": "Feature specification docs từ wf-define-features",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry với features[] populated by wf-define-features",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-define-features/deferred-findings.md",
+      "description": "Deferred findings từ wf-define-features Phase 4 (CORE-007)",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Legacy context (nếu LEGACY_MODE)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+      "description": "Module-code mapping từ legacy extract Stage 3.5 — dùng cho gap analysis (CORE-013)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions từ brainstorm Phase 0.5 — DEPRECATE modules, divergence resolutions (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/docs/_meta/feature-briefs.json",
+      "description": "Feature briefs digest from wf-define-features",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json",
+      "description": "Sprint 5 cross-skill — target metadata từ wf-scan-target làm gap-analysis baseline (legacy design). Đọc layers.api_endpoints + layers.entities + scan_diff. OPTIONAL.",
+      "required": false,
+      "condition": "--from-scan flag set"
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+        "template": "phase3-architecture/P3-01-architecture.md",
+        "contract_key": "P3-01-architecture",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+        "template": "phase3-architecture/technical-specs/api-contract.md",
+        "contract_key": "api-contract",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase3-architecture/technical-specs/database-design.md",
+        "template": "phase3-architecture/technical-specs/database-design.md",
+        "contract_key": "database-design",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase3-architecture/technical-specs/integration-map.md",
+        "template": "phase3-architecture/technical-specs/integration-map.md",
+        "contract_key": "integration-map",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase3-architecture/technical-specs/infra-spec.md",
+        "template": "phase3-architecture/technical-specs/infra-spec.md",
+        "contract_key": "infra-spec",
+        "required": true
+      },
+      {
+        "path": ".mc-data/docs/phase3-architecture/stakeholder-review.md",
+        "template": "phase3-architecture/stakeholder-review.md",
+        "contract_key": "stakeholder-review",
+        "required": true
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/session-state.json",
+        "template": null,
+        "required": true,
+        "notes": "Session Isolation (ADR-OPT-02) — primary checkpoint, 3-level: L1 Phase / L2 Batch / L3 Item. Schema: design-session-state-v1."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/workload-report.md",
+        "template": null,
+        "required": true,
+        "notes": "Workload Gate (ADR-OPT-03) — Phase 0.5 output. Inline schema: markdown với sections (Summary, Systems Workload Table, Gate Decision). Xem procedures/phase0.5-workload-gate.md §POST-GATE."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/lanes/{system-slug}/signals.json",
+        "template": null,
+        "required": true,
+        "notes": "Lane Dispatch (ADR-OPT-01) — Phase 1 architecture lane output per system."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/lanes/{system-slug}/specs-signals.json",
+        "template": null,
+        "required": true,
+        "notes": "Lane Dispatch (ADR-OPT-01) — Phase 2 specs lane output per system (api_id, db_table_id, infra_resource_id)."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/aggregation-result.json",
+        "template": null,
+        "required": true,
+        "notes": "Signal Aggregation (ADR-OPT-04) — Phase 3 output. Dual dedup: component_id (Phase 1 lanes) + api_id (Phase 2 specs-signals). Schema: {components:[], apis:[]}."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/design-input-digest.json",
+        "template": "_digests/design-input-digest.template.json",
+        "required": true,
+        "notes": "Session working copy (Template Strip + Atomic Write — ADR-OPT-05). Synced → .mc-data/docs/_meta/design-input-digest.json at Phase 8."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/design-summary.json",
+        "template": null,
+        "required": true,
+        "notes": "Session working copy. Synced → .mc-data/work/wf-design/design-summary.json at Phase 8 (after Template Strip)."
+      },
+      {
+        "path": ".mc-data/work/wf-design/design-status.json",
+        "template": "templates/design-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-design/design-plan.md",
+        "template": "templates/design-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-design/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "notes": "Backward-compat mirror of session-state.json (pre-v4.0 consumers). Canonical: sessions/{SESSION_ID}/session-state.json."
+      },
+      {
+        "path": ".mc-data/work/wf-design/deferred-findings.md",
+        "template": "_meta/deferred-findings-template.md",
+        "required": false,
+        "notes": "Consumed by wf-plan-modules Phase 0 as blocking items (CORE-007)"
+      },
+      {
+        "path": ".mc-data/docs/_meta/design-input-digest.json",
+        "template": "_digests/design-input-digest.template.json",
+        "required": true,
+        "notes": "Digest artifact cho downstream skills — Phase 3 POST-GATE (CORE-007 §4b)"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/gap-report.md",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only — gap analysis output (CORE-007)",
+        "notes": "Schema: tham khảo POST-GATE trong procedures/phase7-gap.md cho validation rules."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/gap-categories.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only — gap categories machine-readable (CORE-007)",
+        "notes": "Schema: JSON array of {category, severity, count, items[]}. Tham khảo phase7-gap.md step 7.4-7.5."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/action-items.json",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only — machine-readable gap analysis input for wf-plan-modules (CORE-007)",
+        "notes": "Schema: JSON array of {id, module, category, severity, description, action, priority}. Tham khảo phase7-gap.md step 7.8."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/final-report.md",
+        "template": null,
+        "required": false,
+        "condition": "LEGACY_MODE only — tổng hợp toàn pipeline: legacy scan context + design approach + gap summary + action plan (Phase 4e.9)",
+        "notes": "Schema: markdown, sections theo phase7-gap.md step 7.10 structure. POST-GATE: test -s + grep sections."
+      },
+      {
+        "path": ".mc-data/work/wf-design/design-summary.json",
+        "template": null,
+        "required": true,
+        "notes": "Compressed spec cho wf-implement-feature Phase 1 step 1.9 — reduces context load from ~3300 words to ~200 tokens/module (Phase 4d). Schema defined inline in flow-new.md."
+      },
+      {
+        "path": ".mc-data/work/wf-design/design-report.md",
+        "template": null,
+        "required": true,
+        "notes": "Design completion report — cross-validation results, iterations, errors fixed/remaining (Phase 4c.5 + 4a.7)."
+      },
+      {
+        "path": ".mc-data/work/wf-design/feature-digest.md",
+        "template": null,
+        "required": false,
+        "notes": "Input compression — chỉ tạo khi feature files > compression_threshold (Phase 0 Sub-Phase 0.5). Schema: markdown, grep key sections từ feature specs."
+      },
+      {
+        "path": ".mc-data/work/wf-design/phase-summary.md",
+        "template": "_meta/phase-summary.template.md",
+        "required": true,
+        "notes": "CORE-28 phase summary — ≤15 dòng tiếng Việt, cho non-specialist (Phase 8 Sub-Phase 8B)."
+      },
+      {
+        "path": ".mc-data/work/wf-design/execution-plan.md",
+        "template": null,
+        "required": true,
+        "notes": "Protocol 9 (PLN-08) execution plan — approach decision, conditional agent selection, execution order, token estimates (Phase 1.5)."
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cập nhật design_status. Trong legacy flow: cũng cập nhật systems, modules, departments, requirements, features, interface_type và requirements[].impl_status (chỉ fix invalid values → not_started, CORE-010)."
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [
+      "design_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "Legacy flow: cũng được phép update systems, modules, departments, requirements, features, interface_type và requirements[].impl_status (chỉ fix invalid values → not_started). Không ghi đè fields của skill khác ngoài scope này.",
+    "write_role": "PRIMARY"
+  },
+  "doc_framework_ref": ".claude/doc-framework/phase3-architecture/_contract.json",
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-design-ux": [
+        ".mc-data/docs/phase3-architecture/stakeholder-review.md",
+        ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+        ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+        ".mc-data/docs/_meta/design-input-digest.json"
+      ],
+      "wf-plan-modules": [
+        ".mc-data/work/wf-design/deferred-findings.md",
+        ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/design-input-digest.json",
+        ".mc-data/work/legacy-scan/action-items.json",
+        ".mc-data/work/legacy-scan/gap-report.md"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/docs/_meta/design-input-digest.json",
+        ".mc-data/work/wf-design/design-summary.json"
+      ],
+      "wf-annotate-code": [
+        ".mc-data/work/legacy-scan/gap-report.md"
+      ]
+    },
+    "consumes_from": {
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/**/**/*.md",
+        ".mc-data/work/wf-define-features/deferred-findings.md",
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/feature-briefs.json"
+      ],
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/extracted/{module}.json",
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ]
+    }
+  },
+
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "architecture_review",
+    "pattern": "PRE-GATE detection (Na/Nb) + CI-ROUTE Phase 0 architecture review (phase0-context.md)",
+    "tools_used": [
+      "gitnexus_route_map",
+      "gitnexus_query",
+      "gitnexus_clusters",
+      "serena_onboarding"
+    ],
+    "ci_tasks": [
+      "api_routes (Phase 0: GitNexus route_map de map API routes + consumers)",
+      "understand_flow (Phase 0: GitNexus query cho core domain concepts)",
+      "project_structure (Phase 0: GitNexus clusters + Serena onboarding)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Read/Grep. Zero regression.",
+    "notes": "CI tools auto-detect o Phase 0. Architecture review tu dong hoa thay vi doc tung file thu cong."
+  }
+}

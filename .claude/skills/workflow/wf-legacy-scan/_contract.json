@@ -1,0 +1,315 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-legacy-scan",
+  "version": "5.0.1",
+  "phase": "pre-phase0",
+  "description": "Scan toan dien du an hien co (v5.0): session-based + 4 profiles + IPS 2-phase + incremental/cache. Backward-compat v4.1 tren standard profile.",
+  "procedure": "procedures/phase0-detection.md",
+  "design_refs": {
+    "master_plan": "docs/design/skills/wf-legacy-scan/implementation/00-master-plan.md",
+    "session_protocol": "docs/design/skills/wf-legacy-scan/implementation/01-session-protocol.md",
+    "data_model": "docs/design/skills/wf-legacy-scan/04-data-model.md",
+    "profiles_ips": "docs/design/skills/wf-legacy-scan/05-profiles-ips.md",
+    "vn_keywords": "docs/design/skills/wf-legacy-scan/10-vietnamese-keywords.md",
+    "adrs": "docs/design/skills/wf-legacy-scan/08-tradeoffs-adr.md"
+  },
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Entry point cho legacy path — chi can project directory ton tai. PROJECT_PATH = argument hoac CWD. Optional: legacy-decisions.json va cache directory."
+  },
+  "inputs": {
+    "required": [
+      {
+        "path": "<project-path>",
+        "description": "Duong dan den thu muc goc cua du an hien co (argument hoac CWD)"
+      }
+    ],
+    "optional": [
+      {
+        "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+        "description": "Legacy decisions bridge (CORE-022) — KHONG duoc doc boi wf-legacy-scan (entry point, chay truoc wf-brainstorm). Khai bao here de document dependency chain downstream: wf-brainstorm Phase 0.5 tao → wf-analyze-requirements/wf-design/wf-design-ux/wf-plan-modules/wf-implement-feature/wf-annotate-code/wf-add-scope doc + enforce."
+      },
+      {
+        "path": ".mc-data/cache/wf-legacy-scan/",
+        "description": "Project-level cache (opt-in via --cache-publish) — tai su dung ket qua probe giua cac session"
+      }
+    ]
+  },
+  "cli_flags": {
+    "backward_compat": [
+      "--resume",
+      "--status",
+      "--re-vision",
+      "--batch-size"
+    ],
+    "new_v5": [
+      "--profile",
+      "--layers",
+      "--depth",
+      "--session",
+      "--incremental",
+      "--since",
+      "--no-cache",
+      "--cache-publish"
+    ],
+    "deferred_v5_1": [
+      "--workload",
+      "--chunk",
+      "--aggregate"
+    ]
+  },
+  "profiles": ["surface", "standard", "deep", "exhaustive"],
+  "default_profile": "standard",
+  "profile_notes": "standard profile = v4.1 OUTPUT parity (output format + downstream consumer compatibility, ADR-LS03/LS15). Execution flow co them non-blocking IPS-A advisory step. De skip IPS-A hoan toan (pure v4.1 behavior): set env LEGACY_V41_STRICT=1. Surface = light-weight. Deep/exhaustive = thorough + domain enrichment.",
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/scan-state.json",
+        "template": "templates/scan-state.json",
+        "required": true,
+        "description": "Session state (v5.0 canonical). Replace legacy-scan-status.json. Atomic write qua scan_state_reader.py helper."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/scan-plan.md",
+        "template": "templates/scan-plan.md",
+        "required": true,
+        "description": "Scan plan overview per session (replaces legacy-scan-plan.md semantically)."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "description": "Phase summary tieng Viet (CORE-028). A4-H3 fix: canonical path la sessions/{id}/, KHONG dung standard location .mc-data/work/legacy-scan/phase-summary.md. Tat ca APPEND operations trong Phase 4 Step 4.9 PHAI su dung $SESSION_DIR prefix."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/session-log.json",
+        "template": null,
+        "required": true,
+        "notes": "CORE-026 observability — append-only START/COMPLETE/FAIL events."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/session-digest.md",
+        "template": "templates/session-digest.md",
+        "required": true,
+        "description": "Session digest generated at finalize."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/error-ledger.json",
+        "template": "templates/error-ledger.json",
+        "required": true,
+        "description": "Append-only error ledger (session-scoped)."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/{id}/events.jsonl",
+        "template": null,
+        "required": false,
+        "notes": "JSONL append-only — agent spawn/complete events."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/domain-hints.json",
+        "template": "templates/domain-hints.json",
+        "required": true,
+        "description": "NEW v5.0 — IPS output, domain detection signals + confidence (EN + VN). Produced by Phase 0B Step 0B.12 (new): copy $SESSION_DIR/ips-phase-a.json → standard path, strip session-specific fields. Consumers (wf-legacy-classify, wf-legacy-extract, wf-design) read this standard path."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/impact-graph.json",
+        "template": "templates/impact-graph.json",
+        "required": false,
+        "description": "NEW v5.0 — impact graph (ADR-LS14). Generated khi synthesis_mode = full+insights.",
+        "condition": "Chi tao khi synthesis_mode in {full+insights, full+divergence}"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/project-profile.json",
+        "template": "templates/project-profile.json",
+        "required": true,
+        "notes": "Generated by legacy-scan-detect.sh. v5.0 them optional field domain_hints (FK -> domain-hints.json summary)."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/assessment-report.json",
+        "template": "templates/assessment-report.json",
+        "required": true,
+        "notes": "v5.0 them optional fields: stale_threshold_days, domain_enrichment."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/ledger.json",
+        "template": "templates/ledger.json",
+        "required": true,
+        "notes": "v2.1 — INITIALIZED tai Phase 0A (Step 0A.8 seed tu template), INCREMENTALLY UPDATED qua Phase 0.5 / 1 / 2 / 3 / 4 (stages.* + summary.*), FINALIZED tai POST Phase 4 synthesize (pipeline_status=COMPLETE). Orchestrator wf-legacy-scan own the file; sub-skills /wf-legacy-classify va /wf-legacy-extract KHONG ghi truc tiep vao ledger.json (ghi vao scan-state.json va output artifacts rieng). Ref: ADR-LS04 revised, 04-data-model.md §1.3."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/inventory/*.json",
+        "template": null,
+        "validation_contract": "templates/legacy-pipeline-contract.json",
+        "required": true,
+        "description": "Inventory files (8) — unchanged schema: screens, api-endpoints, source-files, dependency-graph, doc-files, external-docs, doc-classified, ui-manifest."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/project-context.md",
+        "template": "templates/project-context.md",
+        "required": true,
+        "description": "Stage 4 Synthesize output — CORE-021 LEGACY_MODE detection anchor. Content depth varies by synthesis_mode."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/doc-quality-map.json",
+        "template": "templates/doc-quality-map.json",
+        "required": true,
+        "description": "Doc quality trust map (unchanged v4.1)."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/impl-status-snapshot.json",
+        "template": "templates/impl-status-snapshot.json",
+        "required": false,
+        "description": "Snapshot impl_status (unchanged v4.1). Skip khi synthesis_mode = condensed."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+        "template": null,
+        "required": true,
+        "description": "Module-code mapping (CORE-013, unchanged v4.1).",
+        "notes": "Generated by /wf-legacy-extract Stage 3.5. Schema reference: templates/module-code-mapping.schema.json + templates/legacy-pipeline-contract.json. Orchestrator (wf-legacy-scan) validates via POST-GATE Phase 3 T1.3 + T2.6."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/inventory/ui-manifest.json",
+        "template": null,
+        "required": false,
+        "description": "UI manifest — chi tao khi screen_count > 0. Schema ref: templates/inventory/ui-manifest.json.",
+        "condition": "Chi tao khi screen_count > 0"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/legacy-scan-status.json",
+        "template": "templates/legacy-scan-status.json",
+        "required": true,
+        "deprecated_in": "v5.1",
+        "notes": "v5.0 backward-compat mirror — duoc update bang Atomic Write Pattern song song voi scan-state.json. Se bo o v5.1 theo migration_notes.breaking_changes[0]. Consumers nen doc scan-state.json canonical."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/legacy-scan-plan.md",
+        "template": "templates/legacy-scan-plan.md",
+        "required": true,
+        "deprecated_in": "v5.1",
+        "notes": "v5.0 backward-compat mirror cho sessions/{id}/scan-plan.md. Se bo o v5.1."
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/workloads/{workload-id}/fix-workload.json",
+        "template": "templates/fix-workload.json",
+        "required": false,
+        "deferred_to": "v5.1",
+        "description": "DEFERRED v5.1 — workload partitioning (template hien tai o Phase A6 de pre-wire, logic implement sau)."
+      }
+    ],
+    "registry": null,
+    "_notes": "Skill nay co own pipeline contracts tai templates/legacy-scan-contract.json va templates/legacy-pipeline-contract.json. _contract.json nay la skill-level contract theo skill-contract-v1 schema."
+  },
+  "registry_scope": {
+    "write_role": "NONE",
+    "role": "NONE",
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Skill nay KHONG ghi vao req-registry.json. Registry duoc tao/cap nhat boi /wf-design (legacy flow). write_role field added v5.0.1 per workflow-skill.md schema requirement."
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-legacy-classify": [
+        ".mc-data/work/legacy-scan/inventory/*.json",
+        ".mc-data/work/legacy-scan/ledger.json",
+        ".mc-data/work/legacy-scan/project-profile.json",
+        ".mc-data/work/legacy-scan/sessions/{id}/scan-state.json",
+        ".mc-data/work/legacy-scan/domain-hints.json"
+      ],
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/project-profile.json",
+        ".mc-data/work/legacy-scan/inventory/dependency-graph.json",
+        ".mc-data/work/legacy-scan/inventory/ui-manifest.json",
+        ".mc-data/work/legacy-scan/domain-hints.json",
+        ".mc-data/work/legacy-scan/sessions/{id}/scan-state.json"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/doc-quality-map.json",
+        ".mc-data/work/legacy-scan/inventory/external-docs.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/work/legacy-scan/project-context.md"
+      ],
+      "wf-define-features": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/impl-status-snapshot.json",
+        ".mc-data/work/legacy-scan/inventory/ui-manifest.json"
+      ],
+      "wf-design": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/domain-hints.json"
+      ],
+      "wf-design-ux": [
+        ".mc-data/work/legacy-scan/project-context.md"
+      ],
+      "wf-plan-modules": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/impl-status-snapshot.json",
+        ".mc-data/work/legacy-scan/module-code-mapping.json"
+      ],
+      "wf-implement-feature": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/module-code-mapping.json",
+        ".mc-data/work/legacy-scan/project-profile.json"
+      ],
+      "wf-annotate-code": [
+        ".mc-data/work/legacy-scan/project-context.md",
+        ".mc-data/work/legacy-scan/project-profile.json"
+      ],
+      "wf-add-scope": [
+        ".mc-data/work/legacy-scan/module-code-mapping.json",
+        ".mc-data/work/legacy-scan/project-context.md"
+      ],
+      "wf-verify-sync": [
+        ".mc-data/work/legacy-scan/impact-graph.json"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/legacy-scan/impact-graph.json"
+      ],
+      "_naming_collision_note": "A3-L1/L2 + A1-M3 caveat — co HAI files ten 'impact-graph.json' khac nhau trong pipeline: (1) .mc-data/work/legacy-scan/impact-graph.json (produced by wf-legacy-scan L6, standard project-level) va (2) $SESSION_DIR/impact-graph.json (produced by wf-fix-bugs orchestrator, session-scoped). wf-fix-bugs consumes (1) as OPTIONAL SEED de accelerate impact graph building, ton tai tai Phase 1 Step 1.4. Xem wf-fix-bugs/_contract.json consumes_from.wf-legacy-scan.",
+      "_consumer_integration_notes": "Impact graph L6 consumers (wf-verify-sync, wf-fix-bugs) are deferred to v5.1 — file duoc produce v5.0 nhung chua wire vao consumer skills. Consumers hien tai se graceful degrade (file missing → skip impact analysis). Xem ADR-LS14 roadmap."
+    },
+    "consumes_from": {}
+  },
+  "migration_notes": {
+    "from_version": "4.1.0",
+    "breaking_changes": [
+      "scan-state.json REPLACES legacy-scan-status.json (v4.1 still writes legacy-scan-status.json for rollback period, v5.1 will deprecate).",
+      "ledger.json no longer written by sub-skills (orchestrator-only generation tai POST Phase 4)."
+    ],
+    "backward_compat_guarantees": [
+      "standard profile = v4.1 output parity (ADR-LS15 lock verified via fixture tests in Phase D).",
+      "CLI flags --resume, --status, --re-vision, --batch-size unchanged.",
+      "Downstream skills (wf-brainstorm, wf-design, etc.) consume same file paths."
+    ],
+    "new_output_entries_count": 9,
+    "deferred_outputs_count": 1
+  },
+
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "role": "scan_acceleration",
+    "pattern": "PRE-GATE detection (Na/Nb) + CI-ROUTE Stage 1-3 scan acceleration",
+    "tools_used": [
+      "gitnexus_query",
+      "gitnexus_clusters",
+      "gitnexus_cypher",
+      "serena_onboarding",
+      "serena_get_symbols_overview"
+    ],
+    "ci_tasks": [
+      "project_structure (Stage 1 Inventory: Serena onboarding + GitNexus clusters)",
+      "understand_flow (Stage 2 Analysis: GitNexus query cho key concepts)",
+      "symbol_overview (Stage 2 Analysis: Serena get_symbols_overview)",
+      "find_by_annotation (Stage 3 Extraction: GitNexus cypher cho REQ-ID search)"
+    ],
+    "graceful_degradation": "Lock held → fallback Glob/Grep. Tool unavailable → fallback Glob/Grep. Non-git → skip freshness. Zero regression.",
+    "notes": "Token reduction target: Stage 2 -60% to -80%. Freshness SEVERE → warning: scan results may be outdated vs current code."
+  }
+}

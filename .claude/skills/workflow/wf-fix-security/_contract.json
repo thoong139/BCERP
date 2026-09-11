@@ -1,0 +1,150 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-security",
+  "version": "2.0.0-alpha.s4",
+  "phase": "lane",
+  "description": "QD3 Security Vulnerabilities Lane. ADR-22 Rule 6: KHONG bao gio su dung scan cache. v2.0 (S3): chuan hoa schema (lane-status-v1, signal-v2, lane-report-v1) qua _shared/lane/. Fix F5 (CORE-031 template:null), F9, F10.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Bat buoc - duoc set boi wf-fix-bugs orchestrator"
+    },
+    "notes": "Lane KHONG tao session - orchestrator da tao truoc."
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory path."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay."
+    },
+    {
+      "name": "--base-url",
+      "type": "url",
+      "required": false,
+      "description": "App URL cho runtime probes."
+    }
+  ],
+  "procedure": [
+    "procedures/probes/P-QD3-dependency-vuln-scan.md",
+    "procedures/probes/P-QD3-owasp-top-ten.md",
+    "procedures/probes/P-QD3-dangerous-deserialize.md",
+    "procedures/probes/P-QD3-secret-detection.md",
+    "procedures/probes/P-QD3-auth-flow-verify.md",
+    "procedures/probes/P-QD3-cors-policy-check.md",
+    "procedures/probes/P-QD3-security-header-audit.md",
+    "procedures/probes/_shared.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker (cache.enabled=false). Schema lane-status-v1."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/QD3-security-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output files."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/evidence/",
+        "required": false,
+        "template": null,
+        "notes": "HTTP traces từ runtime probes."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD3 Lane KHONG ghi req-registry.json.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD3 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile",
+        "--base-url"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD3 lane complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/QD3-security-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD3-security/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/dept-digests.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  }
+}

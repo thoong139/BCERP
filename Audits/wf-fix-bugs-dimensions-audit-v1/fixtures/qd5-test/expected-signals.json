@@ -1,0 +1,114 @@
+{
+  "$schema": "lane-signals-v1",
+  "dimension_id": "QD5",
+  "fixture_version": "0.1.0",
+  "generated_at": "2026-05-08",
+  "description": "Expected signals for QD5 Phase 3 — wf-fix-probe-static-a11y.sh (only live bash probe in QD5; 5 checks: img_no_alt, input_no_label, tabindex_positive, invalid_role, href_anti_pattern)",
+  "signals": [
+    {
+      "id": "exp-qd5-001",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-01-img-no-alt.tsx",
+      "match_pattern": "img_no_alt",
+      "fingerprint_format": "sha256:<64-hex> from input 'QD5|file|line|probe_id|issue_type' (5 input tokens)",
+      "note": "WCAG 1.1.1: <img src='/logo.png' /> with no alt attribute and no aria-hidden=true → Check 1 emits HIGH"
+    },
+    {
+      "id": "exp-qd5-002",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-02-input-no-label.tsx",
+      "match_pattern": "input_no_label",
+      "fingerprint_format": "sha256:<64-hex> from input 'QD5|file|line|probe_id|issue_type' (5 input tokens)",
+      "note": "WCAG 1.3.1: <input type='text' name='email' /> — type not in {hidden,submit,button,reset,image} and no aria-label/labelledby → Check 2 emits HIGH"
+    },
+    {
+      "id": "exp-qd5-003",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": "medium",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-03-positive-tabindex.html",
+      "match_pattern": "tabindex_positive",
+      "fingerprint_format": "sha256:<64-hex> from input 'QD5|file|line|probe_id|issue_type' (5 input tokens)",
+      "note": "WCAG 2.4.3: <button tabindex=\"2\"> — value 2 > 0 → Check 3 emits MEDIUM"
+    },
+    {
+      "id": "exp-qd5-004",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": "medium",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-04-invalid-role.tsx",
+      "match_pattern": "invalid_role",
+      "fingerprint_format": "sha256:<64-hex> from input 'QD5|file|line|probe_id|issue_type' (5 input tokens)",
+      "note": "WAI-ARIA: role='buttonn' typo not in VALID_ROLES list → Check 4 emits MEDIUM"
+    },
+    {
+      "id": "exp-qd5-005",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": "low",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-05-href-anti-pattern.tsx",
+      "match_pattern": "href_anti_pattern",
+      "fingerprint_format": "sha256:<64-hex> from input 'QD5|file|line|probe_id|issue_type' (5 input tokens)",
+      "note": "WCAG 2.1.1: <a href='#'>Read more</a> — href='#' is anti-pattern (use <button>) → Check 5 emits LOW"
+    },
+    {
+      "id": "exp-qd5-006",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-01-img-decorative.tsx",
+      "match_pattern": null,
+      "note": "TN-QD5-001: <img alt=\"\" /> — Check 1 explicitly skips when alt= is present (even empty string). WCAG-compliant decorative image."
+    },
+    {
+      "id": "exp-qd5-007",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-02-img-aria-hidden.tsx",
+      "match_pattern": null,
+      "note": "TN-QD5-002: <img aria-hidden=\"true\" /> — Check 1 explicit aria-hidden filter (decorative icon hidden from AT)."
+    },
+    {
+      "id": "exp-qd5-008",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-03-input-with-label.tsx",
+      "match_pattern": null,
+      "note": "TN-QD5-003: <input aria-label=\"Email address\" /> — Check 2 skips when aria-label or aria-labelledby is present."
+    },
+    {
+      "id": "exp-qd5-009",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-04-test-file.test.tsx",
+      "match_pattern": null,
+      "note": "TN-QD5-004: filename contains '.test.' → matches EXCLUDE_PATTERN regex '\\.test\\.' → all 5 checks skip the file even though markup contains 5 violations. Demonstrates path-based filtering."
+    },
+    {
+      "id": "exp-qd5-010",
+      "probe_id": "P-QD5-static-a11y-check",
+      "dimension_id": "QD5",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-05-valid-role.tsx",
+      "match_pattern": null,
+      "note": "TN-QD5-005: role values toolbar/button/dialog all present in VALID_ROLES (WAI-ARIA 1.2 abridged) → Check 4 emits 0 signals."
+    }
+  ]
+}

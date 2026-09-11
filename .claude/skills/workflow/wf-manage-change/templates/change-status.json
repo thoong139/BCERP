@@ -1,0 +1,162 @@
+{
+  "$schema": "change-status-v1",
+  "version": "1.0",
+  "change_id": "CHG-YYYYMMDD-NNN",
+  "skill": "wf-manage-change",
+  "project": "[PROJECT_NAME]",
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+  "phase2_retry_count": 0,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "scope": {
+    "type": "all | system | module",
+    "name": null,
+    "user_description": null
+  },
+
+  "flags": {
+    "dry_run": false,
+    "run_tests": false,
+    "analysis_mode": "auto | quick | deep"
+  },
+
+  "intake": {
+    "project_maturity": "docs_only | designed | implementing | near_done",
+    "phases_complete": [],
+    "change_type_preliminary": null,
+    "change_type_confirmed": null,
+    "analysis_mode_actual": null,
+    "unclear_points": [],
+    "deprecated_modules": [],
+    "legacy_mode": false,
+    "referenced_artifacts": {
+      "systems": [],
+      "modules": [],
+      "features": [],
+      "req_ids": []
+    }
+  },
+
+  "phases": {
+    "phase0": {
+      "name": "Intake",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase1": {
+      "name": "Analyze",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase2": {
+      "name": "Impact Assessment",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase3": {
+      "name": "Plan",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase4a": {
+      "name": "Execute — Docs",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "files_updated": 0,
+      "error": null
+    },
+    "phase4b": {
+      "name": "Execute — Code",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "files_updated": 0,
+      "error": null
+    },
+    "phase4c": {
+      "name": "Execute — Tests",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "files_updated": 0,
+      "error": null
+    },
+    "phase5": {
+      "name": "Verify",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "preflight_result": null,
+      "verify_sync_result": null,
+      "error": null
+    },
+    "phase6": {
+      "name": "Report",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    }
+  },
+
+  "impact_summary": {
+    "docs_affected": 0,
+    "code_affected": 0,
+    "tests_affected": 0,
+    "cross_systems": 0,
+    "risk_level": null,
+    "registry_changes": false
+  },
+
+  "output_files": {
+    "intake": "$SESSION_DIR/change-intake.json",
+    "analysis": "$SESSION_DIR/change-analysis.md",
+    "artifacts": "$SESSION_DIR/affected-artifacts.json",
+    "impact": "$SESSION_DIR/impact-report.md",
+    "plan": "$SESSION_DIR/change-plan.md",
+    "report": "$SESSION_DIR/change-report.md",
+    "phase_summary": "$SESSION_DIR/phase-summary.md",
+    "checkpoint": "$SESSION_DIR/checkpoint.json",
+    "_note": "$SESSION_DIR = .mc-data/work/wf-manage-change/$CHANGE_ID/"
+  },
+
+  "metrics": {
+    "experts_spawned": 0,
+    "files_read": 0,
+    "files_updated": 0,
+    "files_created": 0,
+    "mini_verifies_passed": 0,
+    "mini_verifies_failed": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0
+  },
+
+  "error_log": [],
+
+  "checkpoint": {
+    "_note": "DENORMALIZED CACHE — nguon chan ly la $SESSION_DIR/checkpoint.json (schema change-checkpoint-v1). Field nay chi dung de quick-read, KHONG ghi vao day khi co checkpoint.json.",
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "next_action": null,
+    "trigger_reason": null,
+    "session_number": null
+  }
+}

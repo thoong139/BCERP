@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fix-workload-v1",
+  "title": "Fix Workload Estimate v1",
+  "description": "Output của workload-estimator Phase 0. Input cho ISG render + Workload Gate (ADR-14) + Partition Planner (ADR-15).",
+  "type": "object",
+  "required": [
+    "$schema",
+    "workload_id",
+    "estimated_at",
+    "profile",
+    "scope",
+    "file_count",
+    "selected_dims",
+    "lanes",
+    "total_estimated_sec",
+    "gate_threshold_sec",
+    "gate_triggered"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "fix-workload-v1"
+    },
+    "workload_id": {
+      "type": "string",
+      "pattern": "^WL-[0-9]{8}-[0-9]{3}$",
+      "description": "Format: WL-YYYYMMDD-NNN"
+    },
+    "estimated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["quick", "standard", "deep", "exhaustive"]
+    },
+    "scope": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["all", "system", "module"]
+        },
+        "name": {"type": "string"}
+      }
+    },
+    "file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "selected_dims": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+      }
+    },
+    "lanes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["dim", "probes_count", "files_covered", "estimated_sec"],
+        "properties": {
+          "dim": {
+            "type": "string",
+            "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+          },
+          "probes_count": {"type": "integer", "minimum": 0},
+          "files_covered": {"type": "integer", "minimum": 0},
+          "estimated_sec": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "total_estimated_sec": {
+      "type": "number",
+      "minimum": 0
+    },
+    "gate_threshold_sec": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Default 45*60 = 2700; override qua env WF_FIX_BUGS_WORKLOAD_THRESHOLD_MIN"
+    },
+    "gate_triggered": {
+      "type": "boolean",
+      "description": "true khi total_estimated_sec > gate_threshold_sec"
+    },
+    "partition_plans": {
+      "type": "array",
+      "description": "Chỉ populated khi gate_triggered=true (ADR-15)",
+      "items": {
+        "type": "object",
+        "required": ["kind", "batches", "estimated_sec_per_batch"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["by_scope", "by_dim"]
+          },
+          "batches": {
+            "type": "array",
+            "items": {"type": "object"}
+          },
+          "estimated_sec_per_batch": {"type": "number", "minimum": 0}
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

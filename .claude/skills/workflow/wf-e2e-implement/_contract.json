@@ -1,0 +1,158 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-implement",
+  "version": "1.0.0",
+  "phase": "F4 — Delegate implement-required entries to wf-implement-feature + update registry SAFE-UPDATE",
+  "description": "F4 trong chuỗi wf-e2e-* (NEW skill — không có trong wf-e2e-verify cũ). Đọc implement-required.json status=pending → DELEGATE /wf-implement-feature cho từng entry → verify → UPDATE registry.impl_status SAFE-UPDATE (CORE-008) + entry status=done. KHÔNG inline implement (giữ PRIMARY ownership của wf-implement-feature). v1.0.0 (2026-05-13).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/read-impl-required.md",
+    "procedures/delegate-impl-feature.md",
+    "procedures/verify-completion.md",
+    "procedures/safe-update-registry.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/implement-required.json",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "required_conditions": [
+      "Session tồn tại",
+      "implement-required.json có ≥1 entry status=pending",
+      "Registry hợp lệ",
+      "--session=<id>"
+    ],
+    "forensic_validation": "jq -e '[.entries[] | select(.status==\"pending\")] | length > 0' implement-required.json"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/implement-required.json",
+      "required": true,
+      "description": "Implement queue SSOT từ F1/F2"
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "required": true,
+      "description": "Registry — SAFE-UPDATE impl_status sau delegate"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/",
+      "required": true,
+      "description": "Context findings để inform implement strategy"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    },
+    {
+      "path": "--session=<id> arg",
+      "required": true,
+      "description": "Session ID"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F4-implement/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F4 state — entries_total, entries_processed, current_impl_req_id"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F4-implement/impl-log.json",
+        "required": true,
+        "template": null,
+        "description": "Per-entry delegate log: {id, strategy, delegate_session, result, registry_update}"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F4-implement/delegate-receipts/",
+        "required": true,
+        "template": null,
+        "description": "Raw receipts từ wf-implement-feature sessions"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/implement-required.json",
+        "required": true,
+        "template": "templates/implement-required.template.json",
+        "description": "UPDATE per entry: status (pending → in_progress → done/skipped), implemented_at, implementer, delegate_session_id, code_refs[]"
+      },
+      {
+        "path": ".mc-data/docs/_meta/req-registry.json",
+        "required": true,
+        "template": null,
+        "description": "SAFE-UPDATE per REQ-ID: impl_status (chỉ upgrade, CORE-008 không downgrade)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F4-implement/Phase-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 F4 summary"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": ["impl_status (per REQ-ID, SAFE-UPDATE)"],
+    "write_role": "SAFE-UPDATE",
+    "safe_write_rule": "CORE-008 — chỉ upgrade impl_status, không downgrade từ 'done'. CORE-006 — chỉ modify field impl_status, giữ nguyên các field khác.",
+    "note": "wf-implement-feature giữ PRIMARY role. F4 chỉ SAFE-UPDATE sau khi delegate hoàn tất, nếu delegate đã ghi rồi thì F4 chỉ verify không re-write."
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-retest": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json (done entries to verify)",
+        ".mc-data/docs/_meta/req-registry.json (updated impl_status)"
+      ]
+    },
+    "consumes_from": {
+      "wf-e2e-test": [".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json"],
+      "wf-e2e-browser": [".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json"]
+    },
+    "orchestrates": [
+      {
+        "phase": "per-entry",
+        "skill": "wf-implement-feature",
+        "trigger": "For each implement-required entry status=pending",
+        "passes": ["REQ-ID hoặc FEAT-ID", "implementation_strategy (VERIFY_ONLY|COMPLETE_EXISTING|IMPLEMENT_NEW)", "context findings", "expected_behavior"],
+        "validation": "Read delegate session impl-status.json → verify code committed → check registry impl_status updated"
+      }
+    ],
+    "spawned_by": "wf-e2e-verify orchestrator (sau F3 unblock, conditional on implement-required có pending)"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E040-E049",
+    "description": "F4 delegate wf-implement-feature + SAFE-UPDATE registry",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E040-E049",
+    "specific": {
+      "E040": "implement-required.json không có pending",
+      "E041": "--session thiếu",
+      "E042": "Schema invalid",
+      "E043": "Delegate spawn fail",
+      "E044": "Delegate timeout (30 min/item)",
+      "E045": "Registry SAFE-UPDATE refused (downgrade attempt)",
+      "E046": "Registry update fail (corrupted)",
+      "E047": "Delegate receipt malformed",
+      "E048": "POST-GATE T4 registry mismatch",
+      "E049": "Atomic write fail"
+    }
+  }
+}

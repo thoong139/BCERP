@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dim-selection-v1",
+  "title": "ISG Dimension Selection",
+  "description": "Output của _shared/isg/ — ghi nhận QD nào user đã chọn + rationale + safety floor status. B1 skeleton.",
+  "type": "object",
+  "required": [
+    "$schema",
+    "selected_at",
+    "profile",
+    "scope",
+    "recommendations",
+    "selected",
+    "safety_floor_enforced",
+    "source_signals"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "dim-selection-v1"
+    },
+    "selected_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp khi user xác nhận selection"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["quick", "standard", "deep", "exhaustive"]
+    },
+    "scope": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["all", "system", "module"]
+        },
+        "name": {
+          "type": "string",
+          "description": "system-id hoặc module-id khi type != all"
+        }
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "description": "Đề xuất của ISG cho 11 QD, kể cả chiều user bỏ qua",
+      "items": {
+        "type": "object",
+        "required": ["dim", "strength", "reason"],
+        "properties": {
+          "dim": {
+            "type": "string",
+            "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+          },
+          "strength": {
+            "type": "string",
+            "enum": ["strong", "weak", "none"]
+          },
+          "reason": {
+            "type": "string",
+            "description": "Lý do tiếng Việt có dấu, ≥10 ký tự"
+          }
+        }
+      }
+    },
+    "selected": {
+      "type": "array",
+      "description": "QD được chọn để chạy lane",
+      "items": {
+        "type": "string",
+        "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "skipped": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+      },
+      "uniqueItems": true
+    },
+    "skipped_rationale": {
+      "type": "string",
+      "description": "Giải thích tiếng Việt vì sao các QD bị bỏ qua"
+    },
+    "safety_floor_enforced": {
+      "type": "boolean",
+      "description": "ADR-22 rule 1: true nếu profile ≥ standard và selected ∩ {QD1, QD2, QD5} != ∅"
+    },
+    "cdg_confirmations": {
+      "type": "array",
+      "description": "Danh sách CDG token user đã gõ để override (CORE-027)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_signals": {
+      "type": "object",
+      "properties": {
+        "git_diff_files": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "preflight_available": {
+          "type": "boolean"
+        },
+        "preflight_critical_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "preflight_warn_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "domain": {
+          "type": ["string", "null"]
+        },
+        "interface_type": {
+          "type": ["string", "null"],
+          "enum": [null, "api-only", "web", "mobile", "hybrid"]
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

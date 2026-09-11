@@ -1,0 +1,14 @@
+# Force LF line endings cho shell scripts để chạy được trên Linux/WSL2 bash subprocess.
+# (Git Bash trên Windows tolerate CRLF nhưng WSL2 bash thì không — gây error
+# "$'\r': command not found" và "set: pipefail: invalid option" khi script bị
+# checkout với CRLF trên Windows + autocrlf=true.)
+*.sh text eol=lf
+
+# Force LF cho TẤT CẢ files trong .claude/ — agents/skills đọc các template MD,
+# parse bảng, extract giá trị (vd: DIM_DIR table). CRLF ở cuối token → mkdir tạo
+# folder có ký tự `\r` ẩn → duplicate folders trên filesystem. Xem CLAUDE.md
+# §Skill Architecture (CORE-032).
+.claude/** text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.py text eol=lf

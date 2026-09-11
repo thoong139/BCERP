@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "phase": "phase2-features",
+  "description": "Template compliance contracts for Phase 2 Feature Specification documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "templates": {
+    "feature-spec": {
+      "template_file": "phase2-features/[system-name]/[module-name]/[feature-name].md",
+      "description": "Feature specification — user stories, business rules, state machine",
+      "output_pattern": ".mc-data/docs/phase2-features/**/**/*.md",
+      "output_pattern_exclude": ".mc-data/docs/phase2-features/stakeholder-review.md",
+      "required_sections": [
+        "## Thông Tin Chung",
+        "## 1. Mô Tả Tính Năng",
+        "## 2. Luồng Người Dùng",
+        "## 3. Quy Tắc Nghiệp Vụ",
+        "## 4. Phân Quyền",
+        "## 5. Trường Hợp Đặc Biệt",
+        "## 7. Tóm Tắt Entity",
+        "## Tài Liệu Kĩ Thuật Liên Quan"
+      ],
+      "optional_sections": [
+        "## 6. Trạng Thái & Chuyển Đổi"
+      ],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "Section 6 State Machine là optional — xóa nếu entity không có state transitions"
+    },
+    "stakeholder-review": {
+      "template_file": "phase2-features/stakeholder-review.md",
+      "description": "Stakeholder review — feature cross-review, consistency, gap analysis",
+      "output_pattern": ".mc-data/docs/phase2-features/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    }
+  }
+}

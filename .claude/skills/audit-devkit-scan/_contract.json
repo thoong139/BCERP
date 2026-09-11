@@ -1,0 +1,162 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "audit-devkit-scan",
+  "version": "3.0.0",
+  "phase": "devkit-audit",
+  "description": "Scan DEVKIT components theo batches (≤20 files/batch), spawn auditor agents, build ground truth findings index. v3.0 refactored: monolithic SKILL.md tách thành procedures/ (9 files lazy-load per phase) + templates/ (4 JSON schemas, CORE-031 compliance). Hỗ trợ focused scan (--skill=<name>) và delta scan (--since=<commit>). Criteria S1-S12 cho skills, A1-A6 cho agents, T1-T5 cho templates.",
+  "prerequisites": {
+    "files": [
+      ".claude/agents/",
+      ".claude/skills/",
+      ".claude/doc-framework/",
+      ".claude/hooks/",
+      ".claude/rules/"
+    ],
+    "registry_fields": [],
+    "notes": "Yêu cầu DEVKIT components tồn tại để scan"
+  },
+  "arguments": {
+    "scope": {
+      "default": "--all",
+      "options": [
+        "--agents",
+        "--skills",
+        "--templates",
+        "--rules",
+        "--hooks",
+        "--all",
+        "--skill=<name>"
+      ],
+      "description": "Component scope. --skill=<name> = focused scan cho 1 skill, skip Wave 1/3/3.5/4"
+    },
+    "delta_scan": {
+      "default": null,
+      "options": [
+        "--since=<commit>"
+      ],
+      "description": "Chỉ scan files thay đổi từ commit. Lấy changed files qua git diff --name-only"
+    },
+    "resume": {
+      "default": null,
+      "options": [
+        "--resume"
+      ],
+      "description": "Resume từ checkpoint scan-status.json"
+    },
+    "component_alias": {
+      "default": null,
+      "options": [
+        "--component=agents|skills|templates|rules|hooks|all"
+      ],
+      "description": "Alias format thay thế cho --agents/--skills/etc. --component=X có higher priority khi cả 2 formats được cung cấp"
+    }
+  },
+  "inputs": [
+    {
+      "path": ".claude/agents/",
+      "description": "Agent definitions",
+      "required": true
+    },
+    {
+      "path": ".claude/skills/",
+      "description": "Skill definitions",
+      "required": true
+    },
+    {
+      "path": ".claude/doc-framework/",
+      "description": "Template files",
+      "required": true
+    },
+    {
+      "path": ".claude/hooks/",
+      "description": "Hook scripts",
+      "required": true
+    },
+    {
+      "path": ".claude/rules/",
+      "description": "Rule files",
+      "required": true
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/audit-index.json",
+        "notes": "Schema audit-index-v1. Phase 0 populates components.{agents,skills,templates,rules,hooks,references,scripts}[] + master_plan_components placeholders. Wave 4 fills master_plan_components.*",
+        "required": true,
+        "description": "Master ground truth index của tất cả DEVKIT components scanned"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/findings-*.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/findings.json",
+        "notes": "Schema audit-findings-v1. Mỗi batch (Wave 1-3) tạo 1 file. Tổng up to 13 files (5 agents + 2 skills + 2 templates + 1 rules + 1 hooks + 1 scripts + 1 focused).",
+        "required": true,
+        "description": "Findings JSON files per component batch. Mỗi finding có: id, severity, category (functional|structural), criterion_group, issue, fix_type, fix_proposal, evidence"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/findings-scripts.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/findings.json",
+        "notes": "Schema audit-findings-v1. Wave 3.5 Bash verify: syntax, shebang, path refs.",
+        "required": false,
+        "description": "Script utility scan findings"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/findings-masterplan-*.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/findings.json",
+        "notes": "Schema audit-findings-v1. Up to 7 files (MP-1 → MP-7), optional — chỉ tạo khi thành phần Master Plan tồn tại.",
+        "required": false,
+        "description": "Master Plan component findings (Wave 4)"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/findings-skills-focused.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/findings.json",
+        "notes": "Schema audit-findings-v1. Chỉ tạo khi --skill=<name> mode.",
+        "required": false,
+        "description": "Focused skill scan findings"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/audit-scan-result.json",
+        "notes": "Schema audit-scan-result-v1. Phase 2 merges + dedups (2-tier) tất cả findings-*.json.",
+        "required": true,
+        "description": "Aggregated scan results: merged findings, 2-tier dedup log, summary per severity"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/scan-status.json",
+        "template": ".claude/skills/audit-devkit-scan/templates/scan-status.json",
+        "notes": "Status tracking cho resume support. Updated sau mỗi POST-GATE phase/wave.",
+        "required": true,
+        "description": "Scan progress tracking + heartbeat (CORE-030)"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/phase-summary.md",
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "notes": "CORE-028 + Protocol §14: tóm tắt scan kết quả cho non-technical user, tiếng Việt, ≤15 dòng. Tạo sau Phase 3 summary.",
+        "required": true,
+        "description": "Phase summary cho non-technical user (CORE-028)"
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Không cập nhật registry"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Read-only — không update registry"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "audit-devkit-verify": [
+        ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+        ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json",
+        ".mc-data/work/audit-devkit-scan/[session]/findings-*.json"
+      ]
+    },
+    "consumes_from": {}
+  }
+}

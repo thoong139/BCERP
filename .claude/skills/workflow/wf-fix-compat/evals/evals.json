@@ -1,0 +1,280 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-compat",
+  "version": "1.0.0",
+  "description": "Evals cho QD7 Browser/API/Device Compatibility Lane — kiem tra probe output quality, signal schema compliance, va profile-based probe selection.",
+  "test_cases": [
+    {
+      "id": "TC-QD7-001",
+      "name": "Standard profile chay 4 probes, skip device-breakpoint-test",
+      "type": "stub",
+      "input": {
+        "scenario": "Chay wf-fix-compat voi profile=standard, co source code (src/), khong co BASE_URL",
+        "profile": "standard",
+        "source_code_exists": true,
+        "base_url": null,
+        "has_api_routes": true,
+        "browserslist": "> 0.5%, not dead"
+      },
+      "expected": {
+        "probes_run": [
+          "P-QD7-browser-compat-check",
+          "P-QD7-api-version-compat",
+          "P-QD7-deprecated-api-usage",
+          "P-QD7-polyfill-coverage"
+        ],
+        "probes_skipped": [
+          "P-QD7-device-breakpoint-test"
+        ],
+        "signals_file_valid": true,
+        "signals_have_dimension_id": "QD7",
+        "lane_status": "completed"
+      },
+      "validation": "P-QD7-polyfill-coverage phai chay (standard+). P-QD7-device-breakpoint-test phai bi skip (deep+ only). Signals.json phai pass POST-GATE T1-T4."
+    },
+    {
+      "id": "TC-QD7-002",
+      "name": "Quick profile skip polyfill + breakpoint probes",
+      "type": "stub",
+      "input": {
+        "scenario": "Chay wf-fix-compat voi profile=quick, co source code",
+        "profile": "quick",
+        "source_code_exists": true,
+        "base_url": "http://localhost:3000",
+        "has_deprecated_apis": true
+      },
+      "expected": {
+        "probes_run": [
+          "P-QD7-browser-compat-check",
+          "P-QD7-api-version-compat",
+          "P-QD7-deprecated-api-usage"
+        ],
+        "probes_skipped": [
+          "P-QD7-polyfill-coverage",
+          "P-QD7-device-breakpoint-test"
+        ],
+        "signals_file_valid": true,
+        "lane_status": "completed"
+      },
+      "validation": "Quick profile chi chay 3 probes. Polyfill (standard+) va breakpoint (deep+) phai bi skip."
+    },
+    {
+      "id": "TC-QD7-003",
+      "name": "POST-GATE T1-T4 validation tren signals.json",
+      "type": "stub",
+      "input": {
+        "scenario": "Lane hoan thanh, signals.json co 3 signals tu browser-compat-check + 1 tu deprecated-api-usage",
+        "signals": [
+          {
+            "probe_id": "P-QD7-browser-compat-check",
+            "dimension_id": "QD7",
+            "signal_type": "browser_compat",
+            "description": "Su dung CSS :has() khong co fallback",
+            "evidence": {
+              "code_snippet": ".card:has(.badge) { border: 2px solid gold; }",
+              "caniuse_coverage": "85.3%"
+            },
+            "suggested_severity": "high"
+          },
+          {
+            "probe_id": "P-QD7-deprecated-api-usage",
+            "dimension_id": "QD7",
+            "signal_type": "deprecated_api",
+            "description": "Su dung document.execCommand('copy')",
+            "evidence": {
+              "code_snippet": "document.execCommand('copy');",
+              "replacement": "navigator.clipboard.writeText(text)",
+              "mdn_status": "deprecated"
+            },
+            "suggested_severity": "high"
+          }
+        ]
+      },
+      "expected": {
+        "T1_existence": true,
+        "T2_structure": true,
+        "T3_content": true,
+        "T4_cross_reference": true
+      },
+      "validation": "T1: file ton tai non-empty. T2: co $schema + signals[] array. T3: moi signal co probe_id + dimension_id=QD7 + evidence co it nhat 1 field. T4: probe_id match ^P-QD[1-8]-[a-z0-9-]+$"
+    },
+    {
+      "id": "TC-QD7-004",
+      "name": "Deprecated API probe phat hien document.execCommand",
+      "type": "stub",
+      "input": {
+        "scenario": "Source code co su dung document.execCommand('copy') va moment.js",
+        "source_files": {
+          "src/components/CopyButton.tsx": "document.execCommand('copy');",
+          "package.json": {
+            "dependencies": {
+              "moment": "^2.29.0"
+            }
+          }
+        },
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count": 2,
+        "signal_types": [
+          "deprecated_api",
+          "deprecated_api"
+        ],
+        "severities": [
+          "high",
+          "medium"
+        ],
+        "has_evidence": true,
+        "probe_id": "P-QD7-deprecated-api-usage"
+      },
+      "validation": "Signal 1: document.execCommand → HIGH (deprecated browser API). Signal 2: moment.js → MEDIUM (deprecated package). Moi signal phai co evidence.replacement."
+    },
+    {
+      "id": "TC-QD7-005",
+      "name": "Khong co source code — tat ca static probes skip",
+      "type": "stub",
+      "input": {
+        "scenario": "Project chi co API backend, khong co frontend code. Khong co src/ directory.",
+        "profile": "standard",
+        "source_code_exists": false,
+        "base_url": null
+      },
+      "expected": {
+        "probes_run": [],
+        "probes_skipped": [
+          "P-QD7-browser-compat-check",
+          "P-QD7-api-version-compat",
+          "P-QD7-deprecated-api-usage",
+          "P-QD7-polyfill-coverage",
+          "P-QD7-device-breakpoint-test"
+        ],
+        "signals_count": 0,
+        "lane_status": "completed",
+        "lane_report_notes": "Tat ca probes bi skip vi khong co source code"
+      },
+      "validation": "Khong co signals khi khong co source code. Lane van phai completed (khong fail). Lane-report.md phai ghi ly do skip."
+    },
+    {
+      "id": "TC-S11-schema-uniformity-QD7",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD7 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-compat voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD7",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD7' + signals[*].dimension_id='QD7'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD7",
+      "name": "Probe lazy-load: SKILL.md routing table list 5 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD7 lane phai liet ke 5 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-compat voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-compat/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 5,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 5,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 5 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD7-006",
+      "name": "D15 audit CRITICAL: heredoc PWEOF bug — device-breakpoint-test output literal '${WIDTH}'",
+      "description": "Phase 2 D15 CRITICAL: P-QD7-device-breakpoint-test.md (probe spec) co heredoc voi single-quoted delimiter '<< PWEOF'. Trong bash, single-quoted heredoc KHONG expand variables → ${WIDTH}, ${HEIGHT}, ${URL} la literal strings trong Playwright config → probe FUNDAMENTALLY BROKEN if executed as-spec'd. IMP-QD7-014 (P0): rewrite theo QD4 temp-file pattern.",
+      "type": "stub",
+      "input": {
+        "scenario": "Spawn wf-fix-compat voi profile=deep. P-QD7-device-breakpoint-test chay voi DEFAULT_BREAKPOINTS=[{width:375,height:812}] va BASE_URL='http://localhost:3000'. Do heredoc PWEOF, Playwright config nhan '${WIDTH}' literal thay vi 375.",
+        "breakpoints": [{"width": 375, "height": 812}],
+        "base_url": "http://localhost:3000",
+        "probe_file": ".claude/skills/workflow/wf-fix-compat/procedures/probes/P-QD7-device-breakpoint-test.md",
+        "heredoc_line": 105
+      },
+      "expected": {
+        "current_behavior": "Playwright receives literal '${WIDTH}'/'${HEIGHT}'/'${URL}' → launch fails OR tests wrong viewport",
+        "expected_after_IMP_QD7_014": "Use temp file pattern (like QD4 CWV): write Playwright config to /tmp/playwright-compat-$$.js → run → cleanup",
+        "probe_status_pre_fix": "FUNDAMENTALLY_BROKEN",
+        "probe_status_post_fix": "WORKING"
+      },
+      "validation": "TRUOC IMP-QD7-014: probe spec uses '<< PWEOF' (single-quoted) → bash variable expansion disabled → Playwright config broken. SAU IMP-QD7-014: phai dung temp file pattern hoac double-quoted heredoc << EOF. Root cause: bash $VAR vs JS template literal confusion in same file (AF-D1).",
+      "audit_ref": "08-qd7-compat-audit.md Phase 2 D15 CRITICAL + Phase 3 SPEC_GAP D15 + IMP-QD7-014",
+      "imp_target": "IMP-QD7-014",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD7-007",
+      "name": "D10 audit: broken CDG bash — deprecated probe emit CDG-DEPS-DOWN nhung cdg=false",
+      "description": "Phase 2 D10: wf-fix-probe-static-deprecated.sh (bash) line 210 emit signal voi cdg_flags: ['CDG-DEPS-DOWN'] khi deprecated dependency resolution fails. Nhung dim.json co cdg=false → CDG handler khong dang ky → flag bi IGNORE. Same pattern nhu QD4-D4. IMP-QD7-007 (P1 MERGE QD4-D4): fix consistency: cdg=true in dim.json OR remove CDG emit from bash.",
+      "type": "stub",
+      "input": {
+        "scenario": "wf-fix-probe-static-deprecated.sh chay, npm registry unavailable cho package version check. Probe line 210 emit cdg_flags=['CDG-DEPS-DOWN']. dim.json co cdg=false.",
+        "bash_probe": ".claude/scripts/wf-fix-probe-static-deprecated.sh",
+        "bash_line": 210,
+        "dim_json_cdg_current": false,
+        "mock_npm_status": "registry_unavailable"
+      },
+      "expected": {
+        "current_behavior": "CDG-DEPS-DOWN emitted by bash but ignored (cdg=false) → orchestrator not aware of registry failure",
+        "expected_after_IMP_QD7_007": "EITHER dim.json cdg=true + handler registered, OR bash probe removes cdg_flags emit",
+        "cross_dim_match": "QD4-D4 (same pattern in wf-fix-probe-static-perf.sh line 210)"
+      },
+      "validation": "TRUOC IMP-QD7-007: CDG-DEPS-DOWN trong signal khong duoc xu ly → npm registry failure silently ignored. SAU IMP-QD7-007: consistent (cdg flag = dim.json cdg setting). Cross-dim: QD4 TC-audit-QD4-001 co same test. IMP-024 CDG Governance (5-dim) merge.",
+      "audit_ref": "08-qd7-compat-audit.md Phase 2 D10 + wf-fix-probe-static-deprecated.sh line 210 + IMP-QD7-007",
+      "imp_target": "IMP-QD7-007",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD7-008",
+      "name": "Phase 3 audit: cascade signal — 1 file line → 2 signals (HIGH deprecated_api + MEDIUM deprecated_pkg)",
+      "description": "Phase 3 Test Fixture pos-01: fixtures/qd7-test/positive/pos-01-execCommand.tsx co document.execCommand('copy') tren 1 dong. Live probe wf-fix-probe-static-deprecated.sh emit 2 signals: HIGH (deprecated_api: execCommand) + MEDIUM (deprecated_pkg: do 2 patterns khac nhau match same line). Hien tuong cascade signal = expected behavior, khong phai bug. Verify regression sau IMP-QD7-013 cross-probe dedup.",
+      "type": "stub",
+      "input": {
+        "scenario": "Source file pos-01-execCommand.tsx co: document.execCommand('copy') tren line 3. Probe pattern #1 match execCommand → HIGH. Pattern #3 match 'copy' trong broader context → MEDIUM. 1 line → 2 signals.",
+        "code_file": "fixtures/qd7-test/positive/pos-01-execCommand.tsx",
+        "line": 3,
+        "code": "document.execCommand('copy');",
+        "profile": "quick",
+        "probe": "P-QD7-deprecated-api-usage"
+      },
+      "expected": {
+        "signals_count": 2,
+        "signal_1": {"signal_type": "deprecated_api", "severity": "high", "pattern": "execCommand"},
+        "signal_2": {"signal_type": "deprecated_api", "severity": "medium", "pattern": "copy context"},
+        "is_false_positive": false,
+        "behavior_note": "Cascade = expected (2 patterns legitimately match) — documented in Phase 3"
+      },
+      "validation": "Probe phai emit 2 signals cho 1 dong do 2 patterns overlap. Sau IMP-QD7-013 (cross-probe dedup): dedup chi apply khi SAME probe emits identical signals — khong remove cascade signals tu different patterns. Fixture verified Phase 3 Phien 37: cascade pos-01 HIGH+MEDIUM documented.",
+      "audit_ref": "08-qd7-compat-audit.md Phase 3 pos-01 cascade behavior + accuracy-report.md + IMP-QD7-013",
+      "imp_target": "IMP-QD7-013 (cross-probe dedup — must not remove legitimate cascade)",
+      "status": "stub"
+    }
+  ]
+}

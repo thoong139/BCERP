@@ -1,0 +1,182 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory/ui-manifest-v1",
+  "title": "Inventory: UI Manifest",
+  "description": "Consolidated UI structure with route mapping — generated during legacy scan Stage 1 when screens detected. Output: .mc-data/work/legacy-scan/inventory/ui-manifest.json",
+  "type": "object",
+  "required": ["$schema", "generated_at", "project_root", "frameworks", "total_screens", "total_routes", "empty_project", "screens", "infrastructure_screens", "route_config_files", "coverage", "_coverage_invariant"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "inventory/ui-manifest-v1",
+      "description": "Schema identifier"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp khi manifest duoc tao"
+    },
+    "project_root": {
+      "type": "string",
+      "description": "Root directory cua frontend app — vd: '' (root), 'apps/frontend/', 'src/'. Monorepo: moi app co project_root rieng"
+    },
+    "frameworks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "version", "detection_source", "screen_count"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Framework name — vd: nextjs, react, vue, angular"
+          },
+          "version": {
+            "type": "string",
+            "description": "Phien ban chinh — vd: '14.2', '18.0'. 'unknown' neu khong detect duoc"
+          },
+          "detection_source": {
+            "type": "string",
+            "description": "Nguon phat hien — vd: 'package.json', 'import-analysis'"
+          },
+          "screen_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "So screens thuoc framework nay"
+          }
+        }
+      },
+      "description": "Frameworks phat hien duoc va so screens tuong ung"
+    },
+    "total_screens": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tong so screens (bao gom infrastructure screens)"
+    },
+    "total_routes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tong so unique routes phat hien duoc"
+    },
+    "empty_project": {
+      "type": "boolean",
+      "description": "true khi khong co screens nao (screen_count == 0). Downstream skills skip khi true"
+    },
+    "screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "name", "type", "route", "route_source", "module_hint"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path tu project root — vd: 'app/users/page.tsx'"
+          },
+          "name": {
+            "type": "string",
+            "description": "Ten file — vd: 'page.tsx'"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["page", "layout", "modal", "component", "error", "loading", "template", "default"],
+            "description": "Loai UI element — phan loai tu filename"
+          },
+          "route": {
+            "type": ["string", "null"],
+            "description": "URL route tuong ung — vd: '/users', '/users/[id]'. null neu khong detect duoc route"
+          },
+          "route_source": {
+            "type": "string",
+            "enum": ["file-system", "jsx-route", "config-object", "decorator", "unknown"],
+            "description": "Nguon route detection — file-system cho Next.js App/Pages Router, jsx-route cho React Router JSX, config-object cho createBrowserRouter, decorator cho Angular"
+          },
+          "route_group": {
+            "type": ["string", "null"],
+            "description": "Next.js route group — vd: 'admin' tu app/(admin)/users/page.tsx. null neu khong co"
+          },
+          "parallel_slot": {
+            "type": ["string", "null"],
+            "description": "Next.js parallel route slot — vd: 'modal' tu app/@modal/(.)photo/[id]/page.tsx. null neu khong co"
+          },
+          "intercepts": {
+            "type": ["string", "null"],
+            "description": "Intercepted route — vd: '/photo/[id]' khi dung intercepting routes. null neu khong co"
+          },
+          "module_hint": {
+            "type": "string",
+            "description": "Goi y module tu directory structure — vd: 'users' tu app/users/page.tsx"
+          },
+          "child_screens": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Danh sach paths cua screens con (sub-routes)"
+          },
+          "is_modal": {
+            "type": "boolean",
+            "description": "true neu screen la modal (parallel slot hoac directory modals/)"
+          },
+          "is_layout": {
+            "type": "boolean",
+            "description": "true neu screen la layout file (layout.tsx, _app.tsx)"
+          }
+        }
+      },
+      "description": "Danh sach screens voi route mapping"
+    },
+    "infrastructure_screens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "name", "type"],
+        "properties": {
+          "path": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string" }
+        }
+      },
+      "description": "Screens ha tang — layout, error, loading, not-found, default, template, global-error, middleware, _app, _document, opengraph-image, sitemap, robots, favicon, icon, apple-icon, route (API). Khong tinh vao coverage"
+    },
+    "route_config_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "framework"],
+        "properties": {
+          "path": { "type": "string", "description": "Duong dan file cau hinh route" },
+          "framework": { "type": "string", "description": "Framework su dung file nay" }
+        }
+      },
+      "description": "Files cau hinh route — vd: router.ts, app-routing.module.ts, app.config.ts"
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["screens_with_routes", "screens_without_routes", "routes_without_screens", "infrastructure_count"],
+      "properties": {
+        "screens_with_routes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Screens co route tuong ung"
+        },
+        "screens_without_routes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Screens khong tim thay route (config-based routing co the miss)"
+        },
+        "routes_without_screens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Routes tu config khong tim thay screen file tuong ung"
+        },
+        "infrastructure_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Screens ha tang (khong tinh vao business coverage)"
+        }
+      }
+    },
+    "_coverage_invariant": {
+      "type": "string",
+      "description": "Invariant kiem tra: total_screens = screens_with_routes + screens_without_routes",
+      "const": "total_screens = screens_with_routes + screens_without_routes"
+    }
+  }
+}

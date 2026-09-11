@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "extracted-module-v1",
+  "title": "Extracted Module",
+  "description": "Requirements + features extracted per module during Stage 3. Output: .mc-data/work/legacy-scan/extracted/{normalized-module-name}.json. Module name phải là lowercase-kebab-case (CORE-017).",
+  "type": "object",
+  "required": ["module", "system", "requirements", "features", "stats", "extracted_at"],
+  "properties": {
+    "module": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Tên module — lowercase-kebab-case (CORE-017). Vd: customer-management, order-processing"
+    },
+    "system": {
+      "type": "string",
+      "description": "Tên system chứa module này — vd: crm, erp, ecommerce"
+    },
+    "requirements": {
+      "type": "array",
+      "description": "Danh sách requirements extracted từ source code + docs. TMP-IDs sẽ được thay bằng REQ-IDs chính thức trong Stage 4.",
+      "items": { "$ref": "#/definitions/extracted_item" }
+    },
+    "features": {
+      "type": "array",
+      "description": "Danh sách features extracted. TMP-IDs sẽ được thay bằng FEAT-IDs chính thức trong Stage 4.",
+      "items": { "$ref": "#/definitions/extracted_item" }
+    },
+    "stats": {
+      "type": "object",
+      "required": ["total_requirements", "total_features", "high_confidence_count", "inferred_count", "guessed_count"],
+      "properties": {
+        "total_requirements": { "type": "integer", "minimum": 0 },
+        "total_features": { "type": "integer", "minimum": 0 },
+        "high_confidence_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Items có confidence >= 0.8"
+        },
+        "inferred_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Items có confidence 0.5-0.79"
+        },
+        "guessed_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Items có confidence < 0.5"
+        }
+      }
+    },
+    "extracted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp khi extract"
+    }
+  },
+  "definitions": {
+    "extracted_item": {
+      "type": "object",
+      "required": ["id", "title", "description", "confidence", "confidence_reason", "source_files"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^TMP-[A-Z0-9-]+-\\d{3}$",
+          "description": "Temporary ID — format: TMP-[MODULE_UPPER]-[NNN]. Vd: TMP-CUST-001. Sẽ được thay bằng REQ/FEAT ID chính thức trong Stage 4."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Tiêu đề ngắn"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Mô tả chi tiết requirement/feature"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Độ tin cậy: >= 0.8 = high (rõ ràng từ code/docs), 0.5-0.79 = inferred (suy luận), < 0.5 = guessed (phỏng đoán)"
+        },
+        "confidence_reason": {
+          "type": "string",
+          "description": "Giải thích lý do confidence score"
+        },
+        "source_files": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Danh sách relative paths của files liên quan"
+        },
+        "keywords_matched": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Keywords từ source code/docs đã match"
+        },
+        "glossary_terms": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Terms từ glossary.json liên quan. Empty array nếu không có."
+        },
+        "acceptance_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": [],
+          "description": "Điều kiện kiểm thử. Empty array nếu không suy luận được từ source."
+        }
+      }
+    }
+  }
+}

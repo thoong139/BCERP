@@ -1,0 +1,46 @@
+{
+  "_template_notes": {
+    "purpose": "Per-lane signals output — Phase 4 Coverage Dispatch. 1 file = 1 writer (lane agent ownership). Shared schema với wf-fix-bugs lane signals. Tham chiếu 04-file-contract.md §4.6. Version bump signals-v1 → v2 PHẢI coordinate cả 2 skills (wf-cmi + wf-fix-bugs).",
+    "populate": [
+      "lane: CD{N} dimension ID (vd CD1, CD2, ...)",
+      "agent_subagent_type: agent chính của lane (vd 'business-analyst' cho CD1, 'architect' cho CD2/CD3, 'api-tester' cho CD4)",
+      "scope: từ session",
+      "scan_duration_sec: thời gian agent execute (set khi agent COMPLETED)",
+      "signals[]: 1 entry per finding — {fingerprint (sha256 dedup), dim (CD{N}), severity=MUST|SHOULD|MAY|INFO, category=MISSING_INVARIANT|VIOLATION|GAP|RECOMMENDATION, rule_id (vd INV-CRM-001), message (tiếng Việt), affected_files[], evidence[], suggested_action}",
+      "signals[].evidence[]: {file, line, snippet}",
+      "fingerprint generation: sha256(lane + rule_id + sorted(affected_files) + message)",
+      "STATUS_PASS_FAIL: PASS nếu agent completed, FAIL nếu timeout/crash/schema invalid"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "signals-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "lane": "{{LANE_ID}}",
+  "agent_subagent_type": "{{AGENT_TYPE}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "status": "PENDING",
+  "scan_duration_sec": 0,
+  "signals": [],
+  "metadata": {
+    "signal_count": 0,
+    "severity_breakdown": {
+      "MUST": 0,
+      "SHOULD": 0,
+      "MAY": 0,
+      "INFO": 0
+    },
+    "category_breakdown": {
+      "MISSING_INVARIANT": 0,
+      "VIOLATION": 0,
+      "GAP": 0,
+      "RECOMMENDATION": 0
+    },
+    "modules_covered": [],
+    "ci_source": "{{CI_SOURCE}}",
+    "fallback_used": false
+  }
+}

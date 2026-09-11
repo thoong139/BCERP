@@ -1,0 +1,54 @@
+{
+  "$schema": "profiles-v1",
+  "profiles": {
+    "quick": {
+      "dimensions": ["QD1", "QD5"],
+      "description": "Fast scan — correctness + UX baseline",
+      "estimated_time_minutes": 5
+    },
+    "standard": {
+      "dimensions": ["QD1", "QD2", "QD5", "QD9", "QD10"],
+      "description": "Balanced — correctness + business + UX + browser runtime health (3 QD9 core probes) + cross-module integration (3 QD10 static probes)",
+      "estimated_time_minutes": 20
+    },
+    "deep": {
+      "dimensions": ["QD1", "QD2", "QD5", "QD6", "QD3", "QD9", "QD10", "QD11"],
+      "description": "Thorough — thêm data integrity + security + full browser runtime (7 QD9 probes) + integration runtime (5 QD10 probes) + business completeness (2 QD11 LLM probes)",
+      "estimated_time_minutes": 55
+    },
+    "exhaustive": {
+      "dimensions": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"],
+      "description": "Full coverage — tất cả 11 dimensions (kèm QD8 Observability, QD9 Runtime Health, QD10 Cross-Module Integration, QD11 Business Completeness)",
+      "estimated_time_minutes": 120
+    }
+  },
+  "dimension_overrides": {
+    "--only": "Replace profile dimensions với user-specified list",
+    "--skip": "Remove specified dimensions từ profile",
+    "--dims": "Explicit dimension list (override profile entirely)"
+  },
+  "safety_floor": {
+    "rule": "Profile >= standard KHONG được bỏ toàn bộ QD1+QD2+QD5",
+    "applies_to": ["standard", "deep", "exhaustive"]
+  },
+  "recommended_dims": {
+    "QD9": {
+      "rule": "Nen chay QD9 khi interface_type != api-only va khong --no-browser",
+      "skip_condition": "interface_type=api-only hoac --no-browser flag",
+      "applies_when": "interface_type IN {web, mobile} VA --no-browser KHONG set",
+      "severity_if_missing": "WARN"
+    },
+    "QD10": {
+      "rule": "Nen chay QD10 khi registry co cross_module_dependencies[] non-empty",
+      "skip_condition": "cross_module_dependencies[] empty hoac profile=quick",
+      "applies_when": "cross_module_dependencies[] co it nhat 1 entry VA profile != quick",
+      "severity_if_missing": "WARN"
+    },
+    "QD11": {
+      "rule": "Nen chay QD11 khi >=2 modules VA interface_type != api-only VA profile != quick",
+      "skip_condition": "single_module hoac interface_type=api-only hoac profile=quick",
+      "applies_when": ">=2 modules VA interface_type != api-only VA profile >= standard",
+      "severity_if_missing": "WARN"
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-demo",
+  "version": "1.0.0",
+  "phase": "F8 — Playwright MCP user-guide demo + accuracy verification",
+  "description": "F8 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 phần user-guide). Chạy user-guide.md qua Playwright → demo từng bước + verify accuracy + screenshots. Optionally update user-guide.md với --auto-correct. v1.0.0 (2026-05-13).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/userguide-runner.md",
+    "procedures/verify-userguide.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/user-guide.md"
+    ],
+    "required_conditions": [
+      "Session tồn tại",
+      "user-guide.md có ≥1 step",
+      "Playwright MCP available",
+      "FE running",
+      "--session=<id>"
+    ],
+    "forensic_validation": "grep -cE '^\\*\\*Bước [0-9]+|^## Bước [0-9]+' user-guide.md | awk '$1>=1{exit 0} {exit 1}'"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/user-guide.md",
+      "required": true,
+      "description": "User-guide skeleton từ F1"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/ui-mapping.md",
+      "required": true,
+      "description": "UI mapping reference"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    },
+    {
+      "path": "--session=<id> arg",
+      "required": true,
+      "description": "Session ID"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F8-demo/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F8 state — steps_total, steps_demoed, current_step_idx, accuracy_score"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F8-demo/demo-report.md",
+        "required": true,
+        "template": null,
+        "description": "Demo report: accuracy score, per-step result, corrections needed"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/screenshots/",
+        "required": true,
+        "template": null,
+        "description": "demo-{NN}-{slug}.png + demo-00-login.png"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/user-guide.md",
+        "required": false,
+        "template": "templates/user-guide.template.md",
+        "description": "OPTIONAL UPDATE (only nếu --auto-correct) với corrections"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F8-demo/Phase-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 F8 summary"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-verify": [".mc-data/work/wf-e2e-verify/sessions/{id}/outputs/user-guide.md (optionally updated)"]
+    },
+    "consumes_from": {
+      "wf-e2e-test": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/outputs/user-guide.md",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/ui-mapping.md"
+      ]
+    },
+    "shares_lock_with": ["wf-e2e-browser", "wf-e2e-scenario"],
+    "lock_name": "browser-mcp.lock",
+    "spawned_by": "wf-e2e-verify orchestrator (sau F7 scenario)"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E080-E089",
+    "description": "F8 Playwright user-guide demo + accuracy",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E080-E089",
+    "specific": {
+      "E080": "user-guide.md không tồn tại",
+      "E081": "Playwright không available",
+      "E082": "FE không running",
+      "E083": "Login fail",
+      "E084": "Browser lock conflict",
+      "E085": "Navigate fail",
+      "E086": "Action không execute (element không tồn tại)",
+      "E087": "Expected state mismatch",
+      "E088": "POST-GATE accuracy <50%",
+      "E089": "Atomic write fail"
+    }
+  }
+}

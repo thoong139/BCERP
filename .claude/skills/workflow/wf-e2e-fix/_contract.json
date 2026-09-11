@@ -1,0 +1,134 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-fix",
+  "version": "1.0.0",
+  "phase": "F6 — Continuous fix loop cho issues.json (max 3 retry/issue)",
+  "description": "F6 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --fix). Continuous fix loop: filter status=open → sort severity → surgical fix qua Serena → spawn F5 retest → update issues. DỪNG khi hết open OR all still_fail/deferred-locked/unfixable. Max 3 retry/issue. v1.0.0 (2026-05-13).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/fix-loop.md",
+    "procedures/retry-budget.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json (or --path)"
+    ],
+    "required_conditions": [
+      "Session tồn tại",
+      "issues.json (hoặc --path) có ≥1 entry status=open",
+      "--session=<id> được cung cấp"
+    ],
+    "forensic_validation": "jq -e '[.signals[] | select(.status==\"open\")] | length > 0' issues.json"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+      "required": true,
+      "description": "Issues SSOT (default — F6 đọc + update)"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    },
+    {
+      "path": "--session=<id> arg",
+      "required": true,
+      "description": "Session ID"
+    },
+    {
+      "path": "--path=<file> arg",
+      "required": false,
+      "description": "Override path (legacy --fix=<path> support)"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F6-fix/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F6 own state — current_round, current_issue_id, issues_fixed_count"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F6-fix/fix-log.json",
+        "required": true,
+        "template": null,
+        "description": "Per-round, per-issue log: {round, file, issue_id, fix_method, result, retest_result, retry_count, locked_by}"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+        "required": true,
+        "template": "templates/issues.template.json",
+        "description": "UPDATE per ISS-NNN: status (open→fixed|still_fail|deferred-locked|unfixable), fix_attempts[] append, fixed_at, fix_note"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F6-fix/Phase-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 F6 summary"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "note": "F6 chỉ fix bugs, không update registry"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-retest": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json (fixed entries)"]
+    },
+    "consumes_from": {
+      "wf-e2e-test": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json"],
+      "wf-e2e-browser": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json"],
+      "wf-e2e-retest": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json (new findings)"]
+    },
+    "orchestrates": [
+      {
+        "phase": "post-fix",
+        "skill": "wf-e2e-retest",
+        "trigger": "After each successful surgical fix",
+        "passes": ["--session=<id>", "--scope=<issue.type>"],
+        "validation": "Read F5-retest/retest-report.md → check retest result PASS/FAIL"
+      }
+    ],
+    "spawned_by": "wf-e2e-verify orchestrator (sau F5 nếu issues.json có open) OR legacy --fix"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E060-E069",
+    "description": "F6 continuous fix loop (max 3 retry/issue)",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E060-E069",
+    "specific": {
+      "E060": "issues.json invalid hoặc rỗng",
+      "E061": "--session thiếu",
+      "E062": "--path file không tồn tại",
+      "E063": "Surgical fix fail",
+      "E064": "Lock conflict",
+      "E065": "POST-GATE fail (còn open ngoài retry budget)",
+      "E066": "gitnexus_impact HIGH/CRITICAL → user confirm",
+      "E067": "F5 spawn fail",
+      "E068": "Anti-loop F6↔F5 max 3 vòng",
+      "E069": "Atomic write fail"
+    }
+  }
+}

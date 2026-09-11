@@ -1,0 +1,46 @@
+{
+  "skill_name": "existing-project",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Tôi có một codebase NestJS tại thư mục hiện tại — đây là hệ thống quản lý bệnh viện với các modules: auth, patients, appointments, medical-records. Cấu trúc: src/auth/, src/patients/, src/appointments/, src/medical-records/, package.json, tsconfig.json. Chưa có .mc-data/ nào trước đó. Chạy /existing-project để onboard và phân tích toàn bộ project.",
+      "expected_output": "Agent xác minh codebase, kiểm tra .mc-data/ (không có), hiển thị PRE-GATE workflow, hỏi xác nhận, chạy wf-legacy-scan TRƯỚC rồi wf-brainstorm (shared skill tự detect LEGACY_MODE qua CORE-021)",
+      "files": [],
+      "expectations": [
+        "Agent chạy bash check xác minh codebase tồn tại trước khi bắt đầu (ví dụ: test -d . && ls)",
+        "Agent kiểm tra .mc-data/ có tồn tại không (Phase 0.5) — nếu không có thì tiếp tục, nếu có thì hỏi 3 options",
+        "Agent hiển thị PRE-GATE overview với workflow steps trước khi hỏi xác nhận bắt đầu",
+        "Agent chạy wf-legacy-scan (Buoc 0) TRƯỚC khi chạy wf-brainstorm (Buoc 0b.1) — đúng thứ tự sequential",
+        "Agent gọi wf-brainstorm và shared skills tự detect LEGACY_MODE qua CORE-021 (project-context.md > 500 bytes), KHÔNG truyền --from-legacy-scan flag",
+        "Agent hỏi xác nhận người dùng sau mỗi bước hoàn thành trước khi tiếp tục bước tiếp theo"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Project NestJS bệnh viện đã có .mc-data/ từ lần chạy DEVKIT trước. req-registry.json đã có đủ 'requirements' và 'features'. Thư mục .mc-data/docs/phase3-architecture/ đã tồn tại (architecture đã design xong). Giờ tôi muốn nhảy thẳng đến bước lập kế hoạch triển khai mà không chạy lại các phases trước. Chạy /existing-project --from-phase 5a",
+      "expected_output": "Agent validate '5a', kiểm tra prerequisites (requirements + features + phase3-architecture), nhảy thẳng đến Phase 5a (wf-plan-modules), hỏi xác nhận trước khi bắt đầu",
+      "files": [],
+      "expectations": [
+        "Agent validate '5a' là giá trị hợp lệ theo bảng --from-phase mapping (không báo lỗi E010)",
+        "Agent kiểm tra prerequisites: registry có 'requirements' VÀ 'features' trước khi jump",
+        "Agent kiểm tra phase3-architecture tồn tại HOẶC đã được skip trước đó (prerequisite Phase 5a)",
+        "Agent nhảy thẳng đến Phase 5a (wf-plan-modules), KHÔNG chạy lại Phases 0, 1, 2, 3, 4",
+        "Agent hỏi xác nhận người dùng trước khi bắt đầu Phase 5a"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Project NestJS bệnh viện, đang dùng DEVKIT workflow. Đã hoàn thành: Phases 0 (onboard), 1 (requirements), 2 (features), 3 (architecture), 4 (ux bị skip vì api-only), 5a (plan modules). Phase 5b đang dở: auth-service và patient-service đã implement xong (impl_status: done trong registry), nhưng appointment-service chưa hoàn thành. Chạy /existing-project --resume để tiếp tục.",
+      "expected_output": "Agent đọc checkpoint.json (G1), fallback sang output path checks (bash) nếu checkpoint không tồn tại, hiển thị progress ✅/⏭/⏳/⬜, phát hiện Phase 4 skip + Phase 5b in-progress, xác định appointment-service cần resume, hỏi xác nhận",
+      "files": [],
+      "expectations": [
+        "Agent đọc checkpoint.json trước (G1 — explicit state), fallback sang output path bash checks nếu checkpoint không tồn tại",
+        "Agent hiển thị progress table với ký hiệu ✅/⏭/⏳/⬜ cho từng bước trong workflow",
+        "Agent hiển thị Phase 4 là ⏭ (skipped/api-only), không phải ✅ hay ⏳ — dùng skip detection logic từ checkpoint.phase_4_skip_reason",
+        "Agent xác định Phase 5b là điểm resume (⏳ in-progress) bằng cách đọc checkpoint.phase_5b_progress.next_feature HOAC scan impl_status trong registry",
+        "Agent xác định appointment-service là feature chưa hoàn thành cần tiếp tục",
+        "Agent hỏi xác nhận người dùng trước khi resume từ appointment-service"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "legacy-scan-assessment-v1",
+
+  "assess_timestamp": "",
+  "project_path": "",
+
+  "project_size": "",
+
+  "scores": {
+    "code_quality": {
+      "score": 0,
+      "level": "",
+      "details": {}
+    },
+    "doc_quality": {
+      "score": 0,
+      "level": "",
+      "details": {}
+    },
+    "alignment": {
+      "score": 0,
+      "level": "",
+      "details": {}
+    }
+  },
+
+  "maturity_level": "",
+
+  "strategy": {
+    "id": "",
+    "name": "",
+    "description": "",
+    "user_confirmed": false,
+    "user_override": false,
+    "original_recommendation": ""
+  },
+
+  "stage_modes": {
+    "maturity_validation": "skip",
+    "classify": "full",
+    "extract": "full",
+    "phase0_docs": "create",
+    "phase1_docs": "create",
+    "phase2_docs": "create",
+    "phase3_docs": "create",
+    "registry": "create",
+    "gap_analysis": "full"
+  }
+}

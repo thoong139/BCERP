@@ -1,0 +1,11 @@
+{
+  "$schema": "decision-registry-global-v1",
+  "schema_version": "1.0",
+  "_schema_note": "Global decision registry — APPEND-only by /wf-implement-feature Phase 3.5. Cross-feature consistency. Feature-level decisions vẫn ghi vào $SESSION_DIR/decision-registry.json. Schema constraints: xem decision-registry-global.schema.md.",
+  "_owner": "wf-implement-feature (PRIMARY APPEND-only)",
+  "_lock_file": ".mc-data/docs/_meta/.decision-registry.lock",
+  "_target_path": ".mc-data/docs/_meta/decision-registry.global.json",
+  "created_at": "",
+  "last_updated": "",
+  "decisions": []
+}

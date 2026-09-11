@@ -1,0 +1,14 @@
+{
+  "$schema": "error-ledger-v2",
+  "_template_notes": "error-ledger.json — Error tracking for wf-fix-bugs v10.10.0. Append-only. Namespace ranges: E001-E009 (pipeline), E010-E019 (Phase 1), E020-E029 (Phase 2), E030-E039 (Phase 3), E040-E049 (Phase 4), E050-E059 (Phase 5), E060-E069 (Phase 6), E070-E079 (Phase 7), E090-E099 (CDG). Schema: error-ledger-v2.",
+  "_how_to_use": "Phase 1 init: tạo file rỗng `{\"$schema\":\"error-ledger-v2\",\"session_id\":SID,\"errors\":[]}`. APPEND error: `jq '.errors += [{phase,error_code,message,timestamp,retry_count}]'` + atomic tmp→mv. KHÔNG WRITE template thẳng (sẽ giữ placeholders).",
+  "_entry_schema": {
+    "phase": "phase1 | phase2 | ... | phase7",
+    "error_code": "E001 - E109",
+    "message": "Mô tả ngắn",
+    "timestamp": "ISO-8601",
+    "retry_count": 0
+  },
+  "session_id": "{{SESSION_ID}}",
+  "errors": []
+}

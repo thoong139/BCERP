@@ -1,0 +1,177 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-ux-a11y",
+  "version": "1.0.0",
+  "description": "Evals cho QD5 UX Consistency + Accessibility — stub",
+  "test_cases": [
+    {
+      "id": "TC-S11-schema-uniformity-QD5",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD5 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-ux-a11y voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD5-ux-a11y/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD5",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD5' + signals[*].dimension_id='QD5'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD5",
+      "name": "Probe lazy-load: SKILL.md routing table list 7 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD5 lane phai liet ke 7 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-ux-a11y voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-ux-a11y/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 7,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 7,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 7 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-P-QD5-aria-scan",
+      "name": "ARIA attribute scan detects missing labels",
+      "description": "P-QD5-aria-attribute-scan phai phat hien thieu aria-label / aria-labelledby tren interactive elements va emit signal voi suggested_severity >= MEDIUM.",
+      "input": {
+        "scenario": "Spawn wf-fix-ux-a11y voi profile=standard. Mock source code co <button>, <input>, <nav> thieu aria-label hoac aria-labelledby.",
+        "profile": "standard"
+      },
+      "expected": {
+        "detected": true,
+        "signal_count": ">=1",
+        "suggested_severity": "MEDIUM",
+        "missing_aria_elements": ["button", "input", "nav"]
+      },
+      "validation": "signals.json co signal tu P-QD5-aria-attribute-scan voi elements thieu label. Edge: component da co aria-label → khong emit false positive.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-P-QD5-color-contrast",
+      "name": "Color contrast audit finds low contrast",
+      "description": "P-QD5-color-contrast-audit phai phat hien text/background color pairs co contrast ratio < 4.5:1 (WCAG AA) va emit signal voi suggested_severity MEDIUM.",
+      "input": {
+        "scenario": "Spawn wf-fix-ux-a11y voi profile=standard. Mock CSS co color pair: #999 tren #FFF (ratio ~2.8:1).",
+        "profile": "standard"
+      },
+      "expected": {
+        "detected": true,
+        "signal_count": ">=1",
+        "suggested_severity": "MEDIUM",
+        "min_contrast_ratio": "<4.5"
+      },
+      "validation": "signals.json co signal tu P-QD5-color-contrast-audit voi evidence contrast ratio. Edge: contrast >= 4.5:1 → khong emit false positive.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-P-QD5-keyboard-nav",
+      "name": "Keyboard nav check finds missing focus indicators",
+      "description": "P-QD5-keyboard-nav-check phai phat hien thieu :focus-visible / outline tren keyboard-focusable elements va emit signal voi suggested_severity >= MEDIUM.",
+      "input": {
+        "scenario": "Spawn wf-fix-ux-a11y voi profile=deep. Mock CSS co :focus { outline: none } khong co :focus-visible fallback.",
+        "profile": "deep"
+      },
+      "expected": {
+        "detected": true,
+        "signal_count": ">=1",
+        "suggested_severity": "MEDIUM",
+        "missing_focus_indicator": true
+      },
+      "validation": "signals.json co signal tu P-QD5-keyboard-nav-check voi evidence focus indicator missing. Edge: :focus-visible defined → khong emit false positive.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD5-004",
+      "name": "D9 audit: CTA locale bias — Vietnamese CTAs khong duoc detect boi a11y probe",
+      "description": "Phase 2 D9: P-QD5-cta-text-check hardcode danh sach CTA EN-only (Submit/Save/Create/Delete/Add/Edit). App Vietnamese co CTAs (Luu lai/Tao moi/Xoa/Cap nhat/Them moi) → 100% miss tat ca Vietnamese CTAs. IMP-QD5-009 (P2): them VI CTA patterns hoac locale-configurable matching. Cross-dim: QD1 IMP-002 cung co same issue (P0).",
+      "type": "stub",
+      "input": {
+        "scenario": "React app Vietnamese co button elements ['Luu lai', 'Tao moi', 'Xoa', 'Cap nhat'] (all Vietnamese). KHONG co English CTAs. Probe checks if CTAs have proper aria-label.",
+        "code_file": "fixtures/qd5-test/positive/pos-05-vi-accessibility.tsx",
+        "profile": "standard",
+        "probe": "P-QD5-cta-text-check"
+      },
+      "expected": {
+        "current_behavior": "NO signal emitted — probe misses 100% of Vietnamese CTAs",
+        "expected_after_IMP_QD5_009": "signal emitted: signal_type='cta_locale_gap', probe detects VI CTAs missing aria-label",
+        "locale_coverage_current": "EN only",
+        "locale_coverage_target": "EN + VI minimum (configurable)"
+      },
+      "validation": "TRUOC IMP-QD5-009: probe KHONG phat hien VI CTAs thieu aria-label → a11y false negative cho toat bo app VI. SAU IMP-QD5-009: phai detect VI CTA patterns hoac emit 'locale not configured' warning. Cross-dim: QD1 TC-audit-QD1-002 co same test cho functional probe.",
+      "audit_ref": "06-qd5-ux-a11y-audit.md Phase 2 D9 + Phase 1 §5 FN-i18n + IMP-QD5-009",
+      "imp_target": "IMP-QD5-009",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD5-005",
+      "name": "D11 audit: EXCLUDE_PATTERN hardcoded — khong the config de exclude test files",
+      "description": "Phase 2 D11 + Phase 3 AF-A1: wf-fix-probe-static-a11y.sh co EXCLUDE_PATTERN hardcoded (node_modules|.test.|.spec.|dist|build). Users khong the customize EXCLUDE_PATTERN → probe scan thu muc ma user muon exclude hoac bo qua thu muc user muon include. IMP-QD5-015 (P2): config-driven EXCLUDE_PATTERN. Cross-dim: QD7 IMP-010 co same hardcoded EXCLUDE pattern.",
+      "type": "stub",
+      "input": {
+        "scenario": "Project co custom test files tai src/test-utils/ ma KHONG match pattern .test.|.spec. Probe hien tai bao gom test-utils files trong scan → false positives. User muon exclude src/legacy/ folder nhung khong co way to config.",
+        "custom_paths_to_exclude": ["src/legacy/", "src/test-utils/"],
+        "probe": "P-QD5-aria-attribute-scan",
+        "profile": "standard"
+      },
+      "expected": {
+        "current_behavior": "EXCLUDE_PATTERN hardcoded → cannot exclude src/test-utils/ or include custom paths",
+        "expected_after_IMP_QD5_015": "EXCLUDE_PATTERN configurable via session arg or .wf-fix-ux-a11y.config → user can customize",
+        "hardcoded_exclude_pattern": "node_modules|.test.|.spec.|dist|build",
+        "config_key_proposed": "QD5_EXCLUDE_PATTERN"
+      },
+      "validation": "TRUOC IMP-QD5-015: user khong the exclude custom paths → false positives hoac missed paths. SAU IMP-QD5-015: EXCLUDE_PATTERN doc tu session config hoac env var QD5_EXCLUDE_PATTERN. Cross-dim: QD7 probe co same hardcoded EXCLUDE (IMP-QD7-010 + IMP-026 global).",
+      "audit_ref": "06-qd5-ux-a11y-audit.md Phase 2 D11 + Phase 3 AF-A1 path-filter bypass + IMP-QD5-015",
+      "imp_target": "IMP-QD5-015",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD5-006",
+      "name": "AF-A1 audit: signal accumulation bash pattern — khong dung signal-emit.md helper",
+      "description": "Phase 2 AF-A1: wf-fix-probe-static-a11y.sh tich luy signals vao SIGNALS_JSON variable bang bash string concatenation, KHONG dung signal-emit.md canonical helper. Fingerprint format: 'dim|file|line|probe|signal_type|label' (6 tokens) thay vi canonical 5-token 'dim|file|line|probe|signal_type'. IMP-QD5-008 (P1): refactor bash probe de dung canonical signal-emit.md helper.",
+      "type": "stub",
+      "input": {
+        "scenario": "Spawn wf-fix-ux-a11y voi profile=standard. Check fingerprint format cua signals duoc emit boi wf-fix-probe-static-a11y.sh bash script.",
+        "probe": "P-QD5-aria-attribute-scan",
+        "expected_fingerprint_spec": "sha256:<hex> (5-token: dim|file|line|probe|signal_type)",
+        "actual_fingerprint_in_bash": "sha256:<hex> (6-token: dim|file|line|probe|signal_type|label)"
+      },
+      "expected": {
+        "current_behavior": "Fingerprint = 6-token (has extra 'label' component) → non-canonical, dedup logic breaks",
+        "expected_after_IMP_QD5_008": "Fingerprint = 5-token canonical per signal-emit.md spec",
+        "cross_dim_affected": ["QD1 (6-token outlier)", "QD7 (6-token outlier D17)"],
+        "dedup_impact": "Signals from QD5 bash probe NOT dedup'd correctly with signals from inline probes"
+      },
+      "validation": "TRUOC IMP-QD5-008: bash probe fingerprint = 6-token → differs from inline probe fingerprint → dedup logic cannot compare cross-probe signals. SAU IMP-QD5-008: all probes phai dung canonical signal-emit.md 5-token fingerprint. Cross-dim: QD1 + QD7 co same AF.",
+      "audit_ref": "06-qd5-ux-a11y-audit.md Phase 2 AF-A1 + Phase 3 fingerprint verification + _shared/lane/signal-emit.md line 35",
+      "imp_target": "IMP-QD5-008",
+      "status": "stub"
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "checkpoint-schema.json",
+  "title": "Skill Checkpoint Schema",
+  "description": "Schema cho checkpoint snapshots - used to save progress and enable resume",
+  "type": "object",
+  "required": ["checkpoint_id", "skill_id", "phase", "saved_at", "next_action"],
+  "properties": {
+    "checkpoint_id": {
+      "type": "string",
+      "pattern": "^CP-\\d{8}-\\d{3}$",
+      "description": "Checkpoint ID: CP-YYYYMMDD-NNN"
+    },
+    "skill_id": {
+      "type": "string",
+      "description": "Reference to parent skill status"
+    },
+    "session": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Session number"
+    },
+    "phase": {
+      "type": "string",
+      "description": "Current phase (e.g., 'phase_2')"
+    },
+    "phase_name": {
+      "type": "string",
+      "description": "Human-readable phase name"
+    },
+    "saved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "context_usage_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "next_action": {
+      "type": "string",
+      "description": "Action to resume from"
+    },
+    "completed_phases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "files_created": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "context_summary": {
+      "type": "object",
+      "properties": {
+        "project_name": {
+          "type": "string"
+        },
+        "systems": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "modules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "key_variables": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "resume_instruction": {
+      "type": "string",
+      "description": "Instruction for resuming"
+    },
+    "context_digest": {
+      "type": "object",
+      "description": "Stateful context digest - tóm tắt bộ não của session, không chỉ vị trí",
+      "properties": {
+        "feature_summary": {
+          "type": "string",
+          "description": "Tóm tắt feature đang implement (100-200 từ)"
+        },
+        "architectural_decisions": {
+          "type": "array",
+          "description": "Những quyết định kiến trúc đã chốt",
+          "items": {
+            "type": "object",
+            "properties": {
+              "decision": {
+                "type": "string",
+                "description": "Mô tả quyết định (vd: 'Dùng TypeORM Repository pattern')"
+              },
+              "reason": {
+                "type": "string",
+                "description": "Lý do chọn (vd: 'Project đã có TypeORM setup, consistency')"
+              },
+              "affects": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Danh sách file/component bị ảnh hưởng (vd: ['entity', 'repository', 'service'])"
+              }
+            },
+            "required": ["decision", "reason", "affects"]
+          }
+        },
+        "interfaces_established": {
+          "type": "object",
+          "description": "Interface/contract đã thiết lập giữa batch",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string",
+                "description": "Đường dẫn file interface (vd: 'src/repositories/customer.repository.interface.ts')"
+              },
+              "key_methods": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Danh sách method chính (vd: ['findById', 'findByEmail', 'softDelete'])"
+              },
+              "notes": {
+                "type": "string",
+                "description": "Ghi chú quan trọng (vd: 'Tất cả query PHẢI filter deletedAt IS NULL')"
+              }
+            },
+            "required": ["file", "key_methods"]
+          }
+        },
+        "patterns_in_use": {
+          "type": "object",
+          "description": "Code pattern và convention đã thiết lập",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "examples": {
+            "error_handling": "throw AppError(code, httpStatus) trong service, catch trong controller middleware",
+            "dto_validation": "class-validator decorators trên DTO, validate trong controller",
+            "naming": "camelCase variables, PascalCase classes, kebab-case files"
+          }
+        },
+        "cross_batch_contracts": {
+          "type": "object",
+          "description": "Contract giữa batch hiện tại và batch tiếp theo",
+          "properties": {
+            "batch_N_exports": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Những gì batch N tạo ra để batch N+1 sử dụng (vd: 'CustomerEntity (src/entities/customer.entity.ts)')"
+            },
+            "batch_N_plus_1_imports": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Những gì batch N+1 cần từ batch N (vd: 'Cần CustomerEntity type cho service')"
+            }
+          }
+        },
+        "gotchas_and_warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Cảnh báo, tuyệt đối KHÔNG được quên (vd: 'Email field có UNIQUE constraint — mọi create/update phải check duplicate')"
+        }
+      },
+      "required": ["feature_summary"]
+    }
+  }
+}

@@ -1,0 +1,114 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pyo
+.pyd
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.mc-data/
+.mc-data-eval/
+.mc-data-eval-real/
+docs/audit/work/
+
+# Secrets - never commit
+*.pem
+*.key
+secrets/
+.secrets/
+.claude/scheduled_tasks.lock
+
+# wf-scan-target (Sprint 6 multi-dev safety — Q2 = A)
+# Per-machine cache: fingerprint phụ thuộc absolute path → KHÔNG sync cross-machine
+# Transient locks: PID + host metadata, không sync (cross-host kill -0 không khả thi)
+# scans-index.jsonl + history.jsonl + session folders KHÔNG ignore — git-sync friendly,
+# auto-merge JSONL (mỗi entry 1 dòng độc lập) cho team chia sẻ lịch sử scan.
+.mc-data/work/wf-scan-target/_shared/cache/
+.mc-data/work/wf-scan-target/sessions/*/.lock
+
+# wf-implement-feature v4.0 (Sprint 1 — design intent for multi-dev safety)
+# NOTE: Toàn bộ .mc-data/ đã ignore ở line 36 (project policy: runtime data is per-project,
+# not cross-team sync). Các rules dưới đây mô tả intent: nếu chính sách đổi để un-ignore
+# .mc-data/, thì sessions/, current.txt, .locks/, .cache/ vẫn KHÔNG sync (per-machine state),
+# và .history/implementations-index.jsonl SHOULD sync (audit trail multi-dev).
+# Hiện tại: tất cả working state đều ignore qua parent rule — `git status` sẽ không thấy
+# các files này. .history/ vẫn được tạo và sử dụng local nhưng không sync.
+.mc-data/work/wf-implement-feature/*/sessions/
+.mc-data/work/wf-implement-feature/*/current.txt
+.mc-data/work/wf-implement-feature/*/archived/
+.mc-data/work/wf-implement-feature/.locks/
+.mc-data/work/wf-implement-feature/.cache/
+
+.omc
+
+# ============================================================
+# PYTHON
+# ============================================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ============================================================
+# NODE.JS
+# ============================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ============================================================
+# OS-SPECIFIC JUNK
+# ============================================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ============================================================
+# .mc-data/ RUNTIME STATE (folder gốc track có chọn lọc)
+# ============================================================
+# Runtime checkpoints per-machine — KHÔNG ảnh hưởng checkpoint.json template trong .claude/skills/
+.mc-data/work/*/checkpoint.json
+# CI cache lock (per-machine)
+.mc-data/work/_meta/*.lock
+# Hook-generated sync state (giữ .gitkeep đã track)
+.mc-data/sync/sync-status.md
+
+# ============================================================
+# LOCAL CODE INTELLIGENCE & BACKUPS
+# ============================================================
+.gitnexus/
+*.backup

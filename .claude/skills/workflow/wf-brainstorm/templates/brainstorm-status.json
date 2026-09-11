@@ -1,0 +1,108 @@
+{
+  "$schema": "brainstorm-status-v1",
+  "version": "1.1",
+  "project": "[PROJECT_NAME]",
+  "status": "not_started",
+  "verdict": null,
+  "current_phase": null,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "phases": {
+    "phase_1": {
+      "name": "Thu Thập Thông Tin Cơ Bản",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "phase_2": {
+      "name": "BA Khai Thác & Phòng Ban",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "phase_3": {
+      "name": "Brainstorm & Phân Tích Chính Sách",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "phase_4": {
+      "name": "Soạn & Ghi Tài Liệu",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "phase_5": {
+      "name": "Khởi Tạo Cấu Trúc Dự Án",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "phase_6": {
+      "name": "Sinh Digest Artifact",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    }
+  },
+
+  "artifacts": {
+    "brainstorm_status": {
+      "path": ".mc-data/work/wf-brainstorm/brainstorm-status.json",
+      "created": false
+    },
+    "brainstorm_notes": {
+      "path": ".mc-data/work/wf-brainstorm/brainstorm-notes.md",
+      "created": false
+    },
+    "complexity_assessment": {
+      "path": ".mc-data/work/wf-brainstorm/complexity-assessment.md",
+      "created": false
+    },
+    "crosscheck_report": {
+      "path": ".mc-data/work/wf-brainstorm/crosscheck-report.md",
+      "created": false
+    },
+    "project_intent_digest": {
+      "path": ".mc-data/work/wf-brainstorm/project-intent-digest.json",
+      "created": false
+    },
+    "project_digest": {
+      "path": ".mc-data/docs/_meta/project-digest.json",
+      "created": false
+    },
+    "legacy_decisions": {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "created": false
+    },
+    "req_registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "created": false
+    },
+    "p0_01": {
+      "path": ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+      "created": false
+    },
+    "p0_02": {
+      "path": ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+      "created": false
+    },
+    "phase_summary": {
+      "path": ".mc-data/work/wf-brainstorm/phase-summary.md",
+      "created": false
+    },
+    "policy_analysis": {
+      "path": ".mc-data/work/wf-brainstorm/policy-analysis.md",
+      "created": false
+    }
+  },
+
+  "output_files": [],
+  "error_log": []
+}

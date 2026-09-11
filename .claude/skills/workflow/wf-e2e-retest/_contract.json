@@ -1,0 +1,157 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-retest",
+  "version": "1.1.0",
+  "phase": "F5 — Retest pending items (Playwright BẮT BUỘC cho UI, auto-start mandatory)",
+  "description": "F5 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --retest). Scan reports tìm PENDING/SKIP/⬜ → retest → cập nhật reports + issues.json (CORE-039). Playwright BẮT BUỘC cho UI items. FE/BE/DB không chạy → MANDATORY auto-start (retry 2 lần); fail → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion. KHÔNG có cờ --no-playwright, KHÔNG silent fallback static. Code analysis CHỈ hợp lệ cho item Nhóm 4 (visual/real payment/OAuth/hardware/human judgment). v1.1.0 (2026-05-14).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/scan-pending.md",
+    "procedures/playwright-retest.md",
+    "procedures/code-retest.md",
+    "procedures/update-reports.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/",
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json"
+    ],
+    "required_conditions": [
+      "Session tồn tại + F1 đã complete",
+      "Có ≥1 pending item (PENDING/SKIP/⬜) hoặc issues.json status=fixed retest_count=0",
+      "--session=<id>"
+    ]
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/",
+      "required": true,
+      "description": "Reports để scan + update"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/outputs/test-scenario.md",
+      "required": false,
+      "description": "Scenario report (scan for pending)"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+      "required": true,
+      "description": "Issues SSOT — find status=fixed retest_count=0"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+      "required": false,
+      "description": "Block-test — find status=unblocked retest_result=PENDING"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    },
+    {
+      "path": "--session=<id> arg",
+      "required": true,
+      "description": "Session ID"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F5-retest/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F5 state — items_total, items_retested, scope, playwright_enabled"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F5-retest/retest-log.md",
+        "required": true,
+        "template": null,
+        "description": "Per-item retest log: Loại | Item | Lý do PENDING | Re-check method | Result | Notes"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/*-test-report.md",
+        "required": true,
+        "template": null,
+        "description": "UPDATE — fill PENDING/SKIP markers với PASS/FAIL"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/issues.json",
+        "required": true,
+        "template": "templates/issues.template.json",
+        "description": "UPDATE per signal: retest_count++, retest_result, retest_at, status (open/fixed)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+        "required": false,
+        "template": "templates/block-test.template.json",
+        "description": "UPDATE per BLK: retest_result"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/screenshots/",
+        "required": false,
+        "template": null,
+        "description": "retest-{slug}.png cho UI items (Playwright mode)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F5-retest/Phase-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 F5 summary"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-fix": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json (new findings from retest)"]
+    },
+    "consumes_from": {
+      "wf-e2e-test": [".mc-data/work/wf-e2e-verify/sessions/{id}/findings/*"],
+      "wf-e2e-fix": [".mc-data/work/wf-e2e-verify/sessions/{id}/issues.json (fixed entries to verify)"],
+      "wf-e2e-unblock": [".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json (unblocked entries to verify)"],
+      "wf-e2e-implement": [".mc-data/work/wf-e2e-verify/sessions/{id}/implement-required.json (done entries to verify)"]
+    },
+    "shares_lock_with": ["wf-e2e-browser", "wf-e2e-scenario", "wf-e2e-demo"],
+    "lock_name": "browser-mcp.lock",
+    "spawned_by": "wf-e2e-verify orchestrator (sau F4 implement OR F6 spawn từ fix loop)"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E050-E059",
+    "description": "F5 retest pending/failed items (default Playwright)",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E050-E059",
+    "specific": {
+      "E050": "Reports không tồn tại / không có pending",
+      "E051": "--session thiếu",
+      "E052": "Browser lock conflict",
+      "E053": "Playwright/FE không available (UI scope)",
+      "E054": "Anti-loop F6↔F5 max 3 vòng",
+      "E055": "Curl/dotnet test transient fail",
+      "E056": "Report update fail",
+      "E057": "issues.json CORE-039 update fail",
+      "E058": "POST-GATE fail",
+      "E059": "Atomic write fail"
+    }
+  }
+}

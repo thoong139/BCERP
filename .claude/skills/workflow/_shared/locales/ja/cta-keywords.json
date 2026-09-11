@@ -1,0 +1,30 @@
+{
+  "locale": "ja",
+  "description": "Japanese CTA (Call-To-Action) keyword patterns for UI probe detection",
+  "cta_patterns": [
+    {"text": "今すぐ購入",       "category": "purchase",      "regex": "今すぐ購入"},
+    {"text": "カートに追加",     "category": "purchase",      "regex": "カートに追加"},
+    {"text": "今すぐ注文",       "category": "purchase",      "regex": "今すぐ注文"},
+    {"text": "購入する",         "category": "purchase",      "regex": "購入する"},
+    {"text": "支払いへ",         "category": "purchase",      "regex": "支払いへ"},
+    {"text": "無料で登録",       "category": "registration",  "regex": "無料で登録"},
+    {"text": "アカウント作成",   "category": "registration",  "regex": "アカウント作成"},
+    {"text": "今すぐ始める",     "category": "registration",  "regex": "今すぐ始める"},
+    {"text": "参加する",         "category": "registration",  "regex": "参加する"},
+    {"text": "ログイン",         "category": "auth",          "regex": "ログイン"},
+    {"text": "サインイン",       "category": "auth",          "regex": "サインイン"},
+    {"text": "詳しく見る",       "category": "discovery",     "regex": "詳しく見る"},
+    {"text": "もっと見る",       "category": "discovery",     "regex": "もっと見る"},
+    {"text": "詳細を見る",       "category": "discovery",     "regex": "詳細を見る"},
+    {"text": "無料試用",         "category": "subscription",  "regex": "無料試用"},
+    {"text": "無料トライアル",   "category": "subscription",  "regex": "無料トライアル"},
+    {"text": "今すぐ予約",       "category": "booking",       "regex": "今すぐ予約"},
+    {"text": "予約する",         "category": "booking",       "regex": "予約する"},
+    {"text": "お問い合わせ",     "category": "contact",       "regex": "お問い合わせ"},
+    {"text": "ダウンロード",     "category": "download",      "regex": "ダウンロード"},
+    {"text": "確認する",         "category": "form",          "regex": "確認する"},
+    {"text": "続ける",           "category": "form",          "regex": "続ける"},
+    {"text": "送信",             "category": "form",          "regex": "送信"},
+    {"text": "応募する",         "category": "application",   "regex": "応募する"}
+  ]
+}

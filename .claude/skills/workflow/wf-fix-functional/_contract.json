@@ -1,0 +1,163 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-functional",
+  "version": "2.0.0-alpha.s6",
+  "phase": "lane",
+  "description": "QD1 Functional Correctness Lane — phat hien bug functional qua probes static + runtime + agent. Chay theo mo hinh Sense → Think → Act → Verify. v2.0-alpha.s6 (2026-05-11): Merge cross-project — canonical P-QD1-stub-todo-aggregate v2.0.0 (thay stub-todo-scan, hop nhat MCV3+EUREKA), +P-QD1-multitenant-isolation-audit (static, deep+) — phat hien multi-tenant data isolation gap. +P-QD1-spec-completeness-check (agent, deep+) — agent probe verify toan bo requirement trong spec co code tuong ung. 10 probes total. v2.0 (S3): chuan hoa schema (lane-status-v1, signal-v2, lane-report-v1) qua _shared/lane/. Fix F9, F10.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Bat buoc — duoc set boi wf-fix-bugs orchestrator"
+    },
+    "notes": "Lane KHONG tao session — orchestrator da tao truoc. Lane chi tao phase4-find-bugs/lanes/QD1-functional/ subdirectory."
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Duong dan den session directory (da tao boi orchestrator)."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay — quyet dinh probes nao chay."
+    },
+    {
+      "name": "--use-cache",
+      "type": "flag",
+      "required": false,
+      "description": "Opt-in scan cache cho static probes (ADR-17 v6.0 opt-in)."
+    },
+    {
+      "name": "--base-url",
+      "type": "url",
+      "required": false,
+      "description": "App URL cho runtime probes. Neu khong co → skip runtime probes."
+    }
+  ],
+  "procedure": [
+    "procedures/probes/P-QD1-req-registry-xref.md",
+    "procedures/probes/P-QD1-route-config-parse.md",
+    "procedures/probes/P-QD1-infra-preflight.md",
+    "procedures/probes/P-QD1-deep-ui-traversal.md",
+    "procedures/probes/P-QD1-api-smoke.md",
+    "procedures/probes/P-QD1-orphan-ui-detect.md",
+    "procedures/probes/P-QD1-agent-feature-verify.md",
+    "procedures/probes/P-QD1-stub-todo-aggregate.md",
+    "procedures/probes/P-QD1-multitenant-isolation-audit.md",
+    "procedures/probes/P-QD1-spec-completeness-check.md",
+    "procedures/probes/_shared.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). WRITE toàn bộ bởi static probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime/agent probe signals (signal-v2). APPEND-only bởi runtime probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). WRITE toàn bộ bởi LLM probe. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1. Tạo ở PRE-GATE, update ở POST-GATE. Shared template."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/QD1-functional-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report. Tạo ở POST-GATE."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output files."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/evidence/",
+        "required": false,
+        "template": null,
+        "notes": "Screenshots + HTTP traces từ runtime probes."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD1 Lane KHONG ghi req-registry.json. Chi doc registry de cross-ref REQ-ID annotations.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD1 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile",
+        "--use-cache",
+        "--base-url"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD1 lane complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/QD1-functional-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json",
+        ".mc-data/docs/_meta/dept-digests.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ],
+      "wf-design-ux": [
+        ".mc-data/docs/phase4-ux/"
+      ]
+    }
+  }
+}

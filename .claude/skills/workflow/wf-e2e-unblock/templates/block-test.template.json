@@ -1,0 +1,48 @@
+{
+  "$schema": "wf-e2e-verify-block-test-v1",
+  "session_id": "{SESSION_ID}",
+  "feat_id": "{FEAT-ID}",
+  "created_at": "{ISO_TIMESTAMP}",
+  "last_updated": "{ISO_TIMESTAMP}",
+  "blocks": [],
+  "summary": {
+    "total": 0,
+    "blocked": 0,
+    "unblocked": 0,
+    "resolved": 0,
+    "by_reason": {},
+    "by_phase": { "2": 0, "3": 0, "4": 0, "5": 0 }
+  },
+  "schema_doc": {
+    "what_is_blocked_test": "Blocked test ≠ Failed test. Blocked test là test KHÔNG THỂ CHẠY được do điều kiện bên ngoài (thiếu seed data, backend tắt, thiếu permission...), KHÔNG phải do code sai. Khi điều kiện được resolve → test chạy được. Failed test là test chạy được nhưng kết quả không đúng → đó là bug, ghi vào issues.json.",
+    "block_classification": {
+      "group_1_data": "missing_seed_data, missing_cross_module_data, seed_accounts_unavailable, actor_account_missing → AUTO-FIX NGAY (sinh seed/tạo account) → KHÔNG ghi block-test (trừ khi 2 lần auto-fix fail)",
+      "group_2_infra": "backend_not_running, fe_not_running, missing_permissions → AUTO-FIX NGAY (Infrastructure Auto-Start/grant permission) → KHÔNG ghi block-test (trừ khi 2 lần auto-fix fail)",
+      "group_3_not_impl": "feature_deferred, feature_not_implemented → GHI block-test.json, status=blocked, KHÔNG auto-fix — chờ implement",
+      "group_4_hard_test": "requires_visual_inspection, requires_manual_interaction, external_dependency, flaky_test, other → GHI block-test.json + VERIFY CODE → nếu code pass → status=resolved, retest_result=SKIPPED; nếu cần người → status=blocked"
+    },
+    "block_fields": {
+      "id": "BLK-NNN (zero-padded 3 digits, sequential)",
+      "timestamp": "ISO 8601 khi phát hiện test bị block",
+      "test_ref": "Tên test/scenario bị block (VD: KB-003, POST /customers, Chain #2 Block→Wallet)",
+      "source": "File report chứa test bị block (api-test-report.md, integration-test-report.md, test-scenario.md, db-test-report.md)",
+      "phase": "Phase number 2-5",
+      "reason": "Enum: missing_seed_data | missing_cross_module_data | seed_accounts_unavailable | actor_account_missing | backend_not_running | fe_not_running | missing_permissions | feature_deferred | feature_not_implemented | requires_visual_inspection | requires_manual_interaction | external_dependency | flaky_test | other",
+      "reason_detail": "Mô tả cụ thể (VD: 'TMS Shipment table có 0 records, POST /api/v1/tms/shipments trả về 200 với data: []')",
+      "suggested_resolution": "Cách đề xuất để gỡ block (VD: 'Sinh 3-5 bản ghi TMS Shipment qua SQL INSERT, dùng schema tms, đảm bảo có ít nhất 1 bản ghi ở trạng thái Confirmed để test document upload')",
+      "status": "Enum: blocked | unblocked | resolved",
+      "related_issues": ["ISS-XXX"],
+      "unblock_attempts": [
+        {
+          "at": "ISO 8601",
+          "action": "Hành động đã thực hiện",
+          "result": "blocked | unblocked | resolved",
+          "detail": "Kết quả chi tiết"
+        }
+      ],
+      "unblocked_at": "ISO 8601 khi unblock, null nếu vẫn blocked",
+      "retest_result": "PASS | FAIL | PENDING — sau khi unblock và retest",
+      "resolution_note": "Ghi chú khi resolved"
+    }
+  }
+}

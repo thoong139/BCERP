@@ -1,0 +1,87 @@
+{
+  "skill_name": "wf-define-features",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Define features tu requirements cua he thong CRM - mapping REQ-SALES-001..005 sang feature specs",
+      "expected_output": "Tao feature specs cho CRM system (2 modules: customer + sales), mapping 5 REQ-IDs sang FEAT-IDs, output stakeholder-review.md + registry updated features[]",
+      "assertions": [
+        {"text": "FEAT-IDs dung format FEAT-CRM-[MOD]-NNN", "type": "file_content"},
+        {"text": "Moi feature spec co section Luong Nguoi Dung (User Stories)", "type": "file_content"},
+        {"text": "Moi feature spec co section Quy Tac Nghiep Vu (Business Rules)", "type": "file_content"},
+        {"text": "Moi feature spec co section Phan Quyen (Permissions)", "type": "file_content"},
+        {"text": "req-registry.json features[] updated, khong thay doi fields khac", "type": "file_content"},
+        {"text": "Output files tai phase2-features/crm/[mod]/[feat].md", "type": "file_exists"},
+        {"text": "Tat ca 5 REQ-IDs duoc map", "type": "file_content"},
+        {"text": "Khong co YAML front-matter trong feature specs", "type": "file_content"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Chuyen requirements thanh features cho module quan ly kho - REQ-INV-001..003",
+      "expected_output": "Tao feature specs cho WMS system (1 module: inventory), mapping 3 REQ-IDs, business rules tu dept doc (FIFO, khong am kho)",
+      "assertions": [
+        {"text": "FEAT-IDs dung format FEAT-WMS-INV-NNN", "type": "file_content"},
+        {"text": "Moi feature spec co User Stories + Business Rules + Permissions", "type": "file_content"},
+        {"text": "features[] co >= 3 entries", "type": "file_content"},
+        {"text": "Output files tai phase2-features/wms/[mod]/[feat].md", "type": "file_exists"},
+        {"text": "Business rules phan anh: FIFO, khong am kho, duyet phieu", "type": "file_content"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Define features cho he thong co 2 systems (web + mobile) voi requirements cross-system",
+      "expected_output": "Tao feature specs cho 2 systems (web + mobile), xu ly cross_system references, REQ-ECOM-004 chi MOB",
+      "assertions": [
+        {"text": "FEAT-IDs co 2 system prefixes: FEAT-WEB-* va FEAT-MOB-*", "type": "file_content"},
+        {"text": "features[] co field cross_system cho cross-system REQs", "type": "file_content"},
+        {"text": "Output files trong ca phase2-features/web/ va phase2-features/mob/", "type": "file_exists"},
+        {"text": "Moi feature spec co du 9 sections", "type": "file_content"},
+        {"text": "REQ-ECOM-004 chi map sang MOB, khong WEB", "type": "file_content"},
+        {"text": "REQ-ECOM-002 lien ket ca WEB va MOB", "type": "file_content"},
+        {"text": "Stakeholder review nhan dien cross-system dependencies", "type": "file_content"}
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "LEGACY mode: define features cho du an co san voi 2 modules (1 IMPROVE + 1 DEPRECATE), impl_status snapshot co 1 DONE + 1 PARTIAL",
+      "expected_output": "LEGACY flow chay dung: Phase 0.5 seed impl_status, Phase 2.5 tao feat-mapping.json, DEPRECATE module features co impl_status=skipped, IMPROVE module co impl_status tu snapshot",
+      "assertions": [
+        {"text": "LEGACY_MODE detect tu project-context.md", "type": "file_content"},
+        {"text": "feat-mapping.json ton tai tai .mc-data/work/legacy-scan/", "type": "file_exists"},
+        {"text": "Features thuoc DEPRECATE module co impl_status=skipped", "type": "file_content"},
+        {"text": "Features thuoc IMPROVE module co impl_status=done hoac in_progress (tu snapshot)", "type": "file_content"},
+        {"text": "Khong co feature specs cho DEPRECATE module", "type": "file_content"},
+        {"text": "File naming dung FEAT-ID convention cho LEGACY", "type": "file_content"}
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Edge case: req-registry.json co requirements[] rong — kiem tra PRE-GATE behavior",
+      "expected_output": "STOP voi thong bao E001: 'Chua co requirements. Chay /wf-analyze-requirements truoc.' Khong tao bat ky file nao",
+      "assertions": [
+        {"text": "STOP voi E001 hoac thong bao tuong duong", "type": "file_content"},
+        {"text": "Khong tao file trong phase2-features/", "type": "file_content"},
+        {"text": "Khong modify req-registry.json features[]", "type": "file_content"}
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "LEGACY mode voi UI screens: 2.7 UI Coverage cross-check voi 5 screens (3 covered, 1 gap, 1 infrastructure)",
+      "expected_output": "Phase 2.7 chay, ui-coverage-gaps.json ton tai voi coverage_stats correct, 1 GAP stub duoc tao",
+      "assertions": [
+        {"text": "ui-coverage-gaps.json ton tai", "type": "file_exists"},
+        {"text": "coverage_stats.covered = 3", "type": "file_content"},
+        {"text": "coverage_stats.gaps = 1", "type": "file_content"},
+        {"text": "coverage_stats.infrastructure_skipped = 1", "type": "file_content"},
+        {"text": "GAP entry co suggested_feature_id va stub_created=true", "type": "file_content"}
+      ],
+      "files": []
+    }
+  ]
+}

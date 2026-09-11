@@ -1,0 +1,41 @@
+{
+  "$schema": "lane-signals-v1",
+  "lane": "wf-fix-functional",
+  "dimension": "QD1",
+  "probe_id": "P-QD1-infra-preflight",
+  "probe_version": "v1.0",
+  "profile": "standard",
+  "generated_at": "2026-05-08T19:46:29Z",
+  "signals": [
+    {
+      "$schema": "signal-v2",
+      "dimension_id": "QD1",
+      "probe_id": "P-QD1-infra-preflight",
+      "probe_version": "v1.0",
+      "severity": "critical",
+      "fixability": "none",
+      "domain": "infra",
+      "title": "Infra preflight: UNREACHABLE after 1 retries",
+      "description": "Infrastructure unreachable at http://127.0.0.1:19999/health after 1 attempts (interval=1s). Connection refused or timeout. Ensure service is running before wf-fix-bugs session.",
+      "location": {
+        "file": "N/A",
+        "line": null,
+        "column": null,
+        "selector": null,
+        "url": null
+      },
+      "evidence": [
+        {
+          "type": "stdout",
+          "path": "N/A",
+          "description": "Infrastructure unreachable at http://127.0.0.1:19999/health after 1 attempts (interval=1s). Connection refused or timeout. Ensure service is running before wf-fix-bugs session."
+        }
+      ],
+      "cdg_flags": [],
+      "fingerprint": "sha256:507d57d35b69ae4c060da7d1412dc83d9f7c1de109332e8ec07a1abfa51aef94",
+      "registry_refs": {},
+      "detected_at": "2026-05-08T19:46:28Z",
+      "detected_by": "wf-fix-functional/P-QD1-infra-preflight"
+    }
+  ]
+}

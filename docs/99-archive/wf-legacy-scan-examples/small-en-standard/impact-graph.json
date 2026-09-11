@@ -1,0 +1,42 @@
+{
+  "$schema": "impact-graph-v1",
+  "session_id": "2026-04-22T08-00-00Z-a1b2c3d4",
+  "generated_at": "2026-04-22T08:12:45Z",
+  "synthesis_mode": "full",
+  "nodes": [
+    { "id": "auth",     "label": "Authentication",  "type": "module", "file_count": 8 },
+    { "id": "users",    "label": "User Profile",    "type": "module", "file_count": 6 },
+    { "id": "products", "label": "Product Catalog", "type": "module", "file_count": 12 },
+    { "id": "cart",     "label": "Shopping Cart",   "type": "module", "file_count": 9 },
+    { "id": "checkout", "label": "Checkout",        "type": "module", "file_count": 10 },
+    { "id": "db",       "label": "Database (Prisma)","type": "shared","file_count": 4 }
+  ],
+  "edges": [
+    { "from": "cart",     "to": "auth",     "relation": "depends_on",  "strength": "strong" },
+    { "from": "cart",     "to": "products", "relation": "depends_on",  "strength": "strong" },
+    { "from": "checkout", "to": "cart",     "relation": "depends_on",  "strength": "strong" },
+    { "from": "checkout", "to": "users",    "relation": "depends_on",  "strength": "medium" },
+    { "from": "users",    "to": "auth",     "relation": "depends_on",  "strength": "strong" },
+    { "from": "products", "to": "db",       "relation": "uses",        "strength": "strong" },
+    { "from": "cart",     "to": "db",       "relation": "uses",        "strength": "strong" },
+    { "from": "users",    "to": "db",       "relation": "uses",        "strength": "strong" }
+  ],
+  "circular_dependencies": [],
+  "high_fanout_nodes": [
+    { "id": "auth",     "fanout": 3, "note": "auth là dependency của nhiều modules" },
+    { "id": "db",       "fanout": 4, "note": "shared database access" }
+  ],
+  "change_impact": {
+    "auth":     ["users", "cart", "checkout"],
+    "products": ["cart", "checkout"],
+    "cart":     ["checkout"],
+    "users":    ["checkout"],
+    "db":       ["products", "cart", "users"]
+  },
+  "stats": {
+    "total_nodes": 6,
+    "total_edges": 8,
+    "circular_count": 0,
+    "max_depth": 3
+  }
+}

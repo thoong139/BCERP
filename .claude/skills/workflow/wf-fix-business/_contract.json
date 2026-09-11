@@ -1,0 +1,121 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-business",
+  "version": "2.2.0",
+  "phase": "lane",
+  "description": "QD2 Business Correctness Lane — phat hien bug nghiep vu qua domain expert agents + static probes. North Star dimension. v2.0 (S3): chuan hoa schema (lane-status-v1, signal-v2, lane-report-v1) qua _shared/lane/. Fix F5 (CORE-031 template:null), F9, F10. v2.1 (W2.5): Boundary Mode trong P-QD2-domain-expert-review — spawn 2 expert agents dong thoi cho cross_module_dependencies cap; cross-merge findings + severity bump. v2.2 (W4.5): added P-QD2-business-rule-coverage (exhaustive, static) — parse BIZ-RULE annotations tu .claude/references/team-expert/**/*.md; Serena find_referencing_symbols PRIMARY + Grep FALLBACK; signal: business_rule_uncovered MEDIUM; cache=allowed; graceful SKIP khi no annotations.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Bat buoc — duoc set boi wf-fix-bugs orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory (da tao boi orchestrator)."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay. quick=SKIP, standard=3 probes (domain-expert-review + calculation-check + hardcoded-value-detect), deep=5 probes (+domain-fixture + business-analyst-review), exhaustive=6 probes (+business-rule-coverage)."
+    }
+  ],
+  "procedure": [
+    "procedures/probes/P-QD2-domain-expert-review.md",
+    "procedures/probes/P-QD2-calculation-check.md",
+    "procedures/probes/P-QD2-domain-fixture.md",
+    "procedures/probes/P-QD2-business-analyst-review.md",
+    "procedures/probes/P-QD2-hardcoded-value-detect.md",
+    "procedures/probes/P-QD2-business-rule-coverage.md",
+    "procedures/probes/_shared.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). WRITE toan bo boi static probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime/agent probe signals (signal-v2). APPEND-only boi runtime probes. _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1. Tao o PRE-GATE, update o POST-GATE."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/QD2-business-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report. Tao o POST-GATE."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD2 Lane KHONG ghi req-registry.json. Chi doc de xac dinh departments trong scope.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD2 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD2 lane complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/QD2-business-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD2-business/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/"
+      ]
+    }
+  }
+}

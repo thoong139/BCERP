@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "skill-contract-v1",
+  "title": "MCV3 Skill Contract v1",
+  "description": "Schema cho _contract.json cua moi skill trong DEVKIT MCV3",
+
+  "type": "object",
+  "required": ["$schema", "skill", "version", "phase", "description", "procedure", "outputs", "registry_scope"],
+  "additionalProperties": false,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "skill-contract-v1",
+      "description": "Schema identifier — checked by bash validation scripts"
+    },
+    "skill": {
+      "type": "string",
+      "description": "Skill name (e.g. wf-fix-bugs)"
+    },
+    "version": {
+      "type": "string",
+      "description": "Semantic version (e.g. 1.9.0)"
+    },
+    "phase": {
+      "type": "string",
+      "description": "Workflow phase this skill belongs to"
+    },
+    "description": {
+      "type": "string",
+      "description": "One-line description of skill purpose"
+    },
+    "procedure": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of procedure files (relative paths)"
+    },
+    "prerequisites": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Prerequisites for running the skill"
+    },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/inputEntry" },
+      "description": "Input files consumed by this skill"
+    },
+    "outputs": {
+      "type": "object",
+      "required": ["docs", "working"],
+      "additionalProperties": false,
+      "properties": {
+        "docs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/outputEntry" },
+          "description": "Documentation output files"
+        },
+        "working": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/outputEntry" },
+          "description": "Working/temporary output files"
+        },
+        "registry": {
+          "$ref": "#/$defs/registryEntry",
+          "description": "Registry update action"
+        }
+      }
+    },
+    "registry_scope": {
+      "type": "object",
+      "required": ["fields_owned"],
+      "additionalProperties": true,
+      "properties": {
+        "fields_owned": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Fields this skill is allowed to update in registry"
+        },
+        "safe_write_rule": {
+          "type": "string",
+          "description": "Reference to safe-write rule (e.g. CORE-006)"
+        }
+      }
+    },
+    "doc_framework_ref": {
+      "description": "Reference to doc-framework phase template",
+      "oneOf": [
+        { "type": "string" },
+        { "type": "null" }
+      ]
+    },
+    "cross_skill_contracts": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Cross-skill input/output contracts"
+    }
+  },
+
+  "$defs": {
+    "inputEntry": {
+      "type": "object",
+      "required": ["path", "description", "required"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "description": { "type": "string" },
+        "required": { "type": "boolean" },
+        "condition": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "outputEntry": {
+      "type": "object",
+      "required": ["path", "required"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "template": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "Template file path relative to skill directory, or null for inline schema"
+        },
+        "required": { "type": "boolean" },
+        "condition": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ]
+        },
+        "description": { "type": "string" },
+        "note": { "type": "string" }
+      }
+    },
+    "registryEntry": {
+      "type": "object",
+      "required": ["path", "action"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string" },
+        "action": { "type": "string" },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "skill_name": "wf-legacy-extract",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-legacy-extract (du an 3 systems, 10 modules da classify)",
+      "expected_output": "Extract requirements va features tu tung module, toi da 3 agents song song, tao dedup-report.json",
+      "assertions": [
+        {
+          "text": "PRE-GATE kiem tra classify.status == completed trong ledger.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 doc day du context: ledger, project-profile, dependency-graph, glossary",
+          "type": "behavior"
+        },
+        {
+          "text": "Step 3.0c: Doc classified/batch-*.json va group files theo module field de build module_map",
+          "type": "behavior"
+        },
+        {
+          "text": "Step 3.1: Doc inventory/dependency-graph.json va tinh topological order cua cac modules truoc khi bat dau extract loop o Step 3.3",
+          "type": "behavior"
+        },
+        {
+          "text": "Step 3.3: FOR each module theo topological order, xu ly toi da 3 modules dong thoi (PARALLEL limit), cac modules phu thuoc chay SEQUENTIAL theo dependency-graph",
+          "type": "behavior"
+        },
+        {
+          "text": "Pre-compress source files thanh module-digest truoc khi truyen cho agents (Protocol 6.2)",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao extracted/{module}.json cho moi module (10 files)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Moi extracted/{module}.json co cau truc dung: module, system, requirements[], features[], extracted_at, stats",
+          "type": "structure"
+        },
+        {
+          "text": "Chay dedup-report.json sau khi extract xong tat ca modules",
+          "type": "file_exists"
+        },
+        {
+          "text": "Step 3.9: Cap nhat ledger.json stages.extract.status = \"completed\", summary.reqs_extracted, summary.features_extracted VA dong thoi cap nhat legacy-scan-status.json stages.extract.status = \"completed\", current_stage = \"normalize\"",
+          "type": "behavior"
+        },
+        {
+          "text": "Output report (sau Post-Stage 3 Verification) hien thi day du theo format: modules processed, requirements extracted, features extracted, avg confidence, low confidence items, dedup merges, errors",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-legacy-extract --module=auth (chi extract 1 module)",
+      "expected_output": "Chi extract module auth, khong xu ly modules khac, van tao dedup-report",
+      "assertions": [
+        {
+          "text": "Chi xu ly module auth, khong extract modules khac",
+          "type": "behavior"
+        },
+        {
+          "text": "Kiem tra module auth ton tai trong module_map (tu classified batch data) truoc khi xu ly",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao extracted/auth.json voi cau truc dung",
+          "type": "file_exists"
+        },
+        {
+          "text": "Van tao dedup-report.json (du chi co 1 module)",
+          "type": "file_exists"
+        },
+        {
+          "text": "POST-GATE: Khi --module chi dinh, chi verify extracted/auth.json cho module do, khong fail vi cac modules khac chua co extracted file (per POST-GATE conditional logic)",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu module auth khong ton tai trong classified data → bao loi, STOP",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-legacy-extract (strategy S5, du an co divergences giua code va docs)",
+      "expected_output": "Tao extracted/{module}-divergences.json voi SYNCED/DIVERGED/UNDOCUMENTED/UNIMPLEMENTED",
+      "assertions": [
+        {
+          "text": "Detect strategy.id == S5 tu ledger.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Divergence Detection chay cho moi module (step 3.8b)",
+          "type": "behavior"
+        },
+        {
+          "text": "Tao extracted/{module}-divergences.json cho moi module",
+          "type": "file_exists"
+        },
+        {
+          "text": "Divergence file co 4 categories: synced, diverged, undocumented, unimplemented",
+          "type": "structure"
+        },
+        {
+          "text": "UNDOCUMENTED items duoc include vao extracted output (code la truth)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-legacy-extract (10 modules, 1 module missing extracted file sau extract)",
+      "expected_output": "Post-Stage 3 verification detect missing module, auto-fix re-extract, retry max 3 lan",
+      "assertions": [
+        {
+          "text": "Post-Stage 3 verification detect missing extracted/{module}.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Auto-fix: re-extract missing module, retry max 3 lan",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu van thieu sau 3 lan: WARNING E020, log to error-ledger, ASK user",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-legacy-extract (classify chua completed — PRE-GATE fail)",
+      "expected_output": "STOP voi E001, huong dan chay /wf-legacy-classify truoc",
+      "assertions": [
+        {
+          "text": "Doc ledger.json va phat hien classify.status != completed",
+          "type": "behavior"
+        },
+        {
+          "text": "PRE-GATE fail (E001): STOP ngay tai Phase 0 — khong doc context files, khong spawn agent, khong chay bat ky Stage 3 step nao",
+          "type": "behavior"
+        },
+        {
+          "text": "Thong bao E001 va huong dan chay /wf-legacy-classify",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-legacy-extract --resume (resume tu session truoc, 4/10 modules da xong)",
+      "expected_output": "Load checkpoint, tiep tuc tu module thu 5, khong re-extract modules da completed",
+      "assertions": [
+        {
+          "text": "Doc legacy-scan-status.json de load resume point",
+          "type": "behavior"
+        },
+        {
+          "text": "Doc ledger stages.extract.module_status de biet modules nao da xong",
+          "type": "behavior"
+        },
+        {
+          "text": "Khong re-extract modules da co extracted/{module}.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Step 3.3 SKIP-IF-EXISTS: Kiem tra test -f extracted/{module}.json && test -s — neu da ton tai va non-empty → skip, khong re-extract modules da completed",
+          "type": "behavior"
+        },
+        {
+          "text": "Sau khi xong tat ca: van chay dedup va post-stage verification",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-legacy-extract (maturity skip mode — ledger.maturity.stage_modes.extract == skip)",
+      "expected_output": "Skip toan bo Stage 3, mark completed, ghi note skipped_maturity",
+      "assertions": [
+        {
+          "text": "Doc ledger.maturity.stage_modes.extract va detect skip mode",
+          "type": "behavior"
+        },
+        {
+          "text": "KHONG spawn bat ky agent nao",
+          "type": "behavior"
+        },
+        {
+          "text": "Mark stages.extract.status = completed trong ledger",
+          "type": "behavior"
+        },
+        {
+          "text": "Ghi note skipped_maturity trong ledger",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-legacy-extract (maturity delta mode — 3 modules da thay doi source files)",
+      "expected_output": "Chi re-extract 3 modules co files thay doi, giu extracted data cu cho modules khac",
+      "assertions": [
+        {
+          "text": "Doc ledger.maturity.stage_modes.extract va detect delta mode",
+          "type": "behavior"
+        },
+        {
+          "text": "So sanh file mtimes voi extracted_at timestamp cua tung module",
+          "type": "behavior"
+        },
+        {
+          "text": "Chi re-extract modules co files thay doi (3 modules)",
+          "type": "behavior"
+        },
+        {
+          "text": "Giu nguyen extracted data cu cho modules khong thay doi",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-legacy-extract (DOCS_ONLY maturity — du an chi co docs, khong co source code)",
+      "expected_output": "Extract tu docs only, confidence cap tai 0.7, source = doc cho tat ca",
+      "assertions": [
+        {
+          "text": "Phat hien maturity_level == DOCS_ONLY va truyen cho agent",
+          "type": "behavior"
+        },
+        {
+          "text": "Agent xu ly Buoc 0B: extract tu doc files thay vi source code",
+          "type": "behavior"
+        },
+        {
+          "text": "Tat ca requirements co confidence <= 0.7 (cap)",
+          "type": "structure"
+        },
+        {
+          "text": "Tat ca requirements co source = doc va notes chua [DERIVED FROM DOCS]",
+          "type": "structure"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-legacy-extract --status (hien thi trang thai hien tai)",
+      "expected_output": "Hien thi status table: stage, modules done/total, reqs, features, avg confidence",
+      "assertions": [
+        {
+          "text": "Doc ledger.json va legacy-scan-status.json de lay trang thai",
+          "type": "behavior"
+        },
+        {
+          "text": "Hien thi status table theo --status Display Format trong SKILL.md",
+          "type": "behavior"
+        },
+        {
+          "text": "Khong thuc hien bat ky extraction nao — chi hien thi",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "/wf-legacy-extract (du an co circular dependencies trong dependency-graph.json)",
+      "expected_output": "WARN E015, pha vo circular ref, tiep tuc extract theo modified topological order",
+      "assertions": [
+        {
+          "text": "Phat hien circular dependencies khi tinh topological order (step 3.0c/3.1)",
+          "type": "behavior"
+        },
+        {
+          "text": "WARN E015 — ghi log circular dependency chi tiet",
+          "type": "behavior"
+        },
+        {
+          "text": "Pha vo circular ref va tiep tuc extract (khong STOP)",
+          "type": "behavior"
+        },
+        {
+          "text": "Tat ca modules van duoc extract thanh cong du co circular",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "/wf-legacy-extract (avg_confidence < 0.6 across modules sau khi extract xong)",
+      "expected_output": "WARNING E022, log low-confidence modules, van mark completed nhung co warning",
+      "assertions": [
+        {
+          "text": "Post-Stage verification detect avg_confidence < 0.6",
+          "type": "behavior"
+        },
+        {
+          "text": "WARNING E022 duoc log voi danh sach modules co confidence < 0.5",
+          "type": "behavior"
+        },
+        {
+          "text": "Van mark stages.extract.status = completed (WARNING khong block completion)",
+          "type": "behavior"
+        },
+        {
+          "text": "Output report hien thi warning va low-confidence count",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "/wf-legacy-extract (1 module co >50 requirements tu code scan)",
+      "expected_output": "Agent bao cao vuot gioi han, skill yeu cau tach sub-modules hoac trim low-confidence items",
+      "assertions": [
+        {
+          "text": "Agent detect >50 requirements cho 1 module (vuot gioi han procedure)",
+          "type": "behavior"
+        },
+        {
+          "text": "Agent bao cao cho skill de xem xet tach sub-module",
+          "type": "behavior"
+        },
+        {
+          "text": "Extracted output KHONG vuot 50 requirements + 30 features per module",
+          "type": "structure"
+        },
+        {
+          "text": "Low-confidence items (<0.5) bi trim truoc khi vuot gioi han",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/wf-legacy-extract (full extract — template usage rule enforcement)",
+      "expected_output": "Moi output file duoc tao bang READ template → POPULATE → WRITE, khong viet tu dau",
+      "assertions": [
+        {
+          "text": "Phase 0 Step 0.8: READ templates/extract-status.json → POPULATE (extract_id, project, timestamps) → WRITE .mc-data/work/legacy-scan/extract-status.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0 Step 0.9: READ templates/extract-plan.md → POPULATE (module breakdown, topological order, expert assignments) → WRITE .mc-data/work/legacy-scan/extract-plan.md",
+          "type": "behavior"
+        },
+        {
+          "text": "Step 3.5: Moi extracted/{module}.json duoc tao bang READ templates/extracted-module.json (JSON Schema) → POPULATE → WRITE. Output khop schema (required fields: module, system, requirements, features, stats, extracted_at)",
+          "type": "behavior"
+        },
+        {
+          "text": "Step 3.6 (MEDIUM/LARGE): Checkpoint duoc luu bang READ templates/extract-checkpoint.json → POPULATE → WRITE .mc-data/work/legacy-scan/extract-checkpoint.json",
+          "type": "behavior"
+        },
+        {
+          "text": "POST-GATE verify extract-status.json exists, valid JSON, non-empty",
+          "type": "behavior"
+        },
+        {
+          "text": "POST-GATE verify extract-plan.md exists, non-empty",
+          "type": "behavior"
+        }
+      ]
+    }
+  ]
+}

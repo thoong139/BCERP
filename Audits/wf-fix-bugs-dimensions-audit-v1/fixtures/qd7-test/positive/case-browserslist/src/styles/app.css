@@ -1,0 +1,35 @@
+/* Modern CSS features that are not supported in IE 11 */
+
+/* CSS :has() selector — Chrome 105+, Firefox 121+, Safari 15.4+ */
+.card:has(.badge) {
+  border: 2px solid gold;
+  padding: 1rem;
+}
+
+/* CSS Container Queries — Chrome 105+, Firefox 110+, Safari 16+ */
+.sidebar {
+  container-type: inline-size;
+  container-name: sidebar;
+}
+
+@container sidebar (min-width: 400px) {
+  .sidebar-widget {
+    flex-direction: row;
+  }
+}
+
+/* CSS Cascade Layers — Chrome 99+, Firefox 97+, Safari 15.4+ */
+@layer base {
+  body { margin: 0; }
+}
+
+@layer components {
+  .button { padding: 0.5rem 1rem; }
+}
+
+/* Regular CSS (IE11 compatible) */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}

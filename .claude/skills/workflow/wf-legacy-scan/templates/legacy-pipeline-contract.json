@@ -1,0 +1,169 @@
+{
+  "$schema": "legacy-pipeline-contract-v1",
+  "description": "Contract CHUNG cho toan bo legacy pipeline (Stage 2-5). Moi downstream skill tu validate phan cua minh. File nay la reference — KHONG thuoc scope cua wf-legacy-scan.",
+  "version": "1.0.0",
+  "work_directory": ".mc-data/work/legacy-scan/",
+  "note": "Stage 0-1 contract nam trong legacy-scan-contract.json (thuoc wf-legacy-scan). File nay chi chua stages 2-5 de downstream skills tham khao.",
+  "owner_mapping": {
+    "stage_2": "wf-legacy-classify",
+    "stage_3": "wf-legacy-extract",
+    "stage_4": "wf-brainstorm + wf-analyze-requirements + wf-define-features (legacy flow)",
+    "stage_5": "wf-design (legacy flow — gap analysis)"
+  },
+  "inventory_schemas": {
+    "note": "Schema templates cho Stage 1 inventory files. Path: .claude/skills/workflow/wf-legacy-scan/templates/inventory/",
+    "screens.json": {
+      "schema_ref": "inventory/screens.json",
+      "required_fields": ["count", "items"],
+      "items_required_fields": ["path", "name", "type", "framework"]
+    },
+    "api-endpoints.json": {
+      "schema_ref": "inventory/api-endpoints.json",
+      "required_fields": ["count", "items"],
+      "items_required_fields": ["path", "method", "route", "handler_file"]
+    },
+    "source-files.json": {
+      "schema_ref": "inventory/source-files.json",
+      "required_fields": ["count", "items"],
+      "items_required_fields": ["path", "name", "extension", "size_bytes", "last_modified"],
+      "note": "items[] có thể empty khi maturity == DOCS_ONLY"
+    },
+    "dependency-graph.json": {
+      "schema_ref": "inventory/dependency-graph.json",
+      "required_fields": ["dependencies", "import_groups", "circular"]
+    },
+    "doc-files.json": {
+      "schema_ref": "inventory/doc-files.json",
+      "required_fields": ["count", "items"],
+      "items_required_fields": ["path", "name", "size_bytes"]
+    },
+    "external-docs.json": {
+      "schema_ref": "inventory/external-docs.json",
+      "required_fields": ["total_docs", "categories"],
+      "categories_required": ["business-policy", "legacy-analysis", "integration-spec", "infrastructure", "user-guide"],
+      "note": "Mỗi category là array — empty array hợp lệ nếu không có docs loại đó"
+    },
+    "doc-classified.json": {
+      "schema_ref": "inventory/doc-classified.json",
+      "required_fields": ["count", "is_docs_only", "items"],
+      "items_required_fields": ["path", "doc_type", "size_bytes"],
+      "doc_type_values": ["spec", "guide", "api", "readme", "changelog", "api_spec"],
+      "note": "Chỉ tạo khi maturity == DOCS_ONLY — optional file"
+    }
+  },
+  "required_files": {
+    "stage_1": {
+      "inventory/screens.json": {
+        "required": true,
+        "format": "json",
+        "schema_ref": "inventory_schemas.screens.json",
+        "validation": "count khớp với items[].length"
+      },
+      "inventory/api-endpoints.json": {
+        "required": true,
+        "format": "json",
+        "schema_ref": "inventory_schemas.api-endpoints.json",
+        "validation": "count khớp với items[].length; method thuộc enum hợp lệ"
+      },
+      "inventory/source-files.json": {
+        "required": true,
+        "format": "json",
+        "schema_ref": "inventory_schemas.source-files.json",
+        "validation": "count khớp với items[].length; items[] có thể empty khi DOCS_ONLY"
+      },
+      "inventory/dependency-graph.json": {
+        "required": true,
+        "format": "json",
+        "schema_ref": "inventory_schemas.dependency-graph.json",
+        "validation": "dependencies là object, circular là array"
+      },
+      "inventory/doc-files.json": {
+        "required": true,
+        "format": "json",
+        "schema_ref": "inventory_schemas.doc-files.json",
+        "validation": "count khớp với items[].length"
+      },
+      "inventory/external-docs.json": {
+        "required": true,
+        "format": "json",
+        "schema_ref": "inventory_schemas.external-docs.json",
+        "validation": "5 required categories tồn tại; total_docs = sum của tất cả category items"
+      },
+      "inventory/doc-classified.json": {
+        "required": false,
+        "condition": "maturity == DOCS_ONLY",
+        "format": "json",
+        "schema_ref": "inventory_schemas.doc-classified.json",
+        "validation": "is_docs_only == true; doc_type thuộc enum hợp lệ"
+      }
+    },
+    "stage_2": {
+      "classified/*.json": {
+        "required": true,
+        "format": "json",
+        "min_count": 1,
+        "validation": "Moi file co system, module, items[]"
+      },
+      "glossary.json": {
+        "required": true,
+        "format": "json",
+        "validation": "Co terms[] array"
+      }
+    },
+    "stage_3": {
+      "extracted/*.json": {
+        "required": true,
+        "format": "json",
+        "min_count": 1,
+        "schema_ref": ".claude/skills/workflow/wf-legacy-extract/templates/extracted-module.json",
+        "required_fields": ["module", "system", "requirements", "features", "stats", "extracted_at"],
+        "validation": "module la lowercase-kebab-case (CORE-017); moi item co TMP-ID format; moi module co it nhat 1 requirement HOAC 1 feature"
+      }
+    },
+    "stage_4": {
+      "registry_valid": {
+        "description": "req-registry.json phai valid va co systems[], modules[], requirements[], features[]",
+        "path": ".mc-data/docs/_meta/req-registry.json",
+        "format": "json",
+        "required_fields": ["systems", "modules", "requirements", "features"],
+        "validation": "systems.length > 0 AND modules.length > 0"
+      },
+      "phase0_contract": {
+        "description": "Phase 0 docs pass phase0-brainstorm/_contract.json",
+        "contract_ref": ".claude/doc-framework/phase0-brainstorm/_contract.json"
+      },
+      "phase1_contract": {
+        "description": "Phase 1 docs pass phase1-business/_contract.json",
+        "contract_ref": ".claude/doc-framework/phase1-business/_contract.json"
+      },
+      "phase2_contract": {
+        "description": "Phase 2 docs pass phase2-features/_contract.json",
+        "contract_ref": ".claude/doc-framework/phase2-features/_contract.json"
+      },
+      "phase3_contract": {
+        "description": "Phase 3 docs pass phase3-architecture/_contract.json",
+        "contract_ref": ".claude/doc-framework/phase3-architecture/_contract.json"
+      }
+    },
+    "stage_5": {
+      "gap-report.md": {
+        "required": true,
+        "format": "markdown",
+        "required_sections": ["Tong quan", "Chi tiet theo System", "De xuat hanh dong"],
+        "validation": "Non-empty, co bang thong ke"
+      },
+      "final-report.md": {
+        "required": true,
+        "format": "markdown",
+        "required_sections": ["Executive Summary", "Pipeline Results", "Output Files"],
+        "validation": "Non-empty, pipeline_status == COMPLETE"
+      }
+    }
+  },
+  "pipeline_completion": {
+    "ledger_status": "pipeline_status == 'COMPLETE'",
+    "all_stages_completed": "Tat ca stages.*.status == 'completed'",
+    "registry_valid": "req-registry.json pass jq validation",
+    "no_critical_errors": "error_ledger.errors khong co unresolved critical errors"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "change-intake-v1",
+  "version": "1.0",
+  "created_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "user_prompt": "[USER_DESCRIPTION]",
+  "project_maturity": "docs_only | designed | implementing | near_done",
+  "phases_complete": [],
+  "change_type_preliminary": "MODIFY_FEATURE | MODIFY_REQUIREMENT | ADD_FEATURE | DELETE_FEATURE | CLARIFY_REQ | UNCLEAR",
+  "change_type_confirmed": null,
+  "confirmed_at": null,
+  "classification_history": [],
+  "referenced_artifacts": {
+    "systems": [],
+    "modules": [],
+    "features": [],
+    "req_ids": []
+  },
+  "new_concepts": [],
+  "analysis_mode": "quick | deep",
+  "unclear_points": [],
+  "classification_rationale": null,
+  "prompt_analysis": {
+    "keywords_extracted": [],
+    "intent_summary": null,
+    "domain_areas": [],
+    "complexity_indicator": "low | medium | high"
+  }
+}

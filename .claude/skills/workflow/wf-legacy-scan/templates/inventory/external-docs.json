@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "inventory-external-docs-v1",
+  "title": "Inventory: External Documents",
+  "description": "External business/integration/infra documents scanned during legacy scan Stage 1.6b. Output: .mc-data/work/legacy-scan/inventory/external-docs.json",
+  "type": "object",
+  "required": ["total_docs", "categories"],
+  "properties": {
+    "total_docs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng số external docs tìm thấy"
+    },
+    "categories": {
+      "type": "object",
+      "description": "Phân loại docs theo mục đích. Mỗi category là array — empty array nếu không có docs loại đó.",
+      "required": ["business-policy", "legacy-analysis", "integration-spec", "infrastructure", "user-guide"],
+      "properties": {
+        "business-policy": {
+          "type": "array",
+          "description": "Tài liệu chính sách, quy trình nghiệp vụ",
+          "items": { "$ref": "#/definitions/doc_entry" }
+        },
+        "legacy-analysis": {
+          "type": "array",
+          "description": "Tài liệu phân tích hệ thống cũ, migration notes",
+          "items": { "$ref": "#/definitions/doc_entry" }
+        },
+        "integration-spec": {
+          "type": "array",
+          "description": "Đặc tả tích hợp, API contracts, third-party docs",
+          "items": { "$ref": "#/definitions/doc_entry" }
+        },
+        "infrastructure": {
+          "type": "array",
+          "description": "Tài liệu hạ tầng, deployment, server config",
+          "items": { "$ref": "#/definitions/doc_entry" }
+        },
+        "user-guide": {
+          "type": "array",
+          "description": "Hướng dẫn sử dụng, training materials",
+          "items": { "$ref": "#/definitions/doc_entry" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "doc_entry": {
+      "type": "object",
+      "required": ["path", "title", "size_bytes"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Relative path từ project root"
+        },
+        "title": {
+          "type": "string",
+          "description": "Tiêu đề tài liệu (từ filename hoặc heading đầu tiên)"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "feature-addition",
+  "version": "4.0.0",
+  "phase": "orchestrator",
+  "phases": [
+    {
+      "id": "0",
+      "name": "Phase 0: Context Loading & Init",
+      "sub_skill": "internal",
+      "procedure": "procedures/phase0-init.md"
+    },
+    {
+      "id": "1",
+      "name": "Phase 1: Scope Addition (conditional)",
+      "sub_skill": "wf-add-scope",
+      "procedure": "procedures/phase1-scope.md"
+    },
+    {
+      "id": "2",
+      "name": "Phase 2: Define Features",
+      "sub_skill": "wf-define-features",
+      "procedure": "procedures/phase2-features.md"
+    },
+    {
+      "id": "3",
+      "name": "Phase 3: Design (conditional)",
+      "sub_skill": "wf-design",
+      "procedure": "procedures/phase3-design.md"
+    },
+    {
+      "id": "4",
+      "name": "Phase 4: Design UX (conditional)",
+      "sub_skill": "wf-design-ux",
+      "procedure": "procedures/phase4-ux.md"
+    },
+    {
+      "id": "5a",
+      "name": "Phase 5a: Plan Modules",
+      "sub_skill": "wf-plan-modules",
+      "procedure": "procedures/phase5a-plan.md"
+    },
+    {
+      "id": "5b",
+      "name": "Phase 5b: Implement Features",
+      "sub_skill": "wf-implement-feature",
+      "procedure": "procedures/phase5b-implement.md"
+    },
+    {
+      "id": "preflight",
+      "name": "Phase 6: Preflight Health Check",
+      "sub_skill": "wf-preflight",
+      "procedure": "procedures/phase6-preflight.md"
+    },
+    {
+      "id": "verify",
+      "name": "Phase 7: Verify Sync",
+      "sub_skill": "wf-verify-sync",
+      "procedure": "procedures/phase7-verify.md"
+    }
+  ],
+  "description": "Orchestrator: thêm feature vào dự án đã có — bắt đầu từ Phase 3+. v4.0.0 refactor thành orchestrator + procedures pattern (lazy-loading). Gọi wf-add-scope (conditional) khi cần module mới, sau đó wf-define-features → wf-design → wf-design-ux → wf-plan-modules → wf-implement-feature → wf-preflight → wf-verify-sync",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json",
+      ".mc-data/docs/phase3-architecture/"
+    ],
+    "registry_fields": [
+      "systems",
+      "modules",
+      "requirements"
+    ],
+    "notes": "Yêu cầu Phase 1-3 đã hoàn thành. CORE-011: PRE-GATE phải validate content registry bằng jq, không chỉ file existence."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry hiện tại — để xác định scope thêm feature, validate systems/modules/requirements có dữ liệu",
+      "required": true
+    },
+    {
+      "path": "user_prompt",
+      "description": "Mô tả feature mới cần thêm",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "Legacy decisions — respect DEPRECATE modules (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only (CORE-021)"
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-context.md",
+      "description": "Detect LEGACY_MODE — file > 500 bytes (CORE-021)",
+      "required": false,
+      "condition": "LEGACY_MODE detection"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/feature-addition/feature-addition-status.json",
+        "template": null,
+        "required": true,
+        "description": "Tracking state — feature IDs, phases completed/skipped, checkpoint. Schema inline (xem procedures/_shared.md §Status File Schema). Custom schema kế thừa shared status-file-schema.json."
+      }
+    ],
+    "registry": {
+      "path": "delegated to sub-skills",
+      "action": "delegated",
+      "description": "Orchestrator không ghi trực tiếp — mọi output do sub-skills tạo"
+    },
+    "notes": "Orchestrator gọi: wf-add-scope (conditional) → wf-define-features → wf-design (conditional) → wf-design-ux (conditional) → wf-plan-modules → wf-implement-feature → wf-preflight → wf-verify-sync"
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Orchestrator không sở hữu registry fields — delegate đến sub-skills"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/"
+      ],
+      "wf-design": [
+        ".mc-data/docs/_meta/design-input-digest.json"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ]
+    },
+    "orchestrates": [
+      "wf-add-scope",
+      "wf-define-features",
+      "wf-design",
+      "wf-design-ux",
+      "wf-plan-modules",
+      "wf-implement-feature",
+      "wf-preflight",
+      "wf-verify-sync"
+    ]
+  },
+  "procedures": {
+    "shared": "procedures/_shared.md",
+    "phase_files": [
+      "procedures/phase0-init.md",
+      "procedures/phase1-scope.md",
+      "procedures/phase2-features.md",
+      "procedures/phase3-design.md",
+      "procedures/phase4-ux.md",
+      "procedures/phase5a-plan.md",
+      "procedures/phase5b-implement.md",
+      "procedures/phase6-preflight.md",
+      "procedures/phase7-verify.md"
+    ],
+    "backup": "procedures/flow-legacy.md.bak",
+    "notes": "v4.0.0 refactor — monolithic SKILL.md tách thành 9 procedure files + 1 shared file, lazy-loaded per phase để giảm context load ~70%"
+  }
+}

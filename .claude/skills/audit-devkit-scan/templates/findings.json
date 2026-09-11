@@ -1,0 +1,29 @@
+{
+  "$schema": "audit-findings-v1",
+  "source": "{{AUDITOR_TYPE}}",
+  "batch": "{{BATCH_ID}}",
+  "scanned_at": "{{TIMESTAMP_ISO}}",
+  "files_scanned": 0,
+  "findings": [
+    {
+      "id": "F-{{TYPE}}-001",
+      "severity": "CRITICAL",
+      "component": "agent",
+      "file": "{{FILE_PATH}}",
+      "line": null,
+      "criterion": "{{CRITERION_ID}}",
+      "category": "functional",
+      "criterion_group": "{{GROUP}}",
+      "issue": "{{ISSUE_DESCRIPTION}}",
+      "fix_type": "AUTO",
+      "fix_proposal": "{{FIX_PROPOSAL}}",
+      "evidence": "{{EVIDENCE}}"
+    }
+  ],
+  "summary": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "total": 0
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "skill": "audit-agents",
+  "version": "3.0.0",
+  "evals": [
+    {
+      "id": "eval-1-single-agent",
+      "description": "Audit 1 agent cụ thể (sales-expert)",
+      "input": "/audit-agents sales-expert",
+      "expected_behavior": "Phase 0 load spec + detect scope=single, Phase 1 check sales-expert A1-A10 + AP-1 đến AP-7, Phase 4 focused crossref, Phase 5 output report",
+      "pass_criteria": [
+        "Phase 0: Đọc .claude/agents/spec/README.md + tạo session dir .mc-data/work/audit-agents/[session-id]/",
+        "Phase 1: Check frontmatter (name, version, model, tools, permissionMode) cho sales-expert",
+        "Phase 1: Check cấu trúc (Vai trò, Expertise, Workflow, Constraints)",
+        "Phase 1: Check anti-patterns AP-1 đến AP-7",
+        "Phase 4 (focused): X1 knowledge routing + X2 coordination cho sales-expert",
+        "Phase 5: Output report ghi vào docs/audit/reports/agent-audit-[date].md",
+        "Phase 5: Tạo audit-result.json + status.json trong $SESSION_DIR"
+      ]
+    },
+    {
+      "id": "eval-2-all-agents",
+      "description": "Audit tất cả agents với --all flag (scope=agents, chỉ Phase 1 + 5)",
+      "input": "/audit-agents --all",
+      "expected_behavior": "Phase 0: scope=agents, Phase 1: batching 5 agents/batch parallel, Phase 5 report",
+      "pass_criteria": [
+        "Phase 0: pending_phases = [phase1-agents, phase5-report]",
+        "Phase 1: Glob tìm được ~62 agent files (trừ README.md, spec/, procedures/)",
+        "Phase 1: Chia batches 5, spawn agent-auditor parallel",
+        "Phase 1: Mỗi batch append vào findings-agents.json; checkpoint phase1_state.completed_batches sau mỗi batch",
+        "Orchestrator exempt A3/A4/A6, soft limit A9 ≤400",
+        "Review agents exempt A6",
+        "Phase 5: Summary có compliance rate, CRITICAL findings highlight"
+      ]
+    },
+    {
+      "id": "eval-3-references-only",
+      "description": "Audit chỉ knowledge files (scope=references, chỉ Phase 3 + 5)",
+      "input": "/audit-agents --references",
+      "expected_behavior": "Phase 0: scope=references, Phase 3: K0-K3 + KG + KP-1 đến KP-7, Phase 5 report",
+      "pass_criteria": [
+        "Phase 0: pending_phases = [phase3-knowledge, phase5-report]",
+        "Phase 3: Tìm được ~29 knowledge domains trong .claude/references/team-expert/",
+        "Phase 3: Check personas.md, operations.md/processes.md, controls.md per business domain",
+        "Phase 3: Check general rules (header, line count ≤400, facts-only)",
+        "Phase 3: Check anti-patterns KP-1 đến KP-7",
+        "Phân biệt business domains (full K0-K3) vs engineering/testing (KG+KP only)",
+        "KP-4 orphan detection deferred — Phase 4 không chạy ở scope này (skip)"
+      ]
+    },
+    {
+      "id": "eval-4-procedures-only",
+      "description": "Audit chỉ procedure files (scope=procedures, chỉ Phase 2 + 5)",
+      "input": "/audit-agents --procedures",
+      "expected_behavior": "Phase 0: scope=procedures, Phase 2: P0-P6 + PP-1 đến PP-6, Phase 5 report",
+      "pass_criteria": [
+        "Phase 0: pending_phases = [phase2-procedures, phase5-report]",
+        "Phase 2: Tìm được procedure directories trong .claude/agents/procedures/",
+        "Phase 2: Check folder name khớp agent name (TC-P0)",
+        "Phase 2: Check header metadata: Type, Agent, Triggered when, Output (TC-P1)",
+        "Phase 2: Check anti-patterns PP-1 đến PP-6",
+        "Phase 2 step 2.3: Cross-check knowledge refs (Grep READ instructions)",
+        "Phase 2: Check kích thước ≤200 dòng (TC-P5)"
+      ]
+    },
+    {
+      "id": "eval-5-full-audit",
+      "description": "Full audit (scope=full — Phase 1-5 đầy đủ)",
+      "input": "/audit-agents --full",
+      "expected_behavior": "Phase 0-5 đầy đủ, full audit với cross-reference X1-X6",
+      "pass_criteria": [
+        "Phase 0: pending_phases = [phase1-agents, phase2-procedures, phase3-knowledge, phase4-crossref, phase5-report]",
+        "Phase 1 complete: findings-agents.json tồn tại (A1-A10 + AP-1 đến AP-7)",
+        "Phase 2 complete: findings-procedures.json tồn tại (P0-P6 + PP-1 đến PP-6)",
+        "Phase 3 complete: findings-knowledge.json tồn tại (K0-K3 + KP-1 đến KP-7)",
+        "Phase 4 complete: findings-crossref.json có X1-X6 (agent↔knowledge + agent↔procedure)",
+        "Phase 5: audit-result.json merged + sorted theo severity, compliance rate + verdict",
+        "Phase 5: Report có đủ Tóm tắt table, Findings table, Recommendations",
+        "POST-GATE Protocol 10 T1-T4 pass cho report file"
+      ]
+    },
+    {
+      "id": "eval-6-default-scope",
+      "description": "Chạy không argument → default --full",
+      "input": "/audit-agents",
+      "expected_behavior": "Không có argument → Phase 0 tự set scope=full, chạy Phase 0-5 đầy đủ",
+      "pass_criteria": [
+        "Phase 0 step 0.1: detect không argument → default $SCOPE = full",
+        "Chạy đầy đủ 6 phases (Phase 0-5)",
+        "Output giống eval-5 (full audit)"
+      ]
+    },
+    {
+      "id": "eval-7-resume",
+      "description": "Resume từ checkpoint sau khi interrupt ở giữa Phase 1",
+      "input": "/audit-agents --resume",
+      "expected_behavior": "Phase 0: Read status.json, xác định completed_phases + pending_phases[0], resume từ đó. Nếu Phase 1 đang chạy batching thì tiếp tục từ current_batch_index",
+      "pass_criteria": [
+        "Phase 0 step 0.2: detect --resume → đọc latest session status.json",
+        "Nếu session.completed_at != null → báo 'session đã xong, không cần resume'",
+        "Nếu đang ở phase1-agents → đọc phase1_state.current_batch_index và tiếp tục batch kế tiếp (không re-audit batches đã xong)",
+        "Nếu đang ở phase khác → load procedure file tương ứng và execute",
+        "Không duplicate findings (không append lại batches đã xong)"
+      ]
+    },
+    {
+      "id": "eval-8-lazy-loading",
+      "description": "Verify cấu trúc lazy loading: SKILL.md không chứa full execution logic",
+      "input": "check SKILL.md size + procedure files existence",
+      "expected_behavior": "SKILL.md chỉ routing + overview; procedure files tồn tại và tự-chứa execution steps",
+      "pass_criteria": [
+        "SKILL.md <= 250 dòng (ngắn hơn nhiều so với v2.2.0: 475 dòng)",
+        "procedures/_shared.md tồn tại và chứa state vars, anti-patterns, schemas",
+        "procedures/phase0-init.md đến phase5-report.md: 6 files tồn tại",
+        "Mỗi phase file self-contained: có PRE-GATE, Steps, POST-GATE, Routing",
+        "SKILL.md có 'Phase Routing Map' table map phase → procedure file"
+      ]
+    }
+  ]
+}

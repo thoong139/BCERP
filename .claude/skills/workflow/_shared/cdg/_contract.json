@@ -1,0 +1,54 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "cdg",
+  "version": "0.1.0",
+  "phase": "phase1-prereq",
+  "description": "CDG (Critical Decision Gate) handoff tokens + anti-loop guard cho linear skills.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-OPT-08"],
+  "core_refs": ["CORE-027"],
+  "inputs": [
+    {
+      "name": "cdg_id",
+      "type": "string",
+      "required": true,
+      "notes": "Định danh CDG"
+    },
+    {
+      "name": "context",
+      "type": "string",
+      "required": true,
+      "notes": "Mô tả context cho user"
+    },
+    {
+      "name": "session_dir",
+      "type": "Path",
+      "required": true,
+      "notes": "Session directory chứa cdg-tokens.json"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "cdg_tokens",
+      "kind": "file",
+      "template": "templates/cdg-tokens.json",
+      "notes": "cdg-tokens.json trong session_dir"
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from cdg import create_cdg_token, load_cdg_tokens, check_anti_loop, append_token",
+      "kind": "python-import",
+      "called_by": "5 linear skills"
+    }
+  ],
+  "dependencies": {
+    "internal": [],
+    "external": []
+  },
+  "status": "phase1-new",
+  "testing": {
+    "min_cases": 3,
+    "notes": "Test create token, anti-loop guard, atomic append"
+  }
+}

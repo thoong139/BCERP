@@ -1,0 +1,43 @@
+{
+  "$schema": "scan-status-v1.2",
+  "skill": "wf-scan-target",
+  "version": "1.2.0",
+  "session_id": "",
+  "target": "",
+  "target_type": "",
+  "module_name": "",
+  "scan_depth": "deep",
+  "target_fingerprint": null,
+  "status": "in_progress",
+  "verdict": null,
+  "started_at": "",
+  "completed_at": null,
+  "phases": {
+    "phase_0": { "name": "Setup & PRE-GATE", "status": "pending" },
+    "phase_1": { "name": "Target Analysis", "status": "pending" },
+    "phase_2": { "name": "Multi-Layer Scan", "status": "pending" },
+    "phase_3": { "name": "Synthesis & Feature Inventory", "status": "pending" },
+    "phase_4": { "name": "Gap Analysis", "status": "skipped" },
+    "phase_5": { "name": "Output Generation", "status": "pending" }
+  },
+  "layer_states": {
+    "L1": "pending",
+    "L2": "pending",
+    "L3": "pending",
+    "L4": "pending"
+  },
+  "checkpoint_ref": null,
+  "intermediate_dir": "intermediate/",
+  "lock_file": ".lock",
+  "results": {
+    "tech_stack": [],
+    "files_scanned": 0,
+    "endpoints_found": 0,
+    "screens_found": 0,
+    "entities_found": 0,
+    "features_identified": 0,
+    "completeness_estimate": null
+  },
+  "output_files": [],
+  "error_log": []
+}

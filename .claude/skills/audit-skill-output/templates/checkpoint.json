@@ -1,0 +1,56 @@
+{
+  "$schema": "audit-checkpoint-v1",
+  "checkpoint_id": null,
+  "timestamp": "YYYY-MM-DDTHH:mm:ssZ",
+  "session": 1,
+  "context_used_pct": 0,
+
+  "trigger": {
+    "reason": "context_limit | user_request | phase_complete | error",
+    "context_threshold": "65% | 80% | 90%",
+    "phase_completed": null
+  },
+
+  "current_skill": null,
+  "current_phase": "phase_0 | phase_1 | phase_2 | phase_3 | phase_4",
+  "current_step": null,
+  "next_action": null,
+
+  "all_mode_state": {
+    "skills_to_audit": [],
+    "completed_skills": [],
+    "remaining_skills": [],
+    "findings_so_far": 0
+  },
+
+  "completed_work": {
+    "phases_done": [],
+    "dimensions_done": [],
+    "fixes_applied": [],
+    "structural_findings": []
+  },
+
+  "in_memory_state": {
+    "structural_findings_count": 0,
+    "fixable_count": 0,
+    "d4_status": null,
+    "d4_score": null,
+    "d5_status": null,
+    "verdict_so_far": null
+  },
+
+  "resume_instructions": {
+    "command": "/audit-skill-output [skill-name | --all] --resume",
+    "files_to_read": [
+      ".mc-data/work/audit-skill-output/audit-skill-output-status.json",
+      ".claude/skills/audit-skill-output/SKILL.md"
+    ],
+    "context_recovery": [
+      "Doc audit-skill-output-status.json → load current_skill, completed_skills, remaining",
+      "Doc checkpoint.json → xac dinh current_phase va next_action",
+      "Tiep tuc tu next_action, bo qua phases da hoan thanh"
+    ]
+  },
+
+  "resumed_from": null
+}

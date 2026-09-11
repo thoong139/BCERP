@@ -1,0 +1,71 @@
+{
+  "$schema": "scan-exclusions-v1",
+  "version": "1.0.0",
+  "last_updated": "2026-05-17",
+  "purpose": "Path patterns excluded from QD3 security probes (false positive prevention). Mỗi entry là regex POSIX ERE (dùng cho grep -E).",
+  "exclusions": {
+    "i18n_translations": {
+      "patterns": [
+        "/messages/",
+        "/i18n/",
+        "/locales/",
+        "/translations/",
+        "/lang/"
+      ],
+      "reason": "Translation key/value JSON files (vi.json, en.json) thường chứa text như 'Mật khẩu', 'API Key' nhưng đây là user-facing labels, không phải credentials thật.",
+      "applies_to": [
+        "P-QD3-secret-detection"
+      ]
+    },
+    "test_fixtures": {
+      "patterns": [
+        "__tests__",
+        "test/",
+        "tests/",
+        "spec/",
+        "\\.test\\.",
+        "\\.spec\\.",
+        "fixtures/",
+        "mocks?/",
+        "test-data/"
+      ],
+      "reason": "Test fixtures intentionally contain dummy secrets for testing security probes themselves.",
+      "applies_to": [
+        "P-QD3-secret-detection",
+        "P-QD3-owasp-top-ten"
+      ]
+    },
+    "docs_examples": {
+      "patterns": [
+        "/docs?/",
+        "\\.md$",
+        "\\.example$",
+        "\\.example\\.",
+        "/README",
+        "/CHANGELOG"
+      ],
+      "reason": "Documentation examples (READMEs, .env.example) are illustrative configs, not real secrets.",
+      "applies_to": [
+        "P-QD3-secret-detection"
+      ]
+    },
+    "build_artifacts": {
+      "patterns": [
+        "node_modules",
+        "\\.git/",
+        "dist/",
+        "build/",
+        "\\.next/",
+        "coverage/",
+        "target/",
+        "vendor/"
+      ],
+      "reason": "Build/dependency artifacts không phải source code của user, không actionable.",
+      "applies_to": [
+        "P-QD3-secret-detection",
+        "P-QD3-owasp-top-ten",
+        "P-QD3-dangerous-deserialize"
+      ]
+    }
+  }
+}

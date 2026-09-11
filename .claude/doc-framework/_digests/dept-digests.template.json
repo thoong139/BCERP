@@ -1,0 +1,51 @@
+{
+  "$schema": "dept-digests-schema-v1.0",
+  "description": "Per-department requirements digest from Phase 1 analysis. ~150 words per dept. Purpose: đưa feature designer nhanh chóng lên tốc độ về business logic, priority workflows, và constraints per department.",
+  "template": {
+    "departments": [
+      {
+        "dept_name": "string — tên phòng ban từ Phase 1",
+        "dept_id": "string enum — DEPT_ID từ req-registry.json (ví dụ: 'SALES', 'INVENTORY')",
+        "business_unit": "string — đơn vị kinh doanh (ví dụ: 'Revenue', 'Operations')",
+        "key_requirements": [
+          "string — tóm tắt 2-3 requirements quan trọng nhất (format: 'REQ-DEPT-NNN: description')"
+        ],
+        "business_rules": [
+          "string — 2-3 business rules quan trọng (ví dụ: 'Orders must have > 0 items', 'Soft delete required for audit')"
+        ],
+        "priority_workflows": [
+          {
+            "workflow_name": "string — tên workflow (ví dụ: 'Create Order', 'Process Refund')",
+            "why_important": "string — tại sao workflow này quan trọng",
+            "key_steps": "string — tóm tắt 3-4 bước chính"
+          }
+        ],
+        "stakeholder_concerns": [
+          "string — concern từ department leaders (ví dụ: 'Need reports by EOD', 'Data accuracy is critical')"
+        ],
+        "success_metrics": [
+          "string — metric thành công (ví dụ: 'Order processing time < 5 min', 'Data sync latency < 1s')"
+        ]
+      }
+    ]
+  },
+  "validation": {
+    "required_fields_per_dept": [
+      "dept_name",
+      "dept_id",
+      "key_requirements",
+      "business_rules",
+      "priority_workflows"
+    ],
+    "max_words_per_dept": 150,
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-analyze-requirements (Phase 1 POST-GATE)",
+    "consumed_by": [
+      "wf-define-features (Phase 1 PRE-GATE)"
+    ],
+    "location": ".mc-data/docs/_meta/dept-digests.json",
+    "fallback": "Nếu digest không tồn tại, consumer skill đọc phase1-business/ docs"
+  }
+}

@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "business-flow-spec-v1",
+  "title": "MCV3 Business Flow Specification v1",
+  "description": "Schema validation cho business-flow-spec.yaml files. Dat tai: .mc-data/docs/phase3-architecture/business-flows/<flow-id>.yaml. Su dung boi probe P-QD10-business-flow-runtime de chay E2E driver kiem tra luong nghiep vu da duoc dac ta.",
+  "type": "object",
+  "required": ["flow_id", "name", "modules_involved", "steps"],
+  "additionalProperties": false,
+
+  "properties": {
+    "flow_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 3,
+      "description": "Dinh danh duy nhat cua luong nghiep vu (kebab-case, e.g. quote-to-cash, customs-declaration)"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Ten hien thi cho luong nghiep vu (e.g. Quote-to-Cash Flow)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Phien ban spec (semantic version, e.g. 1.0.0)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Mo ta ngan gon muc dich va ket qua cua luong nghiep vu"
+    },
+    "flow_type": {
+      "type": "string",
+      "enum": ["q2c", "customs", "loyalty", "payment", "hr", "general"],
+      "description": "Loai luong nghiep vu — dung de routing probe va reporting"
+    },
+    "modules_involved": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^MOD-",
+        "description": "Module ID tu req-registry.json (e.g. MOD-CRM, MOD-QUOTATION)"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Danh sach module tham gia vao luong nghiep vu (theo thu tu chay)"
+    },
+    "prerequisites": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/prerequisite" },
+      "description": "Dieu kien phai thoa man truoc khi chay flow (e.g. customer must exist, product catalog loaded)"
+    },
+    "steps": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/step" },
+      "minItems": 1,
+      "description": "Danh sach cac buoc thuc hien theo thu tu — probe chay sequential"
+    },
+    "expected_invariants": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/invariant" },
+      "description": "Bat bien toan cuc — phai dung xuyen suot va sau khi chay toan bo flow"
+    },
+    "timeout_minutes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 60,
+      "default": 10,
+      "description": "Thoi gian timeout tong cong (phut) cho toan bo flow. Probe P-QD10-business-flow-runtime se abort neu vuot qua."
+    }
+  },
+
+  "$defs": {
+    "prerequisite": {
+      "type": "object",
+      "required": ["description"],
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Mo ta dieu kien (e.g. 'Customer with email test@example.com must exist')"
+        },
+        "module": {
+          "type": "string",
+          "pattern": "^MOD-",
+          "description": "Module lien quan den dieu kien (optional)"
+        },
+        "check": {
+          "type": "string",
+          "description": "API endpoint hoac expression de verify dieu kien (e.g. 'GET /api/customers?email=...' returns 200)"
+        },
+        "setup_if_missing": {
+          "type": "boolean",
+          "default": false,
+          "description": "true = probe tu dong tao data neu dieu kien chua thoa man; false = skip flow voi skip reason"
+        }
+      }
+    },
+
+    "step": {
+      "type": "object",
+      "required": ["id", "module", "action", "actor"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$",
+          "minLength": 2,
+          "description": "Dinh danh buoc (kebab-case, unique trong flow, e.g. create-lead, submit-quotation)"
+        },
+        "module": {
+          "type": "string",
+          "pattern": "^MOD-",
+          "description": "Module xu ly buoc nay (phai co trong modules_involved[])"
+        },
+        "action": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Hanh dong thuc hien (e.g. create_customer, submit_quotation, confirm_order)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Mo ta ngan gon buoc nay (optional — giup doc flow de hieu)"
+        },
+        "actor": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "description": "Vai tro thuc hien buoc nay (e.g. sales_rep, customer, system, finance_officer)"
+            },
+            {
+              "type": "array",
+              "items": { "type": "string", "minLength": 1 },
+              "minItems": 1,
+              "description": "Nhieu vai tro duoc phep thuc hien buoc nay"
+            }
+          ],
+          "description": "Nguoi hoac he thong thuc hien hanh dong nay"
+        },
+        "api_endpoint": {
+          "type": "string",
+          "description": "API endpoint duoc goi trong buoc nay (e.g. 'POST /api/quotations/submit'). Probe dung de goi truc tiep."
+        },
+        "fixture": {
+          "$ref": "#/$defs/fixture",
+          "description": "Du lieu test can thiet cho buoc nay (tao moi hoac tham chieu buoc truoc)"
+        },
+        "assert": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/assertion" },
+          "description": "Danh sach assertions phai pass sau khi thuc hien buoc nay"
+        },
+        "expected_state_change": {
+          "$ref": "#/$defs/state_change",
+          "description": "Thay doi trang thai entity du kien sau buoc nay (cho probe kiem tra state machine)"
+        },
+        "wait_for": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "condition": {
+              "type": "string",
+              "description": "Dieu kien poll (e.g. 'order.status == CONFIRMED')"
+            },
+            "timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300,
+              "default": 30,
+              "description": "Timeout cho poll loop (giay)"
+            },
+            "poll_interval_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30,
+              "default": 2,
+              "description": "Khoang thoi gian giua moi lan poll (giay)"
+            }
+          },
+          "description": "Neu buoc nay async, poll until condition true truoc khi chay buoc tiep theo"
+        },
+        "cleanup": {
+          "type": "boolean",
+          "default": false,
+          "description": "true = probe tu dong xoa entity da tao o buoc nay sau khi flow hoan thanh"
+        },
+        "skip_if": {
+          "type": "string",
+          "description": "Expression — neu true thi skip buoc nay (e.g. 'steps.create-lead.skipped == true')"
+        }
+      }
+    },
+
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entity_type": {
+          "type": "string",
+          "description": "Loai entity can tao (e.g. Customer, Lead, Product, Quotation)"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Key-value pairs cho entity data (co the dung ${step_id.field} de tham chieu output buoc truoc)"
+        },
+        "reuse_from_step": {
+          "type": "string",
+          "description": "Neu set, tai su dung entity duoc tao o buoc nay thay vi tao moi (e.g. 'create-lead' → lay customer_id tu step do)"
+        },
+        "cleanup_after_flow": {
+          "type": "boolean",
+          "default": true,
+          "description": "true = xoa entity sau khi flow chay xong (de test environment sach)"
+        }
+      }
+    },
+
+    "assertion": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "description": "Simple string assertion (mô tả cho dev — probe log as expected outcome)"
+        },
+        {
+          "type": "object",
+          "required": ["field", "operator"],
+          "additionalProperties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "description": "Dotted path den gia tri can kiem tra (e.g. 'response.status', 'body.quotation.state', 'headers.location')"
+            },
+            "operator": {
+              "type": "string",
+              "enum": ["eq", "ne", "gt", "lt", "gte", "lte", "exists", "not_exists", "contains", "matches", "starts_with"],
+              "description": "Toan tu so sanh"
+            },
+            "expected": {
+              "description": "Gia tri mong doi (kieu phu thuoc operator — co the dung ${step_id.field} cho dynamic values)"
+            },
+            "description": {
+              "type": "string",
+              "description": "Mo ta assertion de bao cao ro rang"
+            },
+            "severity_on_fail": {
+              "type": "string",
+              "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+              "default": "HIGH",
+              "description": "Muc do loi khi assertion fail — probe dung de emit signal tuong ung"
+            }
+          }
+        }
+      ]
+    },
+
+    "state_change": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "entity": {
+          "type": "string",
+          "description": "Entity bi thay doi trang thai (e.g. Quotation, Order)"
+        },
+        "from": {
+          "type": "string",
+          "description": "Trang thai truoc (optional — kiem tra sau buoc TRUOC do)"
+        },
+        "to": {
+          "type": "string",
+          "description": "Trang thai mong doi sau buoc nay"
+        },
+        "state_field": {
+          "type": "string",
+          "default": "status",
+          "description": "Ten field trang thai trong API response (default: 'status')"
+        }
+      }
+    },
+
+    "invariant": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "description": "Simple string mo ta bat bien (dung cho reporting + documentation)"
+        },
+        {
+          "type": "object",
+          "required": ["description"],
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string",
+              "description": "Mo ta bat bien theo ngon ngu tu nhien"
+            },
+            "check": {
+              "type": "string",
+              "description": "Expression hoac API endpoint de verify sau khi flow hoan thanh"
+            },
+            "severity_on_fail": {
+              "type": "string",
+              "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+              "default": "CRITICAL",
+              "description": "Muc do loi khi bat bien bi vi pham"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "catalog-v1",
+  "description": "UI/Route catalog schema shared between QD1, QD5, QD7 dimensions. Emitted by QD1 deep-ui-traversal, consumed by QD5 ui-traversal-deep and QD7 device-breakpoint-test to avoid duplicate page crawling.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["$schema", "generated_at", "dim_source", "pages"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "catalog-v1",
+      "description": "Schema identifier. Must be 'catalog-v1'."
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when catalog was generated."
+    },
+    "dim_source": {
+      "type": "string",
+      "description": "Dimension probe that emitted this catalog (e.g., 'P-QD1-deep-ui-traversal')."
+    },
+    "base_url": {
+      "type": "string",
+      "description": "Base URL used during crawl (if applicable)."
+    },
+    "pages": {
+      "type": "array",
+      "description": "List of discovered UI pages/routes.",
+      "items": {
+        "type": "object",
+        "required": ["url", "title"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Full URL or relative path of the page."
+          },
+          "title": {
+            "type": "string",
+            "description": "Page title (from <title> tag or route definition)."
+          },
+          "components": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Top-level UI component names detected on this page."
+          },
+          "routes": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Child routes or sub-paths discovered from this page."
+          },
+          "interactive_elements": {
+            "type": "integer",
+            "description": "Count of interactive elements (buttons, inputs, links, selects)."
+          },
+          "has_form": {
+            "type": "boolean",
+            "description": "Whether page contains a form element."
+          },
+          "viewport_tested": {
+            "type": "boolean",
+            "description": "Whether responsive viewport testing has been performed."
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "$schema": "catalog-v1",
+      "generated_at": "2026-05-09T10:00:00Z",
+      "dim_source": "P-QD1-deep-ui-traversal",
+      "base_url": "http://localhost:3000",
+      "pages": [
+        {
+          "url": "http://localhost:3000/",
+          "title": "Home",
+          "components": ["Header", "Hero", "Footer"],
+          "routes": ["/about", "/products"],
+          "interactive_elements": 5,
+          "has_form": false,
+          "viewport_tested": false
+        },
+        {
+          "url": "http://localhost:3000/products",
+          "title": "Products",
+          "components": ["ProductGrid", "FilterSidebar"],
+          "routes": ["/products/1", "/products/2"],
+          "interactive_elements": 12,
+          "has_form": false,
+          "viewport_tested": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-scan-target",
+  "version": "2.0.1",
+  "phase": "standalone",
+  "description": "Quét target (module/hệ thống ERP/website) và tạo module map, feature inventory, JSON metadata, gap report. v2.0: Final release sau 8 sprints (~17.5h actual / 27.5h estimated). Sprint 1 compliance core (Protocol 14/15/16/18, POST-GATE T1-T4), Sprint 2 resume + checkpoint per layer, Sprint 3 lazy-load 11 procedure files (~75% context saving per phase), Sprint 4 bash scripts delegation 7 scripts (~85% token saving Phase 1-2), Sprint 5 cross-skill integration target-map.json v2 schema + 3 consumer skills OPTIONAL --from-scan flag, Sprint 6 multi-dev safety (atomic write + cross-host lock + JSONL append + .gitignore cache + cache hit logic TTL 24h), Sprint 7 profile + delta scan (4 profiles quick/standard/deep/exhaustive ADAPTIVE 5/25/50/100 + hard cap 200, --since=<git-ref> delta filter A/M/R, argument validation Q11, URL depth max=2 Q13, exhaustive LPM 15 validators + 20-30 features + similarity 0.5), Sprint 8 evals 5→12 cases + final audit + release notes. Backward-compat 100% từ v1.0 — tất cả CLI args mới đều OPTIONAL. v1.7: Sprint 7 profile + delta scan — 4 profiles (quick/standard/deep/exhaustive) với adaptive max-pages 5/25/50/100 (Q4=D), --max-pages override hard cap 200, --since=<git-ref> delta scan (filter A/M/R changed files, skip D), argument validation hardening (Q11 — enum/numeric/git ref/conflict detection), URL depth limit max-depth=2 hardcoded (Q13 — root + 1 level, không recursive crawl), exhaustive profile LPM extensions (deep business rules MAX 15 validators thay vì 5, key_features target 20-30 thay vì 10-20 + coverage validation, gap match similarity threshold 0.5 thay vì 0.6 + fuzzy notes), delta scan defensive cache skip (DELTA_MODE → skip Phase 1.5 lookup + Phase 5.5g write). v1.6: Sprint 6 multi-dev safety — atomic write hardening (safe_write_json + append_jsonl helpers), lock lifecycle hardening (cross-host detection + trap EXIT), _shared/scans-index.jsonl + _shared/history.jsonl population (git-sync friendly JSONL append), .gitignore cache + lock entries (Q2 = A — per-machine cache vì fingerprint chứa absolute path), cache hit logic TTL 24h + --no-cache bypass flag, concurrency model documented (3 test scenarios trong _shared.md). v1.5: Sprint 5 cross-skill integration — target-map.json v2 schema (scan_fingerprint, previous_scans, scan_diff, traceability, module_code_mapping, consumer_hints), POST-GATE T2 thêm v2 fields check, OPTIONAL --from-scan flag cho 3 consumer skills (wf-add-scope, wf-define-features, wf-design). Backward-compat: $schema chuyển từ target-map-v1 → target-map-v2; consumers detect via $schema value. v1.4: Sprint 4 bash scripts delegation — Phase 1-2 enumeration delegate sang 7 bash scripts (~88% token saving), Phase 3 split developer (3.1 code-derived) + business-analyst (3.2 tiếng Việt) per Q3 decision.",
+  "procedure": "procedures/phase0-setup.md",
+  "procedures_dir": "procedures/",
+  "procedure_files": [
+    "procedures/_shared.md",
+    "procedures/resume-status.md",
+    "procedures/phase0-setup.md",
+    "procedures/phase1-detect.md",
+    "procedures/phase2-l1-structure.md",
+    "procedures/phase2-l2-api.md",
+    "procedures/phase2-l3-ui.md",
+    "procedures/phase2-l4-db.md",
+    "procedures/phase3-synthesis.md",
+    "procedures/phase4-gap.md",
+    "procedures/phase5-output.md"
+  ],
+  "scripts": {
+    "common": ".claude/scripts/scan-target-common.sh",
+    "fingerprint": ".claude/scripts/scan-target-fingerprint.sh",
+    "detect": ".claude/scripts/scan-target-detect.sh",
+    "inventory": ".claude/scripts/scan-target-inventory.sh",
+    "api": ".claude/scripts/scan-target-api.sh",
+    "ui": ".claude/scripts/scan-target-ui.sh",
+    "db": ".claude/scripts/scan-target-db.sh",
+    "_notes": "Sprint 4 bash delegation. common.sh provides atomic_write_json/json_escape/slugify/lock helpers. fingerprint.sh = Q6 composite hash. detect+inventory+api+ui+db = Phase 1-2 enumeration. URL crawl + agent prompts vẫn AI."
+  },
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Standalone skill — không yêu cầu prerequisites từ DEVKIT pipeline"
+  },
+  "inputs": [
+    {
+      "arg": "--target",
+      "type": "path | url",
+      "description": "Path đến source code local hoặc URL cần scan",
+      "required": true
+    },
+    {
+      "arg": "--module",
+      "type": "string",
+      "description": "Tên module cụ thể cần focus (auto-detect nếu không cung cấp)",
+      "required": false
+    },
+    {
+      "arg": "--compare",
+      "type": "path",
+      "description": "Path đến spec/feature file để so sánh và tạo gap report",
+      "required": false
+    },
+    {
+      "arg": "--depth",
+      "type": "enum: shallow | deep",
+      "description": "Mức độ scan",
+      "required": false,
+      "default": "deep"
+    },
+    {
+      "arg": "--output",
+      "type": "path",
+      "description": "Thư mục output tùy chỉnh",
+      "required": false,
+      "default": ".mc-data/work/wf-scan-target/sessions/{session_id}/"
+    },
+    {
+      "arg": "--resume",
+      "type": "flag",
+      "description": "Tiếp tục session in_progress/paused gần nhất (GAP-05 — Sprint 2)",
+      "required": false
+    },
+    {
+      "arg": "--status",
+      "type": "flag",
+      "description": "Hiển thị status các sessions (table 5 latest), KHÔNG scan → STOP (GAP-05 — Sprint 2)",
+      "required": false
+    },
+    {
+      "arg": "--session",
+      "type": "string",
+      "description": "Resume session ID cụ thể (chỉ dùng cùng --resume)",
+      "required": false
+    },
+    {
+      "arg": "--no-cache",
+      "type": "flag",
+      "description": "Bypass cache lookup ở Phase 1.5 (force fresh scan). KHÔNG ghi cache mới khi POST-GATE pass (Sprint 6 multi-dev safety — Q2 = A)",
+      "required": false
+    },
+    {
+      "arg": "--profile",
+      "type": "enum: quick | standard | deep | exhaustive",
+      "description": "Sprint 7 — Profile system. Map sang scan_depth + MAX_PAGES (URL crawl page cap): quick (shallow, 5) | standard (deep, 25 — default) | deep (deep, 50) | exhaustive (deep + LPM extensions, 100). CLI flags --depth/--max-pages override profile defaults. exhaustive bật LPM: MAX 15 validators (thay vì 5), key_features target 20-30 (thay vì 10-20), gap similarity 0.5 (thay vì 0.6) + fuzzy notes.",
+      "required": false,
+      "default": "standard"
+    },
+    {
+      "arg": "--max-pages",
+      "type": "integer (1-200)",
+      "description": "Sprint 7 — Override profile default MAX_PAGES cho URL crawl. Hard cap 200 (Q4 ADAPTIVE — vượt 200 phải chạy nhiều sessions với scope filter, tránh DDoS target). Validation enforce ở Phase 0.1b.",
+      "required": false
+    },
+    {
+      "arg": "--since",
+      "type": "string (git ref)",
+      "description": "Sprint 7 — Delta scan. Compute changed files giữa <git-ref>..HEAD bằng `git diff --name-status --find-renames=80`, filter A/M/R (skip D). Phase 2 L1-L4 restrict scope chỉ trên changed files. Yêu cầu target=local-source trong git repo. Validation Phase 0.2b. Defensive: cache lookup + write đều skip khi delta mode active (cache full scan, delta = subset → mismatch).",
+      "required": false
+    }
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/module-map.md",
+        "template": "templates/module-map.md",
+        "required": true,
+        "description": "Bản đồ toàn diện của module — human-readable"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json",
+        "template": "templates/target-map.json",
+        "required": true,
+        "description": "Machine-readable metadata cho các workflow khác consume"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/feature-inventory.md",
+        "template": "templates/feature-inventory.md",
+        "required": true,
+        "description": "Danh sách tính năng, CRUD ops, business rules đã có"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/gap-report.md",
+        "template": "templates/gap-report.md",
+        "required": false,
+        "condition": "Chỉ tạo khi --compare được cung cấp",
+        "description": "Gap analysis so sánh scan results vs spec"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/scan-status.json",
+        "template": "templates/scan-status.json",
+        "required": true,
+        "description": "Tracking file — status, session metadata"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "description": "Tóm tắt scan tiếng Việt cho non-specialist (Protocol 14 / CORE-028)"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true,
+        "description": "Checkpoint cho --resume: phase_states, layer_states, next_action, intermediate_outputs, target_fingerprint (GAP-05/GAP-12 — Sprint 2)"
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/tech-stack.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 1.4 (sau khi detect tech_stack + compute fingerprint)",
+        "description": "Inline schema — partial output cho resume. Sprint 4 sẽ chuẩn hoá schema."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/l1-structure.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 2 Layer 1 (file structure scan complete)",
+        "description": "Inline schema — partial L1 output cho resume."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/l2-api.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 2 Layer 2 (API endpoints discovery complete)",
+        "description": "Inline schema — partial L2 output cho resume."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/l3-ui.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 2 Layer 3 (UI screens discovery complete)",
+        "description": "Inline schema — partial L3 output cho resume."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/l4-db.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 2 Layer 4 (entities/DB analysis complete)",
+        "description": "Inline schema — partial L4 output cho resume."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/synthesis.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 3 (synthesis + CRUD matrix + key features compiled)",
+        "description": "Inline schema — synthesis data cho resume từ Phase 4/5."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/changed-files.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo ở Phase 1.4b CHỈ KHI --since=<git-ref> set (Sprint 7 delta scan)",
+        "description": "Inline schema $schema=scan-target-changed-files-v1: {since_ref, head_ref, total_changed, scan_mode='delta', files[]}. Filter A/M/R (Added/Modified/Renamed) qua git diff --name-status --find-renames=80 SINCE_REF..HEAD; skip D (Deleted không scan được). Phase 2 L1-L4 dùng làm scope filter để restrict scan chỉ trên changed files."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/intermediate/gap.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo sau Phase 4 (chỉ khi --compare)",
+        "description": "Inline schema — gap matrix + metrics cho resume từ Phase 5."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/sessions/{session_id}/.lock",
+        "template": null,
+        "required": false,
+        "condition": "Tạo khi Phase 0.3c (fresh) hoặc resume-status.md (resume); cleanup khi Phase 5.5d hoặc trap EXIT",
+        "description": "Process lock (pid, host, user, started_at, skill, session_id). Sprint 6 hardening: cross-host detection (host khác → ERROR ngay, không kill -0); same-host PID dead → auto cleanup; trap EXIT đảm bảo cleanup. Helper canonical: check_lock_status / create_lock / release_lock trong scan-target-common.sh."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/_shared/scans-index.jsonl",
+        "template": "templates/scans-index-entry.json",
+        "required": false,
+        "condition": "APPEND 1 entry sau Phase 5 POST-GATE T1-T4 PASS (Sprint 6 multi-dev safety)",
+        "description": "JSONL append-only — 1 entry / 1 dòng. Git-sync friendly (auto-merge line-based). Consumer: Sprint 5 phase5-output Step 5.2a query để populate previous_scans[] trong target-map.json v2. KHÔNG ignore git (sync để team thấy lịch sử scan)."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/_shared/history.jsonl",
+        "template": null,
+        "required": false,
+        "condition": "APPEND 1 entry sau Phase 5 POST-GATE T1-T4 PASS (Sprint 6)",
+        "description": "Compact rotation log (session_id + completed_at + status). Sprint 7 sẽ thêm rotation logic 200-entry max. KHÔNG ignore git."
+      },
+      {
+        "path": ".mc-data/work/wf-scan-target/_shared/cache/{TARGET_FINGERPRINT}.json",
+        "template": null,
+        "required": false,
+        "condition": "Tạo khi Phase 5.5g (POST-GATE pass + NO_CACHE != true + CACHE_HIT != true) — Sprint 6 multi-dev safety",
+        "description": "Per-machine cache (TTL 24h hardcoded). Phase 1.5 lookup: hit → reuse target-map.json + skip Phase 2-4. .gitignore'd vì fingerprint chứa absolute path → cross-machine không reusable. Bypass via --no-cache."
+      }
+    ],
+    "registry": null
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "NONE",
+    "notes": "Standalone skill — không modify req-registry.json"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-implement-feature": [
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json",
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/feature-inventory.md"
+      ],
+      "wf-define-features": [
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json",
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/feature-inventory.md"
+      ],
+      "wf-design": [
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/module-map.md",
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json"
+      ],
+      "wf-add-scope": [
+        ".mc-data/work/wf-scan-target/sessions/{session_id}/target-map.json"
+      ]
+    },
+    "consumes_from": {},
+    "_notes": "Sprint 5 cross-skill: 3 consumer skills (wf-add-scope, wf-define-features, wf-design) thêm OPTIONAL --from-scan flag để đọc target-map.json. Backward-compat: KHÔNG thay đổi default behavior của consumer skills. Schema detection via $schema field (target-map-v1 vs target-map-v2)."
+  },
+  "supported_tech_stacks": [
+    "dotnet-ddd",
+    "nextjs",
+    "react-native",
+    "node-express",
+    "node-hono",
+    "vue-nuxt",
+    "swagger-openapi",
+    "url-crawl",
+    "generic"
+  ],
+  "session_isolation": "CORE-030 — mỗi invocation tạo sessions/{session_id}/ riêng. Format: {YYYY-MM-DD}-{scope-label}[-{N}] (Protocol 18.2)"
+}

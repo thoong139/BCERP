@@ -1,0 +1,53 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "lane",
+  "version": "0.1.0",
+  "phase": "phase1-prereq",
+  "description": "Generic lane dispatch — chạy nhiều lanes song song với Semaphore + backpressure. Lanes theo department/system/feature-group thay vì QD dimension.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-OPT-01"],
+  "core_refs": ["CORE-025"],
+  "inputs": [
+    {
+      "name": "lanes",
+      "type": "list[LaneConfig]",
+      "required": true,
+      "notes": "Danh sách lanes cần chạy, mỗi lane có key, agent_type, prompt, output_path."
+    },
+    {
+      "name": "max_parallel",
+      "type": "int",
+      "required": false,
+      "notes": "Semaphore limit, default 3. Lấy từ profile lanes_max_parallel."
+    }
+  ],
+  "outputs": [
+    {
+      "name": "lane_signal",
+      "kind": "file",
+      "template": "templates/lane-signal.json",
+      "notes": "Mỗi lane ghi 1 file theo lane-signal-v1 schema"
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from lane import dispatch_lanes, LaneConfig, LaneResult",
+      "kind": "python-import",
+      "called_by": "5 linear skills"
+    },
+    {
+      "command": "python3 lane/dispatcher.py --config=lanes.json",
+      "kind": "python-cli",
+      "called_by": "SKILL.md inline script"
+    }
+  ],
+  "dependencies": {
+    "internal": ["concurrency/ (backpressure, tùy chọn)"],
+    "external": []
+  },
+  "status": "phase1-new",
+  "testing": {
+    "min_cases": 3,
+    "notes": "Test dispatch empty/full, timeout, lane_signal write/read"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "_shared",
+  "version": "1.0.0",
+  "description": "> **Trạng thái:** B1 Skeleton + Phase 1 Linear Modules (2026-04-23)\r > **Thuộc về:** Design v1.0 — `docs/design/skills/wf-fix-bugs/` + `docs/design/skills/ADR-downstream-skills-optimization.md`\r > **Registry role:** NONE cho toàn bộ module trong thư mục này (không được ghi `req-registry.json`)\r > **Ngôn ngữ:** Tài liệu tiếng Việt có dấu; tên file + API English (CORE-005)",
+  "main": "playwright-session.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.60.0"
+  }
+}

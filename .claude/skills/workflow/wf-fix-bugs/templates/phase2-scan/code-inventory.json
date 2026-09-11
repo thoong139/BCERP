@@ -1,0 +1,13 @@
+{
+  "$schema": "code-inventory-v2",
+  "_template_notes": "code-inventory.json — Source code inventory từ Phase 2 Scan. Schema: code-inventory-v2 (v10.11.0 — enrich _schema_notes cho downstream consumers). Writer: scripts/wf-fix-bugs/scan-and-analyze.sh (Phase 2 Step 2.3).",
+  "_schema_notes": "Required: $schema, session_id, generated_at, total_files, by_language, by_module, files. files[] item schema: {path:string (relative), language:string, loc:int, module:string|null, req_ids:string[]}. by_language map: {lang_id: {file_count:int, total_loc:int}}. by_module map: {module_id: {file_count:int, total_loc:int, req_id_count:int}}. dependency_level ∈ {none, light, moderate, heavy} (none=<10 deps, light=10-50, moderate=51-200, heavy=>200). Consumer: Phase 3 ISG (workload partition theo by_module), Phase 4 lane agents (source_files filter theo module/language).",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "total_files": 0,
+  "total_loc": 0,
+  "dependency_level": "none",
+  "by_language": {},
+  "by_module": {},
+  "files": []
+}

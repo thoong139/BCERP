@@ -1,0 +1,75 @@
+{
+  "$schema": "ux-input-digest-schema-v1.0",
+  "description": "UX/UI design system summary from Phase 4. Purpose: cho Phase 5 implementation skill nhanh chóp lên tốc độ về design system, navigation, components, responsive strategy.",
+  "template": {
+    "design_system_summary": {
+      "name": "string — tên design system (ví dụ: 'Material Design 3', 'Custom Enterprise DS')",
+      "colors": {
+        "primary": "string — hex/RGB primary color",
+        "secondary": "string hoặc null — secondary color",
+        "accent": "string hoặc null — accent color"
+      },
+      "typography": {
+        "heading_font": "string — heading font (ví dụ: 'Inter Bold')",
+        "body_font": "string — body font (ví dụ: 'Inter Regular')",
+        "scales": [
+          "string — font size scale (ví dụ: 'H1: 32px', 'Body: 14px')"
+        ]
+      },
+      "spacing": "string — spacing unit (ví dụ: '8px grid', '4px spacing scale')",
+      "components_available": [
+        "string — component name (ví dụ: 'Button', 'Card', 'Modal', 'Form Input')"
+      ]
+    },
+    "navigation_structure": {
+      "main_navigation": [
+        "string — main menu item (ví dụ: 'Dashboard', 'Orders', 'Settings')"
+      ],
+      "user_flows": [
+        {
+          "flow_name": "string — user flow (ví dụ: 'Create Order')",
+          "screens": [
+            "string — screen tên (ví dụ: 'OrderList', 'OrderForm', 'OrderConfirmation')"
+          ]
+        }
+      ]
+    },
+    "responsive_strategy": "string — responsive approach (ví dụ: 'Mobile-first', 'Breakpoints: 375px, 768px, 1280px', 'Fluid typography')",
+    "accessibility": {
+      "wcag_level": "string enum: 'A' | 'AA' | 'AAA'",
+      "keyboard_navigation": "boolean — có support không",
+      "screen_reader_ready": "boolean — có optimize không"
+    },
+    "interactive_elements": [
+      {
+        "element": "string — tên element (ví dụ: 'Button', 'Dropdown')",
+        "states": [
+          "string — state (ví dụ: 'default', 'hover', 'active', 'disabled')"
+        ]
+      }
+    ],
+    "design_decisions": [
+      {
+        "decision": "string — quyết định design (ví dụ: 'Sidebar navigation instead of top nav')",
+        "rationale": "string — lý do"
+      }
+    ]
+  },
+  "validation": {
+    "required_fields": [
+      "design_system_summary",
+      "navigation_structure",
+      "responsive_strategy"
+    ],
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-design-ux (Phase 4 POST-GATE — chỉ khi interface_type != 'api-only')",
+    "consumed_by": [
+      "wf-plan-modules (Phase 4 PRE-GATE — nếu có UI)",
+      "wf-implement-feature (Phase 4 PRE-GATE — nếu feature có UI)"
+    ],
+    "location": ".mc-data/docs/_meta/ux-input-digest.json",
+    "fallback": "Nếu digest không tồn tại, consumer skill đọc phase4-ux/ docs"
+  }
+}

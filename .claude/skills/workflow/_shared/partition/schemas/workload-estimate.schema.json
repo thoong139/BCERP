@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "workload-estimate-v1",
+  "title": "Workload Estimate",
+  "description": "Schema cho workload estimate output",
+  "type": "object",
+  "required": ["total_minutes", "partition_count", "items_count", "partitions"],
+  "properties": {
+    "total_minutes": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Tổng thời gian ước lượng (phút)"
+    },
+    "partition_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Số partitions"
+    },
+    "items_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Tổng số items"
+    },
+    "partitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["group_key", "items_count", "estimated_minutes"],
+        "properties": {
+          "group_key": {
+            "type": "string",
+            "description": "Group key value"
+          },
+          "items_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "estimated_minutes": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

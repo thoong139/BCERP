@@ -1,0 +1,79 @@
+{
+  "$schema": "design-input-digest-schema-v1.0",
+  "description": "Architecture + technical summary from Phase 3. Purpose: cho Phase 4-5 skills nhanh chóp lên tốc độ về architecture pattern, tech stack, API contracts, DB schema, integration points.",
+  "template": {
+    "architecture_summary": {
+      "pattern": "string — architecture pattern (ví dụ: 'Layered', 'Microservices', 'Event-Driven')",
+      "key_components": [
+        "string — tên component chính (ví dụ: 'API Gateway', 'Customer Service', 'Order Queue')"
+      ],
+      "communication_style": "string — cách components giao tiếp (ví dụ: 'REST', 'gRPC', 'Event Bus')"
+    },
+    "tech_stack": {
+      "runtime": "string — runtime (ví dụ: 'Node.js 18', 'Python 3.11')",
+      "frameworks": [
+        "string — framework (ví dụ: 'Express', 'FastAPI')"
+      ],
+      "database": {
+        "primary": "string — CSDL chính (ví dụ: 'PostgreSQL 14')",
+        "cache": "string hoặc null — cache layer (ví dụ: 'Redis')",
+        "search": "string hoặc null — search engine (ví dụ: 'Elasticsearch')"
+      },
+      "cloud": "string hoặc null — cloud platform (ví dụ: 'AWS', 'GCP', 'Azure')"
+    },
+    "api_summary": [
+      {
+        "endpoint": "string — endpoint path (ví dụ: 'POST /orders')",
+        "method": "string enum: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'",
+        "purpose": "string — mục đích API",
+        "auth": "string — authentication (ví dụ: 'JWT', 'API Key')",
+        "ratelimit": "string hoặc null — rate limit policy"
+      }
+    ],
+    "database_summary": [
+      {
+        "entity_name": "string — tên entity (ví dụ: 'Order', 'Customer')",
+        "key_fields": [
+          "string — field quan trọng (ví dụ: 'id', 'status', 'created_at')"
+        ],
+        "indexes": [
+          "string — index (ví dụ: 'idx_customer_id', 'idx_status_created')"
+        ]
+      }
+    ],
+    "integration_points": [
+      {
+        "system": "string — tên system ngoài (ví dụ: 'Payment Gateway', 'Email Service')",
+        "integration_type": "string enum: 'api' | 'webhook' | 'message_queue' | 'database' | 'file_exchange'",
+        "protocol": "string — protocol (ví dụ: 'REST', 'gRPC', 'AMQP')",
+        "auth_method": "string — auth (ví dụ: 'OAuth2', 'API Key')"
+      }
+    ],
+    "nfr_implementations": {
+      "performance": "string hoặc null — cách đạt performance requirement",
+      "security": "string hoặc null — cách đạt security requirement",
+      "scalability": "string hoặc null — cách đạt scalability requirement"
+    },
+    "known_gotchas": [
+      "string — gotcha kỹ thuật (ví dụ: 'Legacy OAuth endpoint requires Basic Auth', 'Payment API has 30s timeout')"
+    ]
+  },
+  "validation": {
+    "required_fields": [
+      "architecture_summary",
+      "tech_stack",
+      "api_summary"
+    ],
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-design (Phase 3 POST-GATE)",
+    "consumed_by": [
+      "wf-design-ux (Phase 3 PRE-GATE — optional, nếu có UI)",
+      "wf-plan-modules (Phase 3 PRE-GATE)",
+      "wf-implement-feature (Phase 4 PRE-GATE)"
+    ],
+    "location": ".mc-data/docs/_meta/design-input-digest.json",
+    "fallback": "Nếu digest không tồn tại, consumer skill đọc phase3-architecture/ docs"
+  }
+}

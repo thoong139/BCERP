@@ -1,0 +1,165 @@
+{
+  "skill": "wf-fix-bugs",
+  "version": "10.10.0",
+  "description": "Orchestrator fix bugs — 7-phase pipeline (Init → Scan → Plan → Find Bugs → Triage → Execute → Verify). Dimension-based lane dispatch (QD1-QD11), CI-first (GitNexus + Serena Protocol 20), Playwright 3 modes. v10.10.0 fix wave: error code sync, lock TOCTOU, session-log atomic, SESSION_ID race-free, CQG-2 structured, CDG aggregation, max-retry enforcement, Python CLI fix.",
+  "evals": [
+    {
+      "id": "HAPPY_01",
+      "name": "Full pipeline standard profile - small project",
+      "category": "happy_path",
+      "priority": "critical",
+      "prompt": "Dự án có req-registry.json non-empty + src/ với ~50 files TypeScript. Chạy `/wf-fix-bugs --scope=all --profile=standard`",
+      "expected_output": "Skill orchestrate 7 phases tuần tự, dispatch lane agents song song max 10, generate fix-impact.json + orchestrator-summary.md tiếng Việt. Session isolation tại sessions/{YYYY-MM-DD-all-NN}/.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 1 Init: 18 steps thực thi đúng thứ tự, CI PRE-GATE wrapper (ci-pregate.sh) chạy 1 lần, atomic mkdir SESSION_ID claim race-free" },
+        { "type": "file_exists", "text": "Phase 1 POST-GATE: $SESSION_DIR/fix-status.json + session-log.json + error-ledger.json + Phase1-report.md tồn tại, đều có $schema root field" },
+        { "type": "behavior", "text": "Phase 2 Scan: scan-and-analyze.sh emit interface_type + total_files. session-log append qua jq '.events += [...]' atomic (KHÔNG dùng `>>` raw)" },
+        { "type": "behavior", "text": "Phase 3 Plan: plan-isg-partition.sh dùng `python -m isg analyze` → `python -m isg emit` chain. `python -m partition --items-file --group-key` (v10.10.0 CLI fix)" },
+        { "type": "file_exists", "text": "Phase 3 POST-GATE: workloads/W{N}/fix-workload.json tồn tại với $schema=fix-workload-v1" },
+        { "type": "behavior", "text": "Phase 4 Find Bugs: PARALLEL dispatch max 10 lane agents (subagent_type='claude'), verify-lane-prompt.sh chạy TRƯỚC mỗi Agent call" },
+        { "type": "file_exists", "text": "Phase 4 POST-GATE: 11 lanes mỗi lane có lane-status.json + signals.json (static + runtime + llm) + QD-report.md tiếng Việt" },
+        { "type": "behavior", "text": "Phase 5 Triage: setup-triage.sh aggregate signals → issue-registry.json. CDG token append qua atomic jq vào phase5-triage/cdg-tokens.json" },
+        { "type": "behavior", "text": "Phase 6 Execute: setup-execute.sh aggregate CDG tokens từ cả 3 paths (phase1/4/5) — v10.10.0 fix" },
+        { "type": "behavior", "text": "Phase 6: Step 6.4 spawn wf-fix-execute với subagent_type='claude' (KHÔNG dùng 'general-purpose')" },
+        { "type": "behavior", "text": "Phase 7 Verify: CQG-2 dùng structured check qua fix-log.json (count fixed PER dimension) thay vì grep keyword" },
+        { "type": "file_content", "text": "Phase 7: fix-impact.json có $schema='fix-impact-v1' + audit_chain.checksum sha256 của fix-status.json AT FINAL STATE (pre-finalize pattern v10.10.0)" },
+        { "type": "file_exists", "text": "Phase 7: orchestrator-summary.md tiếng Việt ≤40 dòng, Phase7-report.md ≤15 dòng (CORE-028)" },
+        { "type": "registry_check", "text": "Pipeline DONE: fix-status.pipeline_status='DONE', sessions.jsonl entry 'completed' appended" }
+      ],
+      "files": []
+    },
+    {
+      "id": "HAPPY_02",
+      "name": "E005 healthy path - 0 issues found",
+      "category": "happy_path",
+      "priority": "critical",
+      "prompt": "Dự án 'sạch' không có bug. Chạy `/wf-fix-bugs --profile=quick`. Phase 4 phát hiện 0 signals.",
+      "expected_output": "Phase 5 detect E005 → mark phase5+phase6=completed (e005_healthy=true) → jump Phase 7. CQG-2 skip. Pipeline DONE healthy.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 5 Step 5.1: setup-triage.sh exit 5 (E005 path) khi TOTAL_SIGNALS=0" },
+        { "type": "behavior", "text": "Phase 5: fix-status.phases.phase5.e005_healthy=true, phase6.e005_healthy=true (cùng atomic update)" },
+        { "type": "behavior", "text": "Phase 6: setup-execute.sh detect e005_healthy=true → exit 0 status='e005_skip', orchestrator jump Phase 7" },
+        { "type": "behavior", "text": "Phase 7: setup-verify.sh nhận E005_HEALTHY=true → CQG-1 + CQG-2 SKIP (PASS_FAIL='N/A')" },
+        { "type": "file_content", "text": "bug-dashboard.md hiển thị 'healthy' / 'không phát hiện lỗi'" },
+        { "type": "behavior", "text": "Resume sau crash: R5 routing table line 92 — Phase 5 (E005) → Phase 7 (KHÔNG vào Phase 6)" }
+      ],
+      "files": []
+    },
+    {
+      "id": "HAPPY_03",
+      "name": "--dry-run preview mode",
+      "category": "happy_path",
+      "priority": "high",
+      "prompt": "Chạy `/wf-fix-bugs --dry-run` trên dự án có 5 issues phát hiện ở Phase 4.",
+      "expected_output": "Phase 1-5 chạy bình thường. Phase 6 Step 6.3 dry-run-preview.sh render preview rồi STOP. Phase 7 không chạy. Pipeline KHÔNG modify code.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 6 Step 6.3: dry-run-preview.sh exit 5 (E_DRY_RUN_DONE) khi DRY_RUN=true" },
+        { "type": "file_content", "text": "$SESSION_DIR/phase6-execute/fix-report.md chứa 'DRY RUN' + issues table" },
+        { "type": "behavior", "text": "fix-status.phases.phase6.status='completed', .reason='dry_run'" },
+        { "type": "behavior", "text": "Code source files KHÔNG bị modify (git diff trống)" }
+      ],
+      "files": []
+    },
+    {
+      "id": "EDGE_01",
+      "name": "--resume sau crash giữa Phase 4",
+      "category": "edge_case",
+      "priority": "critical",
+      "prompt": "Pipeline đang chạy Phase 4 dispatch lanes, user Ctrl+C. Sau đó chạy `/wf-fix-bugs --resume`.",
+      "expected_output": "R1 tìm session gần nhất. R5 detect phase4.status='in_progress' → archive partial outputs sang phase4-find-bugs.partial-{TS}/ → re-run Phase 4 từ đầu. R9.5 preserve retry budget từ error-ledger.",
+      "assertions": [
+        { "type": "behavior", "text": "R1: Tìm session gần nhất qua fix-status.updated_at sort, không tạo SESSION_DIR mới" },
+        { "type": "behavior", "text": "R5: phase4-find-bugs/ có partial outputs (3/11 lanes done) → MOVE sang phase4-find-bugs.partial-YYYYMMDDTHHMMSS/ trước khi re-run" },
+        { "type": "behavior", "text": "R7 Path A: lock check qua PID — nếu PID dead → auto-release. Path B: mtime check fallback" },
+        { "type": "behavior", "text": "R9.5: đếm error-ledger.errors entries cho phase4 → set RETRY_COUNT, nếu ≥3 thì E001 STOP" },
+        { "type": "behavior", "text": "R9.6: re-validate prior phase outputs (Phase 1-3) qua PRE-GATE T1-T4 trước khi route" },
+        { "type": "behavior", "text": "Re-run Phase 4: re-dispatch 11 lanes, các lane đã COMPLETE trước crash có thể skip nếu output valid" }
+      ],
+      "files": []
+    },
+    {
+      "id": "EDGE_02",
+      "name": "Concurrent sessions race-safe",
+      "category": "edge_case",
+      "priority": "critical",
+      "prompt": "2 CI jobs chạy `/wf-fix-bugs --scope=module --name=hrm` đồng thời.",
+      "expected_output": "Atomic mkdir SESSION_ID claim đảm bảo mỗi job lấy NN khác nhau. Lock acquire qua acquire_lock POSIX-atomic mkdir guard. Heartbeat daemon ghi atomic tmp→mv.",
+      "assertions": [
+        { "type": "behavior", "text": "Job 1 claim SESSION_ID=YYYY-MM-DD-module-hrm-01, Job 2 claim -02 (atomic mkdir loop trong Step 1.10)" },
+        { "type": "behavior", "text": "KHÔNG có 2 sessions cùng NN — không có data corruption" },
+        { "type": "behavior", "text": "Lock file ghi với atomic tmp.hb→mv trong heartbeat — concurrent reader không thấy partial content" }
+      ],
+      "files": []
+    },
+    {
+      "id": "ERROR_01",
+      "name": "Missing registry → E003 STOP",
+      "category": "error_handling",
+      "priority": "critical",
+      "prompt": "Dự án chưa có .mc-data/docs/_meta/req-registry.json. Chạy `/wf-fix-bugs`.",
+      "expected_output": "Phase 1 PRE-GATE detect registry missing → E003 STOP, hướng dẫn chạy /wf-brainstorm trước.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 1 PRE-GATE: jq -e '.requirements | length > 0' req-registry.json FAIL → E003" },
+        { "type": "behavior", "text": "error-ledger.json APPEND entry với phase='phase1' + error_code='E003'" },
+        { "type": "behavior", "text": "Pipeline STOP — không tạo SESSION_DIR" }
+      ],
+      "files": []
+    },
+    {
+      "id": "ERROR_02",
+      "name": "CDG ABORT anti-loop guard",
+      "category": "error_handling",
+      "priority": "high",
+      "prompt": "Phase 5 phát hiện critical process integrity violations. User ABORT 3 lần liên tiếp với --resume.",
+      "expected_output": "Mỗi ABORT append error-ledger E052. R9.5 detect retry_count≥3 → E001 STOP với escalate AskUserQuestion.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 5 Step 5.4: User ABORT → APPEND error-ledger E052 (v10.10.0 fix, không append → budget reset vô tận)" },
+        { "type": "behavior", "text": "Resume #1, #2: R9.5 đếm E052 entries = 1, 2 → tiếp tục" },
+        { "type": "behavior", "text": "Resume #3: R9.5 count = 3 ≥ 3 → E001 STOP, AskUserQuestion 'Re-run / Skip / Cancel'" }
+      ],
+      "files": []
+    },
+    {
+      "id": "ERROR_03",
+      "name": "Context budget E009 FORCE STOP",
+      "category": "error_handling",
+      "priority": "high",
+      "prompt": "Dự án lớn (>500K LOC). Pipeline đến Phase 6 Step 6.4 với MCV3_CONTEXT_PCT=92%.",
+      "expected_output": "_context_budget_check trigger return 3 (E009) → caller exit 9. Checkpoint event ghi vào session-log. User chạy --resume từ Phase 6.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 6 Step 6.4: _context_budget_check 6 '6.4' → echo 'E009: Context >= 90%' → return 3" },
+        { "type": "behavior", "text": "session-log.events += [{event:'CHECKPOINT', context_pct:92, reason:'force_stop_E009'}] (atomic tmp→mv)" },
+        { "type": "behavior", "text": "Caller exit 9 → orchestrator STOP, hướng dẫn --resume" },
+        { "type": "behavior", "text": "Resume sau: R2 detect pipeline_status còn 'in_progress', R5 route đến Phase 6 in-progress → re-run" }
+      ],
+      "files": []
+    },
+    {
+      "id": "ERROR_04",
+      "name": "--migrate without legacy sessions",
+      "category": "error_handling",
+      "priority": "medium",
+      "prompt": "User chạy `/wf-fix-bugs --migrate` trên project không có legacy v6.x sessions (chỉ có v7.0+).",
+      "expected_output": "Phase 1 Step 1.3 PRE-GATE detect 0 legacy sessions → INFO + exit 0 (không gọi migrate script).",
+      "assertions": [
+        { "type": "behavior", "text": "Step 1.3 --migrate: find -name 'run-*' count = 0 → echo 'INFO: Không phát hiện legacy v6.x sessions' → exit 0" },
+        { "type": "behavior", "text": "wf-fix-migrate-sessions.sh KHÔNG được gọi (tránh corrupt sessions index)" }
+      ],
+      "files": []
+    },
+    {
+      "id": "INTEG_01",
+      "name": "Cross-skill artifact handoff to wf-verify-sync",
+      "category": "integration",
+      "priority": "high",
+      "prompt": "Sau khi /wf-fix-bugs DONE, chạy `/wf-verify-sync --from-fix-bugs`.",
+      "expected_output": "wf-verify-sync đọc fix-impact.json + docs-sync-report.json + issue-registry.json từ session gần nhất của wf-fix-bugs. Validate $schema='fix-impact-v1' + audit_chain.checksum khớp với fix-status.json checksum.",
+      "assertions": [
+        { "type": "behavior", "text": "wf-verify-sync PRE-GATE T3: jq '.\"$schema\" == \"fix-impact-v1\"' fix-impact.json PASS" },
+        { "type": "behavior", "text": "wf-verify-sync T4 checksum match: sha256(fix-status.json) == audit_chain.checksum (pre-finalize ensures match)" },
+        { "type": "registry_check", "text": "wf-verify-sync update impl_status cho REQ-IDs trong issue-registry.issues[].req_ids[]" }
+      ],
+      "files": []
+    }
+  ]
+}

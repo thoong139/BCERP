@@ -1,0 +1,25 @@
+{
+  "$schema": "coverage-report-v1",
+  "_template_notes": "coverage-report.json — Machine-readable coverage metrics (song hành với coverage-report.md). Schema: coverage-report-v1 (v10.11.0 — mới). Writer: scripts/wf-fix-bugs/generate-phase5-reports.sh (Phase 5 Step 5.11). Strip _template_notes/_schema_notes trước khi write.",
+  "_schema_notes": "Required: $schema, session_id, generated_at, dimensions[], distribution, totals. dimensions[] item: {dimension_id, probes_run:int, probes_total:int, coverage_pct:int (0-100), signals_found:int}. distribution.by_severity {critical, high, medium, low, info} (count + pct). totals {dims_covered:int, dims_total:int, dims_skipped:[ids], probe_success_rate:int (0-100)}. Consumer: Phase 7 reports (orchestrator-summary uses dimensions[] for breakdown), wf-prepare-deployment optional consumer.",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "dimensions": [],
+  "distribution": {
+    "by_severity": {
+      "critical": {"count": 0, "pct": 0},
+      "high": {"count": 0, "pct": 0},
+      "medium": {"count": 0, "pct": 0},
+      "low": {"count": 0, "pct": 0},
+      "info": {"count": 0, "pct": 0}
+    }
+  },
+  "totals": {
+    "dims_covered": 0,
+    "dims_total": 0,
+    "dims_skipped": [],
+    "probe_success_rate": 0,
+    "total_signals": 0,
+    "total_issues": 0
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "lane-status-v1",
+  "lane": "[LANE_NAME]",
+  "dimension": "[DIMENSION]",
+  "session_id": "[SESSION_ID]",
+  "session_dir": "[SESSION_DIR]",
+  "profile": "[PROFILE]",
+  "status": "pending",
+  "started_at": "[ISO_TIMESTAMP]",
+  "completed_at": null,
+  "duration_total_ms": null,
+  "probes": [],
+  "totals": {
+    "probes_run": 0,
+    "probes_skipped": 0,
+    "probes_failed": 0,
+    "signals_emitted": 0,
+    "signals_by_severity": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "info": 0
+    },
+    "evidence_files": 0
+  },
+  "cache": {
+    "enabled": false,
+    "cache_hits": 0,
+    "cache_misses": 0
+  },
+  "errors": []
+}

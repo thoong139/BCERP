@@ -1,0 +1,19 @@
+{
+  "_doc": "neg-05: Mock backend health-check response (FP-005 reproduction target)",
+  "_fp_target": "FP-005 — Backend cold start > 10s timeout → P-QD1-infra-preflight (curl --max-time 10) trả 'not_running' CRITICAL",
+  "_probe_target": "P-QD1-infra-preflight (chưa implement bash script) — nếu implement cần retry với exponential backoff",
+  "_audit_reference": "02-qd1-functional-audit.md §4 FP-005 + §3 Probe 3 D4",
+  "_expected_probe_behavior": "find với extension whitelist KHÔNG include .json → KHÔNG scan file này → KHÔNG sinh signal. Nếu probe vẫn flag → schema scope leak.",
+  "_note_safe_keys": [
+    "_doc, _fp_target, _probe_target dùng dấu underscore prefix để không bị nhầm là REQ/FEAT-ID. KHÔNG nhúng REQ-FAKE-* hay FEAT-FAKE-* trong values vì JSON keys đôi khi được scan bởi i18n probes (QD5).",
+    "Hiện QD1 probe scope chỉ scan source code extension → JSON tự động bị skip."
+  ],
+  "_mock_response": {
+    "status": "ok",
+    "uptime_seconds": 1247,
+    "version": "1.2.3",
+    "started_at": "2026-05-08T05:00:00Z",
+    "cold_start_simulated_delay_ms": 12000,
+    "comment": "Cold start delay 12s vượt qua --max-time 10 — probe sẽ flag CRITICAL nếu không có retry logic"
+  }
+}

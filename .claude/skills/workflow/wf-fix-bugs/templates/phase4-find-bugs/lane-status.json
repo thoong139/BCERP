@@ -1,0 +1,20 @@
+{
+  "$schema": "lane-status-v1",
+  "_template_notes": "lane-status.json — Per-dimension lane execution status. Schema: lane-status-v1. Written by lane agent after probe execution. STRIP this field before writing.",
+  "_schema_notes": "status ∈ {pending, in_progress, completed, failed, skipped}. completed_at/started_at ISO-8601.",
+  "dimension_id": "{{DIM_ID}}",
+  "dimension_name": "{{DIM_NAME}}",
+  "session_id": "{{SESSION_ID}}",
+  "status": "pending",
+  "started_at": "",
+  "completed_at": "",
+  "agent_id": "",
+  "signals_static": 0,
+  "signals_runtime": 0,
+  "signals_llm": 0,
+  "probe_failures": 0,
+  "probes_executed": [],
+  "probes_failed": [],
+  "playwright_used": false,
+  "errors": []
+}

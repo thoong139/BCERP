@@ -1,0 +1,73 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "scan_cache",
+  "version": "0.1.0-skeleton",
+  "phase": "phase5-fix",
+  "description": "Content-addressable cache lưu kết quả probe × file × version. TTL 14 ngày. ADR-22 rule 6: QD3 never cached. Opt-in qua flag --use-cache.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-02", "ADR-19", "ADR-22"],
+  "core_refs": ["CORE-007"],
+  "inputs": [
+    {
+      "name": "probe-run-result",
+      "kind": "in-memory",
+      "source": "probe caller (sau khi run thành công)",
+      "required": true
+    }
+  ],
+  "outputs": [
+    {
+      "name": "cache-entry",
+      "path": ".mc-data/cache/wf-fix-bugs/probes/<fingerprint>.json",
+      "schema": "schemas/cache-entry.schema.json",
+      "template": "templates/cache-entry.json",
+      "notes": "Atomic write. Fingerprint sha256 theo spec README §2. Template cache-entry-v1 (CORE-031 Protocol 19)."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "fingerprint.py --probe-id=... --probe-version=... --file=...",
+      "kind": "python-cli",
+      "called_by": "Probe runner pre-compute key"
+    },
+    {
+      "command": "cache_lookup.py --cache-root=... --fingerprint=... --current-file-sha=...",
+      "kind": "python-cli",
+      "called_by": "/wf-fix-bugs Lane Dispatch (per probe × file)"
+    },
+    {
+      "command": "cache_store.py set|clear",
+      "kind": "python-cli",
+      "called_by": "Probe runner post-success / maintenance"
+    }
+  ],
+  "safety_guarantees": [
+    {
+      "id": "SF-SC-1",
+      "rule": "ADR-22 rule 6",
+      "description": "Signal có dimension_id='QD3' → cache_store.py:set_entry() raise ValueError",
+      "enforced_in": "cache_store.py:set_entry()",
+      "violation_exit_code": 3
+    },
+    {
+      "id": "SF-SC-2",
+      "rule": "content-hash integrity",
+      "description": "Nếu current_file_sha khác entry.file_content_sha → treat MISS + delete entry (stale). Không bao giờ return stale data.",
+      "enforced_in": "cache_lookup.py:lookup()",
+      "violation_exit_code": 0
+    },
+    {
+      "id": "SF-SC-3",
+      "rule": "TTL enforce",
+      "description": "Entry có ttl_expires_at < now → MISS + delete",
+      "enforced_in": "cache_lookup.py:lookup()",
+      "violation_exit_code": 0
+    }
+  ],
+  "status": "B1-skeleton",
+  "testing": {
+    "b1": "Không có test — skeleton raises NotImplementedError",
+    "b3": "wf-fix-functional chạy với --use-cache 2 lần; run 2 fast",
+    "b4": "Fixture: qd3-should-not-cache.json, file-changed-invalidate.test, ttl-expired.test"
+  }
+}

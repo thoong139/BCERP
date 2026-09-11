@@ -1,0 +1,267 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-implement-feature",
+  "version": "5.2.0",
+  "phase": "phase5-implementation",
+  "description": "Triển khai code cho feature theo TDD — source code + tests + review. v5.2.0: Cross-skill `--from-fix-bugs[=<id>]` flag — Phase 1 step 1.10/1.11 consume `fix-impact.json` từ wf-fix-bugs session (Protocol 21) để prioritize features có code_files trùng `$FEATURE_SLUG`. Auto-resolve latest completed session. Opt-in: không pass flag → behavior cũ (zero regression). v5.1.0: Quality improvement — Environment Profile Detection (phase0-6), Environment Safety Scan (phase0-7 BƯỚC 2b với 5 pattern E1-E5), VERIFY_ONLY lightweight review routing, mandatory security agent cho auth_security/data_layer batches, Agent Output Spot-Check (CORE-029), expanded QA review checklist (Environment Safety + Runtime Safety + i18n & Accessibility). v5.0.0: System-grouped layout — work dir đổi từ flat `$FEATURE_SLUG/sessions/` thành `$SYSTEM_SLUG/$FEATURE_SLUG/sessions/`. Locks và cache cũng scope theo system (.locks/$SYSTEM_SLUG/, .cache/$SYSTEM_SLUG/$MODULE_SLUG/). Auto-derive $SYSTEM_SLUG từ registry features[].system_id → systems[].slug, fallback `_orphan/` khi feature không có trong registry. Cờ mới --system=<slug> để override khi ambiguous. History index .history/implementations-index.jsonl bổ sung field `system` per entry để filter cross-system. Idempotent v4→v5 migration script (`implement-migrate-v4-to-v5.sh`) chạy auto ở Phase 0.0, dùng pre-built map (slug→system) cho O(N) performance. Layout marker `.layout-version=5` phòng tránh re-migrate. Backward compat v3/v4 đầy đủ — chain v3→v4→v5 idempotent. v4 features kế thừa: Session isolation, profile system, pattern cache, consumer_hints schema v2.0, decision registry global, error-ledger namespaced.",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase0-existing-analysis.md",
+    "procedures/phase0-5-context-setup.md",
+    "procedures/phase0-6-env-profile.md",
+    "procedures/phase1-feature-context.md",
+    "procedures/phase0-7-safety-gate.md",
+    "procedures/phase2-planning.md",
+    "procedures/phase2-5-contracts.md",
+    "procedures/phase3-tdd.md",
+    "procedures/phase4-5-review-fix.md",
+    "procedures/phase5a-crossval.md",
+    "procedures/phase6-finalize.md",
+    "procedures/flow-multi.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/phase2-features/[sys]/[mod]/*.md",
+      ".mc-data/docs/phase5-implementation/tasks/[sys]/[mod]/*-impl.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "registry_fields": [
+      "features",
+      "requirements"
+    ],
+    "notes": "Feature specs và task files từ wf-plan-modules phải tồn tại trước khi implement"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/docs/phase2-features/[sys]/[mod]/*.md",
+      "description": "Feature specification files",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase5-implementation/tasks/[sys]/[mod]/*-impl.md",
+      "description": "Task implementation files từ wf-plan-modules",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "description": "Registry để đọc feature specs và cập nhật impl_status",
+      "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "description": "User decisions về deprecated modules (CORE-022)",
+      "required": false,
+      "condition": "LEGACY_MODE only"
+    },
+    {
+      "path": ".mc-data/docs/_meta/feature-briefs.json",
+      "description": "Feature briefs digest from wf-define-features",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/_meta/design-input-digest.json",
+      "description": "Design digest from wf-design",
+      "required": false,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/work/wf-fix-bugs/sessions/$FROM_FIX_BUGS_SESSION_ID/fix-impact.json",
+      "description": "Fix impact context (schema fix-impact-v1) — Phase 1 step 1.10 load để prioritize features có code_files trùng $FEATURE_SLUG. Auto-resolve session từ _index/sessions.jsonl khi không pass session_id.",
+      "required": false,
+      "condition": "--from-fix-bugs flag passed"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/impl-status.json",
+        "template": "templates/impl-status.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/impl-plan.md",
+        "template": "templates/impl-plan.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/impl-report.md",
+        "template": "templates/impl-report.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/qa-review-attempt-[N].md",
+        "template": "templates/qa-review-report.md",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/decision-registry.json",
+        "template": "templates/decision-registry.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/existing-patterns.json",
+        "template": "templates/existing-patterns.json",
+        "required": true
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/phase-summary.md",
+        "template": "templates/phase-summary.md",
+        "required": true,
+        "notes": "CORE-028 — tóm tắt cho non-specialist, viết tiếng Việt. v4.0 Sprint 3: dùng skill-local template (kế thừa cấu trúc canonical + thêm 'Cho skill kế tiếp' section với consumer_hints reference)."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/cdg-tokens.json",
+        "template": "templates/cdg-tokens.json",
+        "required": false,
+        "condition": "Registry write CDG-02/03/04 triggered",
+        "notes": "CDG decision log per Protocol 16. Append-only, ghi ở Phase 6.1-CDG khi registry đã có content."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/contracts.json",
+        "template": null,
+        "required": false,
+        "condition": "$PARALLEL_MODE == true",
+        "notes": "Contract-first generation output (Phase 2.5). Conditional on --parallel flag."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/current.txt",
+        "template": null,
+        "required": true,
+        "notes": "v4.0+ session pointer (relative path tới active session). Tạo ở Phase 0.2d qua resolve_session_dir()."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/.history/implementations-index.jsonl",
+        "template": null,
+        "required": true,
+        "notes": "v4.0+ append-only JSONL audit trail (multi-dev safety). Tạo ở Phase 6.6 qua implement-history-index.sh."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/profile.txt",
+        "template": null,
+        "required": true,
+        "notes": "v4.0+ Sprint 2 — Resolved profile (quick/standard/deep/exhaustive) cho session, ghi ở phase2-planning Step 2.0b qua implement-resolve-profile.sh. Consumed by phase3 mode + phase4-5 agent set."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/.cache/$SYSTEM_SLUG/$MODULE_SLUG/existing-patterns.$GIT_SHA.json",
+        "template": null,
+        "required": false,
+        "condition": "$SCENARIO != \"new\" AND --no-cache chưa set AND git repo present",
+        "notes": "v4.0+ Sprint 2 — Pattern cache, per-module + per-commit. Per-machine (gitignored). Augmented với invalidation_hash + module_path + scanned_at metadata. TTL 24h + git SHA dual invalidation. Validator: implement-cache-resolver.sh --validate."
+      },
+      {
+        "path": ".mc-data/docs/_meta/decision-registry.global.json",
+        "template": "templates/decision-registry-global.json",
+        "required": false,
+        "condition": "Phase 3.5 và developer agent log NEW DECISION với scope ∈ project/module:*",
+        "notes": "v4.0+ Sprint 3 — Cross-feature decision registry, APPEND-only. Owner PRIMARY. Lazy-init (file tạo lần đầu khi có decision append). Conflict check Protocol 12.2. Lock: .decision-registry.lock qua implement-acquire-lock.sh --type=decision-registry. Schema: templates/decision-registry-global.schema.md. Path is project-global (NOT $SESSION_DIR-scoped) — cross-feature consistency."
+      },
+      {
+        "path": ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/error-ledger.json",
+        "template": "templates/error-ledger.json",
+        "required": false,
+        "condition": "≥1 error/warning logged trong session (lazy-init)",
+        "notes": "v4.0+ Sprint 4 — Per-session error ledger, append-only. Replace + extend impl-status.warnings[]. Schema v1.0 với namespaced codes E1xx-E9xx (alias E001-E014). Lazy-init qua ledger_log() helper trong implement-common.sh. Cap 100 entries (oldest dropped, log E904). Atomic write tmp+mv → safe với parallel agents. Schema doc: templates/error-ledger.schema.md."
+      }
+    ],
+    "registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "action": "update",
+      "description": "Cập nhật impl_status per REQ-ID sau khi implementation hoàn thành"
+    }
+  },
+  "registry_scope": {
+    "write_role": "PRIMARY",
+    "fields_owned": [
+      "impl_status"
+    ],
+    "safe_write_rule": "CORE-006",
+    "notes": "PRIMARY owner của impl_status per REQ-ID. Narrow per-field jq update (KHÔNG replace toàn bộ .requirements[] array). CDG-02/03/04 trigger khi registry đã có content. CORE-020: search code hiện tại trước khi viết mới."
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-preflight": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-verify-sync": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-prepare-deployment": [
+        ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/impl-status.json"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-implement-feature/$SYSTEM_SLUG/$FEATURE_SLUG/sessions/$SESSION_ID/impl-status.json"
+      ],
+      "future-implementations": [
+        ".mc-data/docs/_meta/decision-registry.global.json"
+      ]
+    },
+    "_consumer_hints_v2": {
+      "_note": "v4.0 Sprint 3 — schema v2.0 produces consumer_hints cho 3 skills (Q1 LOCKED: chưa modify consumer skills, integration roadmap v5.0 với --from-impl flag).",
+      "wf-prepare-deployment": "files_for_changelog, breaking_changes, migrations_required, feature_summary_vi",
+      "wf-fix-bugs": "scope_modules, test_files_added, decision_ids_new, implementation_strategy_used",
+      "wf-verify-sync": "req_ids_completed, files_with_req_id, session_dir"
+    },
+    "consumes_from": {
+      "wf-plan-modules": [
+        ".mc-data/docs/phase5-implementation/module-plan.md",
+        ".mc-data/docs/phase5-implementation/dependency-graph.md",
+        ".mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md",
+        ".mc-data/docs/phase5-implementation/sprints/S[NN]-[name].md",
+        ".mc-data/docs/phase5-implementation/tasks/[sys-slug]/[mod-slug]/[feat-slug]-impl.md",
+        ".mc-data/docs/phase5-implementation/stakeholder-review.md"
+      ],
+      "wf-define-features": [
+        ".mc-data/docs/phase2-features/[sys-slug]/[mod-slug]/[feat-slug].md",
+        ".mc-data/docs/_meta/feature-briefs.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/_meta/design-input-digest.json"
+      ],
+      "wf-brainstorm": [
+        ".mc-data/work/wf-brainstorm/legacy-decisions.json"
+      ],
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/project-context.md"
+      ],
+      "wf-fix-bugs": [
+        ".mc-data/work/wf-fix-bugs/sessions/$FROM_FIX_BUGS_SESSION_ID/fix-impact.json"
+      ]
+    }
+  },
+  "code_intelligence": {
+    "integration": true,
+    "protocol": "20-code-intelligence.md",
+    "protocol_version": "1.0.0",
+    "pattern": "3-step PRE-GATE (Na/Nb/Nc) + CI-ROUTE annotations in procedures",
+    "tools_used": [
+      "gitnexus_impact",
+      "gitnexus_context",
+      "gitnexus_detect_changes",
+      "gitnexus_route_map",
+      "serena_find_references",
+      "serena_find_definition",
+      "ci-detect",
+      "ci-freshness-check",
+      "ci-inject-context"
+    ],
+    "ci_tasks": [
+      "find_existing_code (phase0-7-safety-gate BƯỚC 2)",
+      "impact_analysis (phase0-7-safety-gate MODIFY scenario, phase3-tdd CI-1)",
+      "find_references (phase3-tdd CI-2)",
+      "pre_commit_check (phase3-tdd CI-3 + Phase 6 commit)"
+    ],
+    "graceful_degradation": "Lock held → fallback Grep. Tool unavailable → fallback Grep. Non-git → skip. Zero regression.",
+    "notes": "CI tools auto-detected at Phase 0 PRE-GATE. CI context injected vào agent spawn prompts. Freshness check mỗi PRE-GATE."
+  }
+}

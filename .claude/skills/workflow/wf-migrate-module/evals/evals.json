@@ -1,0 +1,341 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-migrate-module",
+  "version": "1.1.0",
+  "description": "Eval cases cho /wf-migrate-module skill v1.1 — 18 cases (EVAL-001 → EVAL-018) coverage: happy path, LEGACY_MODE, error handling, resume, CDG, skip-phase, auto-approve, CI, pre-flight, parity (2 cases), dry-run, cross-validation (2 cases), auto-rollback, structured error log, --resume-task, snapshot corruption recovery.",
+  "evals": [
+    {
+      "id": "EVAL-001",
+      "name": "Happy path — migrate CRM module tu scan docs",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Chuyen chuc nang Khach hang 360 tu he thong cu sang EUREKA\"",
+        "setup": {
+          "scan_session": ".mc-data/work/wf-scan-target/sessions/2026-05-11-crm-legacy/",
+          "scan_files": ["target-map.json", "feature-inventory.md", "module-map.md"],
+          "registry": ".mc-data/docs/_meta/req-registry.json"
+        }
+      },
+      "expected_outputs": {
+        "migrate-status.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": ["migrate_id", "status", "phases", "strategy", "metrics"]
+        },
+        "gap-analysis.md": {
+          "must_contain": ["Phan tich Gap", "Tong quan module cu", "Danh sach feature", "Khuyen nghi tong the"]
+        },
+        "strategy-matrix.md": {
+          "must_contain": ["Ma tran Chien luoc", "Keep", "Redesign", "Deprecate", "Merge"]
+        },
+        "entity-mapping.md": {
+          "must_contain": ["Anh xa Entity", "Tong ket", "Chi tiet tung entity"]
+        },
+        "index.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": ["active_session", "sessions"]
+        }
+      },
+      "expected_behavior": "Phase 0 parse args + validate scan session + detect LEGACY_MODE. Phase 1 spawn 2 agents (business-analyst + architect) phan tich gap, tong hop 3 output files (gap-analysis.md, strategy-matrix.md, entity-mapping.md). CDG-1/2/3 hoi user duyet strategy, entity mapping, scope. Sau khi duyet, chuyen sang Phase 2."
+    },
+    {
+      "id": "EVAL-002",
+      "name": "LEGACY_MODE — loai bo deprecated modules",
+      "input": {
+        "args": "--from-scan=2026-05-11-legacy-inventory --to-system=SYS-BACKEND --to-module=MOD-WMS \"Chuyen chuc nang quan ly kho\"",
+        "setup": {
+          "legacy_mode": true,
+          "legacy_context": ".mc-data/work/legacy-scan/project-context.md (> 500 bytes)",
+          "legacy_decisions": ".mc-data/work/wf-brainstorm/legacy-decisions.json co modules[] voi action=DEPRECATE cho 'legacy-import'"
+        }
+      },
+      "expected_outputs": {
+        "migrate-status.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "flags.legacy_mode": true,
+            "flags.deprecated_modules": ["legacy-import"]
+          }
+        },
+        "strategy-matrix.md": {
+          "must_contain": ["Ma tran Chien luoc"]
+        }
+      },
+      "expected_behavior": "Phase 0.9 detect LEGACY_MODE=true (CORE-021). Phase 0.9b doc legacy-decisions.json (CORE-022). Set DEPRECATED_MODULES=['legacy-import']. Phase 1 loai bo moi feature thuoc deprecated modules khoi SOURCE_FEATURES. KHONG phan tich, KHONG de nghi migrate cac feature bi deprecate."
+    },
+    {
+      "id": "EVAL-003",
+      "name": "Error handling — missing --from-scan",
+      "input": {
+        "args": "--to-system=SYS-BACKEND --to-module=MOD-CRM \"Chuyen chuc nang Khach hang\""
+      },
+      "expected_behavior": "Phase 0.4 parse args — khong tim thay --from-scan. Hien thi ERROR message ro rang yeu cau user cung cap --from-scan=<scan-session-id>. STOP, KHONG tao bat ky file nao, KHONG tao session dir. Error code E002.",
+      "expected_outputs": {}
+    },
+    {
+      "id": "EVAL-004",
+      "name": "Resume tu checkpoint sau Phase 1",
+      "input": {
+        "args": "--resume",
+        "setup": {
+          "index_json_exists": true,
+          "active_session": "MIG-20260511-001",
+          "checkpoint_json": {
+            "current_phase": "phase1",
+            "next_phase": "phase2",
+            "phases_completed": ["phase0", "phase1"],
+            "cdg_decisions": {
+              "strategy": {"confirmed": true},
+              "entity_mapping": {"confirmed": true},
+              "scope": {"confirmed": true}
+            }
+          }
+        }
+      },
+      "expected_behavior": "Phase 0.2 detect --resume flag. Doc index.json lay active_session MIG-20260511-001. Doc checkpoint.json xac dinh current_phase=phase1 da hoan thanh, next_phase=phase2. Route den Phase 2 (add-scope). KHONG chay lai Phase 0 hoac Phase 1. Thong bao cho user vi tri resume."
+    },
+    {
+      "id": "EVAL-005",
+      "name": "CDG-1 — user tu choi strategy va chinh sua",
+      "input": {
+        "scenario": "Phase 1 da xong gap analysis + strategy proposal. CDG-1 hien thi strategy matrix. User chon 'Toi muon tu quyet dinh strategy'.",
+        "user_action": "Chinh sua: feature 'Bao cao cuoi ngay' tu Keep → Deprecate (vi EUREKA da co bao cao BI). Feature 'Tich hop Zalo' tu Deprecate → Keep.",
+        "expected_outputs": {
+          "strategy-matrix.md": {
+            "must_contain": ["Bao cao cuoi ngay", "Deprecate", "Tich hop Zalo", "Keep"]
+          }
+        }
+      },
+      "expected_behavior": "CDG-1 AskUserQuestion hien thi 3 options. User chon 'Toi muon tu quyet dinh strategy'. Skill hoi tung feature mot de user chon strategy. Strategy-matrix.md duoc cap nhat theo lua chon cua user (Bao cao cuoi ngay → Deprecate, Tich hop Zalo → Keep). Sau do tiep tuc CDG-2 (entity mapping)."
+    },
+    {
+      "id": "EVAL-006",
+      "name": "--skip-phase implement (chi phan tich + thiet ke, khong code)",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM --skip-phase=define-features --skip-phase=implement \"Phan tich chuc nang Khach hang 360\""
+      },
+      "expected_outputs": {
+        "migrate-status.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "flags.skip_phases": ["define-features", "implement"]
+          }
+        }
+      },
+      "expected_behavior": "Phase 0.4 parse --skip-phase=define-features va --skip-phase=implement → SKIP_PHASES=['define-features','implement']. Phase 1 chay binh thuong (gap analysis). Phase 2 chay binh thuong (add-scope). Phase 3 bi skip. Phase 4 chay binh thuong (design). Phase 5 chay binh thuong (plan). Phase 6 bi skip. Phase 7 chay binh thuong (report). migrate-status.json phan anh dung skip_phases."
+    },
+    {
+      "id": "EVAL-007",
+      "name": "NEW v1.1 — --auto-approve skip tat ca CDG",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM --auto-approve \"Chuyen CRM, auto duyet\"",
+        "setup": {
+          "scan_session": ".mc-data/work/wf-scan-target/sessions/2026-05-11-crm-legacy/",
+          "registry": ".mc-data/docs/_meta/req-registry.json"
+        }
+      },
+      "expected_outputs": {
+        "migrate-status.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "flags.auto_approve": true
+          }
+        }
+      },
+      "expected_behavior": "Phase 0.4 parse --auto-approve → AUTO_APPROVE=true. Phase 1: CDG-1 (strategy) skip, dung AI-suggested strategy + log AUTO-APPROVED. CDG-2 (entity mapping) skip. CDG-3 (scope) skip. KHONG hien thi AskUserQuestion. Ghi log CDG decisions voi 'AUTO-APPROVED'. Tiep tuc binh thuong sang Phase 2."
+    },
+    {
+      "id": "EVAL-008",
+      "name": "NEW v1.1 — CI code analysis trong Phase 1",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Phan tich CRM\"",
+        "setup": {
+          "ci_available": {"gitnexus": true, "serena": true},
+          "scan_session": ".mc-data/work/wf-scan-target/sessions/2026-05-11-crm-legacy/"
+        }
+      },
+      "expected_behavior": "Phase 0.0a chay ci-detect.sh → GITNEXUS_AVAILABLE=true, SERENA_AVAILABLE=true. Phase 1 Step 1.1a chay: (1) gitnexus_query voi 'MOD-CRM functionality in EUREKA', (2) gitnexus_impact downstream, (3) serena find_symbol 'MOD-CRM' trong apps/backend/. Output CI_SOURCE_ANALYSIS va CI_EXISTING_SYMBOLS duoc feed vao agent prompts o Step 1.2. Neu CI khong available → fallback Grep + Glob + WARNING."
+    },
+    {
+      "id": "EVAL-009",
+      "name": "NEW v1.1 — Sub-skill pre-flight fail (E016)",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Test preflight\"",
+        "setup": {
+          "preflight_fail": "wf-add-scope _contract.json missing inputs[] field '--from-scan'"
+        }
+      },
+      "expected_behavior": "Phase 0.9c chay pre-flight cho 5 sub-skills. wf-add-scope pre-flight fail vi _contract.json thieu input '--from-scan'. Ghi PREFLIGHT_RESULTS['wf-add-scope'] = {status: 'fail', gaps: [...]}. Hien thi WARNING + hoi user xac nhan (E016). Neu user dong y tiep tuc → van goi sub-skill va chap nhan risk. Neu user tu choi → STOP."
+    },
+    {
+      "id": "EVAL-010",
+      "name": "NEW v1.1 — Parity fail 3-5 features triger E009",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Test parity\"",
+        "setup": {
+          "phase6_parity": "3 features Keep, 3 FAIL out of 3"
+        }
+      },
+      "expected_outputs": {
+        "parity-check-feature*.md": {
+          "must_contain": ["Parity Check", "FAIL"]
+        }
+      },
+      "expected_behavior": "Phase 6 Step 6.4 chay Automated Feature Parity cho 3 feature Keep. Ca 3 deu FAIL (response shape mismatch, entity field mismatch). Step 6.4a parity evaluation: FAIL=3 > 3 threshold? KHONG (>3 moi triger). FAIL=3 → E009 trigered: hien thi chi tiet sai lech + hoi user. KHONG trigger E017 (chi trigger khi >5)."
+    },
+    {
+      "id": "EVAL-011",
+      "name": "NEW v1.1 — Parity CRITICAL >5 FAIL triger rollback (E017)",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Test rollback\"",
+        "setup": {
+          "phase6_parity": "8 features Keep, 7 FAIL out of 8"
+        }
+      },
+      "expected_behavior": "Phase 6 Step 6.4a parity evaluation: FAIL=7 > 5 → E017 CRITICAL. Trigger rollback protocol: (1) Khoi phuc registry tu snapshot registry-phase6-pre-{ts}.json, (2) Revert code changes dung danh sach file tu changed-files-task*.txt, (3) Ghi log ERROR vao error_log. STOP — bao user: 'CRITICAL: 7/8 parity checks FAIL. Da trigger rollback protocol. Xem $SESSION_DIR/rollback-guide.md.'"
+    },
+    {
+      "id": "EVAL-012",
+      "name": "NEW v1.1 — --dry-run preview mode",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM --dry-run \"Xem truoc chien luoc CRM\"",
+        "setup": {
+          "scan_session": ".mc-data/work/wf-scan-target/sessions/2026-05-11-crm-legacy/",
+          "registry": ".mc-data/docs/_meta/req-registry.json"
+        }
+      },
+      "expected_outputs": {
+        "strategy-matrix.md": {
+          "must_contain": ["Keep", "Redesign", "Deprecate", "Merge"]
+        },
+        "entity-mapping.md": {
+          "must_contain": ["Anh xa Entity"]
+        },
+        "gap-analysis.md": {
+          "must_contain": ["Phan tich Gap"]
+        }
+      },
+      "expected_behavior": "Phase 0.4 parse --dry-run → DRY_RUN=true. Phase 1 chay binh thuong (CI code analysis + 2 agents + strategy matrix + entity mapping). CDG 1/2/3 bi skip (khong hoi user). Step 1.8 hien thi Dry-Run Preview: module info, strategy counts, danh sach sub-skill se goi, danh sach output files. STOP. KHONG goi Phase 2, KHONG ghi registry. Van luu gap-analysis.md + strategy-matrix.md + entity-mapping.md vao $SESSION_DIR."
+    },
+    {
+      "id": "EVAL-013",
+      "name": "NEW v1.1 — Cross-validation phat hien inconsistency",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Test cross-validation\"",
+        "setup": {
+          "phase6_completed": true,
+          "cross_validation_mismatch": {
+            "cv1_entity_vs_code": "FAIL — entity-mapping.md references 'CustomerLegacy' but no class found in code",
+            "cv3_strategy_vs_parity": "FAIL — 2 Keep features missing parity-check-*.md"
+          }
+        }
+      },
+      "expected_behavior": "Phase 7 Step 7.0 chay Cross-Validation Protocol 6 checks. CV-1 FAIL: entity mapping references class not found in code. CV-3 FAIL: 2 Keep features missing parity reports. Tong mismatches = 2 → WARNING (khong CRITICAL). Ghi error_log voi chi tiet. Tiep tuc Step 7.1 (tong hop ket qua + tao report)."
+    },
+    {
+      "id": "EVAL-014",
+      "name": "NEW v1.1 — Cross-validation CRITICAL (>5 mismatches)",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM \"Test cross-val critical\"",
+        "setup": {
+          "phase6_completed": true,
+          "cross_validation_mismatch": "6 mismatches across CV-1, CV-2, CV-3, CV-4"
+        }
+      },
+      "expected_behavior": "Phase 7 Step 7.0: 6 mismatches > 5 → CRITICAL. STOP — KHONG tao migrate-report.md. Hien thi danh sach mismatches cho user. Bao user investigate va fix truoc khi chay lai. Ghi CORE-026 FAIL trace."
+    },
+    {
+      "id": "EVAL-015",
+      "name": "NEW v1.1 — --auto-rollback tu dong revert khi E017 CRITICAL",
+      "input": {
+        "args": "--from-scan=2026-05-11-crm-legacy --to-system=SYS-BACKEND --to-module=MOD-CRM --auto-rollback \"Test auto rollback\"",
+        "setup": {
+          "auto_rollback": true,
+          "phase6_parity": "8 features Keep, 7 FAIL out of 8 (E017)",
+          "snapshots_available": [
+            "registry-phase6-pre-20260511T120000.json",
+            "changed-files-task0-20260511T120100.txt",
+            "changed-files-task1-20260511T120200.txt"
+          ]
+        }
+      },
+      "expected_outputs": {
+        "migrate-status.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "status": "error",
+            "phases.phase6.status": "rolled_back",
+            "rollback.auto_triggered": true
+          }
+        },
+        "error_log[]": {
+          "must_contain_entry": {
+            "error_code": "E017",
+            "severity": "CRITICAL",
+            "action_taken": "auto_rollback",
+            "recoverable": true
+          }
+        }
+      },
+      "expected_behavior": "Phase 6 parity check: 7/8 FAIL > 5 → E017 CRITICAL triggered. Vi --auto-rollback=true: (1) Auto revert registry tu snapshot registry-phase6-pre-*.json, (2) Auto revert code files tu changed-files-task*.txt, (3) Ghi structured error_log voi action_taken='auto_rollback', (4) Set migrate-status.json status='error', phase6.status='rolled_back', rollback.auto_triggered=true. Thong bao user: 'AUTO-ROLLBACK da duoc kich hoat.' STOP. KHONG hoi user xac nhan."
+    },
+    {
+      "id": "EVAL-016",
+      "name": "NEW v1.1 — Structured error log ghi nhan dung dinh dang",
+      "input": {
+        "scenario": "Phase 6 implement co 3 loi khac nhau: pre-flight warning, parity fail, va snapshot write fail",
+        "simulated_errors": [
+          {"code": "E016", "severity": "WARNING", "phase": "phase6", "message": "wf-implement-feature pre-flight fail — _contract.json changed", "action_taken": "logged", "recoverable": true},
+          {"code": "E009", "severity": "ERROR", "phase": "phase6", "message": "3/5 parity checks FAIL — response shape mismatch", "action_taken": "user_prompt", "recoverable": true},
+          {"code": "E018", "severity": "WARNING", "phase": "phase6", "message": "Snapshot write fail — disk full", "action_taken": "retry", "recoverable": true}
+        ]
+      },
+      "expected_outputs": {
+        "migrate-status.json": {
+          "must_be_valid_json": true,
+          "error_log_check": {
+            "must_be_array": true,
+            "min_entries": 3,
+            "each_entry_must_have": ["error_code", "severity", "phase", "timestamp", "message", "details", "action_taken", "recoverable"],
+            "severity_values": ["CRITICAL", "ERROR", "WARNING", "INFO"],
+            "action_taken_values": ["auto_rollback", "user_prompt", "retry", "logged", "skipped"]
+          }
+        }
+      },
+      "expected_behavior": "Moi error duoc append vao error_log[] trong migrate-status.json voi day du 8 fields theo Error Log Schema (_shared.md). KHONG ghi de error_log — luon append. Moi entry co error_code tu bang E001-E021, severity dung, action_taken ro rang. Phase 7 report hien thi error_log entries trong migrate-report.md."
+    },
+    {
+      "id": "EVAL-017",
+      "name": "NEW v1.1 — --resume-task=3 resume Phase 6 tu task 3",
+      "input": {
+        "args": "--resume-task=3",
+        "setup": {
+          "active_session": "MIG-20260511-005",
+          "checkpoint_json": {
+            "current_phase": "phase6",
+            "partial_state": {
+              "phase6": {
+                "current_task": 2,
+                "tasks_completed": [0, 1, 2],
+                "tasks_remaining": [3, 4, 5, 6, 7],
+                "last_completed_task_id": "task-crm-003",
+                "registry_snapshot_before_current": "registry-phase6-task3-pre-20260511T150000.json"
+              }
+            }
+          }
+        }
+      },
+      "expected_behavior": "Phase 0.2 detect --resume-task=3. Doc checkpoint.json → verify current_phase=phase6, task 3 ton tai trong tasks_remaining[]. Khoi phuc registry tu registry-phase6-task3-pre-*.json. Skip tasks 0,1,2 (da hoan thanh). Bat dau implement tu task 3. Ghi log: 'RESUME: Phase 6 resumed tu task 3 — 5 tasks remaining.' Neu task 3 khong ton tai → E021: hien thi danh sach task, hoi user nhap lai."
+    },
+    {
+      "id": "EVAL-018",
+      "name": "NEW v1.1 — Snapshot corruption recovery",
+      "input": {
+        "scenario": "Phase 6 dang implement, snapshot write fail 3 lan lien tiep (E018)",
+        "setup": {
+          "phase": "phase6",
+          "error": "Snapshot write fail — disk full or permission denied"
+        }
+      },
+      "expected_behavior": "Step 6.2a snapshot write fail lan 1 → retry voi timestamp moi. Fail lan 2 → retry lan cuoi cung. Fail lan 3 → E018 WARNING: ghi structured error_log voi action_taken='retry', message='Snapshot write fail after 3 retries — continuing without snapshot for task N'. Tiep tuc implement (non-blocking). Phase 7 cross-validation CV-5 se flag snapshot nay la MISSING (MINOR severity). rollback-guide.md se ghi chu: 'WARNING: Task N missing snapshot — cannot rollback this task.'"
+    }
+  ]
+}

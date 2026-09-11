@@ -1,0 +1,24 @@
+{
+  "$schema": "scans-index-entry-v1",
+  "session_id": "{{SESSION_ID}}",
+  "target": "{{TARGET}}",
+  "target_type": "{{TARGET_TYPE}}",
+  "tech_stack": [],
+  "module_name": "{{MODULE_NAME}}",
+  "scan_depth": "{{SCAN_DEPTH}}",
+  "scan_profile": "{{SCAN_PROFILE}}",
+  "scan_fingerprint": "{{SCAN_FINGERPRINT}}",
+  "started_at": "{{STARTED_AT_ISO8601}}",
+  "completed_at": "{{COMPLETED_AT_ISO8601}}",
+  "status": "completed",
+  "host": "{{HOST}}",
+  "user": "{{USER}}",
+  "metrics": {
+    "files_scanned": 0,
+    "endpoints_found": 0,
+    "screens_found": 0,
+    "entities_found": 0,
+    "completeness_pct": 0
+  },
+  "_notes": "Sprint 6 multi-dev safety — 1 entry / 1 dòng JSONL trong _shared/scans-index.jsonl. Format git-sync friendly (mỗi dòng độc lập, không conflict marker khi merge). Consumer logic xem phase5-output.md Step 5.5b. Sprint 5 query logic xem phase5-output.md Step 5.2a (previous_scans)."
+}

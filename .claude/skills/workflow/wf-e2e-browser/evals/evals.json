@@ -1,0 +1,86 @@
+{
+  "skill": "wf-e2e-browser",
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "TC-F2-001",
+      "name": "Pre-scan + execute 5 browser tests, all PASS",
+      "input": {
+        "command": "/wf-e2e-browser FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1500",
+        "context": "F1 đã complete với ui-test-report có 3 FAIL hint browser, integration có 2 UI-dependent tests. UI khớp."
+      },
+      "expected_behavior": [
+        "Pre-scan: 5 candidates dedup",
+        "Acquire browser-mcp.lock + Login",
+        "Execute 5 tests sequentially",
+        "All PASS → screenshots saved",
+        "browser-test-report.md có 5 rows PASS",
+        "KHÔNG append block-test / implement-required / manual / issues"
+      ],
+      "assertions": [
+        "ls $SCREENSHOTS/browser-*.png | count >= 5",
+        "grep -c 'PASS' browser-test-report.md >= 5",
+        "jq '.signals | length' issues.json — không tăng",
+        "jq '.entries | length' implement-required.json — không tăng"
+      ]
+    },
+    {
+      "id": "TC-F2-002",
+      "name": "Detect ui-runtime bug → append issues.json",
+      "input": {
+        "command": "/wf-e2e-browser FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1600",
+        "context": "Customer create form thiếu validation duplicate email. F2 verify trong browser, form submit thành công thay vì error."
+      },
+      "expected_behavior": [
+        "Pre-scan detect 1 candidate (Customer create form)",
+        "Execute → fill duplicate email → submit → expected error toast → actual: form submitted",
+        "APPEND issues.json: ISS-012, type=ui-runtime, severity=high",
+        "browser-test-report.md row Customer create: ❌ FAIL_BUG (ISS-012)"
+      ],
+      "assertions": [
+        "jq '.signals[] | select(.discovered_by_skill==\"wf-e2e-browser\" and .severity==\"high\")' issues.json — non-empty",
+        "grep 'FAIL_BUG.*ISS-012' browser-test-report.md"
+      ]
+    },
+    {
+      "id": "TC-F2-003",
+      "name": "Group 4 visual inspection → verify code + manual.json",
+      "input": {
+        "command": "/wf-e2e-browser FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1700",
+        "context": "block-test.json có BLK-005 requires_visual_inspection (toast animation). Code Toast.tsx tồn tại + correct logic."
+      },
+      "expected_behavior": [
+        "Pre-scan include BLK-005",
+        "F2 verify code Toast.tsx via Serena → PASS",
+        "DUAL-WRITE: block-test BLK-005 status=resolved + related_manual_id=MAN-002",
+        "APPEND manual.json MAN-002 với code_verification.result=PASS + recommended_test_steps[]"
+      ],
+      "assertions": [
+        "jq '.blocked_tests[] | select(.id==\"BLK-005\") | .status' block-test.json == \"resolved\"",
+        "jq '.entries[] | select(.id==\"MAN-002\") | .code_verification.verification_result' manual.json == \"PASS\"",
+        "jq '.entries[] | select(.id==\"MAN-002\") | .related_blk_id' manual.json == \"BLK-005\""
+      ]
+    },
+    {
+      "id": "TC-F2-004",
+      "name": "Playwright MCP không khả dụng → ESCALATE Nhóm 2 (KHÔNG fallback static)",
+      "input": {
+        "command": "/wf-e2e-browser FEAT-EW-CRM-001 --session=FEAT-EW-CRM-001-20260513-1800",
+        "context": "Playwright MCP không response sau auto-start. FE chạy bình thường."
+      },
+      "expected_behavior": [
+        "Pre-scan complete (Pre-scan-report.md tạo)",
+        "PRE-GATE T4: ensure_infrastructure_running fe → OK; Playwright MCP probe → fail",
+        "GHI block-test.json: BLK-NNN status=blocked, blocking_reason=playwright_unavailable, Nhóm 2",
+        "ESCALATE AskUserQuestion: Retry / Manual fix / Cancel",
+        "KHÔNG execute test, KHÔNG ghi PASS, KHÔNG fallback static analysis"
+      ],
+      "assertions": [
+        "test -f pre-scan-report.md",
+        "jq '[.blocked_tests[] | select(.blocking_reason==\"playwright_unavailable\")] | length' block-test.json >= 1",
+        "ls $SCREENSHOTS/browser-*.png — không có (escalated, không chạy)",
+        "grep -v 'no-playwright' browser-test-report.md"
+      ]
+    }
+  ]
+}

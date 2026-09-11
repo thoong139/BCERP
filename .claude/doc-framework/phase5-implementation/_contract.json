@@ -1,0 +1,108 @@
+{
+  "version": "1.0",
+  "phase": "phase5-implementation",
+  "description": "Template compliance contracts for Phase 5 Implementation Planning documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "templates": {
+    "module-plan": {
+      "template_file": "phase5-implementation/module-plan.md",
+      "description": "Dependency matrix, module details, circular dependency resolution, layered strategy, system coverage",
+      "output_pattern": ".mc-data/docs/phase5-implementation/module-plan.md",
+      "required_sections": [
+        "## 1.",
+        "## 2.",
+        "## 3.",
+        "## System Coverage"
+      ],
+      "optional_sections": [],
+      "required_metadata": [],
+      "notes": "v1.4.0: '## System Coverage' section BẮT BUỘC — liệt kê tất cả systems (covered + orphan + thin_client) từ $SYSTEM_COVERAGE_MAP (wf-plan-modules Phase 1.7/7a.11)."
+    },
+    "dependency-graph": {
+      "template_file": "_meta/dependency-graph.md",
+      "description": "Mermaid dependency graph giữa các modules — visualize layers và critical path",
+      "output_pattern": ".mc-data/docs/phase5-implementation/dependency-graph.md",
+      "required_sections": [],
+      "optional_sections": [],
+      "required_metadata": [],
+      "notes": "Template lưu ở doc-framework/_meta/ vì là cross-phase asset. File output nằm trong phase5-implementation/."
+    },
+    "orphan-placeholder": {
+      "template_file": "inline (wf-plan-modules SKILL.md Phase 7.5.0)",
+      "description": "Placeholder _NO-FEATURES.md cho orphan systems — ngăn silent skip trong Phase 5 planning",
+      "output_pattern": ".mc-data/docs/phase5-implementation/tasks/[sys-slug]/_NO-FEATURES.md",
+      "required_sections": [
+        "# ",
+        "## 1. Tình trạng",
+        "## 2. Thông tin System",
+        "## 3. Nguyên nhân có thể",
+        "## 4. Hành động đề xuất"
+      ],
+      "optional_sections": [
+        "## 5. Tham chiếu"
+      ],
+      "required_metadata": [],
+      "notes": "Conditional: chỉ tạo khi coverage_strategy='placeholders' AND len(orphan_systems) > 0. Template là inline trong SKILL.md (không có template file riêng). v1.4.0."
+    },
+    "sprint-plan": {
+      "template_file": "phase5-implementation/sprints/S01-sprint-template.md",
+      "description": "Sprint planning doc — scope, features, estimation, DoD. Bao gồm cả security/remediation sprints.",
+      "output_pattern": ".mc-data/docs/phase5-implementation/sprints/S[NN]-[name].md",
+      "required_sections": [],
+      "optional_sections": [],
+      "required_metadata": [],
+      "notes": "Tất cả sprint files (kể cả security/remediation plan) PHẢI nằm trong sprints/ — KHÔNG tạo ở root level phase5-implementation/."
+    },
+    "P5-00-implementation-roadmap": {
+      "template_file": "phase5-implementation/P5-00-implementation-roadmap.md",
+      "description": "Implementation roadmap — thứ tự triển khai, sprint planning, progress tracking",
+      "output_pattern": ".mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md",
+      "required_sections": [
+        "## 1. Thông Tin Dự Án",
+        "## 2. Thứ Tự Triển Khai",
+        "## 3. Module Breakdown",
+        "## 4. Sprint Planning",
+        "## 5. Feature Queue",
+        "## 6. Progress Summary",
+        "## 7. Risk & Blockers",
+        "## 8. Change Log",
+        "## 9. Notes"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "feature-impl": {
+      "template_file": "phase5-implementation/tasks/[system]/[module]/[feature]-impl.md",
+      "description": "Feature implementation plan — technical approach + task breakdown",
+      "output_pattern": ".mc-data/docs/phase5-implementation/tasks/**/**/*-impl.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"],
+      "notes": "Phần A = Implementation Plan (A1-A10), Phần B = Task Breakdown (B1-B8)"
+    },
+    "stakeholder-review": {
+      "template_file": "phase5-implementation/stakeholder-review.md",
+      "description": "Stakeholder review — plan cross-review, consistency, gap analysis",
+      "output_pattern": ".mc-data/docs/phase5-implementation/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "sprints-index": {
+      "path": ".mc-data/docs/phase5-implementation/sprints/_index.md",
+      "description": "Index file cho sprint directory"
+    },
+    "parallel-safe-groups": {
+      "path": ".mc-data/docs/phase5-implementation/parallel-safe-groups.md",
+      "description": "Phân nhóm tasks có thể chạy song song an toàn"
+    }
+  }
+}

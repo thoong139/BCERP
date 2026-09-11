@@ -1,0 +1,538 @@
+{
+  "$schema": "ux-conventions-v1",
+  "project": "EUREKA-2026",
+  "version": "1.0.0-template",
+  "last_updated": "2026-05-16",
+  "description": "Template SSOT cho CD23 (UX Design System) + CD24 (UX Display Format) + CD25 (UX Flow Continuity) + CD26 (UX Workflow Visibility) + CD27 (UX Microcopy). Tokens, button variants, date/number/currency formats, confirmation patterns, microcopy library. Người chạy /wf-cmi cần copy file này vào .mc-data/docs/_meta/ và điều chỉnh theo brand thực tế.",
+  "_template_notes": "PHẢI xóa các field bắt đầu bằng _ trước khi commit.",
+
+  "_instructions": {
+    "how_to_use": "1) Copy file vào .mc-data/docs/_meta/ux-conventions.json. 2) Strip metadata. 3) Update theo design tokens và Tailwind config thực tế. 4) Chạy /wf-cmi --dims=CD23,CD24,CD25,CD26,CD27.",
+    "default_behavior": "Component KHÔNG dùng tokens declared → STYLE_DRIFT (severity MEDIUM). Format date/number KHÔNG match → FORMAT_INCONSISTENT (severity HIGH)."
+  },
+
+  "config": {
+    "primary_locale": "vi-VN",
+    "fallback_locale": "en-US",
+    "supported_locales": ["vi-VN", "en-US", "zh-CN"],
+    "currency_default": "VND",
+    "enforce_design_tokens": true,
+    "enforce_format_consistency": true,
+    "_comment_locale": "vi-VN dùng dấu chấm phân thập phân, dấu phẩy phân hàng nghìn theo chuẩn TCVN. Lưu ý khác Excel default."
+  },
+
+  "design_tokens": {
+    "description": "CD23 — Design tokens chuẩn. Mọi component PHẢI import từ đây.",
+
+    "colors": {
+      "brand": {
+        "primary": "#0066CC",
+        "primary_hover": "#0052A3",
+        "primary_active": "#003D7A",
+        "primary_disabled": "#99C2E8",
+        "secondary": "#003D7A",
+        "accent": "#FF6B35"
+      },
+      "semantic": {
+        "success": "#10B981",
+        "success_bg": "#D1FAE5",
+        "warning": "#F59E0B",
+        "warning_bg": "#FEF3C7",
+        "error": "#EF4444",
+        "error_bg": "#FEE2E2",
+        "info": "#3B82F6",
+        "info_bg": "#DBEAFE"
+      },
+      "neutral": {
+        "white": "#FFFFFF",
+        "gray_50": "#F9FAFB",
+        "gray_100": "#F3F4F6",
+        "gray_200": "#E5E7EB",
+        "gray_300": "#D1D5DB",
+        "gray_400": "#9CA3AF",
+        "gray_500": "#6B7280",
+        "gray_600": "#4B5563",
+        "gray_700": "#374151",
+        "gray_800": "#1F2937",
+        "gray_900": "#111827",
+        "black": "#000000"
+      },
+      "state_badge": {
+        "draft": "#9CA3AF",
+        "pending": "#F59E0B",
+        "in_progress": "#3B82F6",
+        "completed": "#10B981",
+        "rejected": "#EF4444",
+        "cancelled": "#6B7280"
+      }
+    },
+
+    "spacing": {
+      "0": "0px",
+      "1": "4px",
+      "2": "8px",
+      "3": "12px",
+      "4": "16px",
+      "5": "20px",
+      "6": "24px",
+      "8": "32px",
+      "10": "40px",
+      "12": "48px",
+      "16": "64px",
+      "_comment": "Multiples of 4px base. Tailwind compatible."
+    },
+
+    "typography": {
+      "font_family": {
+        "sans": "Inter, system-ui, sans-serif",
+        "mono": "JetBrains Mono, Consolas, monospace",
+        "vietnamese_extended": "Inter, 'Be Vietnam Pro', sans-serif",
+        "chinese_extended": "Inter, 'Noto Sans SC', sans-serif"
+      },
+      "font_size": {
+        "xs": "12px",
+        "sm": "14px",
+        "base": "16px",
+        "lg": "18px",
+        "xl": "20px",
+        "2xl": "24px",
+        "3xl": "30px",
+        "4xl": "36px"
+      },
+      "font_weight": {
+        "normal": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      },
+      "line_height": {
+        "tight": 1.25,
+        "normal": 1.5,
+        "relaxed": 1.75
+      }
+    },
+
+    "border_radius": {
+      "none": "0px",
+      "sm": "2px",
+      "default": "4px",
+      "md": "6px",
+      "lg": "8px",
+      "xl": "12px",
+      "2xl": "16px",
+      "full": "9999px"
+    },
+
+    "shadow": {
+      "sm": "0 1px 2px rgba(0,0,0,0.05)",
+      "default": "0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06)",
+      "md": "0 4px 6px rgba(0,0,0,0.1)",
+      "lg": "0 10px 15px rgba(0,0,0,0.1)",
+      "xl": "0 20px 25px rgba(0,0,0,0.1)"
+    },
+
+    "z_index": {
+      "dropdown": 1000,
+      "sticky": 1020,
+      "fixed": 1030,
+      "modal_backdrop": 1040,
+      "modal": 1050,
+      "popover": 1060,
+      "tooltip": 1070,
+      "toast": 1080
+    }
+  },
+
+  "component_variants": {
+    "description": "CD23 — Standard component variants. Mọi instance PHẢI dùng variant declared.",
+
+    "Button": {
+      "variants": ["primary", "secondary", "danger", "ghost", "link"],
+      "sizes": ["xs", "sm", "md", "lg"],
+      "default_variant": "primary",
+      "default_size": "md",
+      "primary": {
+        "bg": "brand.primary",
+        "text": "white",
+        "hover_bg": "brand.primary_hover",
+        "active_bg": "brand.primary_active"
+      },
+      "secondary": {
+        "bg": "white",
+        "text": "brand.primary",
+        "border": "brand.primary"
+      },
+      "danger": {
+        "bg": "semantic.error",
+        "text": "white"
+      },
+      "ghost": {
+        "bg": "transparent",
+        "text": "neutral.gray_700",
+        "hover_bg": "neutral.gray_100"
+      },
+      "link": {
+        "bg": "transparent",
+        "text": "brand.primary",
+        "text_decoration": "underline_on_hover"
+      }
+    },
+
+    "Badge": {
+      "variants": ["default", "success", "warning", "error", "info"],
+      "sizes": ["sm", "md"]
+    },
+
+    "StatusBadge": {
+      "_comment": "Special badge cho workflow states",
+      "variants_match_state_badge_colors": true,
+      "must_have_label_vi": true
+    },
+
+    "Input": {
+      "variants": ["default", "error", "success"],
+      "sizes": ["sm", "md", "lg"]
+    },
+
+    "Modal": {
+      "sizes": ["sm", "md", "lg", "xl", "full"],
+      "default_size": "md",
+      "must_be_dismissable_via_esc": true,
+      "must_trap_focus": true
+    },
+
+    "Toast": {
+      "variants": ["success", "warning", "error", "info"],
+      "default_duration_seconds": 5,
+      "position": "top-right",
+      "max_visible": 3
+    }
+  },
+
+  "display_formats": {
+    "description": "CD24 — Format display chuẩn. Mọi UI hiển thị PHẢI dùng formatters từ đây.",
+
+    "date": {
+      "short": {"format_vi": "dd/MM/yyyy", "format_en": "MM/dd/yyyy", "format_zh": "yyyy-MM-dd", "example_vi": "16/05/2026"},
+      "medium": {"format_vi": "dd MMM yyyy", "format_en": "MMM dd, yyyy", "format_zh": "yyyy年MM月dd日", "example_vi": "16 Th5 2026"},
+      "long": {"format_vi": "EEEE, dd MMMM yyyy", "example_vi": "Thứ Sáu, 16 Tháng Năm 2026"},
+      "iso": "yyyy-MM-dd",
+      "_comment_iso": "Dùng cho API/database, KHÔNG hiển thị user"
+    },
+
+    "datetime": {
+      "short": {"format_vi": "dd/MM/yyyy HH:mm", "example_vi": "16/05/2026 14:30"},
+      "medium": {"format_vi": "dd MMM yyyy HH:mm:ss", "example_vi": "16 Th5 2026 14:30:45"},
+      "iso_utc": "yyyy-MM-ddTHH:mm:ss.SSSZ",
+      "relative": {"_comment": "Dùng date-fns formatDistanceToNow + vi locale", "example_vi": "2 giờ trước"}
+    },
+
+    "time": {
+      "24h": "HH:mm",
+      "with_seconds": "HH:mm:ss",
+      "_comment": "EUREKA dùng 24h format toàn bộ — KHÔNG dùng AM/PM"
+    },
+
+    "number": {
+      "integer": {"thousand_separator": ".", "decimal_separator": ",", "example_vi": "1.234.567", "example_en": "1,234,567"},
+      "decimal": {"thousand_separator": ".", "decimal_separator": ",", "min_decimal_places": 2, "max_decimal_places": 4, "example_vi": "1.234,56"},
+      "percent": {"format": "0.0%", "example": "12,5%"},
+      "_comment_locale_diff": "VN dùng dấu chấm phân hàng nghìn, dấu phẩy phân thập phân (ngược với EN). PHẢI dùng Intl.NumberFormat('vi-VN')"
+    },
+
+    "currency": {
+      "VND": {"symbol": "₫", "symbol_position": "after", "decimal_places": 0, "format_vi": "{amount} ₫", "example": "1.500.000 ₫"},
+      "CNY": {"symbol": "¥", "symbol_position": "before", "decimal_places": 2, "format": "¥{amount}", "example": "¥1,500.00"},
+      "USD": {"symbol": "$", "symbol_position": "before", "decimal_places": 2, "format": "${amount}", "example": "$1,500.00"},
+      "EUR": {"symbol": "€", "symbol_position": "after", "decimal_places": 2, "example": "1.500,00 €"},
+      "_comment_vnd": "VND không có decimal — chỉ integer. Symbol PHẢI sau số theo chuẩn TCVN."
+    },
+
+    "weight": {
+      "kg": {"format": "{amount} kg", "example": "1.500 kg"},
+      "tonne": {"format": "{amount} tấn", "example": "1,5 tấn"}
+    },
+
+    "volume": {
+      "cbm": {"format": "{amount} m³", "example": "20,5 m³"},
+      "teu": {"format": "{amount} TEU", "example": "2 TEU"}
+    },
+
+    "address_vn": {
+      "format": "{street}, {ward}, {district}, {province}, Việt Nam",
+      "example": "123 Nguyễn Huệ, Bến Nghé, Quận 1, TP. Hồ Chí Minh, Việt Nam"
+    },
+
+    "phone_vn": {
+      "format": "+84 {area_code} {number}",
+      "example": "+84 28 1234 5678",
+      "_comment": "VN có 10 hoặc 11 chữ số. Mobile bắt đầu 03/05/07/08/09"
+    },
+
+    "tax_code_vn": {
+      "format_10": "1234567890",
+      "format_13": "1234567890-001",
+      "_comment": "10 chữ số cho doanh nghiệp gốc, 13 chữ số cho chi nhánh"
+    },
+
+    "bol_number": {
+      "format": "BOL-{yyyy}-{nnnnnn}",
+      "example": "BOL-2026-001234"
+    },
+
+    "container_number": {
+      "format": "{4-letter-code}{6-digit}{1-check}",
+      "example": "MSCU1234567",
+      "_comment": "ISO 6346 standard — 4 chữ cái + 6 số + 1 check digit"
+    }
+  },
+
+  "ux_flow_continuity": {
+    "description": "CD25 — Flow continuity rules cho navigation.",
+    "rules": [
+      {
+        "id": "FLOW-001",
+        "rule": "Mọi list page PHẢI có breadcrumb",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "FLOW-002",
+        "rule": "Detail page PHẢI có back button rõ ràng (về list của module)",
+        "severity": "HIGH"
+      },
+      {
+        "id": "FLOW-003",
+        "rule": "Form PHẢI có cancel button + confirmation nếu dirty",
+        "severity": "HIGH"
+      },
+      {
+        "id": "FLOW-004",
+        "rule": "Sau khi tạo entity mới (POST success) → redirect tới detail page của entity đó (KHÔNG về list trống)",
+        "severity": "HIGH"
+      },
+      {
+        "id": "FLOW-005",
+        "rule": "Sau khi update entity → stay ở detail page, show success toast",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "FLOW-006",
+        "rule": "Sau khi delete entity → redirect về list page, show success toast",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "FLOW-007",
+        "rule": "404 không found → custom page với navigation gợi ý (KHÔNG default browser 404)",
+        "severity": "HIGH"
+      },
+      {
+        "id": "FLOW-008",
+        "rule": "List page PHẢI preserve filter/sort/page khi user back từ detail",
+        "severity": "HIGH"
+      }
+    ]
+  },
+
+  "confirmation_patterns": {
+    "description": "CD25/CD26 — Confirmation patterns cho destructive/irreversible actions.",
+    "patterns": [
+      {
+        "id": "CONF-001",
+        "trigger": "irreversible action (vd: phát hành hóa đơn, khóa kỳ kế toán)",
+        "pattern": "Modal dialog với typed_confirmation",
+        "example": "Yêu cầu user gõ 'PHÁT HÀNH' để confirm"
+      },
+      {
+        "id": "CONF-002",
+        "trigger": "delete action",
+        "pattern": "Modal dialog với simple confirm button",
+        "must_show_entity_name": true
+      },
+      {
+        "id": "CONF-003",
+        "trigger": "bulk action (>10 items)",
+        "pattern": "Modal dialog hiển thị count + sample 5 items",
+        "must_show_count": true
+      },
+      {
+        "id": "CONF-004",
+        "trigger": "leaving form with unsaved changes",
+        "pattern": "Browser beforeunload + custom dialog",
+        "options": ["Lưu nháp", "Bỏ thay đổi", "Tiếp tục chỉnh sửa"]
+      },
+      {
+        "id": "CONF-005",
+        "trigger": "destructive action by non-manager",
+        "pattern": "Inline error message + suggest contact manager",
+        "must_show_reason": true
+      }
+    ]
+  },
+
+  "microcopy_library": {
+    "description": "CD27 — Microcopy chuẩn (button labels, empty states, loading messages).",
+
+    "buttons": {
+      "save": {"vi": "Lưu", "en": "Save", "zh": "保存"},
+      "save_draft": {"vi": "Lưu nháp", "en": "Save draft", "zh": "保存草稿"},
+      "submit": {"vi": "Gửi", "en": "Submit", "zh": "提交"},
+      "cancel": {"vi": "Hủy", "en": "Cancel", "zh": "取消"},
+      "confirm": {"vi": "Xác nhận", "en": "Confirm", "zh": "确认"},
+      "delete": {"vi": "Xóa", "en": "Delete", "zh": "删除"},
+      "edit": {"vi": "Sửa", "en": "Edit", "zh": "编辑"},
+      "view": {"vi": "Xem", "en": "View", "zh": "查看"},
+      "create_new": {"vi": "Tạo mới", "en": "Create new", "zh": "新建"},
+      "approve": {"vi": "Duyệt", "en": "Approve", "zh": "审批"},
+      "reject": {"vi": "Từ chối", "en": "Reject", "zh": "拒绝"},
+      "send": {"vi": "Gửi", "en": "Send", "zh": "发送"},
+      "export": {"vi": "Xuất", "en": "Export", "zh": "导出"},
+      "print": {"vi": "In", "en": "Print", "zh": "打印"},
+      "retry": {"vi": "Thử lại", "en": "Retry", "zh": "重试"},
+      "back": {"vi": "Quay lại", "en": "Back", "zh": "返回"},
+      "next": {"vi": "Tiếp", "en": "Next", "zh": "下一步"},
+      "finish": {"vi": "Hoàn tất", "en": "Finish", "zh": "完成"}
+    },
+
+    "empty_states": {
+      "no_data": {"vi": "Chưa có dữ liệu", "en": "No data yet"},
+      "no_search_results": {"vi": "Không tìm thấy kết quả phù hợp", "en": "No matching results"},
+      "no_permission": {"vi": "Bạn không có quyền xem nội dung này", "en": "You don't have permission to view this"},
+      "no_records_with_action": {
+        "vi": "Chưa có {entity_type_vi} nào. Hãy {action_vi} đầu tiên.",
+        "example": "Chưa có khách hàng nào. Hãy tạo khách hàng đầu tiên."
+      }
+    },
+
+    "loading_states": {
+      "loading_data": {"vi": "Đang tải...", "en": "Loading..."},
+      "saving": {"vi": "Đang lưu...", "en": "Saving..."},
+      "submitting": {"vi": "Đang gửi...", "en": "Submitting..."},
+      "processing": {"vi": "Đang xử lý...", "en": "Processing..."},
+      "uploading": {"vi": "Đang tải lên... ({percent}%)", "en": "Uploading... ({percent}%)"}
+    },
+
+    "success_messages": {
+      "saved": {"vi": "Đã lưu", "en": "Saved"},
+      "created": {"vi": "Tạo {entity_type_vi} thành công", "en": "{entity_type_en} created"},
+      "updated": {"vi": "Cập nhật thành công", "en": "Updated successfully"},
+      "deleted": {"vi": "Đã xóa", "en": "Deleted"},
+      "sent": {"vi": "Đã gửi", "en": "Sent"},
+      "approved": {"vi": "Đã duyệt", "en": "Approved"}
+    },
+
+    "validation_messages": {
+      "required": {"vi": "Trường này bắt buộc", "en": "This field is required"},
+      "min_length": {"vi": "Tối thiểu {min} ký tự", "en": "Minimum {min} characters"},
+      "max_length": {"vi": "Tối đa {max} ký tự", "en": "Maximum {max} characters"},
+      "email_invalid": {"vi": "Email không hợp lệ", "en": "Invalid email"},
+      "number_invalid": {"vi": "Phải là số hợp lệ", "en": "Must be a valid number"},
+      "date_invalid": {"vi": "Ngày không hợp lệ", "en": "Invalid date"},
+      "phone_invalid": {"vi": "Số điện thoại không hợp lệ", "en": "Invalid phone"}
+    },
+
+    "destructive_warnings": {
+      "delete_confirm": {"vi": "Xóa {entity_name}? Hành động này không thể hoàn tác.", "en": "Delete {entity_name}? This action cannot be undone."},
+      "cancel_order": {"vi": "Hủy đơn hàng {order_number}? Khách hàng sẽ được thông báo.", "en": "Cancel order {order_number}? Customer will be notified."},
+      "issue_invoice": {"vi": "Phát hành hóa đơn? Sau khi phát hành, hóa đơn KHÔNG thể sửa.", "en": "Issue invoice? Once issued, the invoice CANNOT be edited."},
+      "close_period": {"vi": "Khóa kỳ kế toán {period}? Sau khi khóa, không thể thêm/sửa giao dịch trong kỳ này.", "en": "Close period {period}? After closing, no transactions can be added/edited."}
+    }
+  },
+
+  "accessibility": {
+    "description": "CD23 a11y minimum requirements.",
+    "rules": [
+      {"rule": "Mọi interactive element PHẢI có aria-label hoặc visible text", "wcag": "4.1.2"},
+      {"rule": "Color contrast text/bg tối thiểu 4.5:1 (text bình thường)", "wcag": "1.4.3"},
+      {"rule": "Focus indicator visible cho mọi interactive element", "wcag": "2.4.7"},
+      {"rule": "Form fields PHẢI có visible label (không chỉ placeholder)", "wcag": "3.3.2"},
+      {"rule": "Modal PHẢI trap focus + restore khi đóng", "wcag": "2.4.3"},
+      {"rule": "Image PHẢI có alt text", "wcag": "1.1.1"}
+    ]
+  },
+
+  "validation_rules": {
+    "description": "Top-level rules cho CD23-CD27.",
+    "rules": [
+      {
+        "id": "RULE-CD23-001",
+        "name": "components_use_design_tokens",
+        "description": "Components KHÔNG được hardcode color/spacing/font-size — phải import từ tokens",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "RULE-CD23-002",
+        "name": "component_variant_declared",
+        "description": "Mỗi instance Button/Badge/Input PHẢI dùng variant declared",
+        "severity": "MEDIUM"
+      },
+      {
+        "id": "RULE-CD24-001",
+        "name": "date_format_consistent",
+        "description": "Mọi date display PHẢI dùng formatter (vd <FormatDate />), KHÔNG hardcode format string",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD24-002",
+        "name": "currency_format_consistent",
+        "description": "Mọi currency display PHẢI dùng <FormatCurrency /> với code (VND/CNY/USD)",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD24-003",
+        "name": "vnd_no_decimals",
+        "description": "VND amount hiển thị PHẢI có 0 decimal places",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD25-001",
+        "name": "irreversible_action_has_confirmation",
+        "description": "Action với irreversible=true PHẢI có confirmation dialog match CONF-001 pattern",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD26-001",
+        "name": "workflow_state_visible_in_list_and_detail",
+        "description": "Entity có state machine PHẢI hiển thị StatusBadge ở list + timeline ở detail",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD27-001",
+        "name": "vi_microcopy_required",
+        "description": "Mọi UI text user-facing PHẢI có vi translation",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD27-002",
+        "name": "microcopy_uses_library",
+        "description": "Common microcopy PHẢI dùng từ library — KHÔNG hardcode (vd 'Lưu' phải dùng buttons.save.vi)",
+        "severity": "MEDIUM"
+      }
+    ]
+  },
+
+  "exclusions": {
+    "description": "Components/pages explicitly excluded.",
+    "component_exclusions": [
+      {"component": "DebugPanel", "reason": "Dev-only"},
+      {"component": "TestHarness", "reason": "Test fixtures"}
+    ]
+  },
+
+  "_appendix": {
+    "_changelog": [
+      {
+        "version": "1.0.0-template",
+        "date": "2026-05-16",
+        "changes": "Initial template cho EUREKA-2026. Design tokens (colors/spacing/typography/radius/shadow), 6 component variants, 12 display formats, flow rules, confirmation patterns, microcopy library (35+ entries), a11y rules."
+      }
+    ],
+    "_references": [
+      ".claude/skills/workflow/wf-cmi/SKILL.md (CD23-CD27 spec)",
+      ".claude/agents/design/ui-designer.md",
+      ".claude/agents/design/brand-guardian.md",
+      "EUREKA-2026/apps/erp-web/tailwind.config.ts",
+      "EUREKA-2026/apps/erp-web/lib/i18n/"
+    ],
+    "_maintenance": "Update khi: (a) thêm color/spacing token (b) thêm component variant (c) brand refresh. Auto-sync với tailwind.config.ts + design-tokens.json."
+  }
+}

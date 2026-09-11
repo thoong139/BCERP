@@ -1,0 +1,455 @@
+{
+  "skill_name": "wf-legacy-scan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "/wf-legacy-scan ./my-legacy-app (du an Node.js voi 800 files, 3 systems)",
+      "expected_output": "Chay 4 stages: Detection → Assessment → Maturity Validation (neu can) → Inventory. Tao project-profile.json, assessment-report.json, ledger.json. Huong dan next step: /wf-legacy-classify",
+      "assertions": [
+        {
+          "text": "Stage 0 Step 0.5 chay script .claude/scripts/legacy-scan-detect.sh, output project-profile.json trong .mc-data/work/legacy-scan/. POST-GATE verify file exists va tech_stack_verified=true",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Step 0A.1 chay script legacy-scan-assess.sh. Step 0A.2 AI dien giai scores. Step 0A.3 AskUserQuestion xac nhan/override strategy. Step 0A.4 ghi assessment-report.json + cap nhat ledger",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 1 Step 1.1 chay legacy-scan-inventory.sh. Step 1.8 tao ledger.json voi summary.total_items. Step 1.11 cap nhat status inventory completed",
+          "type": "behavior"
+        },
+        {
+          "text": "Sau Stage 1 hoan tat (POST-GATE pass), Orchestrator Phase thong bao 'Stage 1 hoan tat' va chuyen sang Stage 2 Classify theo Agent Delegation mechanism",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 1 Step 1.11 ghi ledger.json field stages.inventory.status='completed'. POST-GATE verify ledger.summary.total_items > 0 va 5+ inventory files exist",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/wf-legacy-scan --resume (pipeline dang o Stage 3 Extract)",
+      "expected_output": "Doc ledger.json, phat hien pipeline dang o extract stage, huong dan user chay /wf-legacy-extract --resume",
+      "assertions": [
+        {
+          "text": "--resume mode: Step 0.2b reads ledger.json tu .mc-data/work/legacy-scan/ de determine current pipeline stage. Smart routing reads ledger.stages.*.status fields",
+          "type": "behavior"
+        },
+        {
+          "text": "--resume smart routing reads ledger.json stages.*.status. Khi extract.status == 'in_progress', routes user to /wf-legacy-extract --resume instead of restarting",
+          "type": "behavior"
+        },
+        {
+          "text": "Hien thi: Pipeline dang o Stage 3. Hay chay /wf-legacy-extract --resume",
+          "type": "behavior"
+        },
+        {
+          "text": "--resume KHONG restart pipeline tu Stage 0. Step 0.2b smart routing skips completed stages va resumes tu stage co status in_progress hoac not_started dau tien",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-legacy-scan --status",
+      "expected_output": "Hien thi bang trang thai TOAN BO pipeline (6 stages), items processed, active_skill, next action",
+      "assertions": [
+        {
+          "text": "--status mode Step 0.2a reads ledger.json + status + error-ledger, hien thi progress cho tat ca stages (Detection, Assessment, Maturity, Inventory, Classify, Extract, Synthesize) theo --status Display Format",
+          "type": "behavior"
+        },
+        {
+          "text": "--status hien thi so items processed / total cho moi stage tu ledger.summary, bao gom active_skill va next action cho incomplete stages",
+          "type": "behavior"
+        },
+        {
+          "text": "Khong thay doi bat ky data nao (read-only)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "/wf-legacy-scan ./monorepo (du an monorepo voi apps/backend, apps/frontend, packages/)",
+      "expected_output": "Nhan dien cau truc monorepo, tao project-profile voi structure.type = monorepo",
+      "assertions": [
+        {
+          "text": "Stage 0 detection script legacy-scan-detect.sh phat hien monorepo structure khi co thu muc apps/ voi nhieu sub-projects. project-profile.json ghi structure.type='monorepo'",
+          "type": "behavior"
+        },
+        {
+          "text": "Detection script liet ke moi app trong apps/ vao project-profile.json. project-context.md Section 1 (He Thong) hien thi bang voi cot: He thong, Duong dan, Muc dich, Doi tuong su dung, Trang thai",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Step 0A.3 AskUserQuestion xac nhan strategy. Step 0A.4 ghi assessment-report.json + cap nhat ledger.json field stage_modes (full/skip/delta/create/merge/validate/fast-track per stage)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-legacy-scan /path/to/partial-project (du an co .mc-data/ nhung chi co Phase 0-1, thieu Phase 2-3)",
+      "expected_output": "Detect maturity = CODE_PLUS_DEVKIT_PARTIAL, chay Maturity Validation, set stage_modes, hoan thanh inventory",
+      "assertions": [
+        {
+          "text": "Stage 0 Step 0.2c phat hien .mc-data/ exists nhung thieu phases/registry. Detection script ghi project-profile.json doc_maturity.level='CODE_PLUS_DEVKIT_PARTIAL'",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0.5 Steps 0.5.1-0.5.6 validate Phase 0-3 contracts + registry cho CODE_PLUS_DEVKIT_PARTIAL. Step 0.5.7 tinh maturity score va set stage_modes (delta cho classify/extract)",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0.5 Step 0.5.9 cap nhat ledger.json field maturity.validation_result + stage_modes. Downstream skills (wf-legacy-classify, wf-legacy-extract) doc stage_modes tu ledger",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0.5 Step 0.5.8 AskUserQuestion hien thi maturity assessment (phase_status + registry_stats) va xin user xac nhan recommended_action truoc khi continue sang Stage 1",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "/wf-legacy-scan /path/to/complete-project (du an co .mc-data/ day du, 82% impl_status=done)",
+      "expected_output": "Detect maturity = NEAR_COMPLETE, set stage_modes skip cho classify/extract/normalize, fast-track cho gap",
+      "assertions": [
+        {
+          "text": "Stage 0 phat hien .mc-data/ day du va impl_done_pct >= 75%. project-profile.json ghi doc_maturity.level='NEAR_COMPLETE'. Maturity Level table dinh nghia: NEAR_COMPLETE khi DEVKIT_COMPLETE + >75% impl_status=done",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0.5 cho NEAR_COMPLETE: validate Phase 0-3 contracts pass. Stage Mode Decision Table: set stage_modes=skip cho Stage 2 classify + Stage 3 extract, stage_modes=fast-track cho Stage 5 gap",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0.5 Step 0.5.9 writes ledger.json maturity.stage_modes. Downstream skills doc tu ledger de determine mode (skip/delta/full) cho classify, extract, gap analysis",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-legacy-scan ./docs-project (du an chi co tai lieu, KHONG co source code)",
+      "expected_output": "Detect maturity=DOCS_ONLY, assessment chon S3:DOCS-FIRST, hoan thanh inventory",
+      "assertions": [
+        {
+          "text": "Stage 0 detection: khi source_files count == 0 va doc_files > 0, project-profile.json ghi doc_maturity.level='DOCS_ONLY' per Maturity Levels table",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Strategy Routing: khi DOCS_ONLY + doc_score >= HIGH → strategy S3:DOCS-FIRST per Strategy Routing table. Step 0A.4 ghi stage_modes vao ledger",
+          "type": "behavior"
+        },
+        {
+          "text": "Inventory hoan thanh voi doc files, next step: /wf-legacy-classify",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "/wf-legacy-scan ./small-app (du an nho, 45 files, 1 system)",
+      "expected_output": "Detect project_size=SMALL, chay assessment, chon strategy, hoan thanh inventory trong 1 session",
+      "assertions": [
+        {
+          "text": "Stage 0 detection: khi total_files < 100, project-profile.json ghi project_size='SMALL' per Project Size Tiers table",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A assessment chay, hien thi scores, de xuat strategy",
+          "type": "behavior"
+        },
+        {
+          "text": "Project Size Tiers: SMALL (total_files < 100) → LPM=OFF, batch=All-at-once, checkpoint=cuoi pipeline, 1 session. Khong co agent limit vi Stage 2-3 khong dung LPM",
+          "type": "behavior"
+        },
+        {
+          "text": "Hoan thanh Stage 0-1, huong dan next: /wf-legacy-classify",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "/wf-legacy-scan ./medium-app (du an trung binh, 280 files, 2 systems)",
+      "expected_output": "Detect project_size=MEDIUM, chay assessment, chon strategy, hoan thanh inventory",
+      "assertions": [
+        {
+          "text": "Stage 0 detection: khi 100 <= total_files <= 500, project-profile.json ghi project_size='MEDIUM' per Project Size Tiers table",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A assessment chay va hien thi scores cho user xac nhan strategy",
+          "type": "behavior"
+        },
+        {
+          "text": "MEDIUM tier: LPM=PARTIAL (max 3 agents), batch=200, checkpoint per stage. --batch-size=N (default 100) ghi vao ledger.json cho downstream wf-legacy-classify",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-legacy-scan Z:\\Working\\EUREKA-2026 (du an LARGE monorepo: .NET backend + Next.js frontend + Expo mobile, ~4400 files)",
+      "expected_output": "Detect monorepo structure, maturity=CODE_PLUS_EXTERNAL_DOCS, strategy S2:CODE-FIRST, LARGE tier, hoan thanh inventory",
+      "assertions": [
+        {
+          "text": "Stage 0 Tech Stack Verification (CORE-014, Step 0.5b): parse *.csproj va *.sln de detect primary_lang. .next/ artifacts excluded via detection script exclusion patterns",
+          "type": "behavior"
+        },
+        {
+          "text": "Detection script phat hien monorepo voi 5 apps (apps/backend + apps/frontend + packages/ etc). project-profile.json structure.type='monorepo' voi apps[] array listing all apps",
+          "type": "behavior"
+        },
+        {
+          "text": "Maturity Levels: CODE_PLUS_EXTERNAL_DOCS khi khong co .mc-data/ nhung co nhieu docs (>=5 md hoac openapi hoac >=3 README). project-profile.json ghi doc_maturity.level tuong ung",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Strategy Routing: CODE_ONLY + MED+ code_level → S2:CODE-FIRST (default). Step 0A.4 ghi stage_modes vao ledger.json per Strategy-to-Modes Mapping",
+          "type": "behavior"
+        },
+        {
+          "text": "project_size=LARGE, lpm_triggered=true",
+          "type": "behavior"
+        },
+        {
+          "text": "Detection script legacy-scan-detect.sh excludes .mc-data/ va .backup* directories khi counting total_files per exclusion rules trong script",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 1 inventory script parse screens, APIs, docs, sources, dependencies (Steps 1.2-1.6). inventory/api-endpoints.json co > 0 entries khi .NET Minimal API MapGet/MapPost patterns duoc detect qua parse_grep_match",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "/wf-legacy-scan Z:\\Working\\NIRA (du an LARGE polyglot monorepo: Go backend + Flutter mobile x2 + C/ESP32 firmware + React ERP, ~5000 files)",
+      "expected_output": "Detect monorepo voi 4 apps, project_size=LARGE, loai bo esp-idf/.pub-cache tu file counts, assessment strategy S2",
+      "assertions": [
+        {
+          "text": "project-profile.json structure.is_monorepo = true va apps[] array co >= 4 entries (Go backend + Flutter mobile x2 + React ERP + C/ESP32 firmware) khi detection phat hien thu muc apps/ rieng biet",
+          "type": "behavior"
+        },
+        {
+          "text": "project-profile.json file_counts.total < 10000 vi detection script excludes dependency directories: esp-idf, .pub-cache, .dart_tool, Pods, .gradle khi counting files",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Strategy Routing table: CODE_ONLY + MED+ code_level → S2:CODE-FIRST. Step 0A.4 ghi assessment-report.json + ledger.json stage_modes per Strategy-to-Modes Mapping",
+          "type": "behavior"
+        },
+        {
+          "text": "LARGE tier (total_files > 500) → project-profile.json complexity.lpm_triggered=true per Project Size Tiers. LPM=FULL, batch=100, checkpoint per 3 batches",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0 Step 0.5 detect.sh, Stage 0A Step 0A.1 assess.sh, Stage 1 Step 1.1 inventory.sh — ca 3 scripts exit code 0 vi inner grep commands co '|| true' de prevent set -e crash on no-match",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 1 inventory script detect Go Gin routes qua parse_grep_match pattern matching. inventory/api-endpoints.json co > 0 entries cho Go backend projects voi Gin router",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "/wf-legacy-scan --re-vision ./my-project (du an da co code, user muon thay doi vision)",
+      "expected_output": "Detect hien trang, force strategy S6:RE-VISION bat ke scores, AskUserQuestion xac nhan",
+      "assertions": [
+        {
+          "text": "Stage 0 chay detect.sh binh thuong, tao project-profile.json",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A: strategy routing chon S6:RE-VISION vi --re-vision flag, KHONG phu thuoc scores",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Step 0A.3 AskUserQuestion hien thi assessment voi note RE-VISION strategy khi --re-vision flag set. Assessment shows S6 strategy selected vi flag override, KHONG phu thuoc scores",
+          "type": "behavior"
+        },
+        {
+          "text": "S6:RE-VISION stage_modes trong ledger: classify=full, extract=full, phase0-3=create per Strategy-to-Modes Mapping. Step 0A.4 ghi vao ledger.json",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "/wf-legacy-scan ./completed-project (du an da co pipeline COMPLETE trong ledger.json)",
+      "expected_output": "Detect pipeline da COMPLETE, hien thi E005, hoi user re-scan hoac cancel",
+      "assertions": [
+        {
+          "text": "Step 0.2c doc ledger.json pipeline_status. Khi pipeline_status='COMPLETE' (va khong co --re-vision) → hien thi E005 error code",
+          "type": "behavior"
+        },
+        {
+          "text": "Khi pipeline COMPLETE (Step 0.2c): E005 error code displayed. AskUserQuestion voi options: re-scan (restart Stage 0) hoac cancel (STOP). Neu --re-vision flag → auto-bypass E005",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu user chon cancel → STOP, khong tao file moi",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu user chon re-scan → tiep tuc Stage 0 tu dau",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "/wf-legacy-scan ./divergent-project (du an co .mc-data/ day du nhung code da thay doi nhieu, alignment LOW)",
+      "expected_output": "Detect maturity=CODE_PLUS_DEVKIT_COMPLETE, assessment chon S5:DIVERGENCE-RESOLVE",
+      "assertions": [
+        {
+          "text": "Stage 0 phat hien .mc-data/ day du, Phase 0-3 contracts pass. project-profile.json ghi doc_maturity.level='CODE_PLUS_DEVKIT_COMPLETE' per Maturity Levels table",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Strategy Routing: DEVKIT_COMPLETE + alignment_level=LOW → S5:DIVERGENCE-RESOLVE per Strategy Routing table. Step 0A.4 ghi stage_modes vao ledger",
+          "type": "behavior"
+        },
+        {
+          "text": "stage_modes phan anh S5 (classify=full, extract=full, gap=full)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "/wf-legacy-scan ./broken-project (du an co code quality rat thap, code_score < 40)",
+      "expected_output": "Detect CODE_ONLY, assessment code_level=LOW → de xuat S7:FULL-REBUILD",
+      "assertions": [
+        {
+          "text": "Stage 0 phat hien khong co .mc-data/, it docs, co source files. project-profile.json ghi doc_maturity.level='CODE_ONLY' per Maturity Levels table",
+          "type": "behavior"
+        },
+        {
+          "text": "Stage 0A Strategy Routing: CODE_ONLY + code_level=LOW (code_score < 40) → S7:FULL-REBUILD per Strategy Routing table",
+          "type": "behavior"
+        },
+        {
+          "text": "AskUserQuestion hien thi warning ve code quality thap, de xuat FULL-REBUILD",
+          "type": "behavior"
+        },
+        {
+          "text": "User co the override sang S2:CODE-FIRST neu muon",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "/wf-legacy-scan ./project-with-registry (du an khong co .mc-data/ nhung req-registry.json da ton tai o noi khac)",
+      "expected_output": "Detect E016 khi phat hien registry da ton tai, hoi user ghi de / cancel",
+      "assertions": [
+        {
+          "text": "Step 0.2c check existing state: phat hien req-registry.json da ton tai o noi khac → E016 warning code displayed",
+          "type": "behavior"
+        },
+        {
+          "text": "AskUserQuestion: ghi de registry hay cancel",
+          "type": "behavior"
+        },
+        {
+          "text": "Neu user chon ghi de → tiep tuc pipeline binh thuong",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "prompt": "/wf-legacy-scan Z:\\Working\\NIRA (regression test: Windows drive letter path + Go API detection)",
+      "expected_output": "Scripts khong crash tren Windows paths (z:/...), inventory detect Go API endpoints > 0",
+      "assertions": [
+        {
+          "id": "win-path-detect",
+          "text": "detect.sh exit code 0 tren Windows path z:/Working/NIRA",
+          "type": "behavior"
+        },
+        {
+          "id": "win-path-assess",
+          "text": "assess.sh exit code 0, doc_quality va code_quality co scores > 0",
+          "type": "behavior"
+        },
+        {
+          "id": "win-path-inventory-api",
+          "text": "inventory.sh api-endpoints.json count > 0 (parse_grep_match xu ly Windows drive letter z: dung)",
+          "type": "behavior"
+        },
+        {
+          "id": "win-path-no-set-e-crash",
+          "text": "inventory.sh KHONG crash giua chung vi set -e + grep no-match (|| true tren inner grep)",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "prompt": "/wf-legacy-scan ./sparse-docs-only (du an chi co tai lieu nhung it va so sai, doc_score < 40)",
+      "expected_output": "Detect maturity=DOCS_ONLY voi doc_level=LOW, assessment chon S4:DOCS-BRAINSTORM, AskUserQuestion bo sung 3-5 cau",
+      "assertions": [
+        {
+          "id": "s4-detect-docs-only-low",
+          "text": "Stage 0 phat hien source_files=0, doc_files > 0 nhung doc_score < 40. project-profile.json ghi doc_maturity.level='DOCS_ONLY'",
+          "type": "behavior"
+        },
+        {
+          "id": "s4-strategy-routing",
+          "text": "Stage 0A Strategy Routing: DOCS_ONLY + doc_level=LOW (doc_score < 40) → S4:DOCS-BRAINSTORM per Strategy Routing Logic",
+          "type": "behavior"
+        },
+        {
+          "id": "s4-askuser-augment",
+          "text": "S4 ket hop Brainstorm: AskUserQuestion bo sung 3-5 cau hoi de fill gaps trong docs (vd: 'San pham nay phuc vu ai?', 'Tinh nang chinh la gi?'). Cau tra loi user gop vao Phase 2-3",
+          "type": "behavior"
+        },
+        {
+          "id": "s4-stage-modes",
+          "text": "S4 stage_modes trong ledger: classify=full, extract=full, phase0-3=create per Strategy-to-Modes Mapping. Step 0A.7 ghi assessment-report.json voi strategy.id='S4'",
+          "type": "behavior"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "prompt": "/wf-legacy-scan ./empty-dir (thu muc rong, 0 files)",
+      "expected_output": "Phase 0 phat hien project rong, ERROR E002, STOP truoc khi tao file lon",
+      "assertions": [
+        {
+          "id": "empty-pre-gate-pass",
+          "text": "Phase 0 PRE-GATE pass (test -d $PROJECT_PATH OK), tiep tuc Step 0.5 detect.sh",
+          "type": "behavior"
+        },
+        {
+          "id": "empty-detect-zero-files",
+          "text": "legacy-scan-detect.sh phat hien total_files == 0. project-profile.json ghi file_counts.total = 0",
+          "type": "behavior"
+        },
+        {
+          "id": "empty-error-e002",
+          "text": "Step 0.7 (hoac Pre-Init State Check) trigger ERROR E002 ('Project path trong (0 files)') va STOP. KHONG tiep tuc Phase 0A",
+          "type": "behavior"
+        },
+        {
+          "id": "empty-error-ledger-entry",
+          "text": "error-ledger.json append entry voi error_code='E002', phase='0', resolution='STOP'",
+          "type": "behavior"
+        },
+        {
+          "id": "empty-no-downstream-files",
+          "text": "KHONG tao assessment-report.json, inventory/, classified/, extracted/ — pipeline dung lai sau Phase 0",
+          "type": "behavior"
+        }
+      ]
+    }
+  ]
+}

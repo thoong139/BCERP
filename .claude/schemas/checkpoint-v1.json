@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "checkpoint-v1",
+  "title": "MCV3 Checkpoint Template",
+  "description": "Schema cho tat ca checkpoint template variants trong DEVKIT",
+  "type": "object",
+  "required": ["$schema"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema identifier"
+    },
+    "checkpoint_id": {
+      "type": "string"
+    },
+    "fix_id": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "session": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "session_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "saved_at": {
+      "type": "string"
+    },
+    "phase": {
+      "type": "string"
+    },
+    "phase_name": {
+      "type": "string"
+    },
+    "current_phase": {
+      "type": "string"
+    },
+    "next_phase": {
+      "type": "string"
+    },
+    "next_action": {
+      "type": "string"
+    },
+    "trigger": {
+      "type": "object",
+      "properties": {
+        "reason": { "type": "string" },
+        "context_used_pct": { "type": "integer" },
+        "phase_completed": { "type": ["string", "null"] },
+        "batch_completed": { "type": ["string", "null"] },
+        "error_details": { "type": ["string", "null"] }
+      }
+    },
+    "position": {
+      "type": "object",
+      "properties": {
+        "current_phase": { "type": "string" },
+        "current_phase_name": { "type": ["string", "null"] },
+        "current_batch": { "type": ["string", "null"] },
+        "current_sub_batch": { "type": ["string", "null"] },
+        "next_phase": { "type": ["string", "null"] },
+        "next_action": { "type": ["string", "null"] }
+      }
+    },
+    "progress": {
+      "type": "object",
+      "properties": {
+        "phases_completed": { "type": "array", "items": { "type": "string" } },
+        "batches_completed": { "type": "array", "items": { "type": "string" } },
+        "issues_fixed": { "type": "array", "items": { "type": "string" } },
+        "issues_remaining": { "type": "array", "items": { "type": "string" } },
+        "docs_updated": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "context_usage_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "context_summary": {
+      "type": "object",
+      "properties": {
+        "project_name": { "type": ["string", "null"] },
+        "systems": { "type": "array", "items": { "type": "string" } },
+        "modules": { "type": "array", "items": { "type": "string" } },
+        "key_variables": { "type": "object" },
+        "total_issues": { "type": "integer" },
+        "scope_type": { "type": ["string", "null"] },
+        "scope_name": { "type": ["string", "null"] },
+        "preflight_score_before": { "type": ["integer", "null"] }
+      }
+    },
+    "context_digest": {
+      "type": "object",
+      "description": "Stateful context digest"
+    },
+    "partial_state": {
+      "type": "object",
+      "description": "Partial state for resume"
+    },
+    "resume_instruction": {
+      "type": "string"
+    },
+    "resume_instructions": {
+      "type": "object"
+    },
+    "completed_phases": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "files_created": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

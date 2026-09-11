@@ -1,0 +1,177 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD11",
+  "dimension_name": "Business Completeness & Enhancement",
+  "short_name": "Business Completeness",
+  "owner_agent": "business-analyst",
+  "version": "1.0.0",
+  "description": "Phat hien MISSING business logic ma static probes khong the thay: cross-module pattern gaps (module A co feature X nhung module B cung domain lai thieu), domain-specific mandatory fields/rules chua implement, requirements registry co nhung code chua implement. 100% LLM (3-pass analysis). Khac biet voi QD1-QD10: khong tim BUG trong code hien tai, ma tim LOGIC CHUA CO.",
+  "probes": [
+    {
+      "id": "P-QD11-cross-module-comparison",
+      "name": "Cross-Module Pattern Comparison",
+      "type": "llm",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd11-cross-module.md"
+      },
+      "required_inputs": [
+        "registry",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": true,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 120,
+        "tokens": 8000
+      }
+    },
+    {
+      "id": "P-QD11-domain-heuristic",
+      "name": "Domain Heuristic Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd11-domain-heuristic.md"
+      },
+      "required_inputs": [
+        "registry",
+        "domain_references"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    },
+    {
+      "id": "P-QD11-registry-gap",
+      "name": "Registry Gap Detection",
+      "type": "llm",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd11-registry-gap.md"
+      },
+      "required_inputs": [
+        "registry",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [],
+      "max_signals_per_probe": 0,
+      "notes": "QD11 SKIP hoan toan trong quick profile — LLM-heavy completeness analysis khong phu hop voi quick scan. Lane status = skipped + ly do."
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD11-cross-module-comparison",
+        "P-QD11-registry-gap"
+      ],
+      "max_signals_per_probe": 50,
+      "notes": "2 probes: cross-module comparison + registry gap. Bo qua domain heuristic (can domain references files)."
+    },
+    "deep": {
+      "probes_required": [
+        "P-QD11-cross-module-comparison",
+        "P-QD11-domain-heuristic",
+        "P-QD11-registry-gap"
+      ],
+      "max_signals_per_probe": 100,
+      "notes": "All 3 probes. Domain heuristic can .claude/references/team-expert/ (graceful skip neu thieu)."
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300,
+      "notes": "All 3 probes voi full depth. Domain heuristic bat buoc khi co domain references."
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [],
+    "high_triggers": [
+      "Feature ton tai trong module A nhung thieu trong module B cung domain (MISSING_FEATURE)",
+      "Requirement trong registry, impl_status=not_started, nhung lien quan den scope (UNIMPLEMENTED_REQ)",
+      "Domain compliance check bat buoc nhung chua implement (MISSING_COMPLIANCE_CHECK)",
+      "Business rule dac thu domain khong co validation (MISSING_BUSINESS_RULE)"
+    ],
+    "medium_triggers": [
+      "Field ton tai trong reference module nhung thieu trong target (MISSING_FIELD)",
+      "Cung field name nhung khac type giua cac module (TYPE_MISMATCH)",
+      "Requirement trong registry, impl_status=done, nhung khong tim thay annotation (ORPHAN_REQ_ID)",
+      "Requirement khong co FEAT-ID mapping (GAP_REQ_TO_FEAT)",
+      "Domain mandatory field thieu (MISSING_DOMAIN_FIELD)",
+      "Thieu audit trail cho business event (MISSING_AUDIT_TRAIL)"
+    ],
+    "low_triggers": [
+      "Reference module co validation nhung target khong co (VALIDATION_GAP)"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "optional_tools": [],
+    "agents": [
+      "business-analyst",
+      "architect"
+    ],
+    "_agents_note": "Domain expert agents duoc resolve dynamic theo registry.departments[] (vd: healthcare-expert, finance-expert, logistics-expert). Fallback: business-analyst."
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/QD11-business-completeness-report.md",
+    "enhancement_suggestions": "$SESSION_DIR/phase4-find-bugs/lanes/QD11-business-completeness/enhancement-suggestions.json"
+  },
+  "execution_order": [
+    "P-QD11-cross-module-comparison",
+    "P-QD11-registry-gap",
+    "P-QD11-domain-heuristic"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD11-cross-module-comparison",
+      "P-QD11-registry-gap"
+    ],
+    [
+      "P-QD11-domain-heuristic"
+    ]
+  ],
+  "execution_rationale": "Pass 1 (cross-module) + Pass 3 (registry gap) chay PARALLEL truoc — ca 2 deu la static analysis tren registry+code, khong phu thuoc nhau. Pass 2 (domain heuristic) chay sau — can ket qua domain reference lookup + co the cross-reference voi Pass 1 signals.",
+  "skip_conditions": {
+    "single_module": "Project chi co 1 module — khong the cross-reference giua cac module cung domain",
+    "api_only": "interface_type=api-only — khong co UI de so sanh entity forms/lists/workflows",
+    "profile_quick": "Profile quick — skip LLM-heavy completeness analysis, chi phu hop standard+"
+  }
+}

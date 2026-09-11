@@ -1,0 +1,51 @@
+{
+  "$schema": "req-registry-v1",
+  "project": {
+    "name": "sample-project",
+    "domain": "finance",
+    "interface_type": "api-only"
+  },
+  "features": [
+    {
+      "feat_id": "FEAT-CUST-001",
+      "name": "Customer creation",
+      "module": "customer",
+      "system": "crm",
+      "impl_status": "done"
+    },
+    {
+      "feat_id": "FEAT-ORDER-001",
+      "name": "Order processing",
+      "module": "order",
+      "system": "crm",
+      "impl_status": "in_progress"
+    },
+    {
+      "feat_id": "FEAT-FIN-001",
+      "name": "Tax calculation",
+      "module": "finance",
+      "system": "crm",
+      "impl_status": "done"
+    }
+  ],
+  "requirements": [
+    {
+      "req_id": "REQ-CUST-001",
+      "feat_id": "FEAT-CUST-001",
+      "title": "Customer must have unique email",
+      "impl_status": "done"
+    },
+    {
+      "req_id": "REQ-FIN-001",
+      "feat_id": "FEAT-FIN-001",
+      "title": "Tax rate must come from config, not hard-coded",
+      "impl_status": "done"
+    },
+    {
+      "req_id": "REQ-AUDIT-001",
+      "feat_id": "FEAT-ORDER-001",
+      "title": "Order processing must record audit trail",
+      "impl_status": "in_progress"
+    }
+  ]
+}

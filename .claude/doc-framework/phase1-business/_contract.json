@@ -1,0 +1,70 @@
+{
+  "version": "1.0",
+  "phase": "phase1-business",
+  "description": "Template compliance contracts for Phase 1 Business Analysis documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "templates": {
+    "P1-01-project-overview": {
+      "template_file": "phase1-business/P1-01-project-overview.md",
+      "description": "Tổng quan dự án — thông tin chung, mục tiêu, phạm vi",
+      "output_pattern": ".mc-data/docs/phase1-business/P1-01-project-overview.md",
+      "required_sections": [
+        "## 1. Thông Tin Chung",
+        "## 2. Bối Cảnh & Lý Do",
+        "## 3. Mục Tiêu Dự Án",
+        "## 4. Phạm Vi Hệ Thống",
+        "## 5. Đối Tượng Sử Dụng",
+        "## 6. Phối Hợp Giữa Các Phân Hệ",
+        "## 7. Giới Hạn & Giả Định",
+        "## 8. Các Bên Liên Quan",
+        "## 9. Yêu Cầu Chất Lượng Tổng Thể"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "P1-02-business-workflow": {
+      "template_file": "phase1-business/P1-02-business-workflow.md",
+      "description": "Quy trình kinh doanh — luồng end-to-end, điểm chuyển giao",
+      "output_pattern": ".mc-data/docs/phase1-business/P1-02-business-workflow.md",
+      "required_sections": [
+        "## 1. Mô Hình Kinh Doanh",
+        "## 2. Các Bộ Phận Tham Gia",
+        "## 3. Luồng Kinh Doanh Chính",
+        "## 4. Các Điểm Chuyển Giao Giữa Phòng Ban",
+        "## 5. Các Bên Liên Quan Bên Ngoài",
+        "## 6. Chỉ Số Kinh Doanh Quan Trọng",
+        "## 7. Quy Định & Ràng Buộc Kinh Doanh"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "departments-dept": {
+      "template_file": "phase1-business/departments/[dept-name]/[dept-name].md",
+      "description": "Phân tích nghiệp vụ từng phòng ban — user needs + workflow",
+      "output_pattern": ".mc-data/docs/phase1-business/departments/**/*.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "stakeholder-review": {
+      "template_file": "phase1-business/stakeholder-review.md",
+      "description": "Stakeholder review — cross-dept review, consistency, gap analysis",
+      "output_pattern": ".mc-data/docs/phase1-business/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "departments-index": {
+      "path": ".mc-data/docs/phase1-business/departments/_index.md",
+      "description": "Index departments directory — listing tất cả phòng ban đã phân tích"
+    }
+  }
+}

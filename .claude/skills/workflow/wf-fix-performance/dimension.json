@@ -1,0 +1,286 @@
+{
+  "$schema": "dimension-v1",
+  "dimension_id": "QD4",
+  "dimension_name": "Performance Bottlenecks",
+  "short_name": "Bottlenecks",
+  "owner_agent": "performance-benchmarker",
+  "version": "1.0.0",
+  "description": "Dimension QD4: Performance Bottlenecks",
+  "probes": [
+    {
+      "id": "P-QD4-bundle-size-audit",
+      "name": "Bundle Size Audit",
+      "type": "static",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD4-bundle-size-audit.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 45,
+        "tokens": 3000
+      }
+    },
+    {
+      "id": "P-QD4-render-perf-check",
+      "name": "Render Performance",
+      "type": "runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD4-render-perf-check.md"
+      },
+      "required_inputs": [
+        "base_url",
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    },
+    {
+      "id": "P-QD4-api-latency-probe",
+      "name": "API Latency",
+      "type": "runtime",
+      "depth": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "bash+curl",
+        "config": "probes/P-QD4-api-latency-probe.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD4-db-query-analysis",
+      "name": "DB Query Analysis",
+      "type": "static+runtime",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD4-db-query-analysis.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "HIGH",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD4-memory-leak-scan",
+      "name": "Memory Leak Scan",
+      "type": "static",
+      "depth": [
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "grep+jq",
+        "config": "probes/P-QD4-memory-leak-scan.md"
+      },
+      "required_inputs": [
+        "code"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "CRITICAL",
+      "cdg": false,
+      "cache_policy": "allowed",
+      "estimated_cost": {
+        "time_seconds": 60,
+        "tokens": 4000
+      }
+    },
+    {
+      "id": "P-QD4-core-web-vitals",
+      "name": "Core Web Vitals",
+      "type": "runtime",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "playwright",
+        "config": "probes/P-QD4-core-web-vitals.md"
+      },
+      "required_inputs": [
+        "base_url"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 6000
+      }
+    },
+    {
+      "id": "P-QD4-llm-analysis",
+      "name": "LLM-Augmented Performance Analysis",
+      "type": "llm",
+      "depth": [
+        "deep",
+        "exhaustive"
+      ],
+      "tool": {
+        "kind": "llm",
+        "config": "prompts/llm-probe-qd4-performance.md"
+      },
+      "required_inputs": [
+        "code",
+        "registry",
+        "ci_context"
+      ],
+      "outputs": [
+        "signal"
+      ],
+      "severity_default": "MEDIUM",
+      "cdg": false,
+      "cache_policy": "skip",
+      "estimated_cost": {
+        "time_seconds": 90,
+        "tokens": 8000
+      }
+    }
+  ],
+  "exit_criteria": {
+    "quick": {
+      "probes_required": [
+        "P-QD4-bundle-size-audit"
+      ],
+      "max_signals_per_probe": 30
+    },
+    "standard": {
+      "probes_required": [
+        "P-QD4-bundle-size-audit",
+        "P-QD4-render-perf-check",
+        "P-QD4-api-latency-probe",
+        "P-QD4-db-query-analysis",
+        "P-QD4-memory-leak-scan"
+      ],
+      "max_signals_per_probe": 50
+    },
+    "deep": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 100
+    },
+    "exhaustive": {
+      "probes_required": "ALL",
+      "max_signals_per_probe": 300
+    }
+  },
+  "severity_rules": {
+    "critical_triggers": [
+      "API latency > 10s",
+      "Memory leak trong production"
+    ],
+    "high_triggers": [
+      "API p95 > 2s",
+      "Bundle > 1MB",
+      "N+1 query"
+    ],
+    "medium_triggers": [
+      "API p95 > 500ms",
+      "Bundle chunk > 200KB"
+    ],
+    "max_aggregation": true
+  },
+  "dependencies": {
+    "agents": [
+      "performance-benchmarker"
+    ]
+  },
+  "outputs": {
+    "signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD4-performance/static-scan/signals.json",
+    "runtime_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD4-performance/runtime/signals.json",
+    "llm_signals_file": "$SESSION_DIR/phase4-find-bugs/lanes/QD4-performance/llm-scan/signals.json",
+    "lane_report": "$SESSION_DIR/phase4-find-bugs/lanes/QD4-performance/QD4-performance-report.md"
+  },
+  "execution_order": [
+    "P-QD4-bundle-size-audit",
+    "P-QD4-db-query-analysis",
+    "P-QD4-render-perf-check",
+    "P-QD4-api-latency-probe",
+    "P-QD4-core-web-vitals",
+    "P-QD4-memory-leak-scan",
+    "P-QD4-llm-analysis"
+  ],
+  "parallel_groups": [
+    [
+      "P-QD4-bundle-size-audit",
+      "P-QD4-db-query-analysis"
+    ],
+    [
+      "P-QD4-render-perf-check",
+      "P-QD4-api-latency-probe"
+    ],
+    [
+      "P-QD4-core-web-vitals"
+    ],
+    [
+      "P-QD4-memory-leak-scan"
+    ],
+    [
+      "P-QD4-llm-analysis"
+    ]
+  ],
+  "execution_rationale": "static-before-runtime, Playwright probes isolated (CASCADE-QD4-001 fix)"
+}

@@ -1,0 +1,168 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "audit-devkit",
+  "version": "5.1.0",
+  "phase": "devkit-audit",
+  "description": "Orchestrator DEVKIT self-audit — điều phối pipeline: audit-devkit-scan → audit-devkit-verify → audit-devkit-fix + Master Plan validation + optional Skill Eval Harness (--evals). Hỗ trợ focused mode (--skill=<name>) và delta scan (--since=<commit>). v5.0: refactor lazy-load procedures (7 phase files + _shared.md + 3 templates).",
+  "prerequisites": {
+    "files": [
+      ".claude/agents/",
+      ".claude/skills/",
+      ".claude/doc-framework/"
+    ],
+    "registry_fields": [],
+    "notes": "Yêu cầu toàn bộ DEVKIT components tồn tại"
+  },
+  "arguments": {
+    "pipeline_mode": {
+      "default": "--full",
+      "options": [
+        "--full",
+        "--no-fix",
+        "--scan-only",
+        "--quick",
+        "--fix-only",
+        "--master-plan"
+      ],
+      "description": "Pipeline stages: --full = scan→verify→fix→master-plan (mặc định); --no-fix = scan→verify→master-plan; --scan-only = scan only; --quick = structural scan only; --fix-only = fix only; --master-plan = chỉ Master Plan validation"
+    },
+    "scope": {
+      "default": "--all",
+      "options": [
+        "--agents",
+        "--skills",
+        "--templates",
+        "--rules",
+        "--hooks",
+        "--skill=<name>"
+      ],
+      "description": "Component scope. --skill=<name> = focused scan cho 1 skill cụ thể + cross-ref focused. --rules/--hooks pass-through đến scan sub-skill; verify fallback --all (không có focused mode tương ứng)."
+    },
+    "eval_mode": {
+      "default": null,
+      "options": [
+        "--evals [--eval-mode=stub|judge|auto|real]",
+        "--eval-skill=<name>"
+      ],
+      "description": "Opt-in behavioral eval harness. Không chạy mặc định"
+    },
+    "delta_scan": {
+      "default": null,
+      "options": [
+        "--since=<commit>"
+      ],
+      "description": "Chỉ scan files thay đổi từ commit (delta scan). Passes --since sang audit-devkit-scan"
+    }
+  },
+  "inputs": [
+    {
+      "path": ".claude/",
+      "description": "Toàn bộ DEVKIT components",
+      "required": true
+    }
+  ],
+  "outputs": {
+    "docs": [
+      {
+        "path": ".mc-data/work/audit-devkit-verify/reports/devkit-audit-[date].md",
+        "template": null,
+        "notes": "Report created by sub-skill audit-devkit-verify, not by this orchestrator",
+        "contract_key": "devkit-audit-report",
+        "required": true,
+        "description": "Verify report — created by audit-devkit-verify Phase 4"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-fix/reports/devkit-audit-fix-[date].md",
+        "template": null,
+        "notes": "Report created by sub-skill audit-devkit-fix, not by this orchestrator",
+        "contract_key": "devkit-audit-fix-report",
+        "required": false,
+        "description": "Fix report — created by audit-devkit-fix Phase 3 (chỉ khi fix mode ON)"
+      }
+    ],
+    "working": [
+      {
+        "path": ".mc-data/work/audit-devkit/[session]/orchestrator-status.json",
+        "template": "templates/orchestrator-status.json",
+        "notes": "Persistent orchestrator state — survives context compression. CORE-031: READ template → POPULATE → WRITE. Owned by audit-devkit (this skill). Hook step 0.84 yêu cầu file tồn tại sau Phase 0.",
+        "required": true,
+        "description": "Orchestrator state (current_phase, completed_phases, pending_phases, args, sub_session_ids)"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+        "template": null,
+        "notes": "Output created by sub-skill audit-devkit-scan, not by this orchestrator",
+        "required": true,
+        "description": "Index của tất cả findings files từ scan"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-scan/[session]/audit-scan-result.json",
+        "template": null,
+        "notes": "Output created by sub-skill audit-devkit-scan, not by this orchestrator",
+        "required": true,
+        "description": "Kết quả scan tổng hợp"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json",
+        "template": null,
+        "notes": "Output created by sub-skill audit-devkit-verify, not by this orchestrator",
+        "required": true,
+        "description": "Kết quả sau verify"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-fix/[session]/fix-log.json",
+        "template": null,
+        "notes": "Output created by sub-skill audit-devkit-fix, not by this orchestrator",
+        "required": false,
+        "description": "Log các fixes đã thực hiện (chỉ tồn tại khi fix_mode=ON)"
+      },
+      {
+        "path": "docs/audit/work/eval-results.json",
+        "template": null,
+        "notes": "Output created by .claude/scripts/audit/run-skill-evals.sh — fixed location, NOT session-isolated, overwritten per run",
+        "required": false,
+        "description": "Kết quả behavioral evals (chỉ tồn tại khi dùng --evals)"
+      },
+      {
+        "path": "docs/audit/reports/eval-results.md",
+        "template": null,
+        "notes": "Output created by .claude/scripts/audit/run-skill-evals.sh — fixed location, NOT session-isolated, overwritten per run",
+        "required": false,
+        "description": "Human-readable eval report (chỉ tồn tại khi dùng --evals)"
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Không cập nhật registry"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Read-only với registry dự án"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {},
+    "orchestrates": [
+      "audit-devkit-scan",
+      "audit-devkit-verify",
+      "audit-devkit-fix"
+    ],
+    "argument_pass_through": {
+      "--skill=<name>": {
+        "to": "audit-devkit-scan",
+        "as": "--skill=<name>"
+      },
+      "--since=<commit>": {
+        "to": "audit-devkit-scan",
+        "as": "--since=<commit>"
+      },
+      "--agents|--skills|--templates": {
+        "to": "audit-devkit-scan",
+        "as": "same argument"
+      }
+    }
+  }
+}

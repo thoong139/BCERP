@@ -1,0 +1,29 @@
+{
+  "$schema": "orchestrator-status-v1",
+  "session_id": null,
+  "pipeline_mode": "full",
+  "stages": [],
+  "scope": "all",
+  "fix_mode": "OFF",
+  "eval_mode": "OFF",
+  "started_at": null,
+  "current_phase": "phase0-parse-args",
+  "completed_phases": [],
+  "state": {
+    "scan_summary": null,
+    "verdict_pre_fix": null,
+    "verdict_post_fix": null,
+    "fix_summary": null,
+    "master_plan_status": null,
+    "eval_status": null
+  },
+  "timestamps": {
+    "phase0_completed": null,
+    "phase1_completed": null,
+    "phase2_completed": null,
+    "phase3_completed": null,
+    "phase3_5_completed": null,
+    "phase3_6_completed": null,
+    "phase4_completed": null
+  }
+}

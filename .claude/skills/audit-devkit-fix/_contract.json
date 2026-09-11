@@ -1,0 +1,93 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "audit-devkit-fix",
+  "version": "1.3.0",
+  "phase": "devkit-audit",
+  "description": "Auto-fix verified findings từ audit-devkit-verify — per-fix verification sau mỗi lần sửa. v1.3: tái cấu trúc SKILL.md monolithic thành orchestrator + procedures (load on-demand) để giảm context load.",
+  "changelog": {
+    "1.3.0": "Tái cấu trúc SKILL.md (993→~400 dòng) + 6 procedure files (_shared, fix-patterns, phase0-load, phase1-fix-loop, phase2-rescan, phase3-report). Load on-demand giảm context load. Behavior-equivalent với v1.2.0.",
+    "1.2.0": "Thêm verify-complete gate check (Phase 0 Step 0.1a) — bắt buộc verify status = 'completed' trước khi fix."
+  },
+  "prerequisites": {
+    "files": [
+      ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json"
+    ],
+    "registry_fields": [],
+    "notes": "Yêu cầu audit-devkit-verify đã chạy xong"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json",
+      "description": "Verified findings — chỉ fix AUTO findings, skip MANUAL và false positives",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/audit-devkit-scan/[session]/audit-index.json",
+      "description": "Ground truth index cho re-scan",
+      "required": true
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/audit-devkit-fix/[session]/fix-log.json",
+        "template": "templates/fix-log.template.json",
+        "required": true,
+        "description": "Log mỗi fix: finding_id, action, before/after, verification_result"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-fix/[session]/fix-status.json",
+        "template": "templates/fix-status.template.json",
+        "required": true,
+        "description": "Fix progress tracking cho resume support"
+      },
+      {
+        "path": ".mc-data/work/audit-devkit-fix/[session]/phase-summary.md",
+        "template": "doc-framework/_meta/phase-summary.template.md",
+        "required": true,
+        "description": "Tóm tắt kết quả fix cho non-technical user (Protocol §14)"
+      }
+    ],
+    "modified_files": {
+      "path": "various .claude/ files",
+      "action": "in-place edit",
+      "description": "Các DEVKIT files được sửa trực tiếp theo từng finding"
+    },
+    "reports": [
+      {
+        "path": ".mc-data/work/audit-devkit-fix/reports/devkit-audit-fix-[date].md",
+        "template": "templates/fix-report.template.md",
+        "required": true,
+        "description": "Report MỚI với Auto-Fix Summary (dùng verify report làm context, KHÔNG edit verify report)",
+        "notes": "CORE-031: READ template → POPULATE → WRITE. Report JSON structure from fix-log data."
+      }
+    ],
+    "registry": {
+      "path": "N/A",
+      "action": "none",
+      "description": "Không cập nhật registry dự án"
+    }
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Chỉnh sửa DEVKIT files, không phải registry dự án"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "audit-devkit": [
+        ".mc-data/work/audit-devkit-fix/[session]/fix-log.json",
+        ".mc-data/work/audit-devkit-fix/reports/devkit-audit-fix-[date].md"
+      ]
+    },
+    "consumes_from": {
+      "audit-devkit-verify": [
+        ".mc-data/work/audit-devkit-verify/[session]/audit-verified-result.json"
+      ],
+      "audit-devkit-scan": [
+        ".mc-data/work/audit-devkit-scan/[session]/audit-index.json"
+      ]
+    }
+  }
+}

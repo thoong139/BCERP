@@ -1,0 +1,13 @@
+{
+  "$schema": "doc-inventory-v2",
+  "_template_notes": "doc-inventory.json — Documentation inventory từ Phase 2 Scan. Schema: doc-inventory-v2 (v10.11.0 — enrich _schema_notes). Writer: scripts/wf-fix-bugs/scan-and-analyze.sh (Phase 2 Step 2.3).",
+  "_schema_notes": "Required: $schema, session_id, generated_at, total_docs, phases_present[], req_registry_exists, req_count, feature_count, docs[]. docs[] item schema: {path:string (relative từ .mc-data/docs/), phase:string (phase0|phase1|phase2|...), type:string (req|feature|design|ux|task|other), title:string, req_ids:string[]|null, feat_ids:string[]|null}. phases_present ⊆ {phase0-brainstorm, phase1-business, phase2-features, phase3-architecture, phase4-ux, phase5-implementation, phase6-deployment}. Consumer: Phase 5 triage (xref REQ-IDs với registry), Phase 6 docs sync (cập nhật .mc-data/docs/ khi fix).",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "total_docs": 0,
+  "phases_present": [],
+  "req_registry_exists": false,
+  "req_count": 0,
+  "feature_count": 0,
+  "docs": []
+}

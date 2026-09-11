@@ -1,0 +1,122 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "existing-project",
+  "version": "4.0.0",
+  "phase": "orchestrator",
+  "phases": [
+    {
+      "id": "scan",
+      "name": "Legacy Scan Pipeline",
+      "sub_skill": "wf-legacy-scan"
+    },
+    {
+      "id": "0",
+      "name": "Phase 0: Brainstorm (legacy)",
+      "sub_skill": "wf-brainstorm"
+    },
+    {
+      "id": "1",
+      "name": "Phase 1: Analyze Requirements (legacy)",
+      "sub_skill": "wf-analyze-requirements"
+    },
+    {
+      "id": "2",
+      "name": "Phase 2: Define Features (legacy)",
+      "sub_skill": "wf-define-features"
+    },
+    {
+      "id": "3",
+      "name": "Phase 3: Design (legacy)",
+      "sub_skill": "wf-design"
+    },
+    {
+      "id": "annotate",
+      "name": "Annotate Code (conditional)",
+      "sub_skill": "wf-annotate-code"
+    },
+    {
+      "id": "4",
+      "name": "Phase 4: Design UX (conditional)",
+      "sub_skill": "wf-design-ux"
+    },
+    {
+      "id": "5a",
+      "name": "Phase 5a: Plan Modules",
+      "sub_skill": "wf-plan-modules"
+    },
+    {
+      "id": "5b",
+      "name": "Phase 5b: Implement Features",
+      "sub_skill": "wf-implement-feature"
+    },
+    {
+      "id": "preflight",
+      "name": "Preflight Health Check",
+      "sub_skill": "wf-preflight"
+    },
+    {
+      "id": "verify",
+      "name": "Verify: Sync Check",
+      "sub_skill": "wf-verify-sync"
+    },
+    {
+      "id": "6",
+      "name": "Phase 6: Prepare Deployment",
+      "sub_skill": "wf-prepare-deployment"
+    }
+  ],
+  "description": "Orchestrator: onboard codebase hiện có + toàn bộ workflow — bắt đầu từ wf-legacy-scan",
+  "prerequisites": {
+    "files": [],
+    "registry_fields": [],
+    "notes": "Entry point cho dự án hiện có — không có prerequisites, scan codebase từ đầu"
+  },
+  "inputs": [
+    {
+      "path": "user_prompt",
+      "description": "Đường dẫn đến dự án hiện có cần onboard",
+      "required": true
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/existing-project/checkpoint.json",
+        "template": null,
+        "notes": "Checkpoint schema được định nghĩa trong procedures/_shared.md §Status File Schema (v4.0.0) — không có template riêng vì schema phụ thuộc orchestrator. Mở rộng custom: version, current_step, strategy, legacy_pipeline_done, phase_0b_progress, annotate_skip_reason, phase_4_skip_reason, phase_5b_progress, preflight_verdict, deprecated_modules.",
+        "required": true,
+        "description": "Trạng thái tiến độ orchestration — dùng cho resume"
+      }
+    ],
+    "registry": {
+      "path": "delegated to sub-skills",
+      "action": "delegated",
+      "description": "Orchestrator không ghi trực tiếp — mọi output do sub-skills tạo"
+    },
+    "notes": "Orchestrator gọi: wf-legacy-scan → wf-brainstorm → wf-analyze-requirements → wf-define-features → wf-design → wf-annotate-code (conditional) → wf-design-ux (conditional) → wf-plan-modules → wf-implement-feature → wf-preflight → wf-verify-sync → wf-prepare-deployment"
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Orchestrator không sở hữu registry fields — delegate đến sub-skills"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {},
+    "consumes_from": {},
+    "orchestrates": [
+      "wf-legacy-scan",
+      "wf-brainstorm",
+      "wf-analyze-requirements",
+      "wf-define-features",
+      "wf-design",
+      "wf-annotate-code",
+      "wf-design-ux",
+      "wf-plan-modules",
+      "wf-implement-feature",
+      "wf-preflight",
+      "wf-verify-sync",
+      "wf-prepare-deployment"
+    ]
+  }
+}

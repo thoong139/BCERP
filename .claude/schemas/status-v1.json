@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "status-v1",
+  "title": "MCV3 Status File Template",
+  "description": "Schema cho tat ca status tracking template variants trong DEVKIT",
+  "type": "object",
+  "required": ["$schema"],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Schema identifier"
+    },
+    "version": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "fix_id": {
+      "type": "string"
+    },
+    "skill": {
+      "type": "string"
+    },
+    "project": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["not_started", "in_progress", "completed", "error", "paused", "pending"]
+    },
+    "progress_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "current_session": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "session_dir": {
+      "type": ["string", "null"]
+    },
+    "timestamps": {
+      "type": "object",
+      "properties": {
+        "started_at": { "type": ["string", "null"] },
+        "last_updated": { "type": ["string", "null"] },
+        "completed_at": { "type": ["string", "null"] }
+      }
+    },
+    "started_at": {
+      "type": ["string", "null"]
+    },
+    "completed_at": {
+      "type": ["string", "null"]
+    },
+    "scope": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "name": { "type": ["string", "null"] },
+        "user_description": { "type": ["string", "null"] },
+        "app_url": { "type": ["string", "null"] },
+        "app_routes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "target_scope": {
+      "type": "object",
+      "properties": {
+        "systems": { "type": "array", "items": { "type": "string" } },
+        "modules": { "type": "array", "items": { "type": "string" } },
+        "reqs": { "type": "array", "items": { "type": "string" } },
+        "dirs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "flags": {
+      "type": "object"
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "type": "string" },
+          "started_at": { "type": ["string", "null"] },
+          "completed_at": { "type": ["string", "null"] },
+          "error": { "type": ["string", "null"] },
+          "output_file": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "properties": {
+        "id": { "type": ["string", "null"] },
+        "timestamp": { "type": ["string", "null"] },
+        "context_used_pct": { "type": "integer" },
+        "current_phase": { "type": ["string", "null"] },
+        "current_batch": { "type": ["string", "null"] },
+        "next_action": { "type": ["string", "null"] },
+        "trigger_reason": { "type": ["string", "null"] },
+        "session_number": { "type": ["integer", "null"] }
+      }
+    },
+    "preflight": {
+      "type": "object",
+      "properties": {
+        "score_before": { "type": ["integer", "null"] },
+        "score_after": { "type": ["integer", "null"] },
+        "report_file": { "type": "string" }
+      }
+    },
+    "runtime_discovery": {
+      "type": "object"
+    },
+    "issues": {
+      "type": "object"
+    },
+    "docs_updated": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "output_files": {
+      "type": "object"
+    },
+    "error_log": {
+      "type": "array"
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "test_records": {
+      "type": "array"
+    }
+  },
+  "additionalProperties": true
+}

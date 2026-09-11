@@ -1,0 +1,184 @@
+{
+  "$schema": "legacy-scan-status-v1",
+
+  "skill": "wf-legacy-scan",
+  "active_skill": "",
+
+  "project_path": "",
+
+  "started_at": "",
+  "updated_at": "",
+
+  "current_stage": "detection",
+
+  "current_session": 1,
+
+  "pipeline_status": "not_started",
+
+  "maturity_level": "",
+
+  "project_size": "",
+
+  "strategy": {
+    "id": "",
+    "name": "",
+    "user_confirmed": false
+  },
+
+  "arguments": {
+    "project_path": "",
+    "stage": null,
+    "module": null,
+    "batch_size": 100,
+    "resume": false,
+    "rollback": null
+  },
+
+  "stages": {
+    "detection": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "output_files": ["project-profile.json"]
+    },
+
+    "assessment": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "output_files": ["assessment-scores.json", "assessment-report.json"]
+    },
+
+    "profile": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "profile": null,
+      "user_overrode_profile": false,
+      "detected_domains_count": 0,
+      "output_files": ["sessions/{id}/ips-phase-a.json", "sessions/{id}/scan-state.json (depth_map)"]
+    },
+
+    "maturity_validation": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "skipped": false,
+      "phase_validations": {
+        "phase0": { "exists": false, "contract_pass": false },
+        "phase1": { "exists": false, "contract_pass": false },
+        "phase2": { "exists": false, "contract_pass": false },
+        "phase3": { "exists": false, "contract_pass": false }
+      },
+      "output_files": ["project-profile.json"]
+    },
+
+    "inventory": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "output_files": [
+        "screens.json",
+        "api-endpoints.json",
+        "doc-files.json",
+        "source-files.json",
+        "dependency-graph.json",
+        "ledger.json"
+      ]
+    },
+
+    "classify": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "batch_size": 100,
+      "completed_batches": 0,
+      "total_batches": 0,
+      "items_classified": 0,
+      "output_files": ["classified/batch-*.json", "classified/glossary.json"]
+    },
+
+    "extract": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "modules_completed": 0,
+      "modules_total": 0,
+      "modules_error": 0,
+      "output_files": ["extracted/*.json"]
+    },
+
+    "normalize": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "sub_phases": {
+        "phase0_docs": "not_started",
+        "phase1_docs": "not_started",
+        "phase2_docs": "not_started",
+        "phase3_docs": "not_started",
+        "registry": "not_started",
+        "cross_validation": "not_started",
+        "divergence_resolution": "not_started",
+        "re_vision": "not_started"
+      },
+      "contract_validations": {
+        "phase0": { "passed": false, "iterations": 0 },
+        "phase1": { "passed": false, "iterations": 0 },
+        "phase2": { "passed": false, "iterations": 0 },
+        "phase3": { "passed": false, "iterations": 0 }
+      }
+    },
+
+    "gap_analysis": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "output_files": ["gap-report.md", "final-report.md"]
+    },
+
+    "ux_analysis": {
+      "status": "not_started",
+      "started_at": null,
+      "completed_at": null,
+      "phases_completed": [],
+      "next_action": "Phase 0: PRE-GATE",
+      "checkpoint_file": ".mc-data/work/legacy-scan/ux-checkpoint.json",
+      "last_checkpoint_id": null,
+      "output_files": [
+        "docs/phase4-ux/existing-ui-analysis.md",
+        "docs/phase4-ux/design-tokens-baseline.md",
+        "docs/phase4-ux/[system]/screen-inventory.md"
+      ],
+      "stats": {
+        "screens_found": 0,
+        "components_found": 0,
+        "design_tokens_extracted": 0,
+        "features_with_ui": 0,
+        "features_without_ui": 0,
+        "orphan_screens": 0
+      }
+    }
+  },
+
+  "session_history": [],
+
+  "error_log": [],
+
+  "next_action": "Stage 0: Detection",
+
+  "_notes": {
+    "ownership": "wf-legacy-scan chi set status cho Stage 0-1 (detection, assessment, maturity_validation, inventory). Cac stages con lai (classify, extract, normalize, gap_analysis, ux_analysis) duoc cap nhat boi downstream skills tuong ung.",
+    "stage_owners": {
+      "detection": "wf-legacy-scan",
+      "assessment": "wf-legacy-scan",
+      "maturity_validation": "wf-legacy-scan",
+      "inventory": "wf-legacy-scan",
+      "classify": "wf-legacy-classify",
+      "extract": "wf-legacy-extract",
+      "normalize": "wf-brainstorm + wf-analyze-requirements + wf-define-features",
+      "gap_analysis": "wf-design",
+      "ux_analysis": "wf-design-ux"
+    }
+  }
+}

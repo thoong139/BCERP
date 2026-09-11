@@ -1,0 +1,189 @@
+{
+  "$schema": "probe-dag-v1",
+  "version": "1.0.0",
+  "description": "Declarative probe dependency DAG across all 7 dimensions. Used by dispatcher for topological sort + cascade-skip logic. IMP-011.",
+  "generated_by": "IMP-011 Stage 3 Sprint 4",
+  "nodes": {
+    "P-QD1-infra-preflight":        { "dim": "QD1", "type": "static",  "parallel_group": "qd1-g0" },
+    "P-QD1-route-config-parse":     { "dim": "QD1", "type": "static",  "parallel_group": "qd1-g1" },
+    "P-QD1-api-smoke":              { "dim": "QD1", "type": "runtime", "parallel_group": "qd1-g2" },
+    "P-QD1-deep-ui-traversal":      { "dim": "QD1", "type": "runtime", "parallel_group": "qd1-g2" },
+    "P-QD1-static-xref":            { "dim": "QD1", "type": "static",  "parallel_group": "qd1-g1" },
+    "P-QD1-orphan-ui-detect":       { "dim": "QD1", "type": "static",  "parallel_group": "qd1-g1" },
+    "P-QD1-agent-feature-verify":   { "dim": "QD1", "type": "agent",   "parallel_group": "qd1-g3" },
+
+    "P-QD2-business-logic-static":  { "dim": "QD2", "type": "static",  "parallel_group": "qd2-g0" },
+    "P-QD2-domain-expert-review":   { "dim": "QD2", "type": "agent",   "parallel_group": "qd2-g1" },
+    "P-QD2-business-analyst-review":{ "dim": "QD2", "type": "agent",   "parallel_group": "qd2-g2" },
+    "P-QD2-controls-verify":        { "dim": "QD2", "type": "static",  "parallel_group": "qd2-g0" },
+    "P-QD2-north-star-align":       { "dim": "QD2", "type": "agent",   "parallel_group": "qd2-g3" },
+
+    "P-QD3-secret-detection":       { "dim": "QD3", "type": "static",  "parallel_group": "qd3-g0" },
+    "P-QD3-dependency-vuln-scan":   { "dim": "QD3", "type": "static",  "parallel_group": "qd3-g0" },
+    "P-QD3-owasp-top-ten":          { "dim": "QD3", "type": "static",  "parallel_group": "qd3-g1" },
+    "P-QD3-dangerous-deserialize":  { "dim": "QD3", "type": "static",  "parallel_group": "qd3-g1" },
+    "P-QD3-auth-flow-verify":       { "dim": "QD3", "type": "agent",   "parallel_group": "qd3-g2" },
+    "P-QD3-sql-injection":          { "dim": "QD3", "type": "static",  "parallel_group": "qd3-g1" },
+    "P-QD3-cors-headers":           { "dim": "QD3", "type": "static",  "parallel_group": "qd3-g0" },
+
+    "P-QD4-bundle-size-audit":      { "dim": "QD4", "type": "static",  "parallel_group": "qd4-g0" },
+    "P-QD4-n-plus-one-detect":      { "dim": "QD4", "type": "static",  "parallel_group": "qd4-g0" },
+    "P-QD4-db-query-analysis":      { "dim": "QD4", "type": "static",  "parallel_group": "qd4-g0" },
+    "P-QD4-api-latency-probe":      { "dim": "QD4", "type": "runtime", "parallel_group": "qd4-g1" },
+    "P-QD4-core-web-vitals":        { "dim": "QD4", "type": "runtime", "parallel_group": "qd4-g1" },
+    "P-QD4-memory-leak-detect":     { "dim": "QD4", "type": "static",  "parallel_group": "qd4-g0" },
+
+    "P-QD5-label-consistency":      { "dim": "QD5", "type": "static",  "parallel_group": "qd5-g0" },
+    "P-QD5-color-contrast-audit":   { "dim": "QD5", "type": "static",  "parallel_group": "qd5-g0" },
+    "P-QD5-keyboard-nav":           { "dim": "QD5", "type": "runtime", "parallel_group": "qd5-g1" },
+    "P-QD5-accessibility-check":    { "dim": "QD5", "type": "agent",   "parallel_group": "qd5-g2" },
+    "P-QD5-img-alt-audit":          { "dim": "QD5", "type": "static",  "parallel_group": "qd5-g0" },
+    "P-QD5-input-label-audit":      { "dim": "QD5", "type": "static",  "parallel_group": "qd5-g0" },
+    "P-QD5-wcag-a-check":           { "dim": "QD5", "type": "runtime", "parallel_group": "qd5-g1" },
+
+    "P-QD6-data-integrity-audit":   { "dim": "QD6", "type": "static",  "parallel_group": "qd6-g0" },
+    "P-QD6-orm-model-sync":         { "dim": "QD6", "type": "static",  "parallel_group": "qd6-g0" },
+    "P-QD6-migration-integrity":    { "dim": "QD6", "type": "static",  "parallel_group": "qd6-g1" },
+    "P-QD6-schema-drift-detect":    { "dim": "QD6", "type": "runtime", "parallel_group": "qd6-g2" },
+    "P-QD6-type-mismatch":          { "dim": "QD6", "type": "static",  "parallel_group": "qd6-g0" },
+    "P-QD6-default-mismatch":       { "dim": "QD6", "type": "static",  "parallel_group": "qd6-g0" },
+
+    "P-QD7-deprecated-api-usage":   { "dim": "QD7", "type": "static",  "parallel_group": "qd7-g0" },
+    "P-QD7-browser-compat-check":   { "dim": "QD7", "type": "static",  "parallel_group": "qd7-g0" },
+    "P-QD7-api-version-compat":     { "dim": "QD7", "type": "runtime", "parallel_group": "qd7-g1" },
+    "P-QD7-device-breakpoint":      { "dim": "QD7", "type": "runtime", "parallel_group": "qd7-g1" },
+    "P-QD7-polyfill-coverage":      { "dim": "QD7", "type": "static",  "parallel_group": "qd7-g0" },
+    "P-QD7-i18n-locale-check":      { "dim": "QD7", "type": "static",  "parallel_group": "qd7-g0" }
+  },
+  "edges": [
+    {
+      "from": "P-QD1-infra-preflight",
+      "to":   "P-QD1-api-smoke",
+      "type": "cascade-skip",
+      "condition": "from_failed",
+      "doc": "CC-001: infra down → api-smoke skip (false positives if infra offline)"
+    },
+    {
+      "from": "P-QD1-infra-preflight",
+      "to":   "P-QD1-deep-ui-traversal",
+      "type": "cascade-skip",
+      "condition": "from_failed",
+      "doc": "CC-001: infra down → UI traversal impossible"
+    },
+    {
+      "from": "P-QD1-route-config-parse",
+      "to":   "P-QD1-api-smoke",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "ORDER-QD1-001: routes must be parsed before smoke test"
+    },
+    {
+      "from": "P-QD1-static-xref",
+      "to":   "P-QD1-agent-feature-verify",
+      "type": "enrichment",
+      "condition": "always",
+      "doc": "Static xref findings used as context for agent verification"
+    },
+    {
+      "from": "P-QD2-business-logic-static",
+      "to":   "P-QD2-domain-expert-review",
+      "type": "enrichment",
+      "condition": "always",
+      "doc": "P1 static findings used as domain-expert review context (IMP-015 P1→P4 handoff)"
+    },
+    {
+      "from": "P-QD2-domain-expert-review",
+      "to":   "P-QD2-business-analyst-review",
+      "type": "enrichment",
+      "condition": "always",
+      "doc": "Domain expert summary enriches BA review"
+    },
+    {
+      "from": "P-QD3-secret-detection",
+      "to":   "P-QD3-owasp-top-ten",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "ORDER-QD3-001: secrets first (high severity), then OWASP"
+    },
+    {
+      "from": "P-QD3-dependency-vuln-scan",
+      "to":   "P-QD3-owasp-top-ten",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "ORDER-QD3-002: dep vulns inform OWASP A06 check"
+    },
+    {
+      "from": "P-QD4-bundle-size-audit",
+      "to":   "P-QD4-api-latency-probe",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "Static analysis before runtime probe (IMP-021 QD4 execution_order)"
+    },
+    {
+      "from": "P-QD5-label-consistency",
+      "to":   "P-QD5-accessibility-check",
+      "type": "enrichment",
+      "condition": "always",
+      "doc": "Label static analysis feeds accessibility agent context"
+    },
+    {
+      "from": "P-QD5-keyboard-nav",
+      "to":   "P-QD5-wcag-a-check",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "ORDER-QD5-001: keyboard nav check before WCAG A sweep"
+    },
+    {
+      "from": "P-QD6-orm-model-sync",
+      "to":   "P-QD6-migration-integrity",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "ORM model sync issues must be identified before migration check"
+    },
+    {
+      "from": "P-QD6-data-integrity-audit",
+      "to":   "P-QD6-schema-drift-detect",
+      "type": "ordering",
+      "condition": "always",
+      "doc": "Static integrity check before live schema drift detection"
+    },
+    {
+      "from": "P-QD7-deprecated-api-usage",
+      "to":   "P-QD7-browser-compat-check",
+      "type": "enrichment",
+      "condition": "always",
+      "doc": "Deprecated APIs inform browser compat check scope"
+    }
+  ],
+  "cascade_skip_rules": {
+    "P-QD1-infra-preflight": {
+      "on_fail":  ["P-QD1-api-smoke", "P-QD1-deep-ui-traversal"],
+      "on_pass":  [],
+      "emit_signal": "INFRA-SKIP-CASCADE",
+      "doc": "CC-001 documented cascade"
+    }
+  },
+  "parallel_groups_doc": {
+    "qd1-g0": "infra check (must run first)",
+    "qd1-g1": "static probes (can run in parallel after g0)",
+    "qd1-g2": "runtime probes (need infra up, run after g0)",
+    "qd1-g3": "agent probes (use findings from g1/g2 as context)",
+    "qd2-g0": "static logic probes",
+    "qd2-g1": "domain expert review (uses g0 findings)",
+    "qd2-g2": "BA review (uses g1 findings)",
+    "qd2-g3": "north star alignment (final agent pass)",
+    "qd3-g0": "secret + dep vulns (independent static)",
+    "qd3-g1": "OWASP + code patterns (after g0 for enrichment)",
+    "qd3-g2": "auth flow agent (needs g0/g1 context)",
+    "qd4-g0": "bundle + n+1 + db static",
+    "qd4-g1": "runtime latency + CWV (after g0)",
+    "qd5-g0": "label + contrast + img + input static",
+    "qd5-g1": "keyboard + WCAG runtime",
+    "qd5-g2": "accessibility agent (last — uses all static)",
+    "qd6-g0": "data integrity + ORM + type mismatch static",
+    "qd6-g1": "migration integrity (after ORM sync)",
+    "qd6-g2": "schema drift live (last)",
+    "qd7-g0": "deprecated + browser compat + polyfill static",
+    "qd7-g1": "API version + device runtime"
+  }
+}

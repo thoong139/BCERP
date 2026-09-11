@@ -1,0 +1,240 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-scan-target",
+  "version": "2.0.0",
+  "description": "Eval cases cho /wf-scan-target skill v2.0 — 12 cases coverage cho Sprint 1-7 features (compliance core, resume/checkpoint, lazy-load, bash delegation, cross-skill, multi-dev safety, profile + delta scan).",
+  "evals": [
+    {
+      "id": "EVAL-001",
+      "name": "Scan .NET DDD module (local source)",
+      "input": {
+        "target": "apps/backend/Eureka.Modules.CRM",
+        "module": "crm",
+        "depth": "deep"
+      },
+      "expected_outputs": {
+        "module-map.md": {
+          "must_contain": [
+            "## 2. API Endpoints",
+            "## 4. Entities & Data Models",
+            "## 5. Feature Inventory",
+            "Customer",
+            "GET",
+            "POST"
+          ]
+        },
+        "target-map.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": ["layers", "feature_inventory", "summary"]
+        },
+        "feature-inventory.md": {
+          "must_contain": ["CRUD Matrix", "Commands", "Queries"]
+        }
+      },
+      "expected_behavior": "Phát hiện tech stack dotnet-ddd, scan entities/commands/queries/endpoints, tạo đủ 3 output files bắt buộc"
+    },
+    {
+      "id": "EVAL-002",
+      "name": "Scan Next.js ERP frontend module (local source)",
+      "input": {
+        "target": "apps/erp-web/src/app/[locale]/(dashboard)/crm",
+        "module": "crm-frontend",
+        "depth": "deep"
+      },
+      "expected_outputs": {
+        "module-map.md": {
+          "must_contain": [
+            "## 3. UI Screens & Components",
+            "page.tsx",
+            "Route"
+          ]
+        },
+        "target-map.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": ["layers"]
+        }
+      },
+      "expected_behavior": "Phát hiện tech stack nextjs, scan pages/components/hooks, note API endpoints không available (backend scope)"
+    },
+    {
+      "id": "EVAL-003",
+      "name": "Scan với --compare để tạo gap report",
+      "input": {
+        "target": "apps/backend/Eureka.Modules.Orders",
+        "module": "orders",
+        "compare": ".mc-data/docs/phase2-features/orders/",
+        "depth": "deep"
+      },
+      "expected_outputs": {
+        "gap-report.md": {
+          "must_contain": [
+            "Gap Matrix",
+            "FOUND",
+            "MISSING",
+            "Coverage"
+          ],
+          "must_exist": true
+        }
+      },
+      "expected_behavior": "Tất cả 4 output files được tạo (including gap-report.md), gap matrix có đủ 3 status"
+    },
+    {
+      "id": "EVAL-004",
+      "name": "Error handling — missing --target",
+      "input": {},
+      "expected_behavior": "Hiển thị error message rõ ràng với usage instructions, KHÔNG tạo bất kỳ file nào, KHÔNG crash"
+    },
+    {
+      "id": "EVAL-005",
+      "name": "Shallow scan — chỉ file structure",
+      "input": {
+        "target": "apps/backend/Eureka.Modules.Finance",
+        "module": "finance",
+        "depth": "shallow"
+      },
+      "expected_behavior": "Chỉ chạy Layer 1 (file structure), skip layers 2-4. Output có đủ headers nhưng layers 2-4 ghi 'shallow mode — skipped'"
+    },
+    {
+      "id": "EVAL-006",
+      "name": "Resume từ checkpoint (Sprint 2 — GAP-05)",
+      "scope": "sprint-2",
+      "input": {
+        "target": "apps/backend/Eureka.Modules.CRM",
+        "module": "crm",
+        "scenario": "session in_progress đã chạy xong Phase 0-1 + L1, interrupt giữa Phase 2 L2; user gọi `/wf-scan-target --resume`"
+      },
+      "expected_outputs": {
+        "checkpoint.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": [
+            "phase_states",
+            "layer_states",
+            "next_action",
+            "intermediate_outputs",
+            "target_fingerprint"
+          ]
+        }
+      },
+      "expected_behavior": "resume-status.md CASE B dispatch: verify target_fingerprint composite (path+tech+depth+git_HEAD+git_dirty+manifests) khớp; nếu mismatch → CDG hỏi user. POST verify khớp: load intermediate/{tech-stack,l1-structure}.json hydrate state, route đến next_action.phase = phase_2.l2 (resume mid-Phase-2). KHÔNG re-run Phase 0-1 + L1. Hoàn thành L2 + L3 + L4 + Phase 3-5 bình thường. POST-GATE T1-T4 PASS."
+    },
+    {
+      "id": "EVAL-007",
+      "name": "Profile=quick smoke scan (Sprint 7 — Q4 ADAPTIVE)",
+      "scope": "sprint-7",
+      "input": {
+        "target": "apps/backend/Eureka.Modules.CRM",
+        "profile": "quick"
+      },
+      "expected_outputs": {
+        "target-map.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": ["scan_profile", "summary"],
+          "field_check": {
+            "scan_profile": "quick"
+          }
+        }
+      },
+      "expected_behavior": "Phase 0.1c map profile=quick → scan_depth='shallow' + MAX_PAGES=5 (Q4 ADAPTIVE). Scan chỉ chạy L1 (shallow), skip L2-L4 (giống EVAL-005). Phase 5 output target-map.json có scan_profile='quick'. Completion < 30s cho module medium-size. Bash scripts (scan-target-detect.sh + scan-target-inventory.sh) chỉ chạy 2 scripts, skip api/ui/db scripts."
+    },
+    {
+      "id": "EVAL-008",
+      "name": "Profile=exhaustive với LPM extensions (Sprint 7)",
+      "scope": "sprint-7",
+      "input": {
+        "target": "apps/backend/Eureka.Modules.Finance",
+        "profile": "exhaustive"
+      },
+      "expected_outputs": {
+        "target-map.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "scan_profile": "exhaustive"
+          }
+        },
+        "feature-inventory.md": {
+          "must_contain": [
+            "## Business Rules",
+            "## Key Features"
+          ]
+        }
+      },
+      "expected_behavior": "Phase 0.1c map profile=exhaustive → scan_depth='deep' + MAX_PAGES=100 + LPM ON. Phase 3.1 developer agent extract MAX 15 validators (vs 5 default). Phase 3.2 BA agent target 20-30 key_features (vs 10-20). Phase 3.2b coverage sanity check: % entities trong key_features ≥ 80% (warn nếu < 80%). Phase 4 (nếu --compare) similarity threshold 0.5 (vs 0.6 default) + fuzzy notes (mark `_fuzzy` cho similarity 0.5-0.6). target-map.json scan_profile='exhaustive'."
+    },
+    {
+      "id": "EVAL-009",
+      "name": "Delta scan với --since=<git-ref> (Sprint 7 — GAP-13 alt)",
+      "scope": "sprint-7",
+      "input": {
+        "target": ".",
+        "module": "crm",
+        "since": "HEAD~5"
+      },
+      "expected_outputs": {
+        "intermediate/changed-files.json": {
+          "must_be_valid_json": true,
+          "must_have_keys": ["since_ref", "head_ref", "total_changed", "scan_mode", "files"],
+          "field_check": {
+            "scan_mode": "delta"
+          }
+        },
+        "target-map.json": {
+          "must_be_valid_json": true,
+          "field_check": {
+            "delta_scan.scan_mode": "delta",
+            "delta_scan.since_ref": "HEAD~5"
+          }
+        }
+      },
+      "expected_behavior": "Phase 0.2b validate --since (target=local-source + git repo + ref tồn tại). Phase 1.4b compute changed files via `git diff --name-status --find-renames=80 HEAD~5..HEAD`, filter A/M/R (skip D), persist intermediate/changed-files.json. $DELTA_MODE=true. Phase 1.5 cache lookup SKIP (delta mode → defensive cache miss). Phase 2 L1-L4 post-bash filter: jq filter chỉ giữ entries có source_file ∈ changed-files.json. layer JSON output có `delta_filtered: true`. Phase 5.5g cache write SKIP (defensive — KHÔNG thay full scan cache bằng delta subset). target-map.json có scan_profile + delta_scan {scan_mode='delta', since_ref, head_ref, total_changed_files}."
+    },
+    {
+      "id": "EVAL-010",
+      "name": "Multi-dev concurrent scan cùng target (Sprint 6)",
+      "scope": "sprint-6",
+      "input": {
+        "scenario": "Dev A và Dev B trên cùng máy chạy cùng `/wf-scan-target --target=apps/backend/Eureka.Modules.CRM --module=crm` cách nhau vài giây cùng ngày 2026-04-28"
+      },
+      "expected_outputs": {
+        "session_a": "sessions/2026-04-28-crm/",
+        "session_b": "sessions/2026-04-28-crm-2/",
+        "_shared/scans-index.jsonl": {
+          "must_have_lines": 2,
+          "format": "JSONL — 1 entry / 1 line"
+        }
+      },
+      "expected_behavior": "Phase 0.3 tạo SESSION_ID format `{YYYY-MM-DD}-{scope-label}[-{N}]` (Protocol 18.2): Dev A first → `2026-04-28-crm`, Dev B second → suffix tự tăng → `2026-04-28-crm-2`. Phase 0.3c lock check: Dev A `.lock` đã tạo trên session A; Dev B tạo session khác (no lock conflict vì khác SESSION_DIR). Cả 2 hoàn thành Phase 5 POST-GATE PASS, append _shared/scans-index.jsonl 2 entries (1 dòng / scan, JSONL append-only git-sync friendly). Cross-host scenario (Dev A trên máy 1, Dev B trên máy 2 cùng SESSION_ID) → check_lock_status return 3 (alive_cross_host) → Dev B ERROR + suggest `--output=<dir-mới>` (KHÔNG cleanup cross-host lock)."
+    },
+    {
+      "id": "EVAL-011",
+      "name": "Cache hit reuse (Sprint 6 — Q2=A)",
+      "scope": "sprint-6",
+      "input": {
+        "scenario": "Run 1: `/wf-scan-target --target=apps/backend/Eureka.Modules.CRM --module=crm` (full scan + cache write). Run 2: cùng args trong 24h, KHÔNG có --no-cache, target không thay đổi (git HEAD + dirty + manifests + tech identical → cùng fingerprint)."
+      },
+      "expected_outputs": {
+        "_shared/cache/{TARGET_FINGERPRINT}.json": {
+          "must_exist": true,
+          "must_be_valid_json": true,
+          "ttl": "24h hardcoded"
+        }
+      },
+      "expected_behavior": "Run 1: Phase 5.5g cache write `_shared/cache/{TARGET_FINGERPRINT}.json` (sha256 hex 64 chars). Run 2 Phase 1.4 compute fingerprint giống Run 1. Phase 1.5 cache lookup: file exists + age < 24h → CACHE_HIT=true → cp cached target-map.json → SESSION_DIR + mark cache_hit=true + cache_source=fingerprint trong scan-status. save_checkpoint phase_2/3/4 = 'skipped'. Routing skip Phase 2-4, jump Phase 5.0 hydration: read cached target-map.json + hydrate state vars (L1-L4_RESULT, crud_matrix, business_rules, key_features) qua jq queries. Phase 5.1+ chạy bình thường. Run 2 hoàn thành < 5s. Bypass via --no-cache: Phase 1.5 SKIP lookup + Phase 5.5g SKIP write."
+    },
+    {
+      "id": "EVAL-012",
+      "name": "Argument validation hardening (Sprint 7 — Q11)",
+      "scope": "sprint-7",
+      "input": {
+        "scenarios": [
+          {"args": "--target=. --profile=invalid", "expected": "ERROR enum check"},
+          {"args": "--target=. --max-pages=500", "expected": "ERROR numeric range 1-200"},
+          {"args": "--target=. --max-pages=0", "expected": "ERROR numeric range 1-200"},
+          {"args": "--target=. --since=non-existent-ref", "expected": "ERROR git ref not found"},
+          {"args": "--target=https://example.com --since=HEAD~5", "expected": "ERROR conflict (--since require local-source)"},
+          {"args": "--target=. --depth=medium", "expected": "ERROR enum check"}
+        ]
+      },
+      "expected_behavior": "Phase 0.1b argument validation hardening (Q11): enum check `--depth=shallow|deep` + `--profile=quick|standard|deep|exhaustive`, numeric check `--max-pages` 1-200 (Q4 hard cap 200 — vượt 200 phải chạy nhiều sessions với scope filter), git ref validation `git rev-parse --verify $SINCE_REF` (require ref tồn tại trong repo). Phase 0.2b conflict detection: `--since` set + target_type ∈ {url, swagger-spec} → ERROR (require target=local-source trong git repo). Mọi error message rõ ràng với hint, STOP trước khi tạo files. KHÔNG crash, KHÔNG corrupt state."
+    }
+  ]
+}

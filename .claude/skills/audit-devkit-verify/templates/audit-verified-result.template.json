@@ -1,0 +1,28 @@
+{
+  "$schema": "audit-verified-result-v1",
+  "verified_at": "{{TIMESTAMP_ISO}}",
+  "scan_source": "audit-scan-result.json",
+  "session_id": "{{SESSION_ID}}",
+  "scope": "{{SCOPE}}",
+  "additional_sources": [],
+  "findings": [],
+  "dedup_log": [],
+  "summary": {
+    "from_scan": 0,
+    "from_crossref": 0,
+    "from_workflow": 0,
+    "from_consistency": 0,
+    "from_master_plan": 0,
+    "deduped": 0,
+    "final_total": 0,
+    "critical_functional": 0,
+    "critical_structural": 0,
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "auto_fixable": 0,
+    "manual": 0
+  },
+  "master_plan_verify": null,
+  "verdict_pre_fix": "CLEAN"
+}

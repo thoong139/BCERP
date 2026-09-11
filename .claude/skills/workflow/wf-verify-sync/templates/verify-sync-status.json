@@ -1,0 +1,160 @@
+{
+  "$schema": "verify-sync-status-v2",
+  "version": "3.0.0",
+
+  "session_id": "{YYYY-MM-DD}-{scope-slug}-{NN}",
+  "session_dir": ".mc-data/work/wf-verify-sync/sessions/{session_id}",
+  "skill_id": "VSYNC-{YYYYMMDD}-{NNN}",
+  "project": "",
+  "host": "{HOSTNAME}",
+  "user": "{USERNAME}",
+  "scope": "all | system | module",
+  "scope_name": null,
+  "has_fix_flag": false,
+
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Init — Prerequisites & Preflight",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_1": {
+      "name": "Scan — Collect REQ-IDs + Scan Code",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "req_count": 0,
+      "code_refs_count": 0,
+      "orphan_count": 0,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Analyze — Sync Rate + Gaps",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "sync_rate": null,
+      "coverage_rate": null,
+      "gaps_count": 0,
+      "partial_count": 0,
+      "w001_count": 0,
+      "error": null
+    },
+    "phase_3": {
+      "name": "UI-Code Coverage",
+      "status": "pending",
+      "condition": "Only runs when interface_type != api-only AND UI directories exist",
+      "started_at": null,
+      "completed_at": null,
+      "total_screens": 0,
+      "coverage_pct": null,
+      "error": null
+    },
+    "phase_4": {
+      "name": "Handle --fix",
+      "status": "pending",
+      "condition": "Only runs when has_fix_flag == true",
+      "started_at": null,
+      "completed_at": null,
+      "files_fixed": 0,
+      "files_skipped_manual": 0,
+      "w001_genuine_missing": 0,
+      "error": null
+    },
+    "phase_5": {
+      "name": "Cross-Validation",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 10,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "validation_details": {
+        "5.1_arithmetic": "pending",
+        "5.2_no_overlaps": "pending",
+        "5.3_format_valid": "pending",
+        "5.4_no_duplicates": "pending",
+        "5.5_files_exist": "pending",
+        "5.6_status_consistent": "pending",
+        "5.7_sync_rate_accuracy": "pending",
+        "5.8_gap_completeness": "pending",
+        "5.9_orphan_accuracy": "pending",
+        "5.10_cross_check_formula": "pending"
+      },
+      "error": null
+    },
+    "phase_6": {
+      "name": "Generate Report + Finalize",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "report_generated": false,
+      "registry_updated": false,
+      "canonical_decision": "override | skip | no_conflict",
+      "impact_json_built": false,
+      "error": null
+    }
+  },
+
+  "parallel_execution": {
+    "group_A": {
+      "name": "Collect REQ-IDs",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    },
+    "group_B": {
+      "name": "Scan Code",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null
+    }
+  },
+
+  "sync_results": {
+    "total_req_ids": 0,
+    "implemented": 0,
+    "in_progress": 0,
+    "not_started": 0,
+    "skipped_count": 0,
+    "w001_anomalies": 0,
+    "w002_anomalies": 0,
+    "w003_anomalies": 0,
+    "orphan_files": 0,
+    "sync_rate_pct": 0,
+    "coverage_rate_pct": 0
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "next_action": null,
+    "trigger_reason": null
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "files_scanned": 0,
+    "req_ids_processed": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0
+  }
+}

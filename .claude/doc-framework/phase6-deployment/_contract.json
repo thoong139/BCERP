@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "phase": "phase6-deployment",
+  "description": "Template compliance contracts for Phase 6 Deployment documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "templates": {
+    "deployment-guide": {
+      "template_file": "phase6-deployment/deployment-guide.md",
+      "description": "Deployment guide — environments, build steps, rollback, CI/CD, account management",
+      "output_pattern": ".mc-data/docs/phase6-deployment/deployment-guide.md",
+      "required_sections": [
+        "## 1. Environments",
+        "## 2. Prerequisites",
+        "## 3. Required Environment Variables",
+        "## 4. Build & Deploy Steps",
+        "## 5. Rollback Procedure",
+        "## 6. Smoke Tests",
+        "## 7. CI/CD Pipeline",
+        "## 8. Post-Deploy Checklist",
+        "## 9. Quản Lý Tài Khoản",
+        "## 10. Bảo Trì"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "user-guide": {
+      "template_file": "phase6-deployment/user-guide.md",
+      "description": "User guide — login, role-based workflows, common operations, FAQ, support",
+      "output_pattern": ".mc-data/docs/phase6-deployment/user-guide.md",
+      "required_sections": [
+        "## 1. Tổng Quan Hệ Thống",
+        "## 2. Đăng Nhập",
+        "## 3. Hướng Dẫn Theo Vai Trò",
+        "## 4. Hướng Dẫn Theo Quy Trình",
+        "## 5. Các Thao Tác Phổ Biến",
+        "## 6. Thông Báo Hệ Thống",
+        "## 7. FAQ",
+        "## 8. Liên Hệ Hỗ Trợ"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "stakeholder-review": {
+      "template_file": "phase6-deployment/stakeholder-review.md",
+      "description": "Stakeholder review — deployment cross-review, consistency, gap analysis, go-live readiness",
+      "output_pattern": ".mc-data/docs/phase6-deployment/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "incident-response-runbook": {
+      "template_file": "phase6-deployment/incident-response-runbook.md",
+      "description": "Incident response runbook — severity classification, response team, 5-step process, communication templates, escalation matrix, on-call checklist, monitoring dashboards",
+      "output_pattern": ".mc-data/docs/phase6-deployment/incident-response-runbook.md",
+      "required_sections": [
+        "## 1. Mức Độ Nghiêm Trọng",
+        "## 2. Response Team",
+        "## 3. Quy Trình Xử Lý",
+        "## 4. Communication Templates",
+        "## 5. Escalation Matrix",
+        "## 6. On-Call Checklist",
+        "## 7. Monitoring Dashboards"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    }
+  }
+}

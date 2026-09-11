@@ -1,0 +1,168 @@
+{
+  "skill_name": "wf-plan-modules",
+  "description": "Phân tích Dependency Graph giữa các modules và xác định thứ tự implement tối ưu",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Lập kế hoạch implement cho CRM system có 5 modules với dependencies phức tạp",
+      "expected_output": "Dependency graph 5 modules, topological sort đúng (AUTH→CONTACT→DEAL→REPORT/NOTIF), sprint plans, implementation_order trong registry, output trong phase5-implementation/",
+      "assertions": [
+        { "type": "content_check", "text": "Dependency graph chứa đầy đủ 5 modules: AUTH, CONTACT, DEAL, REPORT, NOTIF" },
+        { "type": "content_check", "text": "MOD-CRM-AUTH ở Layer 0 (không phụ thuộc module nào)" },
+        { "type": "content_check", "text": "MOD-CRM-CONTACT ở Layer 1 (sau AUTH)" },
+        { "type": "content_check", "text": "MOD-CRM-DEAL ở Layer 2 (sau CONTACT)" },
+        { "type": "content_check", "text": "MOD-CRM-REPORT và MOD-CRM-NOTIF ở Layer 3 (sau DEAL, có thể chạy song song)" },
+        { "type": "registry_check", "text": "req-registry.json có field implementation_order với layers[], critical_path, total_sprints, total_layers" },
+        { "type": "file_exists", "text": "Sprint plan files tồn tại trong phase5-implementation/sprints/" },
+        { "type": "file_exists", "text": "Task impl files tồn tại cho mỗi feature trong phase5-implementation/tasks/" },
+        { "type": "behavior", "text": "Tất cả output files nằm trong đường dẫn phase5-implementation/ (không sai vị trí)" },
+        { "type": "content_check", "text": "Không có module nào được implement trước module nó phụ thuộc (topological order đúng)" }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Plan modules cho e-commerce platform - xác định critical path và sprint breakdown",
+      "expected_output": "8 modules với critical path CATALOG→INVENTORY→CART→ORDER→PAYMENT, dependency matrix, 5 sprints với breakdown",
+      "assertions": [
+        { "type": "content_check", "text": "Dependency graph chứa đầy đủ 8 modules: CATALOG, INVENTORY, PROMO, CART, ORDER, PAYMENT, SHIPPING, REVIEW" },
+        { "type": "content_check", "text": "Critical path được xác định đúng: CATALOG → INVENTORY → CART → ORDER → PAYMENT" },
+        { "type": "content_check", "text": "MOD-ECOM-CATALOG ở Layer 0 (foundation, không phụ thuộc ai)" },
+        { "type": "content_check", "text": "MOD-ECOM-INVENTORY và MOD-ECOM-PROMO ở cùng layer (đều chỉ phụ thuộc CATALOG, có thể chạy song song)" },
+        { "type": "content_check", "text": "MOD-ECOM-CART phụ thuộc cả INVENTORY lẫn PROMO — phải ở layer sau cả hai" },
+        { "type": "content_check", "text": "MOD-ECOM-PAYMENT và MOD-ECOM-SHIPPING ở cùng layer (đều chỉ phụ thuộc ORDER, có thể song song)" },
+        { "type": "file_exists", "text": "5 sprint files được tạo (S01 đến S05)" },
+        { "type": "file_exists", "text": "Task impl files tồn tại cho tất cả 16 features trong phase5-implementation/tasks/" },
+        { "type": "registry_check", "text": "req-registry.json có implementation_order theo canonical schema (layers[], critical_path, total_sprints, total_layers)" }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Phân tích dependency và lập roadmap cho hệ thống có 3 systems (web, mobile, admin) với shared packages",
+      "expected_output": "12 modules across 4 systems, shared packages (TYPES, UTILS, UI) ở layers đầu, cross-system dependencies, 4 sprints",
+      "assertions": [
+        { "type": "content_check", "text": "Dependency graph chứa đầy đủ 12 modules từ 4 systems (SYS-SHARED, SYS-WEB, SYS-MOBILE, SYS-ADMIN)" },
+        { "type": "content_check", "text": "MOD-SHARED-TYPES ở Layer 0 (foundation — không phụ thuộc ai)" },
+        { "type": "content_check", "text": "MOD-SHARED-UTILS và MOD-SHARED-UI ở Layer 1 (cả hai chỉ phụ thuộc TYPES, chạy song song)" },
+        { "type": "content_check", "text": "MOD-WEB-AUTH, MOD-MOBILE-AUTH, MOD-ADMIN-PANEL đều ở Layer 2 (phụ thuộc shared packages, chạy song song)" },
+        { "type": "content_check", "text": "Tất cả Layer 3 modules có thể chạy song song" },
+        { "type": "content_check", "text": "Dependency graph hiển thị cross-system dependencies" },
+        { "type": "file_exists", "text": "4 sprint files được tạo phản ánh đúng 4 layers" },
+        { "type": "file_exists", "text": "Task impl files tồn tại cho 15 features trong phase5-implementation/tasks/" },
+        { "type": "registry_check", "text": "req-registry.json có implementation_order với canonical schema" }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Plan modules cho dự án legacy có 5 systems trong registry nhưng chỉ 3 systems có modules (SYS-ERP-WEB và SYS-MOBILE-STAFF là frontend 'mồ côi' không có modules)",
+      "expected_output": "Phase 1.7 phát hiện 2 orphan systems, escalate user, user chọn strategy 'placeholders', skill tạo _NO-FEATURES.md cho 2 orphan systems, module-plan.md có section System Coverage liệt kê đủ 5 systems, CQG-10.3 pass (không block)",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 1.7 detect được 2 orphan systems: SYS-ERP-WEB và SYS-MOBILE-STAFF (modules_count=0)" },
+        { "type": "behavior", "text": "Phase 1.7 escalate user với 3 options: STOP / placeholders / thin_clients" },
+        { "type": "file_content", "text": "planmod-status.json có phase_1_7 section với orphan_systems=['SYS-ERP-WEB','SYS-MOBILE-STAFF'] và coverage_strategy='placeholders'" },
+        { "type": "file_exists", "text": "Phase 7.5.0 tạo file .mc-data/docs/phase5-implementation/tasks/erp-web/_NO-FEATURES.md (non-empty)" },
+        { "type": "file_exists", "text": "Phase 7.5.0 tạo file .mc-data/docs/phase5-implementation/tasks/mobile-staff/_NO-FEATURES.md (non-empty)" },
+        { "type": "file_content", "text": "module-plan.md chứa section '## System Coverage' với bảng 5 systems (3 COVERED + 2 ORPHAN)" },
+        { "type": "file_content", "text": "module-plan.md section '## 1. Tổng Quan Hệ Thống' CHỈ liệt kê 3 systems có modules (KHÔNG liệt kê 2 orphan)" },
+        { "type": "behavior", "text": "Phase 7a CQG-10.3 check pass (strategy='placeholders' → cho phép orphan nếu có placeholder file)" },
+        { "type": "behavior", "text": "Task impl files chỉ được tạo cho features thuộc 3 COVERED systems, KHÔNG có task files cho 2 orphan systems" },
+        { "type": "output_contains", "text": "Output report cuối skill có bảng 'System Coverage' với 'Coverage: 3/5 systems planned (60%)' và 'Strategy: placeholders'" }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Plan modules cho dự án nhỏ chỉ có 1 module AUTH — xác định implementation order",
+      "expected_output": "Simple mode (1 module), 1 layer, 1 sprint, không chạy dependency graph (skip Phase 2-3), task file cho features của AUTH module",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 1 detect mode=Simple vì MODULE_COUNT=1" },
+        { "type": "behavior", "text": "Phase 2-3 bị skip (Simple mode shortcut — set $HAS_CYCLE=false, nhảy thẳng Phase 4)" },
+        { "type": "content_check", "text": "implementation_order chỉ có 1 layer với 1 module (MOD-AUTH)" },
+        { "type": "file_exists", "text": "1 sprint file được tạo (S01)" },
+        { "type": "file_exists", "text": "Task impl files tồn tại cho features thuộc MOD-AUTH" },
+        { "type": "behavior", "text": "KHÔNG tạo dependency-graph.md ở Simple mode (không cần)" }
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Lập kế hoạch MVP cho e-commerce platform --mvp --skip-sprints — chỉ implement critical path",
+      "expected_output": "--mvp flag kích hoạt Phase 5, MVP scope chỉ chứa CATALOG→INVENTORY→CART→ORDER (4 modules), --skip-sprints bỏ qua tạo sprint files, implementation_order có MVP subset",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 5 chạy ($HAS_MVP_FLAG=true) — xác định MVP scope" },
+        { "type": "behavior", "text": "MVP scope = 4 modules trên critical path (CATALOG, INVENTORY, CART, ORDER)" },
+        { "type": "behavior", "text": "Payment, Shipping, Review, Promo bị exclude khỏi MVP (nice-to-have)" },
+        { "type": "behavior", "text": "--skip-sprints → KHÔNG tạo sprint plan files" },
+        { "type": "content_check", "text": "implementation_order.layers chỉ chứa MVP modules" },
+        { "type": "file_exists", "text": "Task impl files chỉ tồn tại cho MVP features (KHÔNG có cho excluded modules)" },
+        { "type": "output_contains", "text": "MVP Scope Analysis hiển thị excluded modules" }
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Resume /wf-plan-modules sau khi bị gián đoạn ở Phase 7.5 — đã tạo roadmap + dependency-graph nhưng thiếu task files cho 2 features cuối",
+      "expected_output": "--resume load checkpoint, reconcile task files trên disk (38/40 features có task files), tạo task files cho 2 features còn thiếu, skip Phase 0-7, KHÔNG tạo lại files đã có",
+      "assertions": [
+        { "type": "behavior", "text": "--resume load checkpoint.json → xác định current_phase=phase_7.5" },
+        { "type": "behavior", "text": "Resume Reconciliation: scan tasks/ → phát hiện 38/40 task files" },
+        { "type": "behavior", "text": "KHÔNG chạy lại Phase 0-7 (checkpoint ghi completed)" },
+        { "type": "behavior", "text": "Chỉ tạo 2 task files còn thiếu (KHÔNG ghi đè 38 files đã có)" },
+        { "type": "behavior", "text": "Chạy tiếp Phase 7a → 7b → 7c" },
+        { "type": "file_exists", "text": "Tổng 40 task files tồn tại sau resume" }
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Phân tích impact khi thay đổi module MOD-CRM-CONTACT trong hệ thống CRM 5 modules với flag --impact=MOD-CRM-CONTACT",
+      "expected_output": "Impact analysis cho MOD-CRM-CONTACT: liệt kê downstream modules bị ảnh hưởng (DEAL, REPORT, NOTIF), phân loại impact level, đề xuất adaptation steps",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 6 chạy (--impact flag), phân tích downstream impact cho MOD-CRM-CONTACT" },
+        { "type": "content_check", "text": "Impact report liệt kê modules phụ thuộc MOD-CRM-CONTACT: DEAL, REPORT, NOTIF" },
+        { "type": "content_check", "text": "Mỗi downstream module có impact level classification (Critical/High/Medium/Low)" },
+        { "type": "content_check", "text": "Đề xuất migration/adaptation steps cho từng module bị ảnh hưởng" },
+        { "type": "behavior", "text": "Phân tích tập trung vào Phase 6, output impact report" }
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Plan modules cho hệ thống ERP có circular dependency: MOD-PURCHASE phụ thuộc MOD-INVENTORY, MOD-INVENTORY phụ thuộc MOD-PURCHASE (vòng tròn A→B→A)",
+      "expected_output": "Phase 3 phát hiện circular dependency, dừng để user chọn resolution (Event-Driven / Interface Abstraction / Shared Entity), sau khi user chọn Event-Driven (emit event thay vì gọi trực tiếp), skill tiếp tục và tạo implementation order đúng",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 3 phát hiện vòng tròn MOD-PURCHASE ↔ MOD-INVENTORY (DFS cycle detection)" },
+        { "type": "behavior", "text": "Phase 3 DỪNG và hiển thị 3 options: (a) Event-Driven, (b) Interface Abstraction, (c) Shared Entity" },
+        { "type": "behavior", "text": "Khi user chọn Event-Driven: Phase 3 cập nhật $DEP_MATRIX — xóa edge gây cycle (PURCHASE→INVENTORY giữ, INVENTORY→PURCHASE bỏ)" },
+        { "type": "behavior", "text": "Sau resolution: Phase 4 chạy bình thường với $HAS_CYCLE=false, KHÔNG còn cycle" },
+        { "type": "content_check", "text": "implementation_order có MOD-INVENTORY ở layer thấp hơn MOD-PURCHASE (INVENTORY → PURCHASE)" },
+        { "type": "behavior", "text": "FAIL session-log KHÔNG được emit (skill tiếp tục thành công sau resolution)" },
+        { "type": "behavior", "text": "Khi user chọn Shared Entity: skill STOP + emit FAIL log (E002) với message hướng dẫn user tách shared entity rồi re-run" }
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Plan modules cho LEGACY project có 8 modules: 6 modules bình thường + 2 modules (MOD-LEGACY-UI, MOD-LEGACY-REPORT) đã được user quyết định DEPRECATE trong wf-brainstorm. MOD-LEGACY-UI có 3 features với impl_status='done', MOD-LEGACY-REPORT có 2 features 'in_progress'.",
+      "expected_output": "Phase 0 load legacy-decisions.json → $DEPRECATED_MODULES=[MOD-LEGACY-UI, MOD-LEGACY-REPORT]. Phase 7 §Registry Update detect 3 features 'done' sẽ bị downgrade → trigger CDG-03/04. User ACCEPT → deprecated-snapshot.json tạo, impl_status set 'skipped' cho cả 5 features. Phase 7.5 KHÔNG tạo task files cho deprecated modules.",
+      "assertions": [
+        { "type": "behavior", "text": "Phase 0 detect LEGACY_MODE=true, đọc legacy-decisions.json, set $DEPRECATED_MODULES=[MOD-LEGACY-UI, MOD-LEGACY-REPORT]" },
+        { "type": "behavior", "text": "Phase 7 §Registry Update step 3b phát hiện 3 features 'done' thuộc $DEPRECATED_MODULES → DOWNGRADE_COUNT=3" },
+        { "type": "behavior", "text": "CDG-03/CDG-04 trigger: hiển thị warning với danh sách 3 features sẽ downgrade từ 'done' → 'skipped', hậu quả không thể undo" },
+        { "type": "behavior", "text": "Sau user ACCEPT: deprecated-snapshot.json được tạo với features_snapshot[] chứa 5 features (previous_status record)" },
+        { "type": "registry_check", "text": "req-registry.json: tất cả 5 features thuộc MOD-LEGACY-UI và MOD-LEGACY-REPORT có impl_status='skipped'" },
+        { "type": "file_exists", "text": "cdg-tokens.json tồn tại với user_decision='accept', features list đầy đủ 5 entries" },
+        { "type": "behavior", "text": "Phase 7.5 KHÔNG tạo task files cho features thuộc $DEPRECATED_MODULES" },
+        { "type": "file_exists", "text": "Task files chỉ tồn tại cho 6 modules còn lại (KHÔNG có task file cho MOD-LEGACY-UI hoặc MOD-LEGACY-REPORT features)" },
+        { "type": "behavior", "text": "Khi user REJECT CDG: registry KHÔNG thay đổi impl_status, cdg-tokens.json ghi user_decision='reject', skill tiếp tục chỉ update implementation_order" }
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "Resume /wf-plan-modules --resume khi checkpoint.json bị corrupt (JSON invalid) hoặc file latest pointer không tồn tại",
+      "expected_output": "Step 0.2c phát hiện latest pointer không tồn tại hoặc session-state.json corrupt → fallback đọc root checkpoint.json. Nếu root checkpoint cũng không có → STOP với FAIL log và message rõ ràng. Skill KHÔNG tạo session mới và KHÔNG chạy lại từ đầu khi --resume được chỉ định.",
+      "assertions": [
+        { "type": "behavior", "text": "Step 0.2c chạy TRƯỚC Step 0.2b — đọc existing session từ latest pointer trước khi tạo session mới" },
+        { "type": "behavior", "text": "Khi latest pointer không tồn tại: fallback đọc .mc-data/work/wf-plan-modules/checkpoint.json (root-level)" },
+        { "type": "behavior", "text": "Khi root checkpoint.json bị corrupt (invalid JSON): jq parse fail → escalate với error rõ ràng, KHÔNG silent fail" },
+        { "type": "behavior", "text": "KHÔNG tạo session mới (Step 0.2b bị SKIP khi --resume)" },
+        { "type": "behavior", "text": "STOP với message: 'Không tìm thấy session hợp lệ để resume. Kiểm tra .mc-data/work/wf-plan-modules/latest hoặc checkpoint.json. Chạy /wf-plan-modules từ đầu nếu cần.'" },
+        { "type": "behavior", "text": "FAIL session log được emit tại điểm STOP với error_code='E_RESUME_FAIL', phase_failed='phase_0'" },
+        { "type": "behavior", "text": "Khi latest tồn tại và session-state.json hợp lệ: Step 0.2c load thành công, $SESSION_DIR set đúng, Step 0.2b SKIP, reconciliation chạy tại Step 0.3b" }
+      ]
+    }
+  ]
+}

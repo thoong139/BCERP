@@ -1,0 +1,38 @@
+{
+  "_template_notes": {
+    "purpose": "RBAC matrix — Discovery #6. Actors × Actions × Resources permission matrix. EUREKA có 90+ RBAC permissions. Source: Permission constants + [Authorize] attributes + role assignment configs.",
+    "populate": [
+      "actors[]: roles + role groups — {id, name (vd SalesManager, FinanceAccountant, MobileCustomer), description, hierarchy_parent?}",
+      "actions[]: CRUD + business actions — {id, name (vd CreateCustomer, ApproveInvoice), verb, scope=global|module|tenant|owner}",
+      "resources[]: protected resources — {id, name (vd Customer, Invoice, Shipment), module, ownership_field?}",
+      "permissions[]: actor × action × resource matrix — {actor_id, action_id, resource_id, grant=allow|deny, conditions[]}",
+      "gaps[]: resources không có permission cho actor cần access — {actor_id, resource_id, missing_actions[]}",
+      "metadata.over_permissioned: actor có quá nhiều permissions (security risk)",
+      "metadata.under_permissioned: workflow break vì actor thiếu permission"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "rbac-matrix-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "actors": [],
+  "actions": [],
+  "resources": [],
+  "permissions": [],
+  "gaps": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "source_method": "{{SOURCE_METHOD}}",
+    "actor_count": 0,
+    "action_count": 0,
+    "resource_count": 0,
+    "permission_count": 0,
+    "gap_count": 0,
+    "over_permissioned": [],
+    "under_permissioned": []
+  }
+}

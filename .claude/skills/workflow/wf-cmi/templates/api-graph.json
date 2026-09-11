@@ -1,0 +1,38 @@
+{
+  "_template_notes": {
+    "purpose": "API endpoints + request/response schemas + client routing — Discovery #4. Source: GitNexus route_map / fallback Grep MapPost|MapGet|MapPut|MapDelete + Controller attributes. Client routing: erp-web vs mobile-customer vs mobile-staff (EUREKA 3-client convention).",
+    "populate": [
+      "endpoints[]: 1 entry per HTTP endpoint — {id, method, path, module, controller, action, requires_auth, requires_permission[]}",
+      "endpoints[].request_schema: {dto_name, fields[], validations[]}",
+      "endpoints[].response_schema: {dto_name, fields[], status_codes[]}",
+      "endpoints[].client_routing: ['erp-web', 'mobile-customer', 'mobile-staff'] subsets — endpoint phục vụ client nào",
+      "client_routing: aggregated map — {erp_web: [endpoint_ids], mobile_customer: [...], mobile_staff: [...]}",
+      "metadata.deprecated_endpoints: endpoints có [Obsolete] hoặc /api/v1/old/",
+      "metadata.undocumented_endpoints: endpoints không có XML doc/Swagger annotation"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "api-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "endpoints": [],
+  "request_schemas": [],
+  "response_schemas": [],
+  "client_routing": {
+    "erp_web": [],
+    "mobile_customer": [],
+    "mobile_staff": []
+  },
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "source_method": "{{SOURCE_METHOD}}",
+    "endpoint_count": 0,
+    "modules_covered": [],
+    "deprecated_endpoints": [],
+    "undocumented_endpoints": []
+  }
+}

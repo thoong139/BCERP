@@ -1,0 +1,42 @@
+{
+  "fix_id": "{{FIX_ID}}",
+  "status": "not_started",
+  "engine_version": "v8",
+  "dimensions_resolved": null,
+  "profile_used": null,
+  "dimension_overrides": null,
+  "active_skill": "wf-fix-bugs",
+  "next_action": null,
+  "flags": {
+    "scope": "all",
+    "name": null,
+    "dry_run": false,
+    "deep": false,
+    "responsive": false,
+    "no_browser": false,
+    "browser_only": false,
+    "browser_required_overridden": false,
+    "run_tests": false,
+    "llm_scan": false
+  },
+  "phases": {
+    "phase_1": {"status": "not_started", "name": "Lane Dispatch (Discover)", "started_at": null, "completed_at": null},
+    "phase_2": {"status": "not_started", "name": "Triage", "started_at": null, "completed_at": null},
+    "phase_3": {"status": "not_started", "name": "Fix", "started_at": null, "completed_at": null},
+    "phase_4": {"status": "not_started", "name": "Docs Sync", "started_at": null, "completed_at": null},
+    "phase_5": {"status": "not_started", "name": "Verify Loop", "started_at": null, "completed_at": null},
+    "phase_6": {"status": "not_started", "name": "Report", "started_at": null, "completed_at": null}
+  },
+  "summary_counts": {
+    "total_issues": null,
+    "issues_fixed": null,
+    "issues_escalated": null,
+    "issues_remaining": null
+  },
+  "workload_gate": null,
+  "workload_override": false,
+  "cdg_handoff": null,
+  "cdg_reject_counts": {},
+  "created_at": null,
+  "updated_at": null
+}

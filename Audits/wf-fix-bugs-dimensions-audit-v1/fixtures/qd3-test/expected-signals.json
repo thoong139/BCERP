@@ -1,0 +1,136 @@
+{
+  "$schema": "lane-signals-v1",
+  "dimension_id": "QD3",
+  "fixture_version": "0.2.0",
+  "generated_at": "2026-05-08",
+  "description": "Expected signals for QD3 Phase 3 test fixtures — secret-detection probe (only live bash probe in QD3)",
+  "signals": [
+    {
+      "id": "exp-qd3-001",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": "critical",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-01-aws-key.ts",
+      "match_pattern": "AWS Access Key",
+      "cdg_flags": ["CDG-SECURITY-LIVE"],
+      "fingerprint_tokens": 6,
+      "note": "Pattern: AKIA[0-9A-Z]{16} — AKIAIOSFODNN7EXAMPLE (AKIA + 16 uppercase/digit chars)"
+    },
+    {
+      "id": "exp-qd3-002",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": "critical",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-02-stripe-key.config.js",
+      "match_pattern": "Stripe Live Key",
+      "cdg_flags": ["CDG-SECURITY-LIVE"],
+      "fingerprint_tokens": 6,
+      "note": "Pattern: sk_live_[0-9a-zA-Z]{24,} — mock token (30 chars)"
+    },
+    {
+      "id": "exp-qd3-003",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-03-generic-password.py",
+      "match_pattern": "Generic Password",
+      "cdg_flags": ["CDG-SECURITY-LIVE"],
+      "fingerprint_tokens": 6,
+      "note": "Pattern: password[\"'...]*[:=][\"'...]*[\"'][^...]{8,}[\"'] — password = \"Sup3rS3cur3P@ss!\" (16 chars)"
+    },
+    {
+      "id": "exp-qd3-004",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-04-db-url.ts",
+      "match_pattern": "Database URL",
+      "cdg_flags": ["CDG-SECURITY-LIVE"],
+      "fingerprint_tokens": 6,
+      "note": "Pattern: (postgres|...)://[^...]+:[^...]+@ — postgres://app_user:MySecretPass99@..."
+    },
+    {
+      "id": "exp-qd3-005",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": "high",
+      "expected_type": "live_detectable",
+      "source_file": "positive/pos-05-bearer-token.ts",
+      "match_pattern": "Bearer Token Hardcoded",
+      "cdg_flags": ["CDG-SECURITY-LIVE"],
+      "fingerprint_tokens": 6,
+      "note": "Pattern: [Bb]earer[[:space:]]+[A-Za-z0-9._~+/=-]{20,} — Bearer eyJhbGciOiJSUzI1NiJ9.abc123.signature. Token is NOT a full JWT (second segment abc123 lacks eyJ prefix) → only 1 signal (not JWT Token pattern)"
+    },
+    {
+      "id": "exp-qd3-005b",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": "high",
+      "expected_type": "live_detectable_bonus",
+      "source_file": "positive/pos-03-generic-password.py",
+      "match_pattern": "Database URL",
+      "cdg_flags": ["CDG-SECURITY-LIVE"],
+      "fingerprint_tokens": 6,
+      "note": "BONUS DETECTION: Python f-string return f\"postgresql://{username}:{password}@...\" matches Database URL pattern. Credentials are local variables, not literals — probe cannot distinguish. Demonstrates FP risk for f-string templates (see FP-QD3 §4 pre-seed). Classified as TP-bonus (security signal is still valid — f-string with credential vars is dangerous). Adds 1 extra signal beyond 5 intended → precision_conservative = 5/6 = 0.83, precision_lenient = 6/6 = 1.00."
+    },
+    {
+      "id": "exp-qd3-006",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-01-dotenv.example",
+      "match_pattern": null,
+      "cdg_flags": [],
+      "note": "FP-QD3-001: extension .example not in grep --include whitelist (only *.env). File never scanned → 0 signals"
+    },
+    {
+      "id": "exp-qd3-007",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-02-uuid-fixture.test.ts",
+      "match_pattern": null,
+      "cdg_flags": [],
+      "note": "FP-QD3-002: path contains .test. → EXCLUDE_PATTERN filters before signal emit → 0 signals"
+    },
+    {
+      "id": "exp-qd3-008",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-03-comment-only.ts",
+      "match_pattern": null,
+      "cdg_flags": [],
+      "note": "FP-QD3-003: comment line starts with // AND contains TODO + example + your_ → comment filter skips. Double protection: Generic Password pattern requires quoted value, comment has no quoted value on that line."
+    },
+    {
+      "id": "exp-qd3-009",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-04-md5-cache.ts",
+      "match_pattern": null,
+      "cdg_flags": [],
+      "note": "FP-QD3-004: crypto.createHash('md5') usage for cache busting — none of 14 PATTERNS match md5/crypto calls or short hex strings → 0 signals"
+    },
+    {
+      "id": "exp-qd3-010",
+      "probe_id": "P-QD3-secret-detection",
+      "dimension_id": "QD3",
+      "severity": null,
+      "expected_type": "true_negative",
+      "source_file": "negative/neg-05-readme.md",
+      "match_pattern": null,
+      "cdg_flags": [],
+      "note": "FP-QD3-005: .md extension excluded by both grep --include whitelist AND EXCLUDE_PATTERN .md$ → 0 signals. Double filter."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "workflow-runtime-metrics-v1",
+  "runtime": {
+    "last_run_started_at": null,
+    "last_run_completed_at": null,
+    "total_seconds": 0,
+    "phase_seconds": {}
+  },
+  "hooks": {
+    "post_write_invocations": 0,
+    "incremental_contract_checks": 0,
+    "full_contract_checks": 0,
+    "sync_updates": 0,
+    "last_changed_file": null,
+    "last_changed_phase": null
+  },
+  "cache": {
+    "hits": 0,
+    "misses": 0,
+    "artifacts": []
+  },
+  "validation": {
+    "iterations_total": 0,
+    "retries_total": 0,
+    "warnings_total": 0,
+    "errors_total": 0,
+    "last_scope": null
+  },
+  "parallelism": {
+    "agents_spawned": 0,
+    "parallel_groups_executed": 0
+  }
+}

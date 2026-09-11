@@ -1,0 +1,236 @@
+{
+  "$schema": "impl-status-v2",
+  "schema_version": "2.0",
+  "_schema_note": "Enum constraints documented in impl-status.schema.md — không hardcode list trong field values. v2.0 thêm: schema_version, session_id, profile, cache_hits, consumer_hints. Backward compat: skill đọc cả v1 (không có schema_version) và v2.",
+  "impl_id": "IMPL-00000000-000",
+  "session_id": "",
+  "feature": {
+    "req_id": "",
+    "name": "",
+    "module": "",
+    "system": "",
+    "complexity": "medium"
+  },
+  "scenario": "new",
+  "status": "not_started",
+  "progress_pct": 0,
+  "current_session": 1,
+  "last_qa_attempt_number": 0,
+  "run_history": [],
+
+  "profile": "standard",
+  "cache_hits": {
+    "existing_patterns": false,
+    "saved_tokens_estimated": 0
+  },
+
+  "timestamps": {
+    "started_at": null,
+    "last_updated": null,
+    "completed_at": null
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Existing Code Analysis",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_0_5": {
+      "name": "Context Setup (LEGACY_MODE + Decision Registry)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "legacy_mode": false,
+      "deprecated_modules": [],
+      "error": null
+    },
+    "phase_1": {
+      "name": "Feature Context",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_0_7": {
+      "name": "Pre-Implementation Safety Gate",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "confirmed_strategy": null,
+      "error": null
+    },
+    "phase_2": {
+      "name": "Planning",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_2_5": {
+      "name": "Contract-First Generation (parallel mode only)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_3": {
+      "name": "TDD Implementation",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "batches": {},
+      "error": null
+    },
+    "phase_4": {
+      "name": "Parallel Reviews",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_5": {
+      "name": "Issue Resolution",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    },
+    "phase_5a": {
+      "name": "Cross-Validation (Auto-Correction Loop)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 6,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "errors_escalated": 0,
+      "validation_details": {
+        "5a.1_req_id_in_code": "pending",
+        "5a.2_test_files_exist": "pending",
+        "5a.3_all_tests_pass": "pending",
+        "5a.4_no_critical_issues": "pending",
+        "5a.5_no_placeholders": "pending",
+        "5a.6_status_consistent": "pending"
+      },
+      "error": null
+    },
+    "phase_6": {
+      "name": "Update Status & Finalization",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    }
+  },
+
+  "tasks": [],
+
+  "metrics": {
+    "files_created": 0,
+    "files_modified": 0,
+    "tests_passing": 0,
+    "tests_failing": 0,
+    "test_coverage_pct": 0,
+    "lines_added": 0,
+    "lines_removed": 0
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_task_id": null,
+    "current_batch": null,
+    "next_action": null
+  },
+
+  "reviews": {
+    "code_review": {
+      "status": "pending",
+      "agent_id": null,
+      "started_at": null,
+      "completed_at": null,
+      "issues": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "all_resolved": false,
+      "report_file": null
+    },
+    "security_review": {
+      "status": "pending",
+      "agent_id": null,
+      "started_at": null,
+      "completed_at": null,
+      "vulnerabilities": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0
+      },
+      "all_resolved": false,
+      "report_file": null
+    }
+  },
+
+  "artifacts": {
+    "impl_plan_file": "",
+    "feature_design": "",
+    "impl_file": "",
+    "existing_patterns": "",
+    "impl_report": ""
+  },
+
+  "_path_notes": {
+    "impl_file_source": "Tạo bởi /wf-plan-modules Phase 7.5 — [feature]-impl.md chứa task breakdown cho implementation — path PHẢI khớp với output của /wf-plan-modules",
+    "populate_artifacts": "Phase 1 step 1.8: replace empty strings với absolute paths dùng $FEATURE_SLUG"
+  },
+
+  "error_log": [],
+
+  "_state_mapping": {
+    "_comment": "Mapping giữa impl-status.json (working file) và req-registry.json impl_status (CORE-010)",
+    "completed": "done",
+    "in_progress": "in_progress",
+    "not_started": "not_started",
+    "error": "in_progress (vẫn in_progress trong registry — chưa done)",
+    "paused": "in_progress (vẫn in_progress trong registry — chưa done)",
+    "_note": "error và paused là transient states chỉ tồn tại trong working file. Registry chỉ nhận 4 giá trị: not_started | in_progress | done | skipped"
+  },
+
+  "flags": {
+    "skip_tests": false,
+    "skip_review": false,
+    "skip_security": false
+  },
+
+  "consumer_hints": {
+    "_note": "Sprint 3 v2.0 — populated by phase6-finalize Step 6.5b. Consumer skills (wf-prepare-deployment, wf-fix-bugs, wf-verify-sync) đọc qua --from-impl flag (Q1 LOCKED: chưa modify trong v4.0).",
+    "wf-prepare-deployment": {
+      "files_for_changelog": [],
+      "breaking_changes": [],
+      "migrations_required": false,
+      "feature_summary_vi": ""
+    },
+    "wf-fix-bugs": {
+      "scope_modules": [],
+      "test_files_added": [],
+      "decision_ids_new": [],
+      "implementation_strategy_used": ""
+    },
+    "wf-verify-sync": {
+      "req_ids_completed": [],
+      "files_with_req_id": 0,
+      "session_dir": ""
+    }
+  }
+}

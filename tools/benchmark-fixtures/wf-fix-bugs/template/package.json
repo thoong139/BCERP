@@ -1,0 +1,13 @@
+{
+  "name": "mcv3-bench-wf-fix-bugs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Synthetic benchmark fixture cho wf-fix-bugs — KHÔNG chạy production. 15 bugs intentional cho benchmark.",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "legacy-extract-status-v1",
+  "version": "1.0",
+  "extract_id": "EXTRACT-YYYYMMDD-NNN",
+  "skill": "wf-legacy-extract",
+  "project": "[PROJECT_NAME]",
+  "status": "not_started | in_progress | completed | error | paused",
+  "progress_pct": 0,
+  "current_session": 1,
+
+  "timestamps": {
+    "started_at": "YYYY-MM-DDTHH:mm:ssZ",
+    "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+    "completed_at": null
+  },
+
+  "arguments": {
+    "module": null,
+    "resume": false,
+    "status": false
+  },
+
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "maturity_mode": "skip | delta | full",
+      "output_file": "extract-plan.md",
+      "error": null
+    },
+    "stage_3": {
+      "name": "Extract Requirements & Features",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "modules_total": 0,
+      "modules_completed": 0,
+      "modules_error": 0,
+      "current_module": null,
+      "module_status": {},
+      "error": null
+    },
+    "post_stage_3": {
+      "name": "Verification (Self-Diagnostic)",
+      "status": "pending | in_progress | completed | error",
+      "started_at": null,
+      "completed_at": null,
+      "auto_fix_attempts": 0,
+      "max_attempts": 3,
+      "missing_modules": [],
+      "error": null
+    }
+  },
+
+  "extraction_stats": {
+    "total_requirements": 0,
+    "total_features": 0,
+    "avg_confidence": 0,
+    "low_confidence_modules": [],
+    "dedup_merges": 0,
+    "divergences_found": 0
+  },
+
+  "context_sources": {
+    "ledger": ".mc-data/work/legacy-scan/ledger.json",
+    "project_profile": ".mc-data/work/legacy-scan/project-profile.json",
+    "dependency_graph": ".mc-data/work/legacy-scan/inventory/dependency-graph.json",
+    "glossary": ".mc-data/work/legacy-scan/glossary.json",
+    "classified_data": ".mc-data/work/legacy-scan/classified/"
+  },
+
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_module": null,
+    "next_action": null,
+    "trigger_reason": null,
+    "session_number": null
+  },
+
+  "error_log": [],
+
+  "metrics": {
+    "agents_spawned": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "modules_retried": 0
+  }
+}

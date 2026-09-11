@@ -1,0 +1,9 @@
+{
+  "$schema": "decision-registry-v1",
+  "version": "1.0",
+  "feature_slug": "[feature-slug]",
+  "created_at": "YYYY-MM-DDTHH:mm:ssZ",
+  "last_updated": "YYYY-MM-DDTHH:mm:ssZ",
+
+  "decisions": []
+}

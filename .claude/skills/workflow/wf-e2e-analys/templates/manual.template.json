@@ -1,0 +1,68 @@
+{
+  "_template_notes": "Template cho manual.json — file SSOT liệt kê các tests CẦN CON NGƯỜI execute (không thể auto-test) NHƯNG code logic đã được verify (static review / mock test / unit test). Mục đích: chuyển tải cho QA/user danh sách test thủ công sau khi pipeline auto-test xong. Owners: F1 wf-e2e-analys + F2 wf-e2e-browser + F3 wf-e2e-unblock APPEND khi phát hiện Nhóm 4 (Hard Test verify-OK). Consumer: report-only (orchestrator-summary.md + user). Pattern atomic-write theo CORE-035. Mỗi entry mới = compute next MAN-NNN từ max(id)+1. Field code_verification BẮT BUỘC fill — chứng minh code logic đã được verify trước khi escalate sang manual.",
+  "_schema_notes": {
+    "id": "Format MAN-NNN, auto-increment từ max hiện có",
+    "manual_reason": "Enum: visual_inspection | requires_real_payment | requires_external_api | requires_3rd_party_login | requires_hardware | requires_data_volume | requires_human_judgment",
+    "code_verification": {
+      "verification_method": "Enum: static_code_review | mock_api_test | unit_test | integration_test_mock",
+      "verification_result": "Enum: PASS (code logic OK) | FAIL (code logic có bug — KHÔNG nên escalate manual mà phải fix) | INCONCLUSIVE (cần thêm thông tin)",
+      "code_location": "file:line — vị trí code đã verify"
+    },
+    "recommended_test_steps": "Array của bước thao tác cụ thể cho QA/user",
+    "status": "Enum: pending (chờ QA test) | verified (QA đã test PASS) | skipped (QA bỏ qua) | n_a (không áp dụng)",
+    "related_blk_id": "BLK-NNN trong block-test.json — link 2 chiều (nullable)"
+  },
+  "$schema": "wf-e2e-manual-v1",
+  "session_id": "{SESSION_ID}",
+  "feat_id": "{FEAT-ID}",
+  "created_at": "{ISO-8601}",
+  "last_updated": "{ISO-8601}",
+  "entries": [
+    {
+      "id": "MAN-001",
+      "discovered_at": "{ISO-8601}",
+      "discovered_by_skill": "wf-e2e-analys",
+      "discovered_in_phase": 5,
+      "test_ref": "VNPay sandbox redirect — verify payment success callback",
+      "feat_id": "FEAT-EW-FIN-008",
+      "manual_reason": "requires_real_payment",
+      "code_verification": {
+        "verified_at": "{ISO-8601}",
+        "verified_by_skill": "wf-e2e-analys",
+        "verification_method": "static_code_review",
+        "verification_result": "PASS",
+        "code_location": "apps/backend/Eureka.Modules.Finance/Application/Payments/VNPayService.cs:123",
+        "notes": "Code logic OK — signature verify đúng, callback handler đúng, idempotency key đúng"
+      },
+      "recommended_test_steps": [
+        "Bước 1: Đăng nhập VNPay Sandbox (account: testuser@vnpay.vn / Test@123)",
+        "Bước 2: Tạo invoice 100.000đ trong erp-web → click 'Thanh toán'",
+        "Bước 3: Verify redirect URL có chứa sandbox.vnpayment.vn",
+        "Bước 4: Trên sandbox → chọn 'NCB' → nhập card 9704198526191432198 → submit",
+        "Bước 5: Verify callback redirect về app → invoice status=Paid + ledger entry tạo đúng"
+      ],
+      "status": "pending",
+      "assigned_to": "qa-team",
+      "related_blk_id": "BLK-007",
+      "related_iss_ids": []
+    }
+  ],
+  "summary": {
+    "total": 0,
+    "by_status": {
+      "pending": 0,
+      "verified": 0,
+      "skipped": 0,
+      "n_a": 0
+    },
+    "by_reason": {
+      "visual_inspection": 0,
+      "requires_real_payment": 0,
+      "requires_external_api": 0,
+      "requires_3rd_party_login": 0,
+      "requires_hardware": 0,
+      "requires_data_volume": 0,
+      "requires_human_judgment": 0
+    }
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-legacy-classify",
+  "version": "2.2.0",
+  "phase": "pre-phase0",
+  "description": "Phan loai files tu inventory vao systems/modules, tao glossary thuat ngu domain. v2.2.0 (Phase I): them domain-hints.json input de enriched classification khi available.",
+  "procedure": "procedures/phase0-init.md",
+  "procedures": [
+    "procedures/_shared.md",
+    "procedures/phase0-init.md",
+    "procedures/phase1-prepare.md",
+    "procedures/phase2-classify.md",
+    "procedures/phase3-glossary.md",
+    "procedures/phase4-verify.md",
+    "procedures/phase5-postgate.md",
+    "procedures/phase6-finalize.md"
+  ],
+  "prerequisites": {
+    "files": [
+      ".mc-data/work/legacy-scan/ledger.json",
+      ".mc-data/work/legacy-scan/inventory/source-files.json"
+    ],
+    "registry_fields": [],
+    "notes": "wf-legacy-scan phai hoan thanh inventory stage truoc (ledger.stages.inventory.status == 'completed' HOAC scan-state.layers.L3.status == 'completed'). Phase D cham nhan ca v5.0 scan-state.json (priority) va v4.1 ledger.json (fallback) — helper init_or_load_session tu migrate. DOCS_ONLY mode dung inventory/doc-classified.json thay vi source-files.json."
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/legacy-scan/inventory/*.json",
+      "description": "Inventory files tu wf-legacy-scan (source-files.json, doc-classified.json v.v.)",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/ledger.json",
+      "description": "Pipeline ledger — xac nhan inventory stage completed, lay project metadata va maturity info",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/project-profile.json",
+      "description": "Tech stack va project size info",
+      "required": true
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/checkpoint.json",
+      "description": "Per-skill checkpoint cho --resume (created by Phase 2 every 3 batches)",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/sessions/<session_id>/scan-state.json",
+      "description": "(Phase D) v5.0 scan-state.json session. Read qua helper init_or_load_session; ghi qua update_layer_status/update_batch_progress/append_layer_output. Tu fall back tu ledger.json neu session chua ton tai.",
+      "required": false
+    },
+    {
+      "path": ".mc-data/work/legacy-scan/domain-hints.json",
+      "description": "(Phase I — NEW v5.0) Domain hints tu IPS-B (wf-legacy-scan). Neu ton tai + confidence > 0.6, enriched classification dung domain-specific grouping cues. Graceful skip neu file khong ton tai.",
+      "required": false,
+      "condition": "optional — skip gracefully if absent"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/legacy-scan/classify-plan.md",
+        "template": "templates/classify-plan.md",
+        "required": true,
+        "description": "Phase 1 — execution plan generated tu template"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/classified/glossary.json",
+        "template": "templates/glossary.json",
+        "required": true,
+        "description": "Phase 3 — Domain terminology glossary, tao boi business-analyst agent"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/classified/batch-N.json",
+        "template": null,
+        "required": true,
+        "description": "Phase 2 — Classified file batches (batch-1.json, batch-2.json, ...). Inline schema: {batch_number, stats, items[], new_modules[]}"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/classified/classify-naming-fixes.json",
+        "template": null,
+        "required": false,
+        "description": "Phase 5 — Naming fixes applied (CORE-016) — chi tao neu co fixes (case dedup, kebab-case enforcement, fuzzy match resolutions)"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/checkpoint.json",
+        "template": "templates/checkpoint.json",
+        "required": false,
+        "description": "Phase 2 — Per-skill checkpoint cho --resume, tao moi 3 batches"
+      },
+      {
+        "path": ".mc-data/work/wf-legacy-classify/phase-summary.md",
+        "template": null,
+        "required": true,
+        "description": "Phase 6 — CORE-028 phase summary, tieng Viet, <= 15 dong noi dung"
+      },
+      {
+        "path": ".mc-data/work/legacy-scan/sessions/<session_id>/scan-state.json",
+        "template": null,
+        "required": false,
+        "description": "(Phase D) Dual-write target — update layers.L4 (status, outputs[], batch_progress) qua helper scan_state_reader. Khong ghi truc tiep; chi mutate via update_layer_status/update_batch_progress/append_layer_output."
+      }
+    ],
+    "registry": null
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "safe_write_rule": "CORE-006",
+    "notes": "Skill nay KHONG ghi vao req-registry.json. Chi ghi vao .mc-data/work/legacy-scan/ va .mc-data/work/wf-legacy-classify/"
+  },
+  "doc_framework_ref": null,
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-legacy-extract": [
+        ".mc-data/work/legacy-scan/classified/batch-N.json",
+        ".mc-data/work/legacy-scan/classified/glossary.json",
+        ".mc-data/work/legacy-scan/classified/classify-naming-fixes.json"
+      ]
+    },
+    "consumes_from": {
+      "wf-legacy-scan": [
+        ".mc-data/work/legacy-scan/inventory/*.json",
+        ".mc-data/work/legacy-scan/ledger.json",
+        ".mc-data/work/legacy-scan/project-profile.json",
+        ".mc-data/work/legacy-scan/sessions/{id}/scan-state.json",
+        ".mc-data/work/legacy-scan/domain-hints.json"
+      ]
+    }
+  }
+}

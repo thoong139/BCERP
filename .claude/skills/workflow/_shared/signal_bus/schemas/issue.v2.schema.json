@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "issue-v2",
+  "title": "Issue v2",
+  "description": "Issue normalized — output của Signal Bus, input cho /wf-fix-triage. Schema v2 extend v1 không breaking (ADR-04).",
+  "type": "object",
+  "required": [
+    "$schema",
+    "issue_id",
+    "created_at",
+    "dimensions",
+    "target",
+    "title",
+    "description_md",
+    "probe_sources",
+    "evidence",
+    "dedup_key",
+    "triage_status"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "issue-v2"
+    },
+    "issue_id": {
+      "type": "string",
+      "pattern": "^ISS-[0-9]{8}-[0-9]{3}$",
+      "description": "Format: ISS-YYYYMMDD-NNN"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "dimensions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+      },
+      "description": "1-N Quality Dimension (một bug có thể cross-cut). v9.1: thêm QD11 (business completeness)."
+    },
+    "target": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["code", "config", "doc", "runtime", "db-schema", "ui-element"]
+        },
+        "file_path": {"type": "string"},
+        "line_range": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {"type": "integer", "minimum": 0}
+        },
+        "symbol": {"type": "string"},
+        "url": {"type": "string"},
+        "selector": {"type": "string"}
+      }
+    },
+    "title": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Tiêu đề ngắn — tiếng Việt có dấu"
+    },
+    "description_md": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Mô tả Markdown — tiếng Việt có dấu"
+    },
+    "probe_sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["probe_id", "probe_version"],
+        "properties": {
+          "probe_id": {
+            "type": "string",
+            "pattern": "^P-QD(1[0-1]|[1-9])-[a-z0-9-]+$"
+          },
+          "probe_version": {"type": "string"}
+        }
+      },
+      "description": "Các probe đã cùng phát hiện Issue này"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["kind", "content", "source_signal_id"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "code_snippet",
+              "screenshot_path",
+              "log_excerpt",
+              "stacktrace",
+              "spec_ref",
+              "test_failure_ref"
+            ]
+          },
+          "content": {"type": "string", "minLength": 1},
+          "source_signal_id": {"type": "string"}
+        }
+      },
+      "description": "Tập hợp evidence từ các Signal đã merge"
+    },
+    "dedup_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "sha256(dimension|file_path|line_range|symbol)"
+    },
+    "severity": {
+      "type": ["string", "null"],
+      "enum": [null, "critical", "high", "medium", "low", "info"],
+      "description": "NULL cho đến khi /wf-fix-triage phân loại"
+    },
+    "fixability": {
+      "type": ["string", "null"],
+      "enum": [null, "trivial", "moderate", "hard", "needs-decision"],
+      "description": "NULL cho đến khi /wf-fix-triage phân loại"
+    },
+    "triage_status": {
+      "type": "string",
+      "enum": ["pending", "cdg_required", "triaged", "deferred", "closed"],
+      "default": "pending",
+      "description": "pending → default; cdg_required → ADR-22 rule 4 hit; triaged → sau Phase 2"
+    },
+    "dedup_merged_signals": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List các probe_id đã merge vào Issue này"
+    }
+  },
+  "additionalProperties": true
+}

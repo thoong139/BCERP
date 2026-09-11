@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fix-execution-result-v1",
+  "title": "wf-fix-bugs fix-execution-result.json v1",
+  "description": "Orchestrator-generated execution summary sau Phase 6. Populated từ fix-report.md + git diff + fix-log.json. Consumed bởi Phase 7 verify + downstream wf-verify-sync.",
+
+  "type": "object",
+  "required": ["$schema", "session_id", "phase6_status", "fixed_count", "deferred_count", "failed_count"],
+  "additionalProperties": true,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "fix-execution-result-v1"
+    },
+    "session_id": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "phase6_status": {
+      "type": "string",
+      "enum": ["completed", "failed", "dry_run", "in_progress"]
+    },
+    "dry_run": { "type": "boolean", "default": false },
+    "fixed_count": { "type": "integer", "minimum": 0 },
+    "deferred_count": { "type": "integer", "minimum": 0 },
+    "failed_count": { "type": "integer", "minimum": 0 },
+    "total_issues": { "type": "integer", "minimum": 0 },
+    "files_changed": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Relative paths of files modified (từ git diff --name-only)"
+    },
+    "files_changed_count": { "type": "integer", "minimum": 0 },
+    "docs_synced": {
+      "type": "object",
+      "properties": {
+        "files_synced": { "type": "integer", "minimum": 0 },
+        "registry_updated": { "type": "boolean" }
+      }
+    },
+    "execution_mode": {
+      "type": "string",
+      "enum": ["inline", "agent_dispatch"]
+    },
+    "ci_tools_used": {
+      "type": "object",
+      "properties": {
+        "gitnexus": { "type": "boolean" },
+        "serena": { "type": "boolean" },
+        "fast_path": { "type": "boolean", "description": "Fast Path (blast_radius reuse) hay Slow Path (fresh gitnexus impact call)" }
+      }
+    },
+    "blast_radius_summary": {
+      "type": "object",
+      "properties": {
+        "critical_targets": { "type": "array", "items": { "type": "string" } },
+        "high_targets": { "type": "array", "items": { "type": "string" } },
+        "total_targets": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string", "pattern": "^E[0-9]{3}[a-z]?$" },
+          "message": { "type": "string" },
+          "step": { "type": "string" }
+        }
+      }
+    }
+  }
+}

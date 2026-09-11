@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "phase": "phase0-brainstorm",
+  "description": "Template compliance contracts for Phase 0 Brainstorm documents",
+  "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "templates": {
+    "P0-01-brainstorm": {
+      "template_file": "phase0-brainstorm/P0-01-brainstorm.md",
+      "description": "Brainstorm — chốt khung dự án (project context, scope, users)",
+      "output_pattern": ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+      "required_sections": [
+        "## 1. Thông Tin Cơ Bản",
+        "## 2. Phòng Ban Tham Gia",
+        "## 3. Phạm Vi Hệ Thống",
+        "## 4. Đối Tượng Người Dùng Theo Hệ Thống",
+        "## 5. Chính Sách & Tuân Thủ",
+        "## 6. Chốt Khung Dự Án"
+      ],
+      "optional_sections": [],
+      "required_metadata": ["READS", "USED BY"]
+    },
+    "P0-02-systems-users": {
+      "template_file": "phase0-brainstorm/P0-02-systems-users.md",
+      "description": "Bản đồ hệ thống, users, NFR, tech stack",
+      "output_pattern": ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+      "required_sections": [
+        "## 1. Bản Đồ Hệ Thống",
+        "## 2. Users & Roles",
+        "## 3. Yêu Cầu Phi Chức Năng (NFR)",
+        "## 4. Tech Stack Đề Xuất"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "stakeholder-review": {
+      "template_file": "phase0-brainstorm/stakeholder-review.md",
+      "description": "Stakeholder review — xác nhận Phase 0 hoàn thành",
+      "output_pattern": ".mc-data/docs/phase0-brainstorm/stakeholder-review.md",
+      "required_sections": [
+        "## Phần A",
+        "## Phần B",
+        "## Phần C",
+        "## Phần D"
+      ],
+      "optional_sections": [],
+      "required_metadata": []
+    },
+    "policy-file": {
+      "template_file": "phase0-brainstorm/policies/_policy-template.md",
+      "description": "Chính sách nghiệp vụ do domain experts soạn (STANDARD/ENTERPRISE only)",
+      "output_pattern": ".mc-data/docs/phase0-brainstorm/policies/*.md",
+      "required_sections": [
+        "## 1. Phạm Vi Áp Dụng",
+        "## 2. Nội Dung Chính Sách",
+        "## 3. Ngoại Lệ",
+        "## 4. Quy Trình Phê Duyệt",
+        "## 5. Yêu Cầu Hệ Thống Phải Thực Thi",
+        "## 6. Xác Nhận"
+      ],
+      "optional_sections": ["## Lịch Sử Phiên Bản"],
+      "required_metadata": ["READS", "USED BY"]
+    }
+  }
+}

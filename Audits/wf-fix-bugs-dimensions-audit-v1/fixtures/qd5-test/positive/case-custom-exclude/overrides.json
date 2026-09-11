@@ -1,0 +1,4 @@
+{
+  "additional_excludes": ["legacy-stub"],
+  "remove_excludes": ["\\.test\\."]
+}

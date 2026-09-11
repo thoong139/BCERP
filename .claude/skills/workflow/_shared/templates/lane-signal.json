@@ -1,0 +1,12 @@
+{
+  "$schema": "lane-signal-v1",
+  "_template_notes": "Template cho lane signal output (linear skills). Strip _template_notes trước khi ghi.",
+  "lane_key": "",
+  "lane_type": "",
+  "items": [],
+  "metadata": {
+    "agent_type": "",
+    "duration_ms": 0,
+    "profile": "standard"
+  }
+}

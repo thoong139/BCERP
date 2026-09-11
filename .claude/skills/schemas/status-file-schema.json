@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "status-file-schema.json",
+  "title": "Skill Status File Schema",
+  "description": "Schema cho skill status tracking file - used by multi-session skills",
+  "type": "object",
+  "required": ["skill_id", "project", "status", "phases", "checkpoint"],
+  "properties": {
+    "skill_id": {
+      "type": "string",
+      "pattern": "^[A-Z]+-\\d{8}-\\d{3}$",
+      "description": "Unique identifier: SKILL-YYYYMMDD-NNN"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project name"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["all", "business", "functional", "module"],
+      "default": "all"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["not_started", "in_progress", "completed", "error", "paused"],
+      "default": "not_started"
+    },
+    "progress_pct": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "current_session": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "phases": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/phase"
+      }
+    },
+    "checkpoint": {
+      "$ref": "#/definitions/checkpoint"
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/error"
+      }
+    }
+  },
+  "definitions": {
+    "phase": {
+      "type": "object",
+      "required": ["name", "status"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "in_progress", "completed", "skipped", "error"]
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "output_file": {
+          "type": "string"
+        },
+        "retry_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": ["string", "null"]
+        },
+        "current_phase": {
+          "type": ["string", "null"]
+        },
+        "next_action": {
+          "type": ["string", "null"]
+        },
+        "saved_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "context_usage_pct": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message", "phase"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^E\\d{3}$"
+        },
+        "message": {
+          "type": "string"
+        },
+        "phase": {
+          "type": "string"
+        },
+        "step": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

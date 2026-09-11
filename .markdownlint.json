@@ -1,0 +1,30 @@
+{
+  "default": true,
+
+  "MD013": false,
+  "_comment_MD013": "Line length — tắt vì tech docs có tables, URLs, code samples dài",
+
+  "MD024": { "siblings_only": true },
+  "_comment_MD024": "Duplicate headings — chỉ flag khi cùng cấp anh em (vd 2 H2 giống nhau cùng cha)",
+
+  "MD025": { "front_matter_title": "" },
+  "_comment_MD025": "Single H1 — disable check title trong front-matter",
+
+  "MD033": false,
+  "_comment_MD033": "Inline HTML — cho phép <br>, <details>, <kbd>, ...",
+
+  "MD034": false,
+  "_comment_MD034": "Bare URLs — kệ vì hay dùng URL trần trong table",
+
+  "MD036": false,
+  "_comment_MD036": "Emphasis as heading — bold đôi khi dùng làm pseudo-heading có ý đồ",
+
+  "MD040": false,
+  "_comment_MD040": "Fenced code language — KHÔNG bắt buộc, nhiều block là ASCII diagram / generic text",
+
+  "MD041": false,
+  "_comment_MD041": "First line H1 — front-matter có thể đứng đầu",
+
+  "MD046": false,
+  "_comment_MD046": "Code block style — cho phép mix fenced + indented (rare)"
+}

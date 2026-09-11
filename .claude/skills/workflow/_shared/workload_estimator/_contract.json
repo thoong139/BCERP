@@ -1,0 +1,99 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "workload_estimator",
+  "version": "0.1.0-skeleton",
+  "phase": "phase5-fix",
+  "description": "Phase 0 workload estimation — input cho ISG render, Workload Gate (ADR-14), Partition Planner (ADR-15). Threshold default 45 phút.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-02", "ADR-14", "ADR-15", "ADR-22"],
+  "core_refs": ["CORE-007", "CORE-027"],
+  "inputs": [
+    {
+      "name": "req-registry",
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "required": true,
+      "notes": "Đếm modules/features theo scope"
+    },
+    {
+      "name": "module-code-mapping",
+      "path": ".mc-data/work/legacy-scan/module-code-mapping.json",
+      "required": false,
+      "notes": "Legacy flow — tra mapping file → module"
+    },
+    {
+      "name": "preflight-report",
+      "path": ".mc-data/work/wf-preflight/preflight-report.md",
+      "required": false
+    },
+    {
+      "name": "git-diff",
+      "type": "command",
+      "source": "git diff --name-only",
+      "required": false
+    },
+    {
+      "name": "profile",
+      "type": "enum",
+      "values": ["quick", "standard", "deep", "exhaustive"]
+    },
+    {
+      "name": "scope",
+      "type": "object",
+      "shape": {"type": "all | system | module", "name": "string when != all"}
+    },
+    {
+      "name": "selected-dims",
+      "type": "array",
+      "items": "QD1..QD11"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "fix-workload",
+      "path": ".mc-data/work/wf-fix-bugs/workloads/<workload-id>/fix-workload.json",
+      "schema": "schemas/fix-workload.schema.json",
+      "template": "templates/fix-workload.json",
+      "notes": "Atomic write. workload_id = WL-YYYYMMDD-NNN. Template fix-workload-v1 (CORE-031 Protocol 19)."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "estimator.py analyze --session-dir <path> --profile <p> --scope <s> --selected-dims QD1 QD2 QD5 --output <path>",
+      "kind": "python-cli",
+      "called_by": "/wf-fix-bugs Lane Dispatch"
+    },
+    {
+      "command": "from workload_estimator import estimate",
+      "kind": "python-import",
+      "called_by": "isg_recommender.py (để render estimated_minutes trong checklist)"
+    }
+  ],
+  "safety_guarantees": [
+    {
+      "id": "SF-WE-1",
+      "rule": "ADR-22 rule 1",
+      "description": "Estimator không tự drop QD1/QD2/QD5 dù workload lớn — quyết định skip phải qua ISG + CDG",
+      "enforced_in": "estimator.py:estimate() (no filtering)",
+      "violation_exit_code": 0
+    },
+    {
+      "id": "SF-WE-2",
+      "rule": "ADR-14 Workload Gate",
+      "description": "Nếu total_estimated_sec > threshold → gate_triggered=true; orchestrator chặn execution tới khi user CDG",
+      "enforced_in": "estimator.py:check_gate() + /wf-fix-bugs Lane Dispatch post-check",
+      "violation_exit_code": 1
+    }
+  ],
+  "env_overrides": {
+    "WF_FIX_BUGS_WORKLOAD_THRESHOLD_MIN": {
+      "default": 45,
+      "description": "Override threshold in minutes"
+    }
+  },
+  "status": "B1-skeleton",
+  "testing": {
+    "b1": "Không có test — skeleton raises NotImplementedError",
+    "b3": "Wire /wf-fix-bugs Lane Dispatch — verify ISG render đúng estimate",
+    "b4": "Fixture: small-scope.json (gate off), large-scope.json (gate on + partition plans)"
+  }
+}

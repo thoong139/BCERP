@@ -1,0 +1,151 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-fix-compat",
+  "version": "2.0.0-alpha.s4",
+  "phase": "lane",
+  "description": "QD7 Compatibility Lane — deprecated API, browser compat, polyfill, device breakpoint. v2.0 (S3): chuan hoa schema (lane-status-v1, signal-v2, lane-report-v1) qua _shared/lane/. Fix F9, F10.",
+  "prerequisites": {
+    "files": [
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "directories_any_of": [
+      "src",
+      "apps"
+    ],
+    "env_vars": {
+      "SESSION_DIR": "Set by orchestrator"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--session-dir",
+      "type": "path",
+      "required": true,
+      "description": "Session directory."
+    },
+    {
+      "name": "--profile",
+      "type": "enum",
+      "values": [
+        "quick",
+        "standard",
+        "deep",
+        "exhaustive"
+      ],
+      "required": false,
+      "default": "standard",
+      "description": "Profile chay."
+    },
+    {
+      "name": "--use-cache",
+      "type": "flag",
+      "required": false,
+      "description": "Opt-in scan cache cho static probes."
+    },
+    {
+      "name": "--base-url",
+      "type": "url",
+      "required": false,
+      "description": "App URL cho runtime probes."
+    }
+  ],
+  "procedure": [
+    "procedures/probes/P-QD7-browser-compat-check.md",
+    "procedures/probes/P-QD7-api-version-compat.md",
+    "procedures/probes/P-QD7-deprecated-api-usage.md",
+    "procedures/probes/P-QD7-polyfill-coverage.md",
+    "procedures/probes/P-QD7-device-breakpoint-test.md",
+    "procedures/probes/_shared.md"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/static-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Static probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/runtime/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "Runtime probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/llm-scan/signals.json",
+        "required": true,
+        "template": "../_shared/lane/templates/signals.json",
+        "notes": "LLM probe signals (signal-v2). _shared/lane/_shared.md §12."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/lane-status.json",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-status.json",
+        "notes": "Lane progress tracker. Schema lane-status-v1."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/QD7-compat-report.md",
+        "required": true,
+        "template": "../_shared/lane/templates/lane-report.md",
+        "notes": "Lane findings report."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/raw/",
+        "required": false,
+        "template": null,
+        "notes": "Per-probe raw output."
+      },
+      {
+        "path": "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/evidence/",
+        "required": false,
+        "template": null,
+        "notes": "Screenshots, browser logs."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "QD7 Lane KHONG ghi req-registry.json.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "spawned_by": {
+      "skill": "wf-fix-bugs",
+      "trigger": "QD7 trong selected_dims",
+      "receives": [
+        "--session-dir",
+        "--profile"
+      ]
+    },
+    "returns_to": {
+      "skill": "wf-fix-bugs",
+      "trigger": "POST-GATE QD7 complete",
+      "provides": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/static-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/runtime/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/llm-scan/signals.json",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/QD7-compat-report.md",
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/lane-status.json"
+      ]
+    },
+    "produces_for": {
+      "signal_bus": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/ — Signal Bus doc tu tat ca lanes de dedup + merge thanh issue-registry.json"
+      ],
+      "wf-fix-bugs": [
+        "$SESSION_DIR/phase4-find-bugs/lanes/QD7-compat/lane-status.json — orchestrator track lane progress"
+      ]
+    },
+    "consumes_from": {
+      "wf-fix-bugs": [
+        "$SESSION_DIR/fix-status.json"
+      ],
+      "wf-analyze-requirements": [
+        ".mc-data/docs/_meta/req-registry.json"
+      ],
+      "wf-design": [
+        ".mc-data/docs/phase3-architecture/"
+      ]
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "signal-v2",
+  "title": "wf-fix-bugs lane-signals.json v2",
+  "description": "Per-dimension signal output produced bởi lane agents (Phase 4). 1 file = 1 scan_type (static-scan, runtime, or llm-scan). Schema enforced bởi Phase 4 POST-GATE T2-T3.",
+
+  "type": "object",
+  "required": ["$schema", "dimension_id", "scan_type", "signals"],
+  "additionalProperties": true,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "signal-v2"
+    },
+    "dimension_id": {
+      "type": "string",
+      "pattern": "^QD[0-9]+$",
+      "description": "Dimension ID (QD1-QD11)"
+    },
+    "dimension_name": { "type": "string" },
+    "scan_type": {
+      "type": "string",
+      "enum": ["static-scan", "runtime", "llm-scan"]
+    },
+    "session_id": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "dimension_id", "probe_id", "severity", "fixability", "title", "fingerprint"],
+        "properties": {
+          "id": { "type": "string" },
+          "dimension_id": { "type": "string", "pattern": "^QD[0-9]+$" },
+          "probe_id": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low", "info"]
+          },
+          "fixability": {
+            "type": "string",
+            "enum": ["auto_fix", "agent_fix", "escalate", "skip"]
+          },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "location": {
+            "type": "object",
+            "required": ["file"],
+            "properties": {
+              "file": { "type": "string" },
+              "line": { "type": ["integer", "null"], "minimum": 1 },
+              "column": { "type": ["integer", "null"], "minimum": 1 },
+              "symbol": { "type": ["string", "null"] }
+            }
+          },
+          "fingerprint": {
+            "type": "string",
+            "description": "SHA256 hex digest computed từ dim_id|file|line|probe_id|type — dedup key"
+          },
+          "detected_at": { "type": "string", "format": "date-time" },
+          "evidence": { "type": ["string", "object", "null"] },
+          "req_ids": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^REQ-" }
+          }
+        }
+      }
+    },
+    "claimed_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Lane agent's claimed signal count — Phase 4 T4 cross-ref check"
+    }
+  }
+}

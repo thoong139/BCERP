@@ -1,0 +1,25 @@
+{
+  "_template_notes": "Schema quarantine-report-v1. Ghi khi scenario bi quarantine do flaky hoac lint_fail hoac persistent_fail (G1.5). diagnostic_bundle duoc dien boi Playwright MCP trong qua trinh chay. fix_proposal_path tro den file phan tich cua qa-lead + frontend-developer.",
+  "$schema": "quarantine-report-v1",
+  "scenario_id": "",
+  "scenario_file": "",
+  "quarantined_at": "",
+  "reason": "flaky",
+  "fail_stats": {
+    "runs": 5,
+    "pass": 0,
+    "fail": 5,
+    "flaky": true
+  },
+  "diagnostic_bundle": {
+    "dom_diff": "",
+    "network_trace": "",
+    "console_errors": "",
+    "screenshots": [],
+    "timing_analysis": {}
+  },
+  "fix_proposal_path": "",
+  "status": "quarantined",
+  "experts_assigned": ["qa-lead", "frontend-developer"],
+  "auto_fix_dispatched": false
+}

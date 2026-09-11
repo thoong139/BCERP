@@ -1,0 +1,65 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "concurrency",
+  "version": "1.0.0",
+  "phase": "phase5-fix",
+  "description": "3-tier token bucket (global=12, inter-lane=4, intra-probe=6) + backpressure primitives. Non-negotiable defaults per ADR-22 rule 3.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-02", "ADR-17", "ADR-22"],
+  "core_refs": ["CORE-025"],
+  "inputs": [
+    {
+      "name": "lane_id",
+      "type": "string",
+      "required": true,
+      "notes": "wf-fix-functional | wf-fix-business | ... — dùng để phân biệt inter-lane bucket"
+    },
+    {
+      "name": "probe_id",
+      "type": "string",
+      "required": true,
+      "notes": "P-QDx-<slug> — dùng để phân biệt intra-probe bucket"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "acquire-token",
+      "kind": "async-context-manager",
+      "template": null,
+      "notes": "Yield control khi đã acquire đủ token cả 3 tier. KHÔNG ghi file — template=null là đúng (CORE-031 Protocol 19: module utility không emit artifact)."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "from concurrency import TokenBucket3Tier, AdaptiveBackpressure",
+      "kind": "python-import",
+      "called_by": "/wf-fix-bugs Lane Dispatch probe scheduler, /wf-fix-execute batch runner"
+    },
+    {
+      "command": "token_bucket.py stress --global=12 --lane=4 --intra=6 --duration=60",
+      "kind": "python-cli",
+      "called_by": "B4 stress test"
+    }
+  ],
+  "safety_guarantees": [
+    {
+      "id": "SF-CC-1",
+      "rule": "ADR-22 rule 3",
+      "description": "Default 12/4/6 không được override. Constructor raise ValueError nếu nhận giá trị khác.",
+      "enforced_in": "token_bucket.py:TokenBucket3Tier.__init__()",
+      "violation_exit_code": 3
+    },
+    {
+      "id": "SF-CC-2",
+      "rule": "CORE-025 — không drop work",
+      "description": "Khi bucket cạn → block tới timeout; nếu timeout → raise TimeoutError cho caller, KHÔNG silent drop",
+      "enforced_in": "token_bucket.py:TokenBucket.acquire()",
+      "violation_exit_code": 2
+    }
+  ],
+  "status": "production",
+  "testing": {
+    "current": "tests/test_token_bucket.py 16 cases + tests/test_*.py coverage backpressure module — verify 3-tier semantics, timeout behavior, ValueError on ADR-22 override attempt",
+    "coverage": "concurrency/backpressure.py 96.84%, concurrency/token_bucket.py 76.14%"
+  }
+}

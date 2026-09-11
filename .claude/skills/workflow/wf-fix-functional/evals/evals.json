@@ -1,0 +1,244 @@
+{
+  "$schema": "evals-v1",
+  "skill": "wf-fix-functional",
+  "version": "1.0.0",
+  "description": "Evals cho QD1 Functional Correctness Lane — kiem tra probe output quality va signal schema compliance.",
+  "test_cases": [
+    {
+      "id": "TC-QD1-001",
+      "name": "REQ-ID cross-ref phat hien coverage gap",
+      "type": "stub",
+      "input": {
+        "scenario": "Feature FEAT-CRM-001 co impl_status=done nhung khong co REQ-ID annotation trong bat ky source file nao",
+        "registry_features": [
+          {
+            "id": "FEAT-CRM-001",
+            "impl_status": "done",
+            "req_ids": [
+              "REQ-CRM-001"
+            ]
+          }
+        ],
+        "code_req_ids": [],
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count": 1,
+        "signal_types": [
+          "coverage_gap"
+        ],
+        "severity": "high",
+        "has_evidence": true,
+        "probe_id": "P-QD1-req-registry-xref"
+      },
+      "validation": "Signal phai co target.kind='code', evidence.spec_ref non-empty, dimension_id='QD1'"
+    },
+    {
+      "id": "TC-QD1-002",
+      "name": "Infrastructure preflight phat hien backend down",
+      "type": "stub",
+      "input": {
+        "scenario": "Backend API khong phan hoi — curl tra HTTP 000 cho tat ca health endpoints",
+        "base_url": "http://localhost:3000",
+        "infra_status": {
+          "frontend": "reachable",
+          "backend": "not_running",
+          "database": "unknown",
+          "cors": "unknown"
+        },
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count": 1,
+        "signal_types": [
+          "infrastructure_error"
+        ],
+        "severity": "critical",
+        "has_evidence": true,
+        "probe_id": "P-QD1-infra-preflight",
+        "side_effect": "P-QD1-api-smoke va P-QD1-deep-ui-traversal phai bi skip"
+      },
+      "validation": "Signal phai co suggested_severity='critical', evidence.log_excerpt min 20 chars, dedup_hints chua 'infra:backend'"
+    },
+    {
+      "id": "TC-QD1-003",
+      "name": "API smoke test phat hien 5xx endpoint",
+      "type": "stub",
+      "input": {
+        "scenario": "Endpoint GET /api/customers tra HTTP 500, feature impl_status=done",
+        "base_url": "http://localhost:3000",
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/customers",
+            "feature_id": "FEAT-CRM-001",
+            "status": 500
+          }
+        ],
+        "registry_impl_status": "done",
+        "profile": "quick"
+      },
+      "expected": {
+        "signals_count": 1,
+        "signal_types": [
+          "api_error"
+        ],
+        "severity": "critical",
+        "has_evidence": true,
+        "probe_id": "P-QD1-api-smoke"
+      },
+      "validation": "Signal phai co target.url voi endpoint path, evidence.log_excerpt chua HTTP code va response body excerpt"
+    },
+    {
+      "id": "TC-S11-schema-uniformity-QD1",
+      "name": "Schema uniformity: signals.json conform signal-v2 (lane-status-v1)",
+      "description": "S11 schema uniformity check — output signals.json cua QD1 lane phai conform _shared/lane/templates/signals.json schema (signal-v2). Validate qua wf-fix-validate-gate.sh script.",
+      "input": {
+        "scenario": "Spawn wf-fix-functional voi profile=standard, mock SESSION_DIR co req-registry.json + features. Sau khi probe chay xong → check signals.json validate.",
+        "session_dir": "$SESSION_DIR",
+        "profile": "standard",
+        "validator": ".claude/scripts/wf-fix-validate-gate.sh --signals-wrapper $SESSION_DIR/phase4-find-bugs/lanes/QD1-functional/signals.json"
+      },
+      "expected": {
+        "schema_valid": true,
+        "signals_array_field": "signals",
+        "required_signal_fields": [
+          "id",
+          "lane",
+          "probe_id",
+          "target",
+          "evidence",
+          "suggested_severity",
+          "dimension_id"
+        ],
+        "lane_value": "QD1",
+        "validator_exit_code": 0
+      },
+      "validation": "wf-fix-validate-gate.sh tra exit 0 + signals[*].lane='QD1' + signals[*].dimension_id='QD1'. Edge: signal thieu required field → exit 1 + error message ro field name.",
+      "status": "stub"
+    },
+    {
+      "id": "TC-S11-probe-lazy-load-QD1",
+      "name": "Probe lazy-load: SKILL.md routing table list 10 probes, nhung CHI load probe matching profile",
+      "description": "S11 lazy-load verification — SKILL.md routing table cho QD1 lane phai liet ke 10 probes voi profile filter (quick/standard/deep). Khi profile=quick, CHI load probes co quick filter, KHONG load probes deep-only (lazy-load).",
+      "input": {
+        "scenario": "Spawn wf-fix-functional voi 3 profile khac nhau (quick/standard/deep). Verify routing table behavior + count files actually read tu probes/ folder.",
+        "session_dir": "$SESSION_DIR",
+        "profiles_to_test": [
+          "quick",
+          "standard",
+          "deep"
+        ],
+        "probes_dir": ".claude/skills/workflow/wf-fix-functional/procedures/probes/"
+      },
+      "expected": {
+        "skill_md_lists_all_probes": 10,
+        "quick_profile_loads": "subset (chi probes co quick filter)",
+        "standard_profile_loads": "subset rong hon (probes co standard filter)",
+        "deep_profile_loads": 10,
+        "context_saving_quick_vs_deep": ">=50% (S5 measurement)"
+      },
+      "validation": "Routing table trong SKILL.md (line ~30-50) liet ke chinh xac 10 probes. Profile filter respected: quick KHONG load deep-only probes. SKILL.md size 130-180 dong (S4 chuan hoa).",
+      "status": "stub"
+    },
+    {
+      "id": "TC-V71-xref-large-source",
+      "name": "F24 regression: xref probe handles 200+ files khong fail ARG_MAX (V71-E01)",
+      "description": "Regression test cho F24 hotfix v7.0.1. Truoc fix: jq --argjson signals '$JSON' truyen JSON qua argv -> 'Argument list too long' khi tich luy >=100 signals (~140KB > ARG_MAX 128KB Linux). Sau fix: signals tich luy vao temp file + jq --slurpfile, KHONG dung argv. Eval phai chay duoc thuc te (executable test script kem theo, KHONG chi declarative).",
+      "type": "executable",
+      "input": {
+        "scenario": "Synthetic fixture 200 files .ts, moi file co unique orphan REQ-ID + FEAT-ID. Mock registry voi 1 feature impl_status=done (khong match code) -> trigger 1 coverage_gap + 200 orphan_annotation signals = 201 signals.",
+        "fixture_dir": ".mc-data/work/wf-fix-functional/_fixtures/v71-e01/",
+        "test_script": ".claude/skills/workflow/wf-fix-functional/evals/v71-e01-xref-scale.test.sh",
+        "num_files_default": 200,
+        "num_files_override_env": "V71_E01_NUM_FILES",
+        "probe_under_test": ".claude/scripts/wf-fix-probe-static-xref.sh",
+        "trigger": "bash .claude/skills/workflow/wf-fix-functional/evals/v71-e01-xref-scale.test.sh"
+      },
+      "expected": {
+        "test_exit_code": 0,
+        "probe_exit_code": 0,
+        "signals_count_min": 100,
+        "signals_count_typical": 201,
+        "schema": "lane-signals-v1",
+        "signal_schema": "signal-v2",
+        "no_arg_max_error": true,
+        "fixture_cleanup_idempotent": true
+      },
+      "validation": "Test script (V71-E01) PHAI exit 0. Probe PHAI exit 0 KHONG 'Argument list too long'. Output JSON valid theo schema lane-signals-v1. signals[].dimension_id=QD1, signals[].fingerprint='sha256:...'. Cleanup tren EXIT trap. Idempotent — chay nhieu lan deu pass. F24 fix verified: scripts/wf-fix-probe-static-xref.sh:115-117 dung temp file + line 216 dung --slurpfile.",
+      "status": "executable_pass_2026_04_28"
+    },
+    {
+      "id": "TC-audit-QD1-001",
+      "name": "D1 audit: orphan FEAT-ID khong duoc detect boi xref probe",
+      "description": "Phase 2 Code Trace D1: wf-fix-probe-static-xref.sh line 173 chi check orphan REQ-IDs voi $REQUIREMENTS_JSON, KHONG check orphan FEAT-IDs. File co FEAT-NONEXIST-X-001 trong code nhung khong co trong registry → silent miss. IMP-QD1-008 (P2): them FEAT-ID check vao probe.",
+      "type": "stub",
+      "input": {
+        "scenario": "Source file co annotation '// FEAT-ID: FEAT-NONEXIST-X-001' nhung registry KHONG co feature ID nay. REQ-ID khac dung hop le cung co mat.",
+        "code_file": "fixtures/qd1-test/positive/pos-01-orphan-feat-id.ts",
+        "registry": {
+          "requirements": [{"id": "REQ-CRM-001"}],
+          "features": []
+        },
+        "profile": "quick",
+        "probe": "P-QD1-req-registry-xref"
+      },
+      "expected": {
+        "current_behavior": "NO signal emitted — probe misses orphan FEAT-IDs (silent miss)",
+        "expected_after_IMP_QD1_008": "signal emitted: signal_type='orphan_feat_annotation', severity='medium', evidence.feat_id='FEAT-NONEXIST-X-001'",
+        "pre_fix_signals_count": 0,
+        "post_fix_signals_count": 1
+      },
+      "validation": "TRUOC IMP-QD1-008: probe KHONG emit signal cho orphan FEAT-ID → regression confirmed. SAU IMP-QD1-008: phai emit signal voi signal_type='orphan_feat_annotation' va evidence.feat_id='FEAT-NONEXIST-X-001'. Fixture: fixtures/qd1-test/positive/pos-01 + expected-signals EXP-QD1-002.",
+      "audit_ref": "02-qd1-functional-audit.md Phase 2 D1 + fixtures/qd1-test/expected-signals.json EXP-QD1-002",
+      "imp_target": "IMP-QD1-008",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD1-002",
+      "name": "FN-003 audit: CTA locale bias — Vietnamese CTAs khong duoc detect",
+      "description": "Phase 1 FN-003: P-QD1-deep-ui-traversal hardcode danh sach CTA EN-only (Submit/Save/Create/Delete...). App Vietnamese co CTAs (Luu/Tao moi/Xoa/Cap nhat) → 100% miss. IMP-QD1-002 (P0): them VI CTA patterns hoac i18n-aware matching.",
+      "type": "stub",
+      "input": {
+        "scenario": "React component co buttons ['Luu', 'Tao moi', 'Xoa', 'Cap nhat'] nhung KHONG co English CTA nao. Profile=standard.",
+        "code_file": "fixtures/qd1-test/positive/pos-05-vi-cta.tsx",
+        "profile": "standard",
+        "probe": "P-QD1-deep-ui-traversal"
+      },
+      "expected": {
+        "current_behavior": "NO cta_locale_skip signal — probe misses 100% Vietnamese CTAs",
+        "expected_after_IMP_QD1_002": "signal emitted: signal_type='cta_locale_skip', severity='medium', evidence.locale='vi'",
+        "false_positive_check": "Component co English CTAs → KHONG emit false positive"
+      },
+      "validation": "TRUOC IMP-QD1-002: probe KHONG emit signal cho VI CTAs → 100% miss app tieng Viet. SAU IMP-QD1-002: phai detect VI CTAs hoac emit warning 'i18n locale not configured'. Fixture: fixtures/qd1-test/positive/pos-05-vi-cta.tsx. expected-signals EXP-QD1-009.",
+      "audit_ref": "02-qd1-functional-audit.md Phase 1 §5 FN-003 + Phase 2 AF-i18n-bias + expected-signals.json EXP-QD1-009",
+      "imp_target": "IMP-QD1-002",
+      "status": "stub"
+    },
+    {
+      "id": "TC-audit-QD1-003",
+      "name": "D2 audit + FN-001: .NET attribute routing KHONG duoc parse",
+      "description": "Phase 2 D2: P-QD1-route-config-parse chi grep JS/TS patterns (app.get/@Get/<Route>). .NET attribute-based routing [HttpGet('/api/products')] KHONG match → orphan_api silent miss. IMP-QD1-001 (P0): multi-framework routing support.",
+      "type": "stub",
+      "input": {
+        "scenario": "C# controller co [HttpGet('/api/products')] route moi tinh vao code nhung KHONG co tuong ung trong registry features. Profile=standard.",
+        "code_file": "fixtures/qd1-test/positive/pos-03-broken-route.dotnet.cs",
+        "registry": {
+          "features": [{"id": "FEAT-CATALOG-PROD-003", "api_routes": []}]
+        },
+        "profile": "standard",
+        "probe": "P-QD1-route-config-parse"
+      },
+      "expected": {
+        "current_behavior": "NO orphan_api signal — probe only parses JS/TS routing patterns",
+        "expected_after_IMP_QD1_001": "signal emitted: signal_type='orphan_api', severity='high', target.file='pos-03-broken-route.dotnet.cs'",
+        "supported_frameworks_pre_fix": ["express", "nextjs", "nestjs"],
+        "supported_frameworks_post_fix": ["express", "nextjs", "nestjs", "dotnet", "spring"]
+      },
+      "validation": "TRUOC IMP-QD1-001: probe KHONG phan tich file .cs → false negative. SAU IMP-QD1-001: detect [HttpGet/HttpPost/HttpPut/HttpDelete] va match voi registry API routes. Fixture: fixtures/qd1-test/positive/pos-03-broken-route.dotnet.cs. expected-signals EXP-QD1-005.",
+      "audit_ref": "02-qd1-functional-audit.md Phase 1 §5 FN-001 + Phase 2 D2 + expected-signals.json EXP-QD1-005",
+      "imp_target": "IMP-QD1-001",
+      "status": "stub"
+    }
+  ]
+}

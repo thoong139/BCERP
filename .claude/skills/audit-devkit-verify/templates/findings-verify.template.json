@@ -1,0 +1,18 @@
+{
+  "$schema": "audit-findings-v1",
+  "pass": "{{PASS_ID}}",
+  "generated_at": "{{TIMESTAMP_ISO}}",
+  "source": "audit-devkit-verify",
+  "scope": "{{SCOPE}}",
+  "findings": [],
+  "summary": {
+    "critical_functional": 0,
+    "critical_structural": 0,
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "total": 0,
+    "auto_fixable": 0,
+    "manual": 0
+  }
+}

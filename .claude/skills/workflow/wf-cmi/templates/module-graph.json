@@ -1,0 +1,30 @@
+{
+  "_template_notes": {
+    "purpose": "Module dependency graph — Discovery #2. Project modules + cross-module dependencies (entity FK, API call, event pub-sub, shared lib). Source: GitNexus query(key_concept=cross-module) / fallback Grep using.*Modules. Engine #3.",
+    "populate": [
+      "nodes[]: 1 entry per module — {id, name (e.g. CRM, HRM, Orders, Finance), path, type=domain|infra|shared, version}",
+      "edges[]: 1 entry per dependency — {from_module, to_module, type=entity-fk|api-call|event-pub|event-sub|shared-lib, strength=strong|weak, count}",
+      "metadata.cycle_detected: nếu có circular dependency, list cycles",
+      "metadata.layer_violations: nếu domain module depend on infra module sai pattern"
+    ],
+    "delete_before_write": true
+  },
+  "$schema": "module-graph-v1",
+  "session_id": "{{SESSION_ID}}",
+  "generated_at": "{{GENERATED_AT}}",
+  "scope": {
+    "type": "{{SCOPE_TYPE}}",
+    "modules": []
+  },
+  "nodes": [],
+  "edges": [],
+  "metadata": {
+    "build_at": "{{GENERATED_AT}}",
+    "source_method": "{{SOURCE_METHOD}}",
+    "ci_index_freshness": "{{CI_FRESHNESS}}",
+    "node_count": 0,
+    "edge_count": 0,
+    "cycle_detected": [],
+    "layer_violations": []
+  }
+}

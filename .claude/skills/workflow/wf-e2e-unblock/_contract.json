@@ -1,0 +1,142 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-unblock",
+  "version": "1.0.0",
+  "phase": "F3 — Auto-unblock blocked tests (Group 1+2+4), defer Group 3 to F4",
+  "description": "F3 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --unblock-test). Đọc block-test.json → phân loại 4 nhóm → auto-unblock Nhóm 1 (Data: seed) + Nhóm 2 (Infra: auto-start) + Nhóm 4 (Hard Test: verify code → manual.json). Nhóm 3 (Not Impl) → SKIP (F4 xử lý). Output: unblock-report.md + UPDATE block-test.json + APPEND manual.json. v1.0.0 (2026-05-13).",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/unblock-group1-data.md",
+    "procedures/unblock-group2-infra.md",
+    "procedures/unblock-group4-hardtest.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [
+      ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json"
+    ],
+    "required_conditions": [
+      "Session tồn tại (từ orchestrator hoặc F1)",
+      "block-test.json có ≥1 entry status=blocked",
+      "--session=<id> được cung cấp (BẮT BUỘC)"
+    ],
+    "forensic_validation": "jq -e '[.blocked_tests[] | select(.status==\"blocked\")] | length > 0' block-test.json"
+  },
+  "inputs": [
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+      "required": true,
+      "description": "Block-test SSOT — F3 đọc + update"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/manual.json",
+      "required": false,
+      "description": "Manual list (optional read để dedupe)"
+    },
+    {
+      "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/findings/",
+      "required": true,
+      "description": "Context reports để verify code (Group 4)"
+    },
+    {
+      "path": "<FEAT-ID arg>",
+      "required": true,
+      "description": "Feature ID"
+    },
+    {
+      "path": "--session=<id> arg",
+      "required": true,
+      "description": "Session ID (BẮT BUỘC — không tạo mới)"
+    }
+  ],
+  "outputs": {
+    "docs": [],
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F3-unblock/status.json",
+        "required": true,
+        "template": "templates/status.template.json",
+        "description": "F3 own state machine"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F3-unblock/unblock-report.md",
+        "required": true,
+        "template": "templates/unblock-report.template.md",
+        "description": "Bảng kết quả: BLK-ID | Test | Nhóm | Hành động | Kết quả + Thống kê + Cần Implement (Group 3) + Cần Người (Group 4 needs-human)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/block-test.json",
+        "required": true,
+        "template": "templates/block-test.template.json",
+        "description": "UPDATE per BLK-NNN: status (blocked → unblocked|resolved), retest_result, unblock_attempts[] append, resolution_note"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/manual.json",
+        "required": false,
+        "template": "templates/manual.template.json",
+        "description": "APPEND khi Group 4 verify code PASS — new MAN-NNN entry với code_verification + recommended_test_steps"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-verify/sessions/{session-id}/F3-unblock/Phase-report.md",
+        "required": true,
+        "template": ".claude/doc-framework/_meta/phase-summary.template.md",
+        "description": "CORE-028 F3 summary"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "note": "F3 không update registry"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "wf-e2e-implement": [".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json (Group 3 còn lại)"],
+      "wf-e2e-retest": [".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json (đã unblocked, cần retest)"]
+    },
+    "consumes_from": {
+      "wf-e2e-test": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json",
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/findings/"
+      ],
+      "wf-e2e-browser": [
+        ".mc-data/work/wf-e2e-verify/sessions/{id}/block-test.json"
+      ]
+    },
+    "spawned_by": "wf-e2e-verify orchestrator (sau F1+F2, conditional on block-test có entries) OR legacy command --unblock-test"
+  },
+  "ci": {
+    "enabled": true,
+    "pre_gate": {
+      "Na": "bash .claude/scripts/ci-detect.sh",
+      "Nb": "bash .claude/scripts/ci-freshness-check.sh",
+      "Nc": "bash .claude/scripts/ci-inject-context.sh"
+    },
+    "fallback": "Grep/Glob",
+    "reference": "CORE-033"
+  },
+  "errors": {
+    "namespace": "E030-E039",
+    "description": "F3 auto-unblock 4 groups",
+    "ledger": {
+      "file": "$SESSION_DIR/error-ledger.json",
+      "format": "APPEND-only JSONL",
+      "reference": "CORE-034"
+    }
+  },
+  "error_namespace": {
+    "range": "E030-E039",
+    "specific": {
+      "E030": "block-test.json không tồn tại hoặc rỗng",
+      "E031": "--session thiếu",
+      "E032": "Group 1 auto-fix fail 2 lần",
+      "E033": "Group 2 auto-fix fail 2 lần (infra không start)",
+      "E034": "Group 4 code_verification fail → escalate as issue",
+      "E035": "POST-GATE cross-ref fail",
+      "E036": "manual.json append fail",
+      "E037": "block-test.json update fail",
+      "E038": "unblock-report.md template không tồn tại",
+      "E039": "Lock conflict"
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "skill": "new-project",
+  "version": "4.0.0",
+  "evals": [
+    {
+      "id": "eval-1-basic",
+      "description": "Tao du an moi tu dau — chay tuan tu 10 buoc",
+      "input": "/new-project erp-system",
+      "expected_behavior": "Load SKILL.md → Read procedures/phase0-init.md → confirm → chay tuan tu phase1-brainstorm.md den phase10-deploy.md",
+      "pass_criteria": [
+        "Load procedures/phase0-init.md truoc khi chay buoc 0",
+        "Tao .mc-data/ structure thong qua wf-brainstorm",
+        "Chay wf-brainstorm thanh cong (phase1-brainstorm.md)",
+        "Chay wf-analyze-requirements (phase2-analyze.md)",
+        "Tao req-registry.json",
+        "Chay wf-preflight (phase8-preflight.md) truoc wf-verify-sync (phase9-verify.md)",
+        "Ghi checkpoint vao .mc-data/work/new-project/status.json sau moi buoc"
+      ]
+    },
+    {
+      "id": "eval-2-resume",
+      "description": "Resume tu checkpoint — lazy-load phase file phu hop",
+      "input": "/new-project --resume",
+      "expected_behavior": "phase0-init.md detect --resume → doc status.json → jump toi phase file tuong ung voi current_step",
+      "pass_criteria": [
+        "Doc .mc-data/work/new-project/status.json",
+        "Validate current_phase hop le",
+        "Tiep tuc tu current_step chinh xac",
+        "Khong chay lai cac buoc da hoan thanh (steps_completed[])",
+        "Chi load phase file cua buoc dang do + _shared.md (khong load cac phase files khac)"
+      ]
+    },
+    {
+      "id": "eval-3-from-phase",
+      "description": "Bat dau tu phase cu the voi prerequisite validation",
+      "input": "/new-project --from-phase 3",
+      "expected_behavior": "phase0-init.md validate --from-phase=3 → check prerequisite (Phase 2 output) → jump toi phase4-design.md",
+      "pass_criteria": [
+        "Validate --from-phase=3 hop le (co trong mapping)",
+        "Kiem tra Phase 2 output ton tai (features[] trong registry)",
+        "Bat dau tu phase4-design.md (wf-design)",
+        "Ghi checkpoint vao status.json"
+      ]
+    },
+    {
+      "id": "eval-4-api-only",
+      "description": "Du an API-only skip Buoc 4 (Phase 4 UX)",
+      "input": "/new-project api-service (interface_type=api-only)",
+      "expected_behavior": "phase5-ux.md detect interface_type=api-only → SKIP toan bo phase → chuyen sang phase6-plan.md",
+      "pass_criteria": [
+        "phase4-design.md doc interface_type = api-only tu registry",
+        "phase5-ux.md hien thi 'Phase 4: Bỏ qua (API-only project)'",
+        "Ghi steps_skipped += [4], phase5_skipped = true trong status.json",
+        "Khong goi wf-design-ux",
+        "Chay phase6-plan.md (wf-plan-modules) sau phase4-design.md"
+      ]
+    },
+    {
+      "id": "eval-5-preflight-step",
+      "description": "Preflight check chay truoc verify — routing theo PASS/WARN/FAIL",
+      "input": "/new-project (sau khi implement xong)",
+      "expected_behavior": "phase8-preflight.md chay wf-preflight, sau do phase9-verify.md chay wf-verify-sync; neu FAIL → E015",
+      "pass_criteria": [
+        "phase8-preflight.md doc va thuc thi wf-preflight/SKILL.md",
+        "POST-GATE kiem tra preflight-report.md ton tai va non-empty",
+        "$PREFLIGHT_STATUS duoc parse (PASS/WARN/FAIL) va ghi vao status.json",
+        "Neu PASS → phase9-verify.md chay binh thuong",
+        "Neu FAIL → E015 hien thi, goi y /wf-fix-bugs, DUNG"
+      ]
+    },
+    {
+      "id": "eval-6-partial-resume",
+      "description": "Resume khi da implement 1 so features (PHASE_CHECKS step 6 check >=1 done)",
+      "input": "/new-project --resume (da implement 2/5 features)",
+      "expected_behavior": "phase7-implement.md doc implement_progress tu status.json → tiep tuc tu feature dang pending",
+      "pass_criteria": [
+        "PHASE_CHECKS step 6 kiem tra >=1 feature done (khong phai ALL)",
+        "implement_progress.pending_features[] duoc load chinh xac",
+        "Tiep tuc loop tu feature dau tien trong pending_features",
+        "Khong re-implement features trong implement_progress.completed_features"
+      ]
+    },
+    {
+      "id": "eval-7-context-load",
+      "description": "Lazy loading — SKILL.md + phase file + _shared.md (khong load toan bo procedures)",
+      "input": "/new-project --resume (tiep tuc tu buoc 5 — Plan Modules)",
+      "expected_behavior": "Chi load SKILL.md (~210 dong) + phase0-init.md + phase6-plan.md + _shared.md → KHONG load 10 phase files khac",
+      "pass_criteria": [
+        "SKILL.md length ~210 dong (v4.0.0 orchestrator mong)",
+        "Read operations chi gom: SKILL.md, procedures/phase0-init.md, procedures/phase6-plan.md, procedures/_shared.md",
+        "KHONG Read phase1-brainstorm.md den phase5-ux.md (da hoan thanh)",
+        "KHONG Read phase7-implement.md den phase10-deploy.md (chua can)",
+        "Context load giam ~65% so voi v3.0.0 (full 583 dong SKILL.md)"
+      ]
+    },
+    {
+      "id": "eval-8-backward-compat",
+      "description": "Backward compatibility — cung error codes + cung output paths voi v3.0.0",
+      "input": "/new-project --from-phase 99 (invalid value)",
+      "expected_behavior": "phase0-init.md trigger E007, hien thi mapping, yeu cau user chon lai",
+      "pass_criteria": [
+        "Error code E007 (giu nguyen tu v3.0.0)",
+        "Mapping table hien thi: 0, 1, 2, 3, 4, 5a, 5b, 5c, verify, 6",
+        "Output paths khong doi (VD: .mc-data/docs/phase3-architecture/, .mc-data/work/wf-preflight/)",
+        "SKILL.md frontmatter giu nguyen argument-hint va allowed-tools"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,497 @@
+{
+  "$schema": "risk-heatmap-v1",
+  "session_id": "mcv3-spike-232124",
+  "generated_at": "2026-05-16T16:23:12Z",
+  "scope": "all",
+  "scope_name": null,
+  "analysis_window_days": 30,
+  "files": [
+    {
+      "path": ".claude/skills/workflow/_shared/playwright-session.js",
+      "risk_score": 77,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 1104,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-fix-session.sh",
+      "risk_score": 73,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 240,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-fix-migrate-sessions.sh",
+      "risk_score": 73,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 4,
+        "loc": 401,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": "tools/validators/session_validator.py",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 313,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/ips/tests/test_concurrency_controller.py",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 294,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "financial"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/ips/concurrency_controller.py",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 259,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "financial"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/concurrency/token_bucket.py",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 324,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "financial"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-verify-sync/vs-finalize-session.sh",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 231,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-fix-bugs/init-session-state.sh",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 233,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-cmi/build-fe-permission-graph.sh",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 367,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "auth"
+      }
+    },
+    {
+      "path": ".claude/scripts/skill-compliance-audit.sh",
+      "risk_score": 70,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 563,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-fix-common.sh",
+      "risk_score": 67,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 15,
+        "loc": 807,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "generic"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/profile_resolver.py",
+      "risk_score": 66,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 345,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "api"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/ips/resume_router.py",
+      "risk_score": 66,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 2,
+        "loc": 647,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "api"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/scripts/run-execution-prompt.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 238,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/signal-schema-test/case-lane-bus-translation/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 222,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/shared/case-cross-probe-dedup/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 246,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/qd7-test/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 220,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/qd6-test/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 221,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/qd4-test/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 322,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/qd4-test/positive/pos-05-missing-memo/src/BigDashboard.tsx",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 384,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/qd4-test/positive/case-cwv-baseline/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 215,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-dimensions-audit-v1/fixtures/qd1-test/advanced/case-catalog-handoff/run.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 227,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": "Audits/wf-fix-bugs-Audit-v2/scripts/run-execution-prompt.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 213,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/ips/tests/test_resume_router.py",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 1,
+        "loc": 510,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "api"
+      }
+    },
+    {
+      "path": ".claude/scripts/audit/contract-conformance.sh",
+      "risk_score": 65,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 0,
+        "loc": 328,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "regulatory"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-fix-bugs/route-and-write.sh",
+      "risk_score": 62,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 3,
+        "loc": 306,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "api"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/isg/isg_recommender.py",
+      "risk_score": 61,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 8,
+        "loc": 1090,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "high",
+        "domain": "generic"
+      }
+    },
+    {
+      "path": ".claude/skills/workflow/_shared/cdg/cdg_handler.py",
+      "risk_score": 61,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 2,
+        "loc": 245,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "medium",
+        "domain": "api"
+      }
+    },
+    {
+      "path": ".claude/scripts/wf-verify-sync/vs-migrate-flat-to-sessions.sh",
+      "risk_score": 61,
+      "risk_tier": "HIGH",
+      "signals": {
+        "git_churn_30d": 2,
+        "loc": 136,
+        "missing_req_id": true,
+        "has_paired_test": false,
+        "complexity_hint": "low",
+        "domain": "auth"
+      }
+    }
+  ],
+  "modules": [
+    {
+      "module": "Audits",
+      "score": 51,
+      "files_at_risk": 16,
+      "total_files": 138,
+      "dominant_domain": "regulatory",
+      "top_signals": {
+        "avg_churn": 1.00,
+        "req_id_coverage_pct": 26.1,
+        "test_coverage_pct": 0.0
+      }
+    },
+    {
+      "module": "scripts",
+      "score": 50,
+      "files_at_risk": 0,
+      "total_files": 2,
+      "dominant_domain": "generic",
+      "top_signals": {
+        "avg_churn": 1.00,
+        "req_id_coverage_pct": 0.0,
+        "test_coverage_pct": 0.0
+      }
+    },
+    {
+      "module": "docs",
+      "score": 47,
+      "files_at_risk": 0,
+      "total_files": 3,
+      "dominant_domain": "generic",
+      "top_signals": {
+        "avg_churn": 1.00,
+        "req_id_coverage_pct": 0.0,
+        "test_coverage_pct": 0.0
+      }
+    },
+    {
+      "module": ".claude",
+      "score": 46,
+      "files_at_risk": 36,
+      "total_files": 439,
+      "dominant_domain": "generic",
+      "top_signals": {
+        "avg_churn": 1.95,
+        "req_id_coverage_pct": 10.0,
+        "test_coverage_pct": 0.0
+      }
+    },
+    {
+      "module": "plans",
+      "score": 40,
+      "files_at_risk": 0,
+      "total_files": 2,
+      "dominant_domain": "generic",
+      "top_signals": {
+        "avg_churn": 0.00,
+        "req_id_coverage_pct": 50.0,
+        "test_coverage_pct": 0.0
+      }
+    },
+    {
+      "module": "tools",
+      "score": 39,
+      "files_at_risk": 2,
+      "total_files": 29,
+      "dominant_domain": "generic",
+      "top_signals": {
+        "avg_churn": 1.10,
+        "req_id_coverage_pct": 31.0,
+        "test_coverage_pct": 0.0
+      }
+    },
+    {
+      "module": "tests",
+      "score": 25,
+      "files_at_risk": 0,
+      "total_files": 13,
+      "dominant_domain": "generic",
+      "top_signals": {
+        "avg_churn": 1.00,
+        "req_id_coverage_pct": 92.3,
+        "test_coverage_pct": 0.0
+      }
+    }
+  ],
+  "summary": {
+    "total_files_analyzed": 626,
+    "critical_count": 0,
+    "high_count": 54,
+    "medium_count": 540,
+    "low_count": 32,
+    "missing_req_id_pct": 83.7,
+    "missing_tests_pct": 100.0,
+    "avg_risk_score": 45.96,
+    "duration_seconds": 108
+  }
+}

@@ -1,0 +1,140 @@
+# State Machine Spec — Quotation entity
+# Validates against: .claude/doc-framework/_meta/state-machine-spec-schema.json
+# Probe consumer: P-QD10-state-machine-correctness (Wave 4)
+# Deploy target: .mc-data/docs/phase3-architecture/state-machines/quotation.yaml
+
+entity: Quotation
+version: "1.0.0"
+description: "Vong doi bao gia — tu DRAFT den CONVERTED hoac REJECTED/EXPIRED"
+module_id: MOD-QUOTATION
+
+states:
+  - DRAFT
+  - SENT
+  - ACCEPTED
+  - REJECTED
+  - EXPIRED
+  - CONVERTED
+
+initial_state: DRAFT
+
+terminal_states:
+  - CONVERTED
+  - REJECTED
+  - EXPIRED
+
+transitions:
+  - from: DRAFT
+    to: SENT
+    action: submit
+    role: sales_rep
+    condition: "items.length > 0 AND customer_id != null"
+    side_effects:
+      - send_quotation_email
+      - log_audit_trail
+      - set_expiry_date
+
+  - from: SENT
+    to: ACCEPTED
+    action: accept
+    role: customer
+    side_effects:
+      - notify_sales_rep
+      - create_order_draft
+
+  - from: SENT
+    to: REJECTED
+    action: reject
+    role: customer
+    side_effects:
+      - notify_sales_rep
+      - log_rejection_reason
+
+  - from: SENT
+    to: EXPIRED
+    action: expire
+    role: system
+    condition: "current_date > expiry_date"
+    side_effects:
+      - notify_sales_rep
+      - archive_quotation
+
+  - from: ACCEPTED
+    to: CONVERTED
+    action: convert_to_order
+    role: sales_rep
+    condition: "order_draft_id != null"
+    side_effects:
+      - create_order
+      - update_crm_opportunity
+      - send_confirmation_email
+
+  - from: DRAFT
+    to: REJECTED
+    action: cancel
+    role:
+      - sales_rep
+      - sales_manager
+    side_effects:
+      - log_audit_trail
+
+forbidden_transitions:
+  - from: CONVERTED
+    to: DRAFT
+    reason: "Don hang da duoc tao — khong hoan tac bao gia da chuyen doi"
+  - from: CONVERTED
+    to: SENT
+    reason: "Don hang da duoc tao — khong gui lai bao gia"
+  - from: REJECTED
+    to: SENT
+    reason: "Bao gia bi tu choi khong the gui lai — tao bao gia moi"
+  - from: REJECTED
+    to: ACCEPTED
+    reason: "Bao gia bi tu choi khong the chap nhan — tao bao gia moi"
+  - from: EXPIRED
+    to: ACCEPTED
+    reason: "Bao gia het han khong the chap nhan — tao bao gia moi"
+  - from: EXPIRED
+    to: SENT
+    reason: "Bao gia het han khong the gui lai — tao bao gia moi"
+
+guards:
+  - state: SENT
+    role_required: sales_rep
+    prerequisite: "customer_email != null"
+  - state: ACCEPTED
+    role_required:
+      - sales_rep
+      - sales_manager
+    prerequisite: "accepted_at != null AND accepted_by != null"
+  - state: CONVERTED
+    role_required:
+      - sales_rep
+      - sales_manager
+    prerequisite: "order_id != null AND converted_at != null"
+
+actions:
+  - id: submit
+    description: "Gui bao gia cho khach hang qua email + cap nhat trang thai"
+    idempotent: false
+    reversible: false
+  - id: accept
+    description: "Khach hang xac nhan chap nhan bao gia"
+    idempotent: true
+    reversible: false
+  - id: reject
+    description: "Khach hang tu choi bao gia"
+    idempotent: true
+    reversible: false
+  - id: expire
+    description: "He thong tu dong chuyen sang EXPIRED khi qua ngay het han"
+    idempotent: true
+    reversible: false
+  - id: convert_to_order
+    description: "Chuyen bao gia duoc chap nhan thanh don hang chinh thuc"
+    idempotent: false
+    reversible: false
+  - id: cancel
+    description: "Huy bao gia o trang thai DRAFT (chua gui)"
+    idempotent: true
+    reversible: false

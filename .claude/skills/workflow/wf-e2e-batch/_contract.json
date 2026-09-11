@@ -1,0 +1,82 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-e2e-batch",
+  "version": "1.0.0",
+  "phase": "Batch Orchestrator — N FEATs với dependency graph",
+  "description": "Điều phối N wf-e2e-verify sessions với topology sort và cross-FEAT isolation",
+  "procedure": [
+    "procedures/_shared.md",
+    "procedures/phase1-discover.md",
+    "procedures/phase2-dependency.md",
+    "procedures/phase3-execute.md",
+    "procedures/phase4-aggregate.md",
+    "procedures/resume-status.md"
+  ],
+  "prerequisites": {
+    "required_files": [".mc-data/docs/_meta/req-registry.json"],
+    "required_conditions": [
+      "Registry có ≥1 feature với impl_status != not_started",
+      "--scope hoặc --feats được cung cấp"
+    ]
+  },
+  "outputs": {
+    "working": [
+      {
+        "path": ".mc-data/work/wf-e2e-batch/sessions/{batch-id}/dependency-matrix.json",
+        "required": true,
+        "template": "templates/dependency-matrix.template.json",
+        "description": "FEAT dependency graph v2 với topology levels và granular phase deps (CF7)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-batch/sessions/{batch-id}/batch-summary.md",
+        "required": true,
+        "template": "templates/batch-summary.template.md",
+        "description": "Tóm tắt batch run tiếng Việt ≤20 dòng (CORE-028)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-batch/sessions/{batch-id}/batch-impact.json",
+        "required": true,
+        "template": "templates/batch-impact.template.json",
+        "description": "Schema e2e-batch-v1 với audit_chain"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-batch/sessions/{batch-id}/gate-report-{N}.json",
+        "required": false,
+        "template": null,
+        "description": "Gate check report sau mỗi 3 FEAT (CF3)"
+      },
+      {
+        "path": ".mc-data/work/wf-e2e-batch/sessions/{batch-id}/chain-rollback-decisions.json",
+        "required": false,
+        "template": "templates/chain-rollback-policy.template.json",
+        "description": "CF5 rollback decisions log"
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "write_role": "NONE",
+    "note": "Batch chỉ dispatch wf-e2e-verify, không write registry trực tiếp"
+  },
+  "cross_skill_contracts": {
+    "orchestrates": [
+      {
+        "skill": "wf-e2e-verify",
+        "trigger": "per-FEAT dispatch (Phase 3)",
+        "passes": ["FEAT-ID", "--session=batch-{id}-feat-{feat-id}", "--auto={AUTO}"],
+        "validation": "e2e-status.json steps.f8_demo.status = completed"
+      }
+    ],
+    "produces_for": {},
+    "consumes_from": {
+      "wf-e2e-verify": [
+        ".mc-data/work/wf-e2e-verify/sessions/*/e2e-status.json",
+        ".mc-data/work/wf-e2e-verify/sessions/*/findings/"
+      ]
+    }
+  },
+  "errors": {
+    "namespace": "E050-E059",
+    "description": "Batch orchestration errors — E001-E009 reserved for pipeline/session"
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "skill_name": "wf-brainstorm",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "tôi muốn xây dựng phần mềm quản lý cho công ty bán lẻ thời trang của tôi",
+      "expected_output": "Phase 1 hỏi 3-4 câu sequential (1 câu/turn). Phase 2 spawn business-analyst solo để khai thác follow-up, dùng AskUserQuestion cho chọn phòng ban, classify STANDARD. Phase 3 spawn domain experts PARALLEL (retail-expert). Phase 4 tạo P0-01 đủ 6 sections theo template và P0-02. Đề xuất /wf-analyze-requirements tiếp theo.",
+      "assertions": [
+        {
+          "text": "Phase 1 hỏi câu hỏi từng câu một (sequential), không batch nhiều câu cùng 1 lượt, và hỏi tối đa 4 câu",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 2 chỉ spawn business-analyst (solo) để khai thác follow-up — KHÔNG spawn domain experts (retail-expert, v.v.) ở Phase 2",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 2 dùng AskUserQuestion tool với multiSelect:true cho bước chọn phòng ban (active_depts[])",
+          "type": "behavior"
+        },
+        {
+          "text": "phase2-ba-departments.md Step 2.4a + phase3-brainstorm-policy.md Step 3.3a: classify project_complexity = STANDARD cho ban le thoi trang (khong phai ENTERPRISE vi khong co keywords ERP/enterprise/da quoc gia/xa hoi), ghi vao .mc-data/work/wf-brainstorm/complexity-assessment.md",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3 spawn domain experts PARALLEL (trong đó có retail-expert hoặc sales-expert) — Phase 3, KHÔNG phải Phase 2",
+          "type": "behavior"
+        },
+        {
+          "text": "File .mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md được tạo",
+          "type": "file_exists"
+        },
+        {
+          "text": "File .mc-data/docs/phase0-brainstorm/P0-02-systems-users.md được tạo",
+          "type": "file_exists"
+        },
+        {
+          "text": "P0-01 có đủ 6 sections: '## 1. Thông Tin Cơ Bản', '## 2. Phòng Ban Tham Gia', '## 3. Phạm Vi Hệ Thống', '## 4. Đối Tượng Người Dùng', '## 5. Chính Sách & Tuân Thủ', '## 6. Chốt Khung Dự Án'",
+          "type": "file_content"
+        },
+        {
+          "text": "Output cuối đề xuất bước tiếp theo /wf-analyze-requirements",
+          "type": "output_contains"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "tôi có ý tưởng về app nhưng chưa rõ mình cần gì",
+      "expected_output": "Hỏi ngay Phase 1 câu 1 về tên công ty/ngành — không yêu cầu user làm rõ ý tưởng trước. Phase 1+2 vẫn diễn ra bình thường dù context mơ hồ. Files P0-01 và P0-02 được tạo, với [Cần làm rõ] cho những phần chưa rõ.",
+      "assertions": [
+        {
+          "text": "Không yêu cầu user làm rõ ý tưởng trước khi bắt đầu — hỏi ngay Phase 1 câu 1.2 (tên công ty/ngành/quy mô)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 1 vẫn hỏi 3-4 câu bình thường dù trigger prompt mơ hồ — không thêm bước clarify extra",
+          "type": "behavior"
+        },
+        {
+          "text": "File P0-01-brainstorm.md được tạo thành công dù context ban đầu mơ hồ",
+          "type": "file_exists"
+        },
+        {
+          "text": "File P0-01 có ít nhất 1 mục [Cần làm rõ] hoặc ghi chú 'Chưa xác định' — không để placeholder rỗng hoàn toàn",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "/wf-brainstorm ERP xuất nhập khẩu",
+      "expected_output": "Parse 'ERP xuất nhập khẩu' từ $ARGUMENTS. Detect ENTERPRISE từ keywords 'ERP' + 'xuất nhập khẩu'. Phase 3 spawn logistics-expert + finance-expert + các experts liên quan. Phase 2 policy survey đầy đủ (ENTERPRISE mode). P0-01 section 5 có nội dung phân tích tuân thủ XNK. Tạo policy files trong policies/.",
+      "assertions": [
+        {
+          "text": "phase0-detect-route.md Step 0.3 + phase1-collect-basic.md Step 1.0: Parse argument \"ERP xuat nhap khau\" tu $ARGUMENTS, luu vao project_name/context ma khong hoi lai \"ban muon lam gi\" hay \"du an la gi\"",
+          "type": "behavior"
+        },
+        {
+          "text": "phase2-ba-departments.md Step 2.4a complexity assessment: classify project_complexity = ENTERPRISE vi keywords \"ERP\" va \"xuat nhap khau\" trigger Enterprise override (keyword-based), ghi vao complexity-assessment.md voi ly do cu the",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 2 step 2.4 thực hiện policy survey đầy đủ (ENTERPRISE mode) — không skip",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 3 spawn logistics-expert (domain mapping: xuất nhập khẩu → logistics-expert) trong expert_list[]",
+          "type": "behavior"
+        },
+        {
+          "text": "File P0-01-brainstorm.md được tạo với section 5 có nội dung phân tích tuân thủ liên quan XNK (Incoterms, hải quan, hoặc thuế XNK)",
+          "type": "file_content"
+        },
+        {
+          "text": "Thư mục .mc-data/docs/phase0-brainstorm/policies/ được tạo (ENTERPRISE project cần policy files)",
+          "type": "file_exists"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "tôi muốn phần mềm quản lý cho chuỗi cà phê của tôi",
+      "expected_output": "Small café chain (25 employees, 3 locations). Departments include 'Phòng Vận hành' (manages locations). Despite the department name, complexity must be classified as STANDARD (not ENTERPRISE) because: (1) small team, (2) F&B industry with no ERP/enterprise keywords in project description. The keyword 'vận hành' in a dept name must NOT trigger ENTERPRISE override.",
+      "assertions": [
+        {
+          "text": "Project complexity được classify là STANDARD — KHÔNG phải ENTERPRISE, dù có 'Phòng Vận hành' trong danh sách phòng ban",
+          "type": "behavior"
+        },
+        {
+          "text": "File P0-01-brainstorm.md được tạo",
+          "type": "file_exists"
+        },
+        {
+          "text": "File .mc-data/work/wf-brainstorm/complexity-assessment.md ghi complexity = STANDARD (không phải ENTERPRISE)",
+          "type": "file_content"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "/wf-brainstorm --force",
+      "expected_output": "Phase 0 parse --force flag. Phase 1 PRE-GATE branch: khi .mc-data/ đã tồn tại, rm -rf .mc-data/ (vì $force_flag = true, NOT LEGACY). Toàn bộ pipeline chạy lại từ đầu, không giữ lại data cũ.",
+      "assertions": [
+        {
+          "text": "phase0-detect-route.md Step 0.3: Parse --force flag từ $ARGUMENTS, set force_flag = true",
+          "type": "behavior"
+        },
+        {
+          "text": "phase1-collect-basic.md PRE-GATE Branch: Khi force_flag = true và NOT LEGACY_MODE → xóa .mc-data/ cũ trước khi bắt đầu",
+          "type": "behavior"
+        },
+        {
+          "text": "Pipeline chạy hoàn chỉnh — brainstorm-status.json tạo mới, không có residual state từ lần chạy trước",
+          "type": "behavior"
+        },
+        {
+          "text": "File P0-01-brainstorm.md được tạo thành công sau --force",
+          "type": "file_exists"
+        },
+        {
+          "text": "File .mc-data/work/wf-brainstorm/brainstorm-status.json tồn tại với status = in_progress ban đầu",
+          "type": "file_exists"
+        }
+      ],
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "tôi muốn xây phần mềm quản lý kho",
+      "expected_output": "LEGACY_MODE flow: Phase 0 detect project-context.md > 500 bytes → LEGACY_MODE = true. Phase 0.5 hiển thị project snapshot, hỏi user intent, tạo legacy-decisions.json (BẮT BUỘC). Phase 1-6 chạy với LEGACY_CONTEXT injection vào mọi agent spawn. legacy-decisions.json có module_dispositions (từ user_intent) + divergence_resolutions ([]) + scope_exclusions.",
+      "assertions": [
+        {
+          "text": "phase0-detect-route.md Step 0.1: LEGACY_MODE = true khi test -f .mc-data/work/legacy-scan/project-context.md && size > 500 bytes (CORE-021)",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 0.5 (phase0-5-legacy-snapshot.md) chạy — hiển thị project snapshot, hỏi user intent qua AskUserQuestion",
+          "type": "behavior"
+        },
+        {
+          "text": "File .mc-data/work/wf-brainstorm/legacy-decisions.json được tạo BẮT BUỘC (CORE-022), kể cả khi module_dispositions = []",
+          "type": "file_exists"
+        },
+        {
+          "text": "legacy-decisions.json là valid JSON với các required fields: scan_strategy, module_dispositions, divergence_resolutions, scope_exclusions, user_goals",
+          "type": "file_content"
+        },
+        {
+          "text": "Phase 2-4 agent spawns inject LEGACY_CONTEXT + legacy-decisions.json vào prompt (_shared.md §12)",
+          "type": "behavior"
+        },
+        {
+          "text": "File P0-01-brainstorm.md được tạo thành công trong LEGACY flow",
+          "type": "file_exists"
+        }
+      ],
+      "files": [],
+      "setup_notes": "Pre-condition: .mc-data/work/legacy-scan/project-context.md phải tồn tại > 500 bytes (từ /wf-legacy-scan output)"
+    }
+  ]
+}

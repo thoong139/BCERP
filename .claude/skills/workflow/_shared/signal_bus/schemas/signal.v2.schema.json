@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "signal-v2",
+  "title": "Signal v2",
+  "description": "Finding thô từ 1 probe (input của Signal Bus). Schema v2 extend v1 không breaking (ADR-04).",
+  "type": "object",
+  "required": [
+    "$schema",
+    "probe_id",
+    "probe_version",
+    "emitted_at",
+    "lane",
+    "dimension_id",
+    "target",
+    "description",
+    "evidence"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "signal-v2"
+    },
+    "probe_id": {
+      "type": "string",
+      "pattern": "^P-QD(1[0-1]|[1-9])-[a-z0-9-]+$",
+      "description": "Format: P-QDx-<slug> (x ∈ {1..11}). v9.1: thêm QD11 (business completeness)."
+    },
+    "probe_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[a-z0-9]+)?$"
+    },
+    "emitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lane": {
+      "type": "string",
+      "pattern": "^wf-fix-[a-z]+$"
+    },
+    "dimension_id": {
+      "type": "string",
+      "enum": ["QD1", "QD2", "QD3", "QD4", "QD5", "QD6", "QD7", "QD8", "QD9", "QD10", "QD11"]
+    },
+    "target": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["code", "config", "doc", "runtime", "db-schema", "ui-element"]
+        },
+        "file_path": {
+          "type": "string"
+        },
+        "line_range": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "symbol": {
+          "type": "string",
+          "description": "function/class/component name"
+        },
+        "url": {
+          "type": "string",
+          "description": "cho runtime target"
+        },
+        "selector": {
+          "type": "string",
+          "description": "CSS/XPath cho ui-element target"
+        }
+      }
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Mô tả bug/finding — tiếng Việt có dấu"
+    },
+    "evidence": {
+      "type": "object",
+      "description": "ADR-09: ≥1 field phải non-empty",
+      "properties": {
+        "code_snippet": {
+          "type": ["string", "null"],
+          "minLength": 10
+        },
+        "screenshot_path": {
+          "type": ["string", "null"],
+          "description": "Path relative tới $SESSION_DIR/evidence/"
+        },
+        "log_excerpt": {
+          "type": ["string", "null"],
+          "minLength": 20
+        },
+        "stacktrace": {
+          "type": ["string", "null"],
+          "minLength": 50
+        },
+        "spec_ref": {
+          "type": ["string", "null"],
+          "description": "Path tới phase2-features doc"
+        },
+        "test_failure_ref": {
+          "type": ["string", "null"]
+        },
+        "ci_meta": {
+          "type": ["object", "null"],
+          "description": "Code Intelligence metadata — RECOMMENDED khi GitNexus/Serena available (P2-10). Cho phep auditor truy ngu nguon evidence + danh gia freshness.",
+          "properties": {
+            "gitnexus_used": {
+              "type": "boolean",
+              "description": "True neu signal duoc enrich qua GitNexus MCP tool"
+            },
+            "serena_used": {
+              "type": "boolean",
+              "description": "True neu signal duoc enrich qua Serena MCP tool"
+            },
+            "tools_called": {
+              "type": "array",
+              "items": {"type": "string"},
+              "description": "Danh sach MCP tools da goi (vd: gitnexus_impact, serena_find_referencing_symbols)"
+            },
+            "gitnexus_impact_callers": {
+              "type": ["integer", "null"],
+              "minimum": 0,
+              "description": "So direct callers tu gitnexus_impact"
+            },
+            "serena_refs_count": {
+              "type": ["integer", "null"],
+              "minimum": 0,
+              "description": "So references tu serena_find_referencing_symbols"
+            },
+            "gitnexus_flow": {
+              "type": ["string", "null"],
+              "description": "Process/flow name match tu gitnexus_query"
+            },
+            "freshness_level": {
+              "type": ["string", "null"],
+              "enum": ["ok", "light", "strong", "severe", "unknown", null],
+              "description": "Index freshness tu PRE-GATE (Protocol 20 §20.3)"
+            },
+            "behind_commits": {
+              "type": ["integer", "null"],
+              "minimum": 0,
+              "description": "So commits HEAD ahead of GitNexus index commit"
+            },
+            "freshness_caveat": {
+              "type": ["string", "null"],
+              "description": "Caveat text khi freshness != ok, append vao description khi user-facing"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "anyOf": [
+        {"required": ["code_snippet"], "properties": {"code_snippet": {"type": "string"}}},
+        {"required": ["screenshot_path"], "properties": {"screenshot_path": {"type": "string"}}},
+        {"required": ["log_excerpt"], "properties": {"log_excerpt": {"type": "string"}}},
+        {"required": ["stacktrace"], "properties": {"stacktrace": {"type": "string"}}},
+        {"required": ["spec_ref"], "properties": {"spec_ref": {"type": "string"}}},
+        {"required": ["test_failure_ref"], "properties": {"test_failure_ref": {"type": "string"}}}
+      ]
+    },
+    "suggested_severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "info"],
+      "default": "medium"
+    },
+    "dedup_hints": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Optional — gợi ý thêm về việc nên merge với Signal nào"
+    }
+  },
+  "additionalProperties": true
+}

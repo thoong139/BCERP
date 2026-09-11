@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "fix-impact-v1",
+  "title": "wf-fix-bugs fix-impact.json v1",
+  "description": "Cross-skill artifact produced by wf-fix-bugs Phase 7 (CORE-036). Consumed by wf-verify-sync, wf-prepare-deployment, wf-implement-feature, wf-cmi via --from-fix-bugs flag.",
+
+  "type": "object",
+  "required": ["$schema", "session_id", "generated_at", "pipeline_version", "scope", "profile", "dimensions_run", "audit_chain"],
+  "additionalProperties": true,
+
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "fix-impact-v1",
+      "description": "Schema identifier — consumer validate qua jq -e '.\"$schema\" == \"fix-impact-v1\"'"
+    },
+    "session_id": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9-]+-[0-9]{2}$",
+      "description": "wf-fix-bugs SESSION_ID format YYYY-MM-DD-{scope}-{slug}-{NN}"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp khi fix-impact.json được generate (Phase 7 Step 7.5)"
+    },
+    "pipeline_version": {
+      "type": "string",
+      "description": "wf-fix-bugs version produced this artifact (vd: 10.10.0)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["complete", "partial", "failed"],
+      "default": "complete"
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["all", "system", "module"]
+    },
+    "name": {
+      "type": ["string", "null"],
+      "description": "Scope target name (nếu scope=system|module)"
+    },
+    "profile": {
+      "type": "string",
+      "enum": ["quick", "standard", "deep", "exhaustive"]
+    },
+    "dimensions_run": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^QD[0-9]+$" },
+      "description": "Dimensions thực thi (QD1-QD11)"
+    },
+    "fixed_count": { "type": "integer", "minimum": 0 },
+    "issues_found": { "type": "integer", "minimum": 0 },
+    "signals_found": { "type": "integer", "minimum": 0 },
+    "duration_seconds": { "type": "integer", "minimum": 0 },
+    "ci_tools_used": {
+      "type": "object",
+      "properties": {
+        "gitnexus": { "type": "boolean" },
+        "serena": { "type": "boolean" }
+      }
+    },
+    "playwright_used": { "type": "boolean" },
+    "mobile_devices": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "audit_chain": {
+      "type": "object",
+      "required": ["source", "checksum"],
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Path to source state file (typically $SESSION_DIR/fix-status.json)"
+        },
+        "checksum": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$",
+          "description": "SHA256 hex digest của source file AT FINAL STATE (pre-finalize pattern v10.9.1)"
+        },
+        "checksum_algorithm": {
+          "type": "string",
+          "const": "sha256",
+          "default": "sha256"
+        },
+        "phases_completed": { "type": "integer", "minimum": 0, "maximum": 7 }
+      }
+    }
+  }
+}

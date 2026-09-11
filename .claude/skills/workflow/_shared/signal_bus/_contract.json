@@ -1,0 +1,86 @@
+{
+  "$schema": "shared-module-contract-v1",
+  "module": "signal_bus",
+  "version": "1.0.0",
+  "phase": "phase5-fix",
+  "description": "Signal → Issue normalization bus — nhận Signal thô từ probe, validate evidence (ADR-09), dedup, emit Issue vào $SESSION_DIR/issue-registry.json.",
+  "registry_role": "NONE",
+  "adr_refs": ["ADR-02", "ADR-04", "ADR-09", "ADR-22"],
+  "core_refs": ["CORE-006", "CORE-007", "CORE-012", "CORE-027"],
+  "inputs": [
+    {
+      "name": "signal",
+      "schema": "schemas/signal.v2.schema.json",
+      "kind": "stream",
+      "source": "probes của các QD lane (wf-fix-functional, wf-fix-business, ...)",
+      "required": true
+    },
+    {
+      "name": "existing-issue-registry",
+      "path": "$SESSION_DIR/issue-registry.json",
+      "required": false,
+      "notes": "Nếu tồn tại → load để dedup; nếu không → khởi tạo mới"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "issue-registry",
+      "path": "$SESSION_DIR/issue-registry.json",
+      "schema": "schemas/issue.v2.schema.json",
+      "template": "templates/issue-registry.json",
+      "notes": "Atomic write (tmp + rename). POST-GATE T1-T4 chạy trước khi commit. Template issue-registry-v2 (CORE-031 Protocol 19). Tham chiếu phụ: templates/signal.json (signal-v2 stub cho probe authors)."
+    }
+  ],
+  "entry_points": [
+    {
+      "command": "signal_bus.py ingest --signal-file <path> --session-dir <path> [--dry-run]",
+      "kind": "python-cli",
+      "called_by": "QD lane probes (direct invocation)"
+    },
+    {
+      "command": "signal_bus.py flush --session-dir <path>",
+      "kind": "python-cli",
+      "called_by": "Lane post-processor, /wf-fix-bugs Lane Dispatch"
+    },
+    {
+      "command": "from signal_bus import SignalBus",
+      "kind": "python-import",
+      "called_by": "Python lane code muốn ingest inline"
+    }
+  ],
+  "safety_guarantees": [
+    {
+      "id": "SF-SB-1",
+      "rule": "ADR-09",
+      "description": "Signal không có ≥1 evidence field non-empty → reject với exit code 1 + log `missing-evidence: <probe_id>`",
+      "enforced_in": "signal_bus.py:validate_evidence()",
+      "violation_exit_code": 1
+    },
+    {
+      "id": "SF-SB-2",
+      "rule": "ADR-22 rule 4 (CDG secrets)",
+      "description": "Evidence chứa hint secret/credential/api_key → Issue có triage_status='cdg_required', orchestrator sẽ escalate",
+      "enforced_in": "signal_bus.py:detect_secrets_hint()",
+      "violation_exit_code": 0
+    },
+    {
+      "id": "SF-SB-3",
+      "rule": "ADR-22 rule 5 (POST-GATE)",
+      "description": "Trước khi emit issue-registry.json, chạy T1-T4 check; fail → rollback + escalate orchestrator",
+      "enforced_in": "signal_bus.py:post_gate_check()",
+      "violation_exit_code": 2
+    },
+    {
+      "id": "SF-SB-4",
+      "rule": "ADR-22 rule 2 (Ripple always on)",
+      "description": "Không drop Issue chỉ vì chưa có impact-graph; Ripple là input cho execute Phase 5, không phải filter ở bus",
+      "enforced_in": "signal_bus.py:normalize() (no filtering)",
+      "violation_exit_code": 0
+    }
+  ],
+  "status": "production",
+  "testing": {
+    "current": "tests/test_signal_bus.py 62 cases — ingest, dedup, evidence validation, secret detection, atomic flush, schema validation",
+    "fixtures": "tests/fixtures/ — missing-evidence, duplicate-signals, multi-dim-same-target, secrets-in-code"
+  }
+}

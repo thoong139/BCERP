@@ -1,0 +1,394 @@
+{
+  "skill_name": "wf-fix-execute",
+  "test_cases": [
+    {
+      "id": "E001",
+      "name": "Fix CRITICAL batch + verify pass lan dau",
+      "description": "Fix CRITICAL issues va verify pass ngay o iteration dau tien",
+      "precondition": {
+        "issue_registry": "Co 2 CRITICAL issues (compile_error, type_error), 1 HIGH, 3 MEDIUM",
+        "fix_plan": "Batch plan da set: batch_1=[2 CRITICAL], batch_2=[1 HIGH], batch_3=[3 MEDIUM]",
+        "fix_status": "phases.phase_2.status='completed', flags.dry_run=false"
+      },
+      "expected_behavior": [
+        "Phase 3 Batch 1: developer agent fix 2 CRITICAL (compile_error, type_error)",
+        "fix-log.json co 2 entries sau Batch 1",
+        "Phase 3 Batch 2: developer agent fix 1 HIGH",
+        "Phase 3 Batch 3: lint auto-fix 3 MEDIUM",
+        "Phase 5 VERIFY_SCAN: zero CRITICAL remaining",
+        "Phase 5 VERIFY_EVALUATE: PASS",
+        "Phase 5 VERIFY_FINAL: fix_success_rate = 100%",
+        "issue-registry.json: tat ca issues co verify.verified=true",
+        "POST-GATE: active_skill='wf-fix-bugs', next_action='done'"
+      ],
+      "expected_outputs": [
+        "fix-log.json co entries > 0",
+        "issue-registry.json updated voi fix details + verify results"
+      ],
+      "assertions": [
+        "jq -e '.entries | length == 6' $SESSION_DIR/fix-log.json",
+        "jq -e '[.issues[] | select(.verify.verified==true)] | length == 6' $SESSION_DIR/issue-registry.json",
+        "jq -e '.status == \"completed\"' $SESSION_DIR/fix-status.json",
+        "jq -e '.phases.phase_5.fix_success_rate >= 80' $SESSION_DIR/fix-status.json",
+        "test -s $SESSION_DIR/fix-report.md && grep 'Bug Fix Report' $SESSION_DIR/fix-report.md"
+      ]
+    },
+    {
+      "id": "E002",
+      "name": "Verify loop iteration 2 (CRITICAL van con)",
+      "description": "Phase 5 phai loop-back khi con CRITICAL issues sau verify scan dau tien",
+      "precondition": {
+        "issue_registry": "Co 3 issues da fix (fix details set), nhung 1 CRITICAL van fail verify",
+        "fix_status": "phases.phase_3.status='completed', phases.phase_4.status='completed'",
+        "checkpoint": "Dang o VERIFY_EVALUATE state, iteration=1, 1 CRITICAL status='discovered'"
+      },
+      "expected_behavior": [
+        "VERIFY_EVALUATE: LOOP (co CRITICAL remaining)",
+        "VERIFY_FIX: chay partial Phase 3 chi cho 1 CRITICAL remaining",
+        "fix-log.json: APPEND entry moi (KHONG overwrite entries cu)",
+        "issue-registry.json: UPDATE chi issue CRITICAL remaining",
+        "VERIFY_DOCS: chay delta Phase 4 cho changes tu iteration 2",
+        "VERIFY_RESCAN: re-run scan",
+        "VERIFY_EVALUATE iteration 2: PASS (neu fix thanh cong)",
+        "fix-status.json: phases.phase_5.loop_state.current_iteration = 2"
+      ],
+      "NOT_expected": [
+        "Restart Phase 3 tu Batch 1",
+        "Overwrite fix-log.json entries cu",
+        "Re-initialize issue-registry.json"
+      ],
+      "assertions": [
+        "jq -e '.phases.phase_5.loop_state.current_iteration == 2' $SESSION_DIR/fix-status.json",
+        "jq -e '.entries | length > 0' $SESSION_DIR/fix-log.json",
+        "jq -e '[.issues[] | select(.iteration_history != null)] | length > 0' $SESSION_DIR/issue-registry.json"
+      ]
+    },
+    {
+      "id": "E003",
+      "name": "Resume tu Phase 5 iteration 2",
+      "description": "Resume wf-fix-execute khi bi gian doan trong Phase 5 o iteration 2",
+      "input": "--resume",
+      "precondition": {
+        "fix_status": {
+          "phases": {
+            "phase_2": {
+              "status": "completed"
+            },
+            "phase_3": {
+              "status": "completed"
+            },
+            "phase_4": {
+              "status": "completed"
+            },
+            "phase_5": {
+              "status": "in_progress",
+              "loop_state": {
+                "current_iteration": 2,
+                "state": "VERIFY_FIX",
+                "iteration_history": [
+                  {
+                    "iteration": 1,
+                    "result": "LOOP",
+                    "issues_remaining": 1
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "checkpoint": {
+          "current_phase": "phase_5",
+          "verify_loop_state": {
+            "state": "VERIFY_FIX",
+            "current_iteration": 2
+          }
+        }
+      },
+      "expected_behavior": [
+        "PRE-GATE: doc fix-status.json + issue-registry.json + fix-log.json",
+        "Resume tu VERIFY_FIX state, iteration=2",
+        "KHONG restart tu Phase 3 Batch 1",
+        "KHONG reset fix-log.json",
+        "Tiep tuc VERIFY_FIX → VERIFY_DOCS → VERIFY_RESCAN → VERIFY_EVALUATE",
+        "Hien thi resume summary: 'Dang o Phase 5, iteration 2, state VERIFY_FIX'"
+      ],
+      "assertions": [
+        "jq -e '.phases.phase_5.loop_state.current_iteration >= 2' $SESSION_DIR/fix-status.json",
+        "jq -e '.entries | length > 0' $SESSION_DIR/fix-log.json",
+        "jq -e '.phases.phase_3.status == \"completed\"' $SESSION_DIR/fix-status.json"
+      ]
+    },
+    {
+      "id": "E004",
+      "name": "AGENT_FIX issues o Batch 3 KHONG duoc skip",
+      "description": "Bat buoc: AGENT_FIX issues phai duoc spawn agent, khong skip",
+      "precondition": {
+        "issue_registry": "3 MEDIUM issues: 2 AGENT_FIX (missing_ui component co spec ro), 1 AUTO_FIX (lint)"
+      },
+      "expected_behavior": [
+        "Batch 3: AUTO_FIX (lint) chay PARALLEL voi AGENT_FIX",
+        "AGENT_FIX: frontend-developer agent duoc spawn cho moi issue co spec ro",
+        "fix-log.json: tat ca 3 entries (2 AGENT_FIX + 1 AUTO_FIX)",
+        "KHONG skip bat ky AGENT_FIX issue nao co spec ro"
+      ],
+      "NOT_expected": [
+        "Skip AGENT_FIX issues",
+        "Log AGENT_FIX issues la 'escalated' khi spec da ro"
+      ],
+      "assertions": [
+        "jq -e '.entries | length == 3' $SESSION_DIR/fix-log.json",
+        "jq -e '[.issues[] | select(.status==\"fixed\")] | length == 3' $SESSION_DIR/issue-registry.json"
+      ]
+    },
+    {
+      "id": "E005",
+      "name": "Dry-run mode chi chay Phase 6 (preview)",
+      "description": "flags.dry_run=true → SKIP Phase 3-5, chay day du Phase 6 voi preview metrics tu triage",
+      "precondition": {
+        "issue_registry": "5 issues (1 CRITICAL, 2 HIGH, 2 MEDIUM) — tat ca da triage",
+        "fix_status": "phases.phase_2.status='completed', flags.dry_run=true"
+      },
+      "expected_behavior": [
+        "PRE-GATE: detect $DRY_RUN_MODE = true",
+        "SKIP Phase 3 (khong spawn developer/security agents)",
+        "SKIP Phase 4 (khong update docs/registry)",
+        "SKIP Phase 5 (khong chay verify loop)",
+        "Phase 6: tao fix-report.md voi 'Preview (dry-run)' status",
+        "Phase 6: fix-report.md metrics tu triage only (0 fixed, 5 planned)",
+        "Phase 6: APPEND fix-history.md voi mode='DRY-RUN'",
+        "Phase 6: phase-summary.md status='PREVIEW (dry-run)'",
+        "KHONG modify source code",
+        "KHONG touch req-registry.json",
+        "fix-status.json: status='completed', progress_pct=100"
+      ],
+      "NOT_expected": [
+        "Spawn developer agent",
+        "Modify source files",
+        "Update impl_status trong registry",
+        "fix-log.json entries.length > 0 (phai giu nguyen entries=[])"
+      ],
+      "assertions": [
+        "jq -e '.flags.dry_run == true' $SESSION_DIR/fix-status.json",
+        "jq -e '.entries | length == 0' $SESSION_DIR/fix-log.json",
+        "jq -e '.status == \"completed\"' $SESSION_DIR/fix-status.json",
+        "grep 'Preview.*dry-run' $SESSION_DIR/fix-report.md",
+        "grep 'DRY-RUN' .mc-data/work/wf-fix-bugs/fix-history.md",
+        "grep 'PREVIEW.*dry-run' $SESSION_DIR/phase-summary.md"
+      ]
+    },
+    {
+      "id": "E006",
+      "name": "--deep flag tao stub docs cho orphan UI (Phase 4b)",
+      "description": "flags.deep=true + orphan UI issues → Phase 4b tao stub docs sau CDG user confirm",
+      "precondition": {
+        "issue_registry": "2 fixed issues + 3 orphan UI issues (2 ORPHAN_UI_ACTION, 1 ORPHAN_UI_SCREEN)",
+        "fix_status": "phases.phase_4.sub_phases.phase_4a.status='completed', flags.deep=true",
+        "checkpoint": "partial_state.deep_scan_state.orphan_ui_issues_accumulated co 3 items (CASE 2 — truly orphan)"
+      },
+      "expected_behavior": [
+        "Phase 4b PRE-GATE: flags.deep == true → khong skip",
+        "Phase 4b: load $ORPHAN_UI_ISSUES tu checkpoint.json",
+        "Phase 4b: invalidation logic loai bo CASE 1 (da fix), giu CASE 2 (truly orphan)",
+        "CDG-EXEC-03: hien thi summary '3 UI elements khong co docs' → user confirm 'yes'",
+        "Tao 2 stub feature specs trong phase2-features/[sys]/[mod]/[slug].md (status: stub)",
+        "Tao 1 stub UX doc trong phase4-ux/[sys]/[mod]/screens-[slug].md (status: stub)",
+        "KHONG tao REQ-ID moi, KHONG them features[] vao registry",
+        "fix-status.json: phases.phase_4.sub_phases.phase_4b.status='completed', stubs_created=3"
+      ],
+      "NOT_expected": [
+        "Tao stub khi flags.deep=false",
+        "Them features[] vao req-registry.json",
+        "Overwrite existing docs (chi CREATE stub files moi)",
+        "Skip CDG user confirmation"
+      ],
+      "assertions": [
+        "jq -e '.phases.phase_4.sub_phases.phase_4b.status == \"completed\"' $SESSION_DIR/fix-status.json",
+        "jq -e '.phases.phase_4.sub_phases.phase_4b.stubs_created == 3' $SESSION_DIR/fix-status.json",
+        "grep 'status: stub' .mc-data/docs/phase2-features/[sys]/[mod]/[slug].md",
+        "grep 'needs_review: true' .mc-data/docs/phase4-ux/[sys]/[mod]/screens-[slug].md",
+        "grep 'source: wf-fix-bugs' .mc-data/docs/phase2-features/[sys]/[mod]/[slug].md"
+      ]
+    },
+    {
+      "id": "E007",
+      "name": "Zero issues de fix — Phase 6 report graceful handling",
+      "description": "Khi issue-registry co 0 issues AUTO_FIX/AGENT_FIX (chi ESCALATE/SKIP) → Phase 3-5 near-empty, Phase 6 van chay day du",
+      "precondition": {
+        "issue_registry": "3 issues: tat ca ESCALATE (design_issue, infrastructure_error, orphan_feature)",
+        "fix_status": "phases.phase_2.status='completed', flags.dry_run=false"
+      },
+      "expected_behavior": [
+        "PRE-GATE: detect 0 issues can fix → 'Khong co issues de fix' message",
+        "Phase 3 Batch 1: skip (0 CRITICAL)",
+        "Phase 3 Batch 2: skip (0 HIGH)",
+        "Phase 3 Batch 3: skip (0 MEDIUM/LOW AUTO_FIX/AGENT_FIX)",
+        "Phase 4a: skip (khong behavior_changed entries)",
+        "Phase 4b: skip (flags.deep=false HOAC khong orphan issues)",
+        "Phase 5: VERIFY_INIT → VERIFY_SCAN → VERIFY_EVALUATE → VERIFY_FINAL (PASS, 0 remaining)",
+        "Phase 6: fix-report.md voi 'Issues Fixed: 0', 'Issues Escalated: 3'",
+        "fix-log.json: entries=[] (hoac rong)",
+        "fix-history.md: APPEND dong moi voi Fixed=0, Total=3"
+      ],
+      "NOT_expected": [
+        "Crash hoac block khi 0 issues to fix",
+        "Skip Phase 6 report",
+        "Fail POST-GATE khi fix-log empty"
+      ],
+      "assertions": [
+        "jq -e '.entries | length == 0' $SESSION_DIR/fix-log.json",
+        "jq -e '.status == \"completed\"' $SESSION_DIR/fix-status.json",
+        "jq -e '.progress_pct == 100' $SESSION_DIR/fix-status.json",
+        "grep 'Issues Fixed' $SESSION_DIR/fix-report.md",
+        "grep 'Escalated' $SESSION_DIR/fix-report.md",
+        "test -s $SESSION_DIR/phase-summary.md"
+      ]
+    },
+    {
+      "id": "E008",
+      "name": "iteration-ssot-no-max",
+      "description": "S11 — Iteration Ownership SSOT (S2): Resume Phase 5 phai doc current_iteration tu fix-status.json.phases.phase_5.loop_state.current_iteration only, KHONG dung MAX(checkpoint, fix-status). Backward compat: legacy checkpoint co verify_loop_state.current_iteration → IGNORE.",
+      "precondition": {
+        "fix_status": {
+          "phases": {
+            "phase_5": {
+              "status": "in_progress",
+              "loop_state": {
+                "current_iteration": 3,
+                "state": "VERIFY_FIX",
+                "iteration_history": [
+                  {"iteration": 1, "result": "LOOP", "issues_remaining": 2},
+                  {"iteration": 2, "result": "LOOP", "issues_remaining": 1}
+                ]
+              }
+            }
+          }
+        },
+        "checkpoint_legacy": {
+          "current_phase": "phase_5",
+          "verify_loop_state": {
+            "state": "VERIFY_FIX",
+            "current_iteration": 1
+          }
+        },
+        "context": "Legacy field current_iteration=1 trong checkpoint, fix-status SSOT current_iteration=3. PRE-S2 logic dung MAX → 3, S2 logic dung SSOT → 3. Test verify SSOT logic se ALWAYS chon fix-status, KE CA khi legacy field nho hon."
+      },
+      "expected_behavior": [
+        "PRE-GATE: doc fix-status.json.phases.phase_5.loop_state.current_iteration → 3",
+        "Resume Logic (S2): KHONG goi MAX(), chi doc fix-status SSOT",
+        "Resume tu state=VERIFY_FIX, iteration=3",
+        "Backward compat: legacy verify_loop_state.current_iteration=1 → IGNORE (warn log)",
+        "KHONG restart Phase 3, KHONG reset fix-log.json",
+        "Tiep tuc VERIFY_FIX → VERIFY_DOCS → ... → VERIFY_EVALUATE iteration 3",
+        "Edge case: legacy field LON HON SSOT (=5 vs SSOT=3) → VAN CHON SSOT=3 (NO MAX)"
+      ],
+      "NOT_expected": [
+        "Goi MAX(legacy_iter, ssot_iter) — DA BO o S2",
+        "Restart tu Phase 3 Batch 1",
+        "Reset iteration ve 1",
+        "Crash khi legacy field thieu (graceful: chi dung SSOT)"
+      ],
+      "assertions": [
+        "jq -e '.phases.phase_5.loop_state.current_iteration == 3' $SESSION_DIR/fix-status.json",
+        "jq -e '.phases.phase_5.loop_state.state == \"VERIFY_FIX\"' $SESSION_DIR/fix-status.json",
+        "test -s $SESSION_DIR/fix-log.json && jq -e '.entries | length > 0' $SESSION_DIR/fix-log.json",
+        "Phase 5 resume log message: 'iteration=3 (SSOT: fix-status.phases.phase_5.loop_state.current_iteration)'",
+        "Edge: legacy=5, SSOT=3 → resume tai iteration=3 (NOT 5)",
+        "Acceptance: S2 SSOT verified — F2 covered"
+      ]
+    },
+    {
+      "id": "E010",
+      "name": "F26 regression: CQG schema realistic + fallback (V71-E02)",
+      "description": "Regression test cho F26 hotfix v7.0.1. Truoc fix: wf-fix-cqg-verify.sh doc entries[].fix_status hoac entries[].status — ca 2 fields KHONG ton tai trong schema fix-log-v1 -> ACTUAL_FIXED luon = 0 -> moi run thuc te fail POST-GATE E001. Sau fix (Option A+B): primary count length(entries) (1-to-1 voi fixed issues per batch3 §3.4), fallback count tu issue-registry voi fix_status=fixed khi entries rong. Deferred KHONG duoc count vao fixed.",
+      "type": "executable",
+      "test_script": ".claude/skills/workflow/wf-fix-execute/evals/v71-e02-cqg-realistic-schema.test.sh",
+      "script_under_test": ".claude/scripts/wf-fix-cqg-verify.sh",
+      "sub_tests": [
+        {
+          "id": "E010-sub1",
+          "name": "Realistic schema (entries non-empty)",
+          "precondition": {
+            "fix_log": "2 entries theo schema fix-log-v1 (entry_id, issue_id, batch, iteration, agent, files_modified, summary, timestamp — KHONG co fix_status)",
+            "issue_registry": "2 issues fix_status='fixed'",
+            "fix_report": "Fixed: 2, Files modified: 3, Coverage: 100%"
+          },
+          "expected": {
+            "actual_fixed": 2,
+            "source": "length(entries)",
+            "passed": true,
+            "tolerance_pct": 5
+          }
+        },
+        {
+          "id": "E010-sub2",
+          "name": "Fallback (entries empty -> registry, deferred excluded)",
+          "precondition": {
+            "fix_log": "entries: []",
+            "issue_registry": "2 issues fix_status='fixed' + 1 issue fix_status='deferred'",
+            "fix_report": "Fixed: 2, Files modified: 0, Coverage: 66.67%"
+          },
+          "expected": {
+            "actual_fixed": 2,
+            "source": "registry fallback (deferred excluded)",
+            "passed": true,
+            "boundary_check": "deferred MUST NOT be counted",
+            "tolerance_pct": 5
+          }
+        }
+      ],
+      "assertions": [
+        "Test script exit 0 (ca 2 sub-tests pass)",
+        "Sub-test 1: jq '.metrics[] | select(.metric==\"issues_fixed_count\") | .actual_value' cqg-verify.json == 2",
+        "Sub-test 1: jq '.passed' cqg-verify.json == true",
+        "Sub-test 2: actual_fixed = 2 (KHONG count deferred ISS-003)",
+        "Sub-test 2: passed = true",
+        "F26 fix verified: scripts/wf-fix-cqg-verify.sh:94 dung length(entries), line 96-98 fallback select(fix_status=='fixed')"
+      ],
+      "status": "executable_pass_2026_04_28"
+    },
+    {
+      "id": "E009",
+      "name": "phase-4-docs-crossref-fail",
+      "description": "S11 — Phase 4a docs-sync hook (S8): wf-fix-execute claim cap nhat .mc-data/docs/phase2-features/[sys]/[mod]/[feat].md nhung git diff KHONG co changes → wf-fix-docs-crossref.sh detect mismatch + status=warning (soft warn, exit 0). KHONG block POST-GATE.",
+      "precondition": {
+        "claimed_docs_updated": [
+          ".mc-data/docs/phase2-features/crm/customer/CUST-001.md",
+          ".mc-data/docs/phase2-features/crm/customer/CUST-002.md"
+        ],
+        "git_diff_actual": [
+          ".mc-data/docs/phase2-features/crm/customer/CUST-001.md"
+        ],
+        "context": "Claim 2 docs updated, git diff chi 1 → mismatch CUST-002.md (claimed nhung khong co diff). Soft warn: bao user nhung KHONG block."
+      },
+      "expected_behavior": [
+        "Phase 4a hook: chay wf-fix-docs-crossref.sh sau khi claim docs updated",
+        "Script doc fix-log.json + git diff --name-only HEAD",
+        "Bidirectional check:",
+        "  (a) Claimed in fix-log nhung KHONG in git diff → mismatch type='missing_git_diff'",
+        "  (b) In git diff nhung KHONG claim → mismatch type='untracked_modification'",
+        "Output docs-sync-report.json: mismatches=[{path: 'CUST-002.md', type: 'missing_git_diff'}]",
+        "status='warning' (1+ mismatch nhung soft warn)",
+        "Exit code 0 (soft warn, KHONG block POST-GATE)",
+        "WARN log: 'Docs sync mismatch detected: 1 file(s) claimed but not in git diff'",
+        "Phase 4a CONTINUE → Phase 5"
+      ],
+      "NOT_expected": [
+        "Block Phase 4a → Phase 5 transition",
+        "Exit code != 0 (chi WARN, KHONG fail)",
+        "POST-GATE FAIL (status=warning != failed)",
+        "Render CDG (chi WARN, khong CDG)"
+      ],
+      "assertions": [
+        "test -s $SESSION_DIR/docs-sync-report.json",
+        "jq -e '.status == \"warning\"' $SESSION_DIR/docs-sync-report.json",
+        "jq -e '.mismatches | length > 0' $SESSION_DIR/docs-sync-report.json",
+        "jq -e '.mismatches[0].type == \"missing_git_diff\"' $SESSION_DIR/docs-sync-report.json",
+        "jq -e '.mismatches[0].path | endswith(\"CUST-002.md\")' $SESSION_DIR/docs-sync-report.json",
+        "Exit code: 0 (soft warn)",
+        "Phase 5 chay sau Phase 4a (no block)",
+        "Edge: git unavailable → graceful skip, status='skipped' + exit 0",
+        "Acceptance: S8 docs-sync soft warn verified — G3 covered"
+      ]
+    }
+  ]
+}

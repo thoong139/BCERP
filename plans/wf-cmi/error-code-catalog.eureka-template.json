@@ -1,0 +1,635 @@
+{
+  "$schema": "error-code-catalog-v1",
+  "project": "EUREKA-2026",
+  "version": "1.0.0-template",
+  "last_updated": "2026-05-16",
+  "description": "Template SSOT cho CD39 (Error UX & Recovery). Map error code → message tiếng Việt + recovery action + UI presentation + retry policy. Mọi error backend ném ra PHẢI có entry trong catalog này. Người chạy /wf-cmi cần copy file này vào .mc-data/docs/_meta/ và điều chỉnh theo thực tế project.",
+  "_template_notes": "PHẢI xóa các field bắt đầu bằng _ trước khi commit. Đây là TEMPLATE — không phải runtime config.",
+
+  "_instructions": {
+    "how_to_use": "1) Copy file này vào .mc-data/docs/_meta/error-code-catalog.json. 2) Strip metadata. 3) Update theo errors backend ném ra (Result<T> pattern + exception types). 4) Chạy /wf-cmi --dims=CD39 để verify.",
+    "default_behavior": "Error code KHÔNG declare → backend trả raw exception message (xấu cho user). Frontend KHÔNG có UX recovery cho error đó. → ORPHAN_ERROR (severity HIGH).",
+    "code_format": "Format chuẩn: {MODULE}_{CATEGORY}_{NUMBER}. Ví dụ: CRM_VALIDATION_001, FINANCE_TAX_AUTHORITY_TIMEOUT, TMS_CARRIER_TIMEOUT."
+  },
+
+  "config": {
+    "error_code_format": "{MODULE}_{CATEGORY}_{NUMBER}",
+    "error_code_regex": "^[A-Z][A-Z_]+_[A-Z][A-Z_]+_\\d{3,4}$",
+    "default_severity": "ERROR",
+    "default_recovery_action": "contact_support",
+    "default_retry_max": 3,
+    "default_retry_backoff_seconds": [1, 5, 15],
+    "require_vi_message": true,
+    "require_recovery_action": true,
+    "_comment_format": "MODULE = uppercase module name (CRM, FINANCE, TMS...). CATEGORY = VALIDATION, BUSINESS, EXTERNAL, NETWORK, AUTH..."
+  },
+
+  "categories": {
+    "description": "Error categories với UX presentation pattern.",
+
+    "VALIDATION": {
+      "description": "Lỗi validation input (form, query)",
+      "default_ui_pattern": "inline_field_error",
+      "default_severity": "WARN",
+      "default_recovery": "fix_input",
+      "_comment": "Hiển thị inline dưới field bị lỗi"
+    },
+
+    "BUSINESS": {
+      "description": "Lỗi business rule (vd: invoice cannot edit after issue)",
+      "default_ui_pattern": "modal_error",
+      "default_severity": "ERROR",
+      "default_recovery": "user_decision_required",
+      "_comment": "Modal blocking, giải thích lý do + suggest alternative"
+    },
+
+    "AUTHORIZATION": {
+      "description": "Lỗi RBAC (permission denied)",
+      "default_ui_pattern": "toast_error_with_redirect",
+      "default_severity": "ERROR",
+      "default_recovery": "contact_admin",
+      "_comment": "Toast + redirect tới page có quyền"
+    },
+
+    "AUTHENTICATION": {
+      "description": "Lỗi auth (session expired, invalid token)",
+      "default_ui_pattern": "modal_login_redirect",
+      "default_severity": "ERROR",
+      "default_recovery": "login_again"
+    },
+
+    "EXTERNAL_SERVICE": {
+      "description": "Lỗi external API (carrier, customs, payment gateway, tax authority)",
+      "default_ui_pattern": "toast_warning_with_retry",
+      "default_severity": "WARN",
+      "default_recovery": "retry_with_backoff",
+      "_comment": "Thường transient — auto retry trước khi báo user"
+    },
+
+    "NETWORK": {
+      "description": "Lỗi mạng (offline, timeout, DNS)",
+      "default_ui_pattern": "snackbar_with_retry",
+      "default_severity": "WARN",
+      "default_recovery": "retry_manual",
+      "_comment": "Đặc biệt cho mobile-staff offline mode"
+    },
+
+    "DATA_CONFLICT": {
+      "description": "Concurrent modification (optimistic locking)",
+      "default_ui_pattern": "modal_conflict_resolution",
+      "default_severity": "WARN",
+      "default_recovery": "reload_and_retry"
+    },
+
+    "RATE_LIMIT": {
+      "description": "Rate limit exceeded",
+      "default_ui_pattern": "toast_warning_with_countdown",
+      "default_severity": "WARN",
+      "default_recovery": "wait_and_retry"
+    },
+
+    "INFRASTRUCTURE": {
+      "description": "Lỗi infrastructure (DB down, cache miss, queue full)",
+      "default_ui_pattern": "modal_system_error",
+      "default_severity": "CRITICAL",
+      "default_recovery": "contact_support"
+    },
+
+    "COMPLIANCE": {
+      "description": "Lỗi compliance block (vd: tờ khai bị reject by VNACCS)",
+      "default_ui_pattern": "panel_compliance_error_with_steps",
+      "default_severity": "ERROR",
+      "default_recovery": "fix_and_resubmit",
+      "_comment": "Hiển thị reason + action steps rõ ràng"
+    }
+  },
+
+  "error_codes": {
+    "description": "Catalog 50+ error codes EUREKA. Phân theo module.",
+
+    "CRM": [
+      {
+        "code": "CRM_VALIDATION_001",
+        "category": "VALIDATION",
+        "http_status": 422,
+        "message_vi": "Mã số thuế không hợp lệ. Phải có 10 hoặc 13 chữ số.",
+        "message_en": "Invalid tax code. Must be 10 or 13 digits.",
+        "recovery_action": "fix_input",
+        "field_hint": "TaxCode"
+      },
+      {
+        "code": "CRM_VALIDATION_002",
+        "category": "VALIDATION",
+        "http_status": 422,
+        "message_vi": "Email không hợp lệ.",
+        "message_en": "Invalid email format.",
+        "recovery_action": "fix_input",
+        "field_hint": "Email"
+      },
+      {
+        "code": "CRM_BUSINESS_001",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Khách hàng này đã tồn tại với mã số thuế {tax_code}.",
+        "message_en": "Customer already exists with tax code {tax_code}.",
+        "recovery_action": "navigate_to_existing",
+        "navigate_to": "/customer/{existing_id}",
+        "navigate_label_vi": "Xem khách hàng đã có"
+      },
+      {
+        "code": "CRM_BUSINESS_002",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Không thể xóa khách hàng có đơn hàng đang xử lý.",
+        "message_en": "Cannot delete customer with open orders.",
+        "recovery_action": "user_decision_required",
+        "actions": [
+          {"label_vi": "Xem đơn hàng đang mở", "navigate_to": "/orders?customer={id}&status=open"},
+          {"label_vi": "Chỉ đánh dấu inactive", "endpoint": "PATCH /api/v1/crm/customers/{id}/status"}
+        ]
+      },
+      {
+        "code": "CRM_AUTHORIZATION_001",
+        "category": "AUTHORIZATION",
+        "http_status": 403,
+        "message_vi": "Bạn không có quyền sửa khách hàng này. Liên hệ trưởng nhóm để được cấp quyền crm.customer.update.",
+        "recovery_action": "contact_admin"
+      }
+    ],
+
+    "FINANCE": [
+      {
+        "code": "FINANCE_BUSINESS_001",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Hóa đơn đã phát hành, không thể sửa. Vui lòng tạo hóa đơn điều chỉnh.",
+        "recovery_action": "user_decision_required",
+        "actions": [
+          {"label_vi": "Tạo HĐ điều chỉnh", "endpoint": "POST /api/v1/finance/invoices/{id}/credit-note"}
+        ],
+        "compliance_tags": ["VN-TT78-eInvoice"]
+      },
+      {
+        "code": "FINANCE_BUSINESS_002",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Kỳ kế toán này đã được khóa. Liên hệ trưởng phòng tài chính.",
+        "recovery_action": "contact_admin"
+      },
+      {
+        "code": "FINANCE_TAX_AUTHORITY_TIMEOUT",
+        "category": "EXTERNAL_SERVICE",
+        "http_status": 504,
+        "message_vi": "Cơ quan thuế không phản hồi. Hóa đơn được lưu ở trạng thái 'Chờ cơ quan thuế'. Hệ thống sẽ tự động retry trong 5 phút.",
+        "recovery_action": "auto_retry_with_status_update",
+        "retry_max": 5,
+        "retry_backoff_seconds": [60, 300, 900, 1800, 3600],
+        "compliance_tags": ["VN-TT78-eInvoice"]
+      },
+      {
+        "code": "FINANCE_TAX_AUTHORITY_REJECT",
+        "category": "COMPLIANCE",
+        "http_status": 422,
+        "message_vi": "Cơ quan thuế từ chối: {reason}. Vui lòng sửa và phát hành lại.",
+        "recovery_action": "fix_and_resubmit",
+        "must_show_rejection_reason": true,
+        "must_preserve_form_data": true
+      },
+      {
+        "code": "FINANCE_PAYMENT_GATEWAY_DOWN",
+        "category": "EXTERNAL_SERVICE",
+        "http_status": 503,
+        "message_vi": "Cổng thanh toán đang bảo trì. Vui lòng thử lại sau hoặc ghi nhận thủ công.",
+        "recovery_action": "fallback_manual",
+        "actions": [
+          {"label_vi": "Ghi nhận thủ công", "endpoint": "POST /api/v1/finance/payments/manual"}
+        ]
+      }
+    ],
+
+    "TMS": [
+      {
+        "code": "TMS_CARRIER_TIMEOUT",
+        "category": "EXTERNAL_SERVICE",
+        "http_status": 504,
+        "message_vi": "Hãng tàu {carrier_name} không phản hồi sau 24h. Booking chuyển sang trạng thái 'Cần xác nhận thủ công'.",
+        "recovery_action": "transition_to_manual_state",
+        "ui_pattern": "status_badge_with_action",
+        "actions": [
+          {"label_vi": "Xác nhận thủ công", "endpoint": "POST /api/v1/tms/bookings/{id}/manual-confirm-carrier"}
+        ]
+      },
+      {
+        "code": "TMS_TARIFF_NOT_FOUND",
+        "category": "BUSINESS",
+        "http_status": 404,
+        "message_vi": "Không tìm thấy biểu phí cho tuyến {origin} → {destination} vào ngày {date}.",
+        "recovery_action": "user_decision_required",
+        "actions": [
+          {"label_vi": "Liên hệ KD để báo giá", "endpoint": "POST /api/v1/quotation/quotes"},
+          {"label_vi": "Tạo biểu phí mới", "navigate_to": "/admin/tariff/new", "permission": "tms.tariff.create"}
+        ]
+      },
+      {
+        "code": "TMS_CONTAINER_MISMATCH",
+        "category": "VALIDATION",
+        "http_status": 422,
+        "message_vi": "Loại container {container_type} không phù hợp với hàng hóa {hs_code}. Hàng nguy hiểm cần container reefer.",
+        "recovery_action": "fix_input",
+        "field_hint": "ContainerType"
+      }
+    ],
+
+    "CUSTOMS": [
+      {
+        "code": "CUSTOMS_HS_CODE_INVALID",
+        "category": "VALIDATION",
+        "http_status": 422,
+        "message_vi": "HS Code không hợp lệ. VN cần 8 chữ số, CN cần 10 chữ số.",
+        "recovery_action": "fix_input",
+        "field_hint": "HSCode",
+        "compliance_tags": ["VN-VNACCS", "CN-H2010"]
+      },
+      {
+        "code": "CUSTOMS_VNACCS_DOWN",
+        "category": "EXTERNAL_SERVICE",
+        "http_status": 503,
+        "message_vi": "Hệ thống VNACCS đang bảo trì. Tờ khai được lưu nháp, vui lòng gửi lại sau 30 phút.",
+        "recovery_action": "save_draft_and_retry",
+        "retry_max": 5,
+        "retry_backoff_seconds": [1800, 1800, 3600, 7200, 14400]
+      },
+      {
+        "code": "CUSTOMS_DECLARATION_REJECTED",
+        "category": "COMPLIANCE",
+        "http_status": 422,
+        "message_vi": "Tờ khai bị cơ quan hải quan từ chối với lý do: {rejection_reason}. Mã lỗi VNACCS: {vnaccs_error_code}.",
+        "recovery_action": "fix_and_resubmit",
+        "must_show_rejection_reason": true,
+        "must_preserve_form_data": true,
+        "ui_pattern": "panel_compliance_error_with_steps"
+      },
+      {
+        "code": "CUSTOMS_DUPLICATE_DECLARATION",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Tờ khai cho lô hàng này đã tồn tại với số {existing_declaration_number}.",
+        "recovery_action": "navigate_to_existing",
+        "navigate_to": "/customs/declarations/{existing_id}"
+      }
+    ],
+
+    "ORDERS": [
+      {
+        "code": "ORDERS_CUSTOMER_INACTIVE",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Khách hàng {customer_name} không active. Không thể tạo đơn hàng mới.",
+        "recovery_action": "user_decision_required"
+      },
+      {
+        "code": "ORDERS_CREDIT_LIMIT_EXCEEDED",
+        "category": "BUSINESS",
+        "http_status": 409,
+        "message_vi": "Khách hàng đã vượt hạn mức tín dụng ({current_debt} {currency} / {limit} {currency}). Yêu cầu duyệt từ trưởng phòng.",
+        "recovery_action": "request_approval",
+        "actions": [
+          {"label_vi": "Gửi yêu cầu duyệt vượt hạn mức", "endpoint": "POST /api/v1/approval/requests"}
+        ]
+      }
+    ],
+
+    "AUTH": [
+      {
+        "code": "AUTH_SESSION_EXPIRED",
+        "category": "AUTHENTICATION",
+        "http_status": 401,
+        "message_vi": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+        "recovery_action": "login_again",
+        "ui_pattern": "modal_login_redirect"
+      },
+      {
+        "code": "AUTH_INVALID_CREDENTIALS",
+        "category": "AUTHENTICATION",
+        "http_status": 401,
+        "message_vi": "Tên đăng nhập hoặc mật khẩu không đúng.",
+        "recovery_action": "retry_manual",
+        "rate_limit": {"max_attempts": 5, "window_minutes": 15, "lockout_minutes": 30}
+      },
+      {
+        "code": "AUTH_MFA_REQUIRED",
+        "category": "AUTHENTICATION",
+        "http_status": 401,
+        "message_vi": "Vui lòng nhập mã xác thực 2 lớp.",
+        "recovery_action": "show_mfa_input"
+      },
+      {
+        "code": "AUTH_ACCOUNT_LOCKED",
+        "category": "AUTHENTICATION",
+        "http_status": 423,
+        "message_vi": "Tài khoản đã bị khóa do nhập sai nhiều lần. Liên hệ admin để mở khóa.",
+        "recovery_action": "contact_admin"
+      }
+    ],
+
+    "INFRASTRUCTURE": [
+      {
+        "code": "INFRA_DB_CONNECTION_FAILED",
+        "category": "INFRASTRUCTURE",
+        "http_status": 503,
+        "message_vi": "Hệ thống đang gặp sự cố kết nối CSDL. Đội kỹ thuật đang xử lý.",
+        "recovery_action": "wait_and_retry",
+        "retry_after_seconds": 60
+      },
+      {
+        "code": "INFRA_CACHE_DOWN",
+        "category": "INFRASTRUCTURE",
+        "http_status": 503,
+        "message_vi": "Hệ thống cache không khả dụng. Hiệu năng có thể chậm hơn bình thường.",
+        "recovery_action": "degraded_mode_continue"
+      },
+      {
+        "code": "INFRA_RATE_LIMIT",
+        "category": "RATE_LIMIT",
+        "http_status": 429,
+        "message_vi": "Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng đợi {retry_after_seconds} giây.",
+        "recovery_action": "wait_and_retry",
+        "ui_pattern": "toast_warning_with_countdown"
+      }
+    ],
+
+    "DATA": [
+      {
+        "code": "DATA_CONFLICT_OPTIMISTIC_LOCK",
+        "category": "DATA_CONFLICT",
+        "http_status": 409,
+        "message_vi": "Dữ liệu này vừa được người khác cập nhật. Tải lại để xem thay đổi mới nhất.",
+        "recovery_action": "reload_and_retry",
+        "actions": [
+          {"label_vi": "Tải lại", "client_action": "reload_form"},
+          {"label_vi": "Ghi đè (cẩn thận)", "client_action": "force_save", "requires_confirmation": true}
+        ]
+      }
+    ],
+
+    "GENERIC": [
+      {
+        "code": "GENERIC_UNEXPECTED",
+        "category": "INFRASTRUCTURE",
+        "http_status": 500,
+        "message_vi": "Lỗi không mong muốn. Mã lỗi: {correlation_id}. Liên hệ hỗ trợ kèm mã lỗi.",
+        "recovery_action": "contact_support",
+        "must_include_correlation_id": true
+      }
+    ]
+  },
+
+  "recovery_actions": {
+    "description": "Định nghĩa recovery actions chuẩn.",
+
+    "fix_input": {
+      "description": "User sửa input + retry",
+      "ui_pattern": "inline_field_error",
+      "auto_retry": false
+    },
+
+    "fix_and_resubmit": {
+      "description": "User sửa form + submit lại, giữ data trước đó",
+      "ui_pattern": "panel_error_with_form_preserved",
+      "must_preserve_form_data": true,
+      "auto_retry": false
+    },
+
+    "retry_manual": {
+      "description": "User click button retry",
+      "ui_pattern": "toast_with_retry_button",
+      "auto_retry": false
+    },
+
+    "retry_with_backoff": {
+      "description": "System auto retry với exponential backoff",
+      "auto_retry": true,
+      "retry_max": 3,
+      "retry_backoff_seconds": [1, 5, 15]
+    },
+
+    "auto_retry_with_status_update": {
+      "description": "System tự retry + update entity status để user theo dõi",
+      "auto_retry": true,
+      "ui_pattern": "status_badge_pending_retry"
+    },
+
+    "wait_and_retry": {
+      "description": "User đợi countdown rồi retry",
+      "ui_pattern": "snackbar_countdown",
+      "auto_retry": false
+    },
+
+    "login_again": {
+      "description": "Redirect login",
+      "ui_pattern": "modal_login_redirect",
+      "preserve_url_for_redirect": true
+    },
+
+    "contact_admin": {
+      "description": "Hiển thị contact link admin tenant",
+      "ui_pattern": "modal_with_admin_contact"
+    },
+
+    "contact_support": {
+      "description": "Liên hệ support EUREKA + kèm correlation_id",
+      "ui_pattern": "modal_with_support_link",
+      "must_include_correlation_id": true
+    },
+
+    "navigate_to_existing": {
+      "description": "Navigate tới resource đã có",
+      "ui_pattern": "modal_with_navigate_button"
+    },
+
+    "user_decision_required": {
+      "description": "Hiển thị options cho user chọn",
+      "ui_pattern": "modal_with_action_choices"
+    },
+
+    "reload_and_retry": {
+      "description": "Reload form từ server + retry",
+      "ui_pattern": "modal_conflict_resolution"
+    },
+
+    "save_draft_and_retry": {
+      "description": "Save state local + retry sau",
+      "auto_retry": true,
+      "ui_pattern": "toast_with_draft_saved_notice"
+    },
+
+    "fallback_manual": {
+      "description": "Fallback sang flow thủ công",
+      "ui_pattern": "modal_with_fallback_option"
+    },
+
+    "degraded_mode_continue": {
+      "description": "Tiếp tục với degraded mode (warning bar)",
+      "ui_pattern": "page_top_warning_bar"
+    },
+
+    "transition_to_manual_state": {
+      "description": "Move entity tới state require manual user action",
+      "ui_pattern": "status_badge_with_action"
+    },
+
+    "request_approval": {
+      "description": "Tạo approval request",
+      "ui_pattern": "modal_with_approval_request_form"
+    }
+  },
+
+  "ui_patterns": {
+    "description": "UI rendering patterns cho mỗi loại error.",
+
+    "inline_field_error": {
+      "component": "<FieldError />",
+      "location": "Below field",
+      "color": "red-500",
+      "icon": "alert-circle"
+    },
+
+    "toast_error": {
+      "component": "<Toast variant='error' />",
+      "location": "Top-right",
+      "duration_seconds": 5,
+      "color": "red-500"
+    },
+
+    "toast_warning_with_retry": {
+      "component": "<Toast variant='warning' action='retry' />",
+      "duration_seconds": 8,
+      "color": "yellow-500"
+    },
+
+    "modal_error": {
+      "component": "<Dialog variant='error' />",
+      "blocking": true,
+      "color": "red-500"
+    },
+
+    "modal_conflict_resolution": {
+      "component": "<ConflictDialog />",
+      "blocking": true,
+      "show_diff": true
+    },
+
+    "modal_login_redirect": {
+      "component": "<LoginRedirectDialog />",
+      "blocking": true,
+      "auto_dismiss_after_login": true
+    },
+
+    "panel_compliance_error_with_steps": {
+      "component": "<CompliancePanel />",
+      "location": "Top of form",
+      "show_steps": true,
+      "color": "red-500"
+    },
+
+    "snackbar_with_retry": {
+      "component": "<Snackbar action='retry' />",
+      "location": "Bottom"
+    },
+
+    "snackbar_countdown": {
+      "component": "<SnackbarCountdown />",
+      "location": "Bottom",
+      "show_countdown": true
+    },
+
+    "status_badge_pending_retry": {
+      "component": "<StatusBadge status='pending-retry' />",
+      "show_attempt_count": true
+    },
+
+    "page_top_warning_bar": {
+      "component": "<WarningBar />",
+      "location": "Top of page",
+      "color": "yellow-100"
+    }
+  },
+
+  "validation_rules": {
+    "description": "Top-level rules cho CD39.",
+    "rules": [
+      {
+        "id": "RULE-CD39-001",
+        "name": "error_code_format_valid",
+        "description": "Error code PHẢI match regex format",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD39-002",
+        "name": "every_thrown_error_in_catalog",
+        "description": "Mọi error code backend ném ra PHẢI có entry trong catalog. Không có → ORPHAN_ERROR",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD39-003",
+        "name": "vi_message_required",
+        "description": "Mọi error code PHẢI có message_vi (tiếng Việt)",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD39-004",
+        "name": "recovery_action_declared",
+        "description": "Mọi error code PHẢI có recovery_action declared",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD39-005",
+        "name": "fe_handler_implemented",
+        "description": "Error code có ui_pattern declared → FE PHẢI có component implementation tương ứng",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD39-006",
+        "name": "must_preserve_form_data_implemented",
+        "description": "Error có must_preserve_form_data=true → FE handler PHẢI restore form values từ local state",
+        "severity": "CRITICAL"
+      },
+      {
+        "id": "RULE-CD39-007",
+        "name": "correlation_id_logged",
+        "description": "Error có must_include_correlation_id=true → response PHẢI có correlation_id field",
+        "severity": "HIGH"
+      },
+      {
+        "id": "RULE-CD39-008",
+        "name": "i18n_keys_present",
+        "description": "FE i18n PHẢI có key tương ứng cho error.code + message",
+        "severity": "MEDIUM"
+      }
+    ]
+  },
+
+  "exclusions": {
+    "description": "Errors explicitly excluded từ CD39 check.",
+    "code_exclusions": [
+      {"code_pattern": "DEBUG_*", "reason": "Debug errors, không user-facing"},
+      {"code_pattern": "TEST_*", "reason": "Test fixtures only"}
+    ]
+  },
+
+  "_appendix": {
+    "_changelog": [
+      {
+        "version": "1.0.0-template",
+        "date": "2026-05-16",
+        "changes": "Initial template cho EUREKA-2026. ~35 error codes phân theo 10 categories + 16 recovery actions + 11 UI patterns."
+      }
+    ],
+    "_references": [
+      ".claude/skills/workflow/wf-cmi/SKILL.md (CD39 spec)",
+      "EUREKA-2026/apps/backend/Eureka.Common/Result.cs",
+      "EUREKA-2026/apps/erp-web/lib/i18n/errors/"
+    ],
+    "_maintenance": "Update khi: (a) thêm error code mới (b) đổi recovery action (c) đổi message tiếng Việt. Auto-extract từ Result<T> error codes + IExceptionToErrorCode mapping ở Application layer."
+  }
+}
