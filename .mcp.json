@@ -1,11 +1,11 @@
 {
   "mcpServers": {
-    "gitnexus": {
-      "command": "npx",
+    "codegraph": {
+      "type": "stdio",
+      "command": "codegraph",
       "args": [
-        "-y",
-        "gitnexus@latest",
-        "mcp"
+        "serve",
+        "--mcp"
       ]
     }
   }

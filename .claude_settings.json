@@ -27,6 +27,7 @@
       "NotebookEdit(*)",
       "mcp__cc-workflow-studio__*",
       "mcp__mcv3-project-memory__*",
+      "mcp__codegraph__*",
       "mcp__plugin_context7_context7__resolve-library-id",
       "mcp__plugin_context7_context7__query-docs"
     ],
@@ -66,6 +67,7 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "cc-workflow-studio",
-    "mcv3-project-memory"
+    "mcv3-project-memory",
+    "codegraph"
   ]
 }
