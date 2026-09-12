@@ -5,27 +5,17 @@ last_updated: 2026-09-12
 description: |
   Kiểm tra chất lượng output của một workflow skill đã chạy — so sánh kết quả thực tế
   với thiết kế trong SKILL.md. Phát hiện lỗi, thiếu sót, sai schema, sai template.
-
-  v1.8.0 — Bug fixes + improvements:
-  - FIX: D8 detection dùng output path (không phải template path — template luôn tồn tại)
-  - FIX: Verdict logic — structural CRITICAL luôn ưu tiên, kể cả khi D4+D5 fail
-  - FIX: Auto-fix safety gate — KHÔNG sửa files trong .claude/ (chỉ flag + ESCALATE)
-  - IMPROVE: _shared.md re-load trigger trong --all mode (context recovery)
-  - IMPROVE: D6 POST-GATE extraction dùng grep-first (tránh context explosion)
-  - IMPROVE: D3.7 partial count checks cho wf-design + wf-plan-modules
-  - IMPROVE: D4 subagent prompt có scoring rubric chi tiết
-  - IMPROVE: Templates tiếng Việt có dấu + D2 section dynamic (không hardcode)
-  - IMPROVE: Evals updated v1.8.0 + 3 new eval cases (autofix, grep-first, partial checks)
-  - DOCS: Cross-skill overlap documentation + integration notes
+  v1.8.0: D8 detect theo output path; structural CRITICAL ưu tiên verdict; auto-fix
+  KHÔNG sửa .claude/; D6 grep-first; D3.7 partial checks; D4 rubric; evals +3 cases.
 
   TRIGGER khi:
   - User vừa chạy xong một /wf-* skill và muốn kiểm tra chất lượng
   - User nói: "kiểm tra kết quả", "audit output", "kiểm tra chất lượng phase"
-  - User hỏi: "skill chạy đúng chưa", "output có đúng không", "review kết quả"
-  - Giữa các phiên làm việc, user muốn đảm bảo output phase trước vẫn hợp lệ
+  - User hỏi: "skill chạy đúng chưa", "output có đúng không"
+  - Giữa phiên: đảm bảo output phase trước vẫn hợp lệ
   - Keywords: "audit output", "quality check", "kiểm tra output", "review phase"
 
-  LUÔN trigger khi user cần kiểm chứng chất lượng output của bất kỳ workflow skill nào.
+  LUÔN trigger khi cần kiểm chứng chất lượng output workflow skill.
 
   KHÔNG trigger khi:
   - Kiểm tra cấu trúc DEVKIT → dùng /audit-devkit

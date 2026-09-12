@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-migrate-module",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "phase": "standalone",
   "description": "Orchestrator di chuyen chuc nang tu he thong cu sang he thong moi EUREKA — tu scan docs den code hoat dong, day du, tuong thich.",
   "procedures": [

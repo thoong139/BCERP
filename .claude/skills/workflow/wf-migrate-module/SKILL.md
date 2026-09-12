@@ -1,9 +1,9 @@
 ---
 name: wf-migrate-module
-version: 1.1.0
-last_updated: 2026-05-11
+version: 1.1.1
+last_updated: 2026-09-12
 description: |
-  Orchestrator di chuyen module/chuc nang tu he thong cu sang EUREKA: scan module cu (/wf-scan-target) → gap analysis (GitNexus/Serena) → seed registry → define features → design → plan modules → implement → bao cao. Dam bao day du chuc nang nhu cu (feature parity check), tuong thich kien truc moi. Co rollback (registry snapshots + per-task tracking) va --auto-approve skip CDG gates.
+  Orchestrator di chuyen module/chuc nang tu he thong cu sang EUREKA: scan module cu (/wf-scan-target) → gap analysis (GitNexus/Serena) → seed registry → define features → design → plan modules → implement → bao cao. Dam bao feature parity (day du chuc nang nhu cu), tuong thich kien truc moi. Co rollback (registry snapshots + per-task tracking); --auto-approve skip CDG.
 
   TRIGGER khi:
   - User muon chuyen 1 module/chuc nang tu he thong cu sang EUREKA

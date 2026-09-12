@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-fix-execute",
-  "version": "3.8.0",
+  "version": "3.8.1",
   "phase": "phase5",
   "description": "Execute + Report: sua loi (Batch 1-3) + docs sync + verification loop + final report. Phase 3 (CRITICAL→HIGH→MEDIUM), Phase 4 (Docs Sync + Stub Creation), Phase 5 (State Machine Verify Loop, max 3 iterations), Phase 6 (Report — dry-run cung chay day du). v3.0.0: tach thanh 10 procedure files + _shared.md (lazy loading, giam ~70% context load). v3.1.0: fix 5 bugs — VERIFY_INIT iteration owner, e2e-results.json UPDATE-only, stale ref, fix-status.json contract, CQG numeric verify. v3.2.0 (S3 wf-fix-bugs v7.0): fix-plan.md + fix-log.json templates di chuyen sang _shared/lane/templates/ (F3 fix). v3.3.0 (S8): Phase 4a hook docs-crossref check (soft warn — `wf-fix-docs-crossref.sh` → docs-sync-report.json), Phase 6 pre-POST-GATE CQG hard-enforce (`wf-fix-cqg-verify.sh` → cqg-verify.json, mismatch >5% → POST-GATE FAIL E001). v3.6.0 (Phase A v8 Honest Framing): Phase 6 Step 6.0c compute coverage-estimate.json qua `aggregate.coverage_estimator`; fix-report.md template them section Coverage Estimate voi blind-spots + recommendations + disclaimer KHONG dam bao 100% coverage.",
   "prerequisites": {

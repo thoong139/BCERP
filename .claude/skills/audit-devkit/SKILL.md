@@ -3,45 +3,21 @@ name: audit-devkit
 version: 5.2.0
 last_updated: 2026-09-12
 description: |
-  Orchestrator cho MCV3 self-audit pipeline — điều phối scan → verify → fix tuần tự,
-  kèm Master Plan validation (Hook 2-Tầng, Digest Pipeline, A6/A7-EXT, Parallel Execution).
-  Optional Skill Eval Harness (--evals) chạy behavioral evals tại Phase 3.6.
-  Entry point duy nhất cho audit toàn diện. Gọi 3 sub-skills: /audit-devkit-scan, /audit-devkit-verify, /audit-devkit-fix.
+  Orchestrator MCV3 self-audit pipeline: scan → verify → fix tuần tự + Master Plan
+  validation (Hook 2-Tầng, Digest Pipeline, A6/A7-EXT, Parallel Execution) + optional
+  Skill Eval Harness (--evals, Phase 3.6). Entry point duy nhất cho audit toàn diện;
+  gọi /audit-devkit-scan → /audit-devkit-verify → /audit-devkit-fix.
+  History: v5.2 compliance headings; v5.1 quality fixes; v5.0 tách 7 procedures + _shared (lazy load).
 
   TRIGGER khi:
   - Cần audit toàn bộ MCV3 toolkit trước release version mới
-  - Thêm/sửa/xóa agent, skill, template bất kỳ
-  - Phát hiện inconsistency giữa các components
-  - Kiểm tra Master Plan components status
-  - Keywords: "audit devkit", "audit MCV3", "kiểm tra MCV3", "review DEVKIT", "master plan status", "kiểm tra master plan"
+  - Thêm/sửa/xóa agent, skill, template, rule, hook bất kỳ
+  - Phát hiện inconsistency giữa các components; kiểm tra Master Plan components status
+  - Keywords: "audit devkit", "audit MCV3", "kiểm tra MCV3", "review DEVKIT", "master plan status"
 
   KHÔNG trigger khi:
-  - Audit dự án đang dùng MCV3 → dùng docs/audit/devkit-existing-project-audit.md
-  - Chỉ audit agents → dùng /audit-agents
-  - Chỉ cần scan → dùng /audit-devkit-scan trực tiếp
-  - Chỉ cần fix → dùng /audit-devkit-fix trực tiếp
-
-  ---
-  Version history:
-
-  v5.2.0 (2026-09-12) — Compliance fix: đưa TRIGGER block lên đầu description, thêm
-  Workflow Position + Phase 0 Step Summary + Fix Rules + Next (audit 1.2/2.1/4.1/4.4/5.1/2.2/7.2).
-  Không đổi pipeline/output contract.
-
-  v5.1.0 — Quality fixes: 18 issues fixed across pipeline.
-  Verdict tables unified (CRITICAL-functional vs CRITICAL-structural).
-  Persistent orchestrator state (orchestrator-status.json) survives context compression.
-  CORE-031 compliance: templates added for verify findings + fix report.
-  Error codes prefixed by skill (ORCH-/SCAN-/VERIFY-/FIX-).
-  Count-based checkpoints replace unreliable context-% estimates.
-  Master Plan validation deduplicated (read vs re-run).
-  Fix re-scan includes cross-referenced files for REPLACEMENT fixes.
-  FP3 CDG gate explicit in fix loop.
-  Delta-aware verify mode for --since runs.
-
-  v5.0.0 — Refactor lớn: Tách monolithic SKILL.md (517 dòng, 30KB) thành 7 procedure files + 1 _shared.md
-  + 3 templates (lazy loading per-phase). Giảm context load ~65% khi execute từng phase.
-  Backup: procedures/skill-legacy.md.bak. Backward compatible — không đổi argument/output contract.
+  - Audit dự án đang dùng MCV3 → xem docs/audit/devkit-existing-project-audit.md
+  - Chỉ audit agents → /audit-agents; chỉ scan → /audit-devkit-scan; chỉ fix → /audit-devkit-fix
 
 argument-hint: "[--full | --no-fix | --scan-only | --quick | --fix-only | --master-plan] [--agents | --skills | --templates | --rules | --hooks | --skill=<name>] [--since=<commit>] [--evals [--eval-mode=stub|judge|auto|real] [--eval-skill=<name>]]"
 disable-model-invocation: true

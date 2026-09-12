@@ -5,11 +5,11 @@ last_updated: 2026-09-12
 description: |
   F8 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 phần user-guide).
   Chạy user-guide.md (sinh bởi F1) qua Playwright MCP → demo từng bước hướng dẫn → verify accuracy +
-  capture screenshots cho non-specialist reader. Optionally update user-guide.md khi mismatch.
+  capture screenshots cho non-specialist. Optionally update user-guide.md khi mismatch.
 
   v1.1.0: Thêm auto-fix loop khi step fail. Phân biệt accuracy_wording (text diff nhẹ) vs real_failure
   (element missing / network 4xx-5xx / JS bug / missing data). Real_failure → delegate F7
-  failure-analyzer pattern (2-phase: browser-fix → spawn agent source code fix). DATA_MISSING →
+  failure-analyzer (2-phase: browser-fix → agent source fix). DATA_MISSING →
   apply seed data từ findings/db-seed-data.md trước khi thử tạo qua UI. Mọi step fail APPEND issues.json
   NGAY (ISSUE-IMMEDIATE pattern giống F1/F7), không chờ POST-GATE.
 

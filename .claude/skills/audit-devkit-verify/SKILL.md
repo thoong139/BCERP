@@ -3,23 +3,11 @@ name: audit-devkit-verify
 version: 3.1.0
 last_updated: 2026-09-12
 description: |
-  Cross-validate findings từ /audit-devkit-scan.
-  Kiểm tra cross-references, workflow integrity, bidirectional consistency.
-  Đọc structured JSON từ scan, KHÔNG scan lại từ đầu.
-
-  v1.1.0 — Bổ sung Phase 3.5: Master Plan Components Verification.
-  V1-V6 cross-checks cho 7 thành phần từ Master Optimization Plan
-  (Hook 2-Tầng, Checkpoint Digest, Digest Pipeline, A6-EXT/A7-EXT, Parallel Execution,
-  Backward Compatibility). Backward compatible: thành phần chưa triển khai → skip, không tạo findings.
-
-  v2.0.0 — Bổ sung --skill=<name> focused verify mode.
-  Chỉ cross-validate 1 skill cụ thể + lightweight cross-ref với downstream/upstream skills.
-  Skip full crossref passes (A-D), chỉ chạy focused crossref + workflow + consistency cho skill đó.
-  Bổ sung category (functional/structural) vào findings JSON.
-
-  v3.0.0 — Refactor: tách monolithic SKILL.md (794 dòng) thành 8 procedure files + 1 _shared.md
-  (lazy loading per-phase). Giảm context load ~75% khi execute từng phase.
-  Backup: procedures/flow-legacy.md.bak.
+  Cross-validate findings từ /audit-devkit-scan: cross-references, workflow integrity,
+  bidirectional consistency. Đọc structured JSON từ scan, KHÔNG scan lại từ đầu.
+  v1.1: Phase 3.5 Master Plan V1-V6 cross-checks (skip nếu chưa triển khai).
+  v2.0: --skill=<name> focused verify + category functional/structural trong findings.
+  v3.0: tách monolithic (794 dòng) thành 8 procedure files + _shared.md (lazy loading, -75% context).
 
   TRIGGER khi:
   - Đã chạy /audit-devkit-scan xong, cần cross-validate findings

@@ -12,7 +12,7 @@ description: |
   Cross-module + Parallel-safe LUÔN ON. --strict-evidence ON default (screenshot bắt buộc F2/F7/F8).
   Backward-compat: silent accept legacy flags + WARN.
 
-  v8.0.0 (2026-05-15): Tier 0 Foundation Refactor — thêm F0/F0a/F0b. F0a tách FIND khỏi F1.
+  v8.0.0: Tier 0 Foundation Refactor — thêm F0/F0a/F0b; F0a tách FIND khỏi F1.
   Context checkpoint G4 sau F0a: suggest /clear + --resume trước F1 nếu context > 50%.
   v7.0.0 (2026-05-13): MAJOR REFACTOR — chia tách monolithic v6.5.0 thành 8 sub-skills.
 
