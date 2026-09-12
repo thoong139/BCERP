@@ -6,7 +6,7 @@
 > **Agent soạn thảo:** marketing-expert (CMO / Strategic Planner OPS_PLAN — kiêm quyền Trưởng phòng Vận hành)
 > **Trạng thái:** Draft → Đã xác nhận
 >
-> READS: `P0-01-brainstorm.md` (Section 5.2 — trạng thái chính sách), `docs/00-overview/00-company-context.md` (bối cảnh BC Agency)
+> READS: `P0-01-brainstorm.md` (Section 5.2 — trạng thái chính sách), `00-company-context.md` (bối cảnh BC Agency)
 > USED BY: `phase2-features/` (business rules), `phase3-architecture/` (rule engine design)
 
 ---

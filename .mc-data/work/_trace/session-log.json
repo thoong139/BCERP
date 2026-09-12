@@ -1,29 +1,298 @@
-[
-  {
-    "timestamp": "2026-09-12T12:40:06.288Z",
-    "skill": "wf-define-features",
-    "session": "20260912-112934-6bcf",
-    "phase": "phase1-scope-mapping",
-    "event": "COMPLETE",
-    "details": {
-      "features": 170,
-      "lanes": 72,
-      "batches": 24,
-      "mvp_coverage": "PASS",
-      "note": "resume sau dừng chủ động; docs 03_Quy_che_KPI_HR.md mới đã reconcile; DI-004 resolved"
+{
+  "entries": [
+    {
+      "timestamp": "2026-09-12T12:40:06.288Z",
+      "skill": "wf-define-features",
+      "session": "20260912-112934-6bcf",
+      "phase": "phase1-scope-mapping",
+      "event": "COMPLETE",
+      "details": {
+        "features": 170,
+        "lanes": 72,
+        "batches": 24,
+        "mvp_coverage": "PASS",
+        "note": "resume sau dừng chủ động; docs 03_Quy_che_KPI_HR.md mới đã reconcile; DI-004 resolved"
+      }
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T14:43:15Z",
+      "code": "E101",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T14:43:15Z",
+      "code": "E301",
+      "severity": "error",
+      "phase": "phase07-tdd"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T14:43:15Z",
+      "code": "E601",
+      "severity": "info",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T14:43:15Z",
+      "code": "E901",
+      "severity": "info",
+      "phase": "phase00-init"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T14:43:16Z",
+      "code": "BAD-CODE",
+      "severity": "warning",
+      "phase": "phase00-init"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T14:43:16Z",
+      "code": "E102",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:17Z",
+      "code": "E101",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:18Z",
+      "code": "E301",
+      "severity": "error",
+      "phase": "phase07-tdd"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:18Z",
+      "code": "E602",
+      "severity": "critical",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:18Z",
+      "code": "E601",
+      "severity": "info",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:42Z",
+      "code": "E101",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:43Z",
+      "code": "E301",
+      "severity": "error",
+      "phase": "phase07-tdd"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:43Z",
+      "code": "E602",
+      "severity": "critical",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:43:44Z",
+      "code": "E601",
+      "severity": "info",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:50:12Z",
+      "code": "E101",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:50:12Z",
+      "code": "E301",
+      "severity": "error",
+      "phase": "phase07-tdd"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:50:13Z",
+      "code": "E602",
+      "severity": "critical",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T14:50:13Z",
+      "code": "E601",
+      "severity": "info",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T15:11:48Z",
+      "code": "E101",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T15:11:49Z",
+      "code": "E301",
+      "severity": "error",
+      "phase": "phase07-tdd"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T15:11:49Z",
+      "code": "E601",
+      "severity": "info",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T15:11:49Z",
+      "code": "E901",
+      "severity": "info",
+      "phase": "phase00-init"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T15:11:49Z",
+      "code": "BAD-CODE",
+      "severity": "warning",
+      "phase": "phase00-init"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-feature-sprint4",
+      "session_id": "2026-04-28-test-host",
+      "ts": "2026-09-12T15:11:50Z",
+      "code": "E102",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T15:11:50Z",
+      "code": "E101",
+      "severity": "warning",
+      "phase": "phase01-pattern-scan"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T15:11:51Z",
+      "code": "E301",
+      "severity": "error",
+      "phase": "phase07-tdd"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T15:11:51Z",
+      "code": "E602",
+      "severity": "critical",
+      "phase": "phase10-finalize"
+    },
+    {
+      "skill": "wf-implement-feature",
+      "event": "ERROR_LOGGED",
+      "feature_slug": "test-sprint4-smoke",
+      "session_id": "2026-04-28-smoke",
+      "ts": "2026-09-12T15:11:52Z",
+      "code": "E601",
+      "severity": "info",
+      "phase": "phase10-finalize"
     }
-  }
-]{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-feature-sprint4","session_id":"2026-04-28-test-host","ts":"2026-09-12T14:43:15Z","code":"E101","severity":"warning","phase":"phase01-pattern-scan"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-feature-sprint4","session_id":"2026-04-28-test-host","ts":"2026-09-12T14:43:15Z","code":"E301","severity":"error","phase":"phase07-tdd"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-feature-sprint4","session_id":"2026-04-28-test-host","ts":"2026-09-12T14:43:15Z","code":"E601","severity":"info","phase":"phase10-finalize"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-feature-sprint4","session_id":"2026-04-28-test-host","ts":"2026-09-12T14:43:15Z","code":"E901","severity":"info","phase":"phase00-init"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-feature-sprint4","session_id":"2026-04-28-test-host","ts":"2026-09-12T14:43:16Z","code":"BAD-CODE","severity":"warning","phase":"phase00-init"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-feature-sprint4","session_id":"2026-04-28-test-host","ts":"2026-09-12T14:43:16Z","code":"E102","severity":"warning","phase":"phase01-pattern-scan"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:17Z","code":"E101","severity":"warning","phase":"phase01-pattern-scan"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:18Z","code":"E301","severity":"error","phase":"phase07-tdd"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:18Z","code":"E602","severity":"critical","phase":"phase10-finalize"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:18Z","code":"E601","severity":"info","phase":"phase10-finalize"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:42Z","code":"E101","severity":"warning","phase":"phase01-pattern-scan"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:43Z","code":"E301","severity":"error","phase":"phase07-tdd"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:43Z","code":"E602","severity":"critical","phase":"phase10-finalize"}
-{"skill":"wf-implement-feature","event":"ERROR_LOGGED","feature_slug":"test-sprint4-smoke","session_id":"2026-04-28-smoke","ts":"2026-09-12T14:43:44Z","code":"E601","severity":"info","phase":"phase10-finalize"}
+  ]
+}

@@ -47,7 +47,7 @@ readonly FEATURE_BASE_DIR=".mc-data/work/wf-implement-feature"
 readonly HISTORY_DIR="$FEATURE_BASE_DIR/.history"
 readonly CACHE_DIR="$FEATURE_BASE_DIR/.cache"
 readonly LOCKS_DIR="$FEATURE_BASE_DIR/.locks"
-readonly TRACE_LOG="${WF_IMPLEMENT_TRACE_LOG:-.mc-data/work/_trace/session-log.json}"
+readonly TRACE_LOG=".mc-data/work/_trace/session-log.json"
 readonly REGISTRY_PATH=".mc-data/docs/_meta/req-registry.json"
 readonly LAYOUT_VERSION_FILE="$FEATURE_BASE_DIR/.layout-version"
 readonly LAYOUT_VERSION_CURRENT="5"
@@ -418,11 +418,6 @@ write_layout_version() {
 # Append START / COMPLETE / FAIL / CHECKPOINT event to _trace/session-log.json.
 # Args: event  feature_slug  session_id  [extra_json='{}']
 # Output-only — KHÔNG dùng làm input cho skill khác (CORE-026).
-# Format đích: {"entries":[...]} (session-log-v1). Append JSON-aware + atomic
-# (jq tmp → mv) theo pattern wf-diagram-common — TUYỆT ĐỐI không raw-append text
-# ra ngoài array. File legacy dạng array thuần [] được normalize về wrapper
-# entries trước khi append (idempotent). File không parse được → skip + warn,
-# không ghi (thà thiếu 1 trace entry hơn là phá format file chung).
 trace_event() {
   local event="$1"
   local feature_slug="${2:-}"
@@ -431,43 +426,24 @@ trace_event() {
 
   mkdir -p "$(dirname "$TRACE_LOG")"
 
-  if [[ ! -s "$TRACE_LOG" ]]; then
-    printf '{"entries":[]}\n' > "$TRACE_LOG"
-  elif has_jq && [[ "$(head -c1 "$TRACE_LOG" 2>/dev/null)" == "[" ]]; then
-    # Normalize array thuần [ ... ] → {"entries":[ ... ]} (một lần, idempotent)
-    local ntmp="${TRACE_LOG}.norm.$$"
-    if jq '{entries: .}' "$TRACE_LOG" > "$ntmp" 2>/dev/null; then
-      mv "$ntmp" "$TRACE_LOG"
-    else
-      rm -f "$ntmp"
-    fi
-  fi
-
   if has_jq; then
-    local entry tmp
+    local entry
     entry=$(jq -nc \
       --arg e "$event" \
       --arg fs "$feature_slug" \
       --arg sid "$session_id" \
       --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       --argjson extra "$extra_json" \
-      '{skill:"wf-implement-feature", event:$e, feature_slug:$fs, session_id:$sid, ts:$ts, timestamp:$ts} + $extra' \
+      '{skill:"wf-implement-feature", event:$e, feature_slug:$fs, session_id:$sid, ts:$ts} + $extra' \
       2>/dev/null) || entry=""
-    if [[ -n "$entry" ]] && jq -e 'type == "object" and has("entries")' "$TRACE_LOG" >/dev/null 2>&1; then
-      tmp="${TRACE_LOG}.tmp.$$"
-      if jq --argjson e "$entry" '.entries += [$e]' "$TRACE_LOG" > "$tmp" 2>/dev/null; then
-        mv "$tmp" "$TRACE_LOG"
-        log_debug "trace_event: $event for $feature_slug/$session_id"
-      else
-        rm -f "$tmp"
-        log_warn "trace_event: jq append failed — skip (CORE-026 output-only)"
-      fi
-    else
-      log_warn "trace_event: TRACE_LOG không phải {\"entries\":[...]} hợp lệ — skip thay vì raw-append"
+    if [[ -n "$entry" ]]; then
+      echo "$entry" >> "$TRACE_LOG"
+      log_debug "trace_event: $event for $feature_slug/$session_id"
     fi
   else
-    # Fallback no-jq: KHÔNG raw-append (sẽ phá format array) — skip an toàn
-    log_warn "trace_event: jq không khả dụng — skip trace append"
+    # Fallback no-jq: best-effort raw append
+    printf '{"skill":"wf-implement-feature","event":"%s","feature_slug":"%s","session_id":"%s","ts":"%s"}\n' \
+      "$event" "$feature_slug" "$session_id" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$TRACE_LOG"
   fi
 }
 
