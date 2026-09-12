@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "audit-skill-output",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "phase": "devkit-audit",
   "description": "Kiểm tra chất lượng output của skill — so sánh actual output vs SKILL.md design (D1-D7 + D8 optional), auto-fix mặc định. v1.8.0: fix D8 detection, verdict logic, auto-fix safety gate, D3.7 partial checks, D4 rubric, template fixes.",
   "prerequisites": {

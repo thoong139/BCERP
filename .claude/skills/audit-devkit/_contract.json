@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "audit-devkit",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "phase": "devkit-audit",
   "description": "Orchestrator DEVKIT self-audit — điều phối pipeline: audit-devkit-scan → audit-devkit-verify → audit-devkit-fix + Master Plan validation + optional Skill Eval Harness (--evals). Hỗ trợ focused mode (--skill=<name>) và delta scan (--since=<commit>). v5.0: refactor lazy-load procedures (7 phase files + _shared.md + 3 templates).",
   "prerequisites": {

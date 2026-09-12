@@ -1,8 +1,11 @@
 ---
 name: audit-devkit-scan
-version: 3.0.0
-last_updated: 2026-04-19
+version: 3.1.0
+last_updated: 2026-09-12
 changelog:
+  v3.1.0 (2026-09-12):
+    - Compliance fix: thêm Phase 0 heading + Step Summary table, numeric routing column,
+      error table + Next step (audit 4.1/4.4/4.5/8.2/8.3/7.2). Không đổi scan pipeline.
   v3.0.0 (2026-04-19):
     - Refactor monolithic SKILL.md (811 lines) → slim orchestrator (~280 lines).
     - Extract phase logic to `procedures/` (9 files): _shared, phase0-index, 5 wave files, phase2-merge, phase3-summary.
@@ -135,21 +138,30 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 - `.claude/` không tồn tại (E001) → "Không phải DEVKIT project. STOP."
 - scan-status.json corrupt (E010) → rebuild từ existing findings-*.json files
 
----
+## Phase 0: Build Ground Truth Index (BẮT BUỘC — entry point)
+
+> Chi tiết: READ `procedures/phase0-index.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE: `test -d .claude/` (+ `--resume` handler đọc scan-status.json) | Thiếu → E001 STOP |
+| 2 | Tạo session dir `.mc-data/work/audit-devkit-scan/[ts]/` + `.lock` + `scan-status.json` | Session + lock OK |
+| 3 | Index toàn bộ components: agents/skills/templates/rules/hooks/scripts → `audit-index.json` | Counts > 0 (E006 nếu 0) |
+| 4 | Delta filter nếu `--since=<commit>` (git diff --name-only) | Index lọc đúng changed files |
+| 5 | Route Wave theo mode (`--all`/`--skill`/component-only/delta) | next_action ghi status |
 
 ## Execution Summary
 
-| Step | Phase / Wave | Procedure | Output |
-|------|--------------|-----------|--------|
-| PRE-GATE | Validate | (inline trên) | — |
-| **Phase 0** | Build Ground Truth Index | READ `procedures/phase0-index.md` | `audit-index.json`, `scan-status.json`, `.lock` |
-| **Phase 1 W1** | Agent scans (5 PARALLEL) | READ `procedures/phase1-wave1-agents.md` | 5 × `findings-agents-*.json` |
-| **Phase 1 W2** | Skill scans (2 PARALLEL) | READ `procedures/phase1-wave2-skills.md` | `findings-skills-{workflow,other}.json` (hoặc `findings-skills-focused.json` cho --skill) |
-| **Phase 1 W3** | Templates + Rules + Hooks | READ `procedures/phase1-wave3-templates-rules-hooks.md` | `findings-templates-{a,b}.json`, `findings-rules.json`, `findings-hooks.json` |
-| **Phase 1 W3.5** | Scripts verify (Bash) | READ `procedures/phase1-wave3.5-scripts.md` | `findings-scripts.json` |
-| **Phase 1 W4** | Master Plan (MP-1 → MP-7) | READ `procedures/phase1-wave4-masterplan.md` | Up to 7 × `findings-masterplan-*.json` (optional) |
-| **Phase 2** | Merge & 2-tier dedup | READ `procedures/phase2-merge.md` | `audit-scan-result.json` |
-| **Phase 3** | Summary + finalize | READ `procedures/phase3-summary.md` | User report + `scan-status.json` (status=completed), lock release |
+| # | Step | Phase / Wave | Procedure | Output |
+|---|------|--------------|-----------|--------|
+| **0** | PRE-GATE + Phase 0 | Validate + Build Ground Truth Index | READ `procedures/phase0-index.md` | `audit-index.json`, `scan-status.json`, `.lock` |
+| **1** | Phase 1 W1 | Agent scans (5 PARALLEL) | READ `procedures/phase1-wave1-agents.md` | 5 × `findings-agents-*.json` |
+| **2** | Phase 1 W2 | Skill scans (2 PARALLEL) | READ `procedures/phase1-wave2-skills.md` | `findings-skills-{workflow,other}.json` (hoặc `findings-skills-focused.json` cho --skill) |
+| **3** | Phase 1 W3 | Templates + Rules + Hooks | READ `procedures/phase1-wave3-templates-rules-hooks.md` | `findings-templates-{a,b}.json`, `findings-rules.json`, `findings-hooks.json` |
+| **4** | Phase 1 W3.5 | Scripts verify (Bash) | READ `procedures/phase1-wave3.5-scripts.md` | `findings-scripts.json` |
+| **5** | Phase 1 W4 | Master Plan (MP-1 → MP-7) | READ `procedures/phase1-wave4-masterplan.md` | Up to 7 × `findings-masterplan-*.json` (optional) |
+| **6** | Phase 2 | Merge & 2-tier dedup | READ `procedures/phase2-merge.md` | `audit-scan-result.json` |
+| **7** | Phase 3 | Summary + finalize | READ `procedures/phase3-summary.md` | User report + `scan-status.json` (status=completed), lock release |
 
 > **Quy tắc:** Mỗi phase load CHỈ procedure tương ứng (giảm context usage). Sau khi phase hoàn thành → procedure không cần giữ trong context.
 
@@ -225,9 +237,21 @@ Chạy đầy đủ Wave 1 → 4. Output: ~13 files findings + audit-index + aud
 
 ## Error Handling
 
-> Codes E001-E011 + ARGUMENT_CONFLICT chi tiết: `procedures/_shared.md` §Error Handling Codes
+Codes E001-E011 + ARGUMENT_CONFLICT — chi tiết: `procedures/_shared.md` §Error Handling Codes
 
-Quick reference: E001 (no .claude/), E002 (JSON invalid), E003 (agent timeout), E004 (text instead of JSON), E005 (batch >20), E006 (counts=0), E007 (write fail), E008 (missing findings file), E009 (dedup conflict), E010 (status corrupt), E011 (hook reject).
+| Code | Tình huống | Xử lý |
+|------|-----------|-------|
+| E001 | Không có `.claude/` directory | STOP — không phải DEVKIT project |
+| E002 | JSON invalid | Retry parse ×3 |
+| E003 | Agent timeout | Retry ×1, batch fail → log |
+| E004 | Agent trả text thay JSON | Fallback parse, fail → MANUAL |
+| E005 | Batch > 20 files | Auto-split thành sub-batches |
+| E006 | Component counts = 0 | WARNING — component rỗng hay cấu trúc đổi? |
+| E007 | Write fail | Retry ×3 |
+| E008 | Findings file thiếu sau wave | WARNING + continue wave khác |
+| E009 | Dedup conflict | 2-tier dedup, log conflict |
+| E010 | scan-status corrupt | Rebuild từ findings-*.json |
+| E011 | Hook reject | Log + continue |
 
 Circuit breaker: nếu >3 batches fail liên tiếp → PAUSE + hỏi user (PARTIAL hay STOP).
 
@@ -236,3 +260,5 @@ Circuit breaker: nếu >3 batches fail liên tiếp → PAUSE + hỏi user (PART
 ## Output Report
 
 Xem `procedures/phase3-summary.md` §Output Report Template.
+
+> **Next:** scan xong → `/audit-devkit-verify` (cross-validate findings), rồi `/audit-devkit-fix`; qua orchestrator `/audit-devkit`.

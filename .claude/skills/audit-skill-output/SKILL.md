@@ -1,7 +1,7 @@
 ---
 name: audit-skill-output
-version: 1.8.0
-last_updated: 2026-04-23
+version: 1.9.0
+last_updated: 2026-09-12
 description: |
   Kiểm tra chất lượng output của một workflow skill đã chạy — so sánh kết quả thực tế
   với thiết kế trong SKILL.md. Phát hiện lỗi, thiếu sót, sai schema, sai template.
@@ -140,17 +140,28 @@ Subagent D5:                                                     [Cross-Phase �
 
 ---
 
+## Phase 0: Scope Detection & Context Loading (BẮT BUỘC — entry point)
+
+> Chi tiết: READ `procedures/phase0-scope.md` + `procedures/_shared.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Parse `$ARGUMENTS` → mode (single skill / `--all` / `--resume` / `--no-fix` / `--dimension=`) | Mode hợp lệ |
+| 2 | `--resume` early exit: đọc checkpoint → jump phase đúng | checkpoint.json hợp lệ |
+| 3 | Detect scope: target skills, parse SKILL.md specs, load registry, detect `master_plan_enabled` | Skills identified; registry/E003 check |
+| 4 | Init `audit-skill-output-status.json` → route Phase 1 | Status file created |
+
 ## Phases Overview
 
 > Chi tiết Steps, PRE-GATE, POST-GATE của mỗi phase nằm trong `procedures/phaseN-*.md`.
 
-| Phase | Procedure File | Mục đích | PRE-GATE | POST-GATE |
-| ----- | -------------- | -------- | -------- | --------- |
-| **Phase 0** | `procedures/phase0-scope.md` | Scope Detection & Context Loading | Có skill output | Target skills identified, SKILL.md specs loaded, registry loaded, `master_plan_enabled` detected, status file initialized |
-| **Phase 1** | `procedures/phase1-structural.md` | Structural Audit (D1+D2+D3+D6+D7+D8) | Phase 0 completed | Structural findings collected |
-| **Phase 2** | `procedures/phase2-autofix.md` | Auto-Fix Structural Issues (D1/D2/D3/D7) | Phase 1 completed, findings có sẵn | Fixable issues resolved (hoặc SKIPPED nếu `--no-fix`) |
-| **Phase 3** | `procedures/phase3-semantic.md` | Semantic Audit via Subagents (D4+D5 SONG SONG) | Phase 2 completed | D4 + D5 findings collected từ subagents |
-| **Phase 4** | `procedures/phase4-report.md` | Collect Results, Verdict & Report | Phase 1-3 completed | Report file tồn tại, status finalized |
+| # | Phase | Procedure File | Mục đích | PRE-GATE | POST-GATE |
+|---| ----- | -------------- | -------- | -------- | --------- |
+| **0** | Phase 0 | `procedures/phase0-scope.md` | Scope Detection & Context Loading | Có skill output | Target skills identified, SKILL.md specs loaded, registry loaded, `master_plan_enabled` detected, status file initialized |
+| **1** | Phase 1 | `procedures/phase1-structural.md` | Structural Audit (D1+D2+D3+D6+D7+D8) | Phase 0 completed | Structural findings collected |
+| **2** | Phase 2 | `procedures/phase2-autofix.md` | Auto-Fix Structural Issues (D1/D2/D3/D7) | Phase 1 completed, findings có sẵn | Fixable issues resolved (hoặc SKIPPED nếu `--no-fix`) |
+| **3** | Phase 3 | `procedures/phase3-semantic.md` | Semantic Audit via Subagents (D4+D5 SONG SONG) | Phase 2 completed | D4 + D5 findings collected từ subagents |
+| **4** | Phase 4 | `procedures/phase4-report.md` | Collect Results, Verdict & Report | Phase 1-3 completed | Report file tồn tại, status finalized |
 
 ---
 
@@ -230,6 +241,8 @@ START
 | `/wf-fix-bugs` | Consumer — khi audit phát hiện FAIL, user có thể chạy /wf-fix-bugs |
 | Bất kỳ `/wf-*` skill | Target — mọi workflow skill có thể là đối tượng audit |
 | `skill-compliance-audit.sh` | Bash script kiểm tra SKILL.md structural compliance — complement với audit-skill-output |
+
+> **Next:** audit xong → xem report tại `.mc-data/work/audit-skill-output/audit-report-*.md`; findings FAIL → chạy `/wf-fix-bugs` hoặc sửa output rồi re-audit.
 
 ### Cross-Skill Overlap & Integration Notes
 

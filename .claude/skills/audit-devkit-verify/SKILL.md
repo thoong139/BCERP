@@ -1,7 +1,7 @@
 ---
 name: audit-devkit-verify
-version: 3.0.0
-last_updated: 2026-04-19
+version: 3.1.0
+last_updated: 2026-09-12
 description: |
   Cross-validate findings từ /audit-devkit-scan.
   Kiểm tra cross-references, workflow integrity, bidirectional consistency.
@@ -113,6 +113,15 @@ STEP 2: Parse arguments → xác định $SCOPE
 STEP 3: Read procedures/phase0-load.md → execute Phase 0 → return
 ```
 
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE: Glob audit-index.json + audit-scan-result.json từ scan session | Thiếu → E001/E002 STOP |
+| 2 | Parse `$ARGUMENTS` → `$SCOPE` (crossref/workflow/consistency/master-plan/all/skill) | Scope hợp lệ |
+| 3 | `--resume` handler: đọc verify-status.json → jump pending_phases[0] | File hợp lệ; corrupt → E011 |
+| 4 | Lazy-load `procedures/phase0-load.md`: discover session, load ground truth | Session + index loaded |
+
 **Đặc biệt — `--resume` handler:**
 
 ```
@@ -210,15 +219,24 @@ Phase 0 → Phase 1.F → Phase 2 (focused) → Phase 3 (focused) → Phase 4 �
 
 ## Error Handling
 
-Xem `procedures/_shared.md §Error Handling Reference` cho danh sách đầy đủ E001-E016.
+Codes E001-E016 (prefix VERIFY- khi log) — chi tiết: `procedures/_shared.md §Error Handling Reference`.
 
 Tóm tắt:
-- **E001/E002** — Scan files không tồn tại → STOP, chạy `/audit-devkit-scan` trước
-- **E003-E005** — Input validation fail → retry hoặc escalate
-- **E006-E008** — Agent errors → re-spawn, fallback parse, partial merge
-- **E009-E012** — Runtime errors → retry, fallback, escalate
-- **E013** — scope=partial ghi sai completed_phases → chỉ list phases thuộc scope
-- **E014-E016** — Master Plan errors → skip checks, WARNING, không block
+
+| Code | Tình huống | Xử lý |
+|------|-----------|-------|
+| E001/E002 | Scan files không tồn tại | STOP — chạy `/audit-devkit-scan` trước |
+| E003/E004 | Input JSON invalid | Retry ×3 → STOP, re-scan |
+| E005 | Spot-check fail (>20% stale) | WARNING + yêu cầu re-scan |
+| E006 | Agent timeout | Re-spawn ×1 → skip pass + WARNING |
+| E007 | Agent trả text thay JSON | Fallback parse → MANUAL |
+| E008 | findings-crossref-* thiếu sau Phase 1 | Re-run pass → partial merge + WARNING |
+| E009 | Dedup conflict | Giữ severity cao hơn |
+| E010 | Write fail | Retry ×3 → escalate |
+| E011 | verify-status corrupt khi resume | Rebuild từ findings files |
+| E012 | Contract table parse fail | Fallback manual Read + regex |
+| E013 | scope=partial ghi sai completed_phases | Chỉ list phases thuộc scope |
+| E014-E016 | Master Plan errors | Skip checks / WARNING / MAJOR finding — không block |
 
 ---
 

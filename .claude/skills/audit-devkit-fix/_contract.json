@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "audit-devkit-fix",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "phase": "devkit-audit",
   "description": "Auto-fix verified findings từ audit-devkit-verify — per-fix verification sau mỗi lần sửa. v1.3: tái cấu trúc SKILL.md monolithic thành orchestrator + procedures (load on-demand) để giảm context load.",
   "changelog": {

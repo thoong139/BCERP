@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "audit-agents",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "phase": "devkit-audit",
   "description": "Audit agent, procedure & knowledge definitions compliance theo Agent & Knowledge Construction Specification. v3.0.0: refactor thành orchestrator + 6 phase procedure files + _shared.md (lazy loading), bổ sung session isolation và resume support.",
   "prerequisites": {

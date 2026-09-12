@@ -1,8 +1,11 @@
 ---
 name: audit-devkit-fix
-version: 1.3.0
-last_updated: 2026-04-19
+version: 1.4.0
+last_updated: 2026-09-12
 changelog:
+  v1.4.0 (2026-09-12):
+    - Compliance fix: thêm Output Files section, đổi heading Error Codes → Error Handling,
+      thêm Next step (audit 7.1/8.1/2.2/7.2). Không đổi fix logic.
   v1.3.0 (2026-04-19):
     - Tái cấu trúc: tách SKILL.md monolithic (993 dòng) thành SKILL.md orchestrator (~400 dòng) + 6 procedure files.
     - Mỗi phase (0-3) tách thành file procedure riêng — load ON-DEMAND để giảm context load.
@@ -285,9 +288,23 @@ test -s $SESSION_DIR/fix-status.json \
 
 ---
 
-## Error Codes (summary)
+## Output Files
 
-> Chi tiết: READ `procedures/_shared.md §Error Codes` cho bảng đầy đủ E001-E014.
+| File | Path | Phase |
+|------|------|-------|
+| fix-status.json | `$SESSION_DIR` (`.mc-data/work/audit-devkit-fix/[session-id]/`) | 0 (init), updates |
+| fix-log.json (schema fix-log-v1) | `$SESSION_DIR` | 1 (populate), 3 (final) |
+| devkit-audit-fix-[date].md | `.mc-data/work/audit-devkit-fix/reports/` | 3 |
+| phase-summary.md (Protocol §14, ≤15 dòng) | `$SESSION_DIR` | 3 |
+| Code files `.claude/**` | sửa in-place theo `_shared.md §Auto-Fix Limits` | 1 |
+
+> **Next:** fix xong → re-run `/audit-devkit-verify --session=<id>` hoặc `/audit-devkit --no-fix` để xác nhận verdict, rồi về orchestrator `/audit-devkit`.
+
+---
+
+## Error Handling
+
+Codes E001-E014 — chi tiết đầy đủ: READ `procedures/_shared.md §Error Codes`.
 
 | Code | Khái quát |
 |------|-----------|

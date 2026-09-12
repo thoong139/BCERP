@@ -1,12 +1,32 @@
 ---
 name: audit-devkit
-version: 5.1.0
-last_updated: 2026-04-23
+version: 5.2.0
+last_updated: 2026-09-12
 description: |
   Orchestrator cho MCV3 self-audit pipeline — điều phối scan → verify → fix tuần tự,
   kèm Master Plan validation (Hook 2-Tầng, Digest Pipeline, A6/A7-EXT, Parallel Execution).
   Optional Skill Eval Harness (--evals) chạy behavioral evals tại Phase 3.6.
   Entry point duy nhất cho audit toàn diện. Gọi 3 sub-skills: /audit-devkit-scan, /audit-devkit-verify, /audit-devkit-fix.
+
+  TRIGGER khi:
+  - Cần audit toàn bộ MCV3 toolkit trước release version mới
+  - Thêm/sửa/xóa agent, skill, template bất kỳ
+  - Phát hiện inconsistency giữa các components
+  - Kiểm tra Master Plan components status
+  - Keywords: "audit devkit", "audit MCV3", "kiểm tra MCV3", "review DEVKIT", "master plan status", "kiểm tra master plan"
+
+  KHÔNG trigger khi:
+  - Audit dự án đang dùng MCV3 → dùng docs/audit/devkit-existing-project-audit.md
+  - Chỉ audit agents → dùng /audit-agents
+  - Chỉ cần scan → dùng /audit-devkit-scan trực tiếp
+  - Chỉ cần fix → dùng /audit-devkit-fix trực tiếp
+
+  ---
+  Version history:
+
+  v5.2.0 (2026-09-12) — Compliance fix: đưa TRIGGER block lên đầu description, thêm
+  Workflow Position + Phase 0 Step Summary + Fix Rules + Next (audit 1.2/2.1/4.1/4.4/5.1/2.2/7.2).
+  Không đổi pipeline/output contract.
 
   v5.1.0 — Quality fixes: 18 issues fixed across pipeline.
   Verdict tables unified (CRITICAL-functional vs CRITICAL-structural).
@@ -22,19 +42,6 @@ description: |
   v5.0.0 — Refactor lớn: Tách monolithic SKILL.md (517 dòng, 30KB) thành 7 procedure files + 1 _shared.md
   + 3 templates (lazy loading per-phase). Giảm context load ~65% khi execute từng phase.
   Backup: procedures/skill-legacy.md.bak. Backward compatible — không đổi argument/output contract.
-
-  TRIGGER khi:
-  - Cần audit toàn bộ MCV3 toolkit trước release version mới
-  - Thêm/sửa/xóa agent, skill, template bất kỳ
-  - Phát hiện inconsistency giữa các components
-  - Kiểm tra Master Plan components status
-  - Keywords: "audit devkit", "audit MCV3", "kiểm tra MCV3", "review DEVKIT", "master plan status", "kiểm tra master plan"
-
-  KHÔNG trigger khi:
-  - Audit dự án đang dùng MCV3 → dùng docs/audit/devkit-existing-project-audit.md
-  - Chỉ audit agents → dùng /audit-agents
-  - Chỉ cần scan → dùng /audit-devkit-scan trực tiếp
-  - Chỉ cần fix → dùng /audit-devkit-fix trực tiếp
 
 argument-hint: "[--full | --no-fix | --scan-only | --quick | --fix-only | --master-plan] [--agents | --skills | --templates | --rules | --hooks | --skill=<name>] [--since=<commit>] [--evals [--eval-mode=stub|judge|auto|real] [--eval-skill=<name>]]"
 disable-model-invocation: true
@@ -53,6 +60,25 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Agent, TodoWrite, Skill
 | **Duration** | 15-40 min (full), 2-5 min (--master-plan), 3-8 min (--skill=<name>) |
 | **Output** | `.mc-data/work/audit-devkit-{scan,verify,fix}/[session]/*.json` + reports (xem `procedures/phase4-summary.md §Output Files`) |
 | **Entry point** | Duy nhất cho MCV3 self-audit đầy đủ |
+
+### Workflow Position
+
+```
+[Thêm/sửa agent, skill, template, rule, hook] → /audit-devkit  ← YOU ARE HERE
+                                                      │
+                                                      ▼
+                              /audit-devkit-scan → /audit-devkit-verify → /audit-devkit-fix
+                                                      │
+                                                      ▼
+                                          Master Plan validation → Summary (→ release)
+```
+
+> Standalone self-audit lane của DEVKIT — KHÔNG thuộc main pipeline; chạy trước mỗi release MCV3.
+
+### Prerequisites
+
+- `.claude/agents/`, `.claude/skills/`, `.claude/hooks/`, `.claude/rules/` tồn tại (PRE-GATE E001 — không phải DEVKIT project nếu thiếu).
+- `--fix-only` yêu cầu scan + verify đã chạy trong session gần nhất (E005).
 
 ### Phân biệt với skill liên quan
 
@@ -98,6 +124,17 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Agent, TodoWrite, Skill
 > **Skill-internal shared:** `procedures/_shared.md` — State Variables, Argument Mapping, Sub-Skill Invocation Model, Verdict Computation, Error Handling, Session-ID Discovery.
 
 ---
+
+## Phase 0: Parse Args (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/phase0-parse-args.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Parse `$ARGUMENTS` → pipeline mode (`--full`/`--no-fix`/`--scan-only`/`--quick`/`--fix-only`/`--master-plan`) + scope args + `--evals`/`--since` | Arg hợp lệ; sai → E002 default `--full` |
+| 2 | PRE-GATE: DEVKIT directories tồn tại | Thiếu → E001 STOP |
+| 3 | `--fix-only` prerequisite validation (scan + verify session) | Thiếu → E005 STOP |
+| 4 | Build `$STAGES[]` + `$SCAN_ARGS`/`$VERIFY_ARGS`/`$FIX_SEVERITY` → route Phase 1 | Routing flow khớp mode |
 
 ## Phase Routing Map (lazy-loaded)
 
@@ -198,6 +235,18 @@ Bảng tính chi tiết: `procedures/_shared.md §Verdict Computation`.
 
 Chi tiết: `procedures/_shared.md §Error Handling Reference`.
 
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Argument không hợp lệ (E002) | WARNING + fallback default `--full` | Không escalate |
+| Sub-skill fail (E003) | Theo stage: scan/verify fail → STOP; fix fail → continue với available data | STOP stage → hiển thị error + stage name |
+| Output file thiếu sau sub-skill (E004) | Kiểm tra lại session-id discovery ×1 | Vẫn thiếu → STOP với hướng dẫn debug |
+| JSON invalid (E006) | Retry parse ×1 | Vẫn fail → STOP |
+| Scan incomplete (E007) | WARNING + continue với available data | CRITICAL-functional findings bị mất → STOP |
+| Registry read fail (E008) | WARNING + skip cross-validation | Không auto-fix thêm |
+| Script missing Phase 3.5/3.6 (E009/E010) | WARNING + component MISSING / skip eval verdict | Không auto-fix thêm |
+
 ---
 
 ## Lưu ý quan trọng
@@ -223,3 +272,5 @@ Chi tiết: `procedures/_shared.md §Error Handling Reference`.
 | `/audit-devkit-fix` | Sub-skill 3 — auto-fix với per-fix verification |
 | `/audit-agents` | Alternative — chỉ audit agent definitions (nhẹ hơn) |
 | `/audit-skill-output` | Khác mục đích — kiểm tra chất lượng output của skill |
+
+> **Next:** audit xong → review summary + verdicts tại `.mc-data/work/audit-devkit-{verify,fix}/reports/`, fix findings còn lại thủ công nếu có, rồi release version MCV3 mới.

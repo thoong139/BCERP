@@ -1,7 +1,7 @@
 ---
 name: audit-agents
-version: 3.0.0
-last_updated: 2026-04-19
+version: 3.1.0
+last_updated: 2026-09-12
 description: |
   Kiểm tra agents, procedures, và references tuân thủ Agent & Knowledge Construction Specification.
   Audit toàn bộ agent definitions, procedure files, knowledge files, và cross-references.
@@ -115,6 +115,14 @@ STEP 1: IF $ARGUMENTS chứa "--resume"
 STEP 2: Read procedures/phase0-init.md → execute Phase 0 → return với $SCOPE, $SESSION_ID, pending_phases[]
 ```
 
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | `--resume` handler: đọc `status.json` session gần nhất → jump `pending_phases[0]` | File hợp lệ; corrupt → E010 |
+| 2 | Parse `$ARGUMENTS` → `$SCOPE` (full/agents/procedures/references/single) + target | Scope hợp lệ |
+| 3 | Lazy-load `procedures/phase0-init.md`: load spec, init session dir + status.json | Session OK; spec thiếu → E001 |
+
 ---
 
 ## Phase Routing Map (lazy-loaded)
@@ -224,14 +232,23 @@ Chi tiết: `procedures/_shared.md §Checkpoint & Resume`.
 
 ## Error Handling
 
-Xem `procedures/_shared.md §Error Handling Reference` cho danh sách đầy đủ E001-E012.
+Chi tiết đầy đủ (E001-E012): `procedures/_shared.md §Error Handling Reference`.
 
 Tóm tắt:
-- **E001/E002** — Spec/agent files không tồn tại → STOP
-- **E003** — Knowledge path broken → Log CRITICAL finding, continue
-- **E004** — Agent file corrupt → Log CRITICAL finding, skip
-- **E006/E011/E012** — Sub-agent errors → Retry ×3, fallback direct check
-- **E010** — status.json corrupt khi resume → STOP, chạy lại từ đầu
+
+| Code | Tình huống | Xử lý |
+|------|-----------|-------|
+| E001/E002 | Spec/agent files không tồn tại | STOP — verify path |
+| E003 | Knowledge path broken | Log CRITICAL finding, continue |
+| E004 | Agent file corrupt | Log CRITICAL finding, skip agent |
+| E005 | Glob timeout | Retry với narrower scope |
+| E006 | Sub-agent timeout | Retry ×3, fallback direct check |
+| E007 | CLAUDE.md counts mismatch | Log MAJOR finding |
+| E008 | Procedure orphan (không có agent) | Log MAJOR finding, continue |
+| E009 | Knowledge domain không map 1:1 | Log MINOR finding, continue |
+| E010 | status.json corrupt khi resume | STOP, chạy lại từ đầu |
+| E011 | Agent trả text thay JSON | Fallback parse → fail → log raw + MANUAL |
+| E012 | Batch fail > 3 lần | Log MAJOR, tiếp tục batch kế |
 
 ---
 
@@ -243,6 +260,8 @@ Tóm tắt:
 | `/status` | Xem tiến độ dự án (complementary) |
 | `skill-compliance-audit.sh` | Audit skills thay vì agents (sibling) |
 | `/audit-devkit --full` | Audit toàn diện hơn (skills + templates + workflow) |
+
+> **Next:** audit xong → fix findings theo report, rồi re-audit; hoặc chạy `/audit-devkit --full` cho phạm vi rộng hơn.
 
 ---
 

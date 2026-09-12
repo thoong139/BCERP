@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "audit-devkit-verify",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "phase": "devkit-audit",
   "description": "Cross-validate findings từ audit-devkit-scan — kiểm tra references, workflow integrity, consistency. Hỗ trợ focused mode (--skill=<name>) cho verify 1 skill cụ thể. v3.0.0: tái cấu trúc monolithic SKILL.md thành 8 phase files + 1 _shared.md (lazy loading per-phase).",
   "prerequisites": {

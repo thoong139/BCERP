@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "audit-devkit-scan",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "phase": "devkit-audit",
   "description": "Scan DEVKIT components theo batches (≤20 files/batch), spawn auditor agents, build ground truth findings index. v3.0 refactored: monolithic SKILL.md tách thành procedures/ (9 files lazy-load per phase) + templates/ (4 JSON schemas, CORE-031 compliance). Hỗ trợ focused scan (--skill=<name>) và delta scan (--since=<commit>). Criteria S1-S12 cho skills, A1-A6 cho agents, T1-T5 cho templates.",
   "prerequisites": {
