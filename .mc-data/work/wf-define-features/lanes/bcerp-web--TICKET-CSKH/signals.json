@@ -1,0 +1,18 @@
+{
+  "lane_key": "bcerp-web--TICKET-CSKH",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-TICKET-CSKH",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-CSKH-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/ticket-cskh/ticket-va-cskh.md",
+      "req_ids": ["REQ-OPS-009"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T00:27:33+07:00",
+    "words_written": 4454
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "lane_key": "bcerp-web--HANDOFF-ONBOARD",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-HANDOFF-ONBOARD",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-HONB-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/handoff-onboard/handoff-va-onboarding-bridge.md",
+      "req_ids": ["REQ-SALES-008"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-HONB-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md",
+      "req_ids": ["REQ-OPS-004"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00+07:00",
+    "words_written": 6000
+  }
+}
