@@ -86,3 +86,54 @@
 | bdfb514 | P2.5 — _contract.json wf-test-business-workflow |
 | 4fdf2b5 | P4 — desc ≤1024 cho 7 skill |
 | (báo cáo này) | P5 — báo cáo cuối |
+
+---
+
+## 7. PHỤ LỤC (2026-09-13) — Xử lý Findings F-1/F-2/F-3
+
+Cả 3 findings đã xử lý xong trong phiên 13/09:
+
+### F-1 — wf-test-business-workflow EUREKA stale refs: ĐÃ XỬ LÝ (tái tạo, không port — EUREKA không có trên máy)
+
+| Thiếu trước đó | Đã tạo |
+|----------------|--------|
+| procedures/session-dir.md | Step 0.0-0.6 chi tiết (kill-switch, flag dispatch, machine config, prereqs, claim WF, session layout) |
+| procedures/resume-routing.md | --status dashboard + --resume routing theo next_action + quy tắc idempotent |
+| procedures/first-run-wizard.md | Wizard W1-W6 + **Machine Config Path = auto-memory của project hiện hành + mirror .machine-mirror.json** (đã loại path cứng `d--EUREKA-2026`) |
+| procedures/phase1-analyze.md | Parse spec → resolve accounts → naming gap → sinh analysis |
+| procedures/phase2-test.md | Sinh spec.ts → baseline run → fix loop classify 8 loại → MCP verify → record tc_results object format |
+| procedures/phase3-narrate.md | Dual-agent spawn (L1-L6 domain expert mapping) + compose presentation 5 sections |
+| procedures/phase4-spawn-next.md | Completeness audit 14 bước + pre-exit verification + checkpoint/progress + digest + prompt regen + spawn/fallback |
+| scripts/parse-workflow-spec.py | Parser §1-§16 → JSON (actors/steps/state machine/BR/SLA/scenarios) — smoke test trên P1-02 thật: 8 sections, 17 actors, 11 steps |
+| scripts/build-progress.py | Scan WF-L*.md → progress.json idempotent preserve statuses — smoke test graceful khi chưa có workflows dir |
+| scripts/next-session.py | Spawn tab mới (clipboard + AppActivate + SendKeys qua PowerShell), STOP/pending checks, exit 0/1 fallback — mirror next-session.ps1 |
+| templates/workflow-analysis.template.md + presentation.template.md + final-report.template.md | 3 templates được tham chiếu nhưng thiếu |
+
+Kèm theo: SKILL.md viết lại 689 → **295 dòng** (routing hub, step detail chuyển hết vào procedures); `_contract.json` v1.1.0 cập nhật procedure list + known_gaps → RESOLVED; **evals/evals.json mới 4 cases** (trước đây là blind spot thiếu evals).
+
+Còn lại là điều kiện chạy đúng (không phải gap): skill chỉ chạy end-to-end khi (a) apps/erp-web + apps/backend đã implement (Phase 5b), (b) có WF-L*.md specs từ wf-analyze-requirements.
+
+### F-2 — 4 skill vượt 500 dòng: ĐÃ XỬ LÝ (tách content, không xóa chức năng)
+
+| Skill | Trước → Sau | Cách tách |
+|-------|-------------|-----------|
+| wf-test-business-workflow | 689 → 295 | Xem F-1 (step detail → 7 procedures) |
+| wf-fix-bugs | 532 → 488 | References + Design Rationale → `procedures/_design-notes.md` (reference thuần) |
+| wf-implement-feature | 582 → 492 | --status/--resume handlers → `procedures/status-resume.md`; Multi-Run Logic → append `procedures/flow-multi.md` |
+| ui-ux-pro-max | 504 → 441 | Capabilities reference → `procedures/capabilities.md` |
+
+Mọi nội dung được DI CHUYỂN (không xóa), SKILL.md giữ pointer. Cả 4 skill PASS audit sau tách.
+
+### F-3 — audit script: ĐÃ XỬ LÝ (2 fix trong skill-compliance-audit.sh)
+
+1. **Check 1.2 TRIGGER window:** `grep -A 20 '^description:'` → awk quét toàn bộ khối description (1 dòng hoặc multi-line block scalar, dừng ở top-level key kế). Fix case changelog dài đẩy TRIGGER ra xa (audit-devkit). Đã test cả 2 kiểu description — không FALSE-pass (vẫn phải có chữ trigger trong description).
+2. **find_skill_file blind spot:** thêm `workflows/` (số nhiều) vào các vị trí tìm — `skill-compliance-audit.sh new-project` giờ tìm thấy orchestrator trực tiếp (trước phải truyền path đầy đủ).
+
+### Verify sau xử lý
+
+- `skill-compliance-audit.sh --all`: **60/60 PASS** (0 WARNING / 0 FAIL)
+- `validate-schema-sync.sh --all`: **33/33 PASS**
+- desc ≤1024: ALL 60 CLEAN
+- ≤500 dòng: ALL 60 CLEAN (4 skill đã tách)
+- Python scripts: `py_compile` PASS + smoke test trên dữ liệu thật
+- `_contract.json` JSON valid
