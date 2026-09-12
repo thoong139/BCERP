@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-batch
-version: 1.0.0
-last_updated: 2026-05-15
+version: 1.1.0
+last_updated: 2026-09-12
 description: |
   BATCH ORCHESTRATOR — điều phối N FEATs với dependency-matrix. Dispatch wf-e2e-verify
   theo topology sort. Cross-FEAT test isolation, gate sau mỗi 3 FEAT, per-FEAT DB schema namespace.
@@ -22,10 +22,23 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, AskUserQuestion, 
 | Mục | Nội dung |
 |-----|----------|
 | **Vai trò** | Batch Orchestrator — dispatch wf-e2e-verify × N FEATs |
+| **Prerequisites** | Registry tồn tại + ≥1 FEAT-ID resolvable từ `--scope`/`--feats` (PRE-GATE T1-T2); code các FEAT đã implement |
 | **Standalone** | YES — entry point cho batch E2E |
 | **Input** | `--scope=<module>` HOẶC `--feats=ID1,ID2,...` |
 | **Output** | `batch-summary.md`, `batch-impact.json`, `dependency-matrix.json` |
 | **Không làm** | Không test trực tiếp — chỉ orchestrate |
+
+### Workflow Position
+
+```
+/wf-implement-feature (code xong N features)
+        │
+        ▼
+/wf-e2e-batch  ← YOU ARE HERE — dispatch /wf-e2e-verify × N FEATs
+        │
+        ▼
+/wf-verify-sync (consume batch results) → /wf-prepare-deployment
+```
 
 ## Flow Tổng Quan
 
@@ -49,17 +62,28 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, AskUserQuestion, 
    ▼ Phase 4: AGGREGATE — batch-summary.md + batch-impact.json
 ```
 
+## Phase 0: INIT (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/_shared.md §init`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Parse flags (`--scope`/`--feats`, `--max-parallel`, `--dry-run`, `--auto`, `--resume`, `--status`) | Flags hợp lệ; thiếu scope/feats → E002 |
+| 2 | Session init + lock + heartbeat trong `sessions/{batch-id}/` | Lock acquired; conflict → E003 |
+| 3 | CI PRE-GATE Na-Nc (detect + freshness + inject context) | CI flags + `$CI_CONTEXT` set |
+| 4 | PRE-GATE T1-T2: registry valid + FEATs resolvable | ≥1 FEAT-ID; E001/E050 → STOP |
+
 ## Phase Routing Map
 
-| Phase | Procedure file | Mô tả |
-|-------|---------------|-------|
-| P0 INIT | `procedures/_shared.md` §init | Session init, lock, parse flags, CI PRE-GATE |
-| P1 DISCOVER | `procedures/phase1-discover.md` | Đọc registry, filter FEATs |
-| P2 DEPENDENCY | `procedures/phase2-dependency.md` | Build dependency matrix + CF1/CF7 |
-| P3 EXECUTE | `procedures/phase3-execute.md` | Topology dispatch + CF2/CF3/CF4/CF5/CF8 |
-| P4 AGGREGATE | `procedures/phase4-aggregate.md` | Tổng hợp kết quả |
-| RESUME/STATUS | `procedures/resume-status.md` | --resume và --status handlers |
-| AUTO-RESOLVE | `procedures/auto-resolve.md` | Agent-based decision engine cho --auto mode — spawn architect agent tại mọi CDG points (cf2/cf3/cf5/verify_block), audit log tại auto-decisions.jsonl |
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | P0 INIT | `procedures/_shared.md` §init | Session init, lock, parse flags, CI PRE-GATE |
+| **1** | P1 DISCOVER | `procedures/phase1-discover.md` | Đọc registry, filter FEATs |
+| **2** | P2 DEPENDENCY | `procedures/phase2-dependency.md` | Build dependency matrix + CF1/CF7 |
+| **3** | P3 EXECUTE | `procedures/phase3-execute.md` | Topology dispatch + CF2/CF3/CF4/CF5/CF8 |
+| **4** | P4 AGGREGATE | `procedures/phase4-aggregate.md` | Tổng hợp kết quả |
+| **R** | RESUME/STATUS | `procedures/resume-status.md` | --resume và --status handlers |
+| **A** | AUTO-RESOLVE | `procedures/auto-resolve.md` | Agent-based decision engine cho --auto mode — spawn architect agent tại mọi CDG points (cf2/cf3/cf5/verify_block), audit log tại auto-decisions.jsonl |
 
 ## Arguments
 
@@ -130,7 +154,7 @@ Toàn batch: batch-impact.json (schema e2e-batch-v1, audit_chain)
 | batch-summary.md | `sessions/{id}/batch-summary.md` | P4 | `templates/batch-summary.template.md` |
 | batch-impact.json | `sessions/{id}/batch-impact.json` | P4 | `templates/batch-impact.template.json` |
 
-## Error Codes
+## Error Handling
 
 | Code | Mô tả |
 |------|-------|
@@ -147,6 +171,17 @@ Toàn batch: batch-impact.json (schema e2e-batch-v1, audit_chain)
 | E056 | Chain rollback policy conflict (CF5) |
 | E057 | Cross-REQ-ID mismatch (CF6) |
 | E058 | Upstream cache hash mismatch — FEAT A findings đã thay đổi (CF8) |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| FEAT B fail do FEAT A chưa đạt min_completion (E053, CF2) | Re-queue FEAT B vào level kế tiếp theo topology; 2-tier dependency check lại trước dispatch | FEAT A fail terminally → áp dụng chain rollback policy (CF5) hoặc hỏi user |
+| Gate check fail sau 3 FEATs (E054, CF3) | Dừng dispatch FEATs kế tiếp, giữ kết quả đã có trong batch-status.json | User quyết định continue (note trong audit_chain) hay abort batch |
+| Upstream cache hash mismatch (E058, CF8) | Invalidate cached findings của FEAT A, re-dispatch F0a rồi cho FEAT B consume lại | Findings thay đổi lần 2 — STOP, báo data instability |
+| Circular dependency (E051) | Không auto-fix — hiển thị cycle path cho user gỡ node | User không gỡ được → abort batch |
+| Per-FEAT schema namespace fail (E055) | Retry tạo namespace ×1 (Docker có thể chậm start) | Vẫn fail → giảm --max-parallel, hỏi user |
+| Session lock conflict (E003) | Retry acquire ×3 với backoff | Vẫn conflict → báo session khác đang chạy, STOP |
 
 ## Parallelism Architecture
 
@@ -182,5 +217,7 @@ Toàn batch: batch-impact.json (schema e2e-batch-v1, audit_chain)
 | `wf-verify-sync` | Downstream — consume batch results |
 | `/status` | Xem tiến độ skill |
 | `/wf-playwright-runner` | Standalone runner — xử lý Playwright queue |
+
+> **Next:** batch xong → `/wf-verify-sync` (consume batch results) → `/wf-prepare-deployment`; FEAT fail xem `batch-summary.md` + chạy `/wf-e2e-fix`.
 
 > **Protocol:** Xem `.claude/skills/protocols/` — Protocol 10 (POST-GATE Schema), Protocol 14 (Phase Summary), Protocol 15 (Session Log), Protocol 16 (CDG), Protocol 19 (Template Usage Rule), Protocol 20 (Code Intelligence).

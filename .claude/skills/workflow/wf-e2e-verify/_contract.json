@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-verify",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "phase": "ORCHESTRATOR — điều phối 11 sub-skills wf-e2e-* (F0/F0a/F0b/F1-F8)",
   "description": "v8.0.0 (2026-05-15): Tier 0 Foundation Refactor — thêm F0/F0a/F0b vào pipeline. F0a wf-e2e-finding tách FIND khỏi F1. --strict-evidence ON by default. Context G4 checkpoint sau F0a. v7.0.0 (2026-05-13): 8 sub-skills atomic từ monolithic v6.5.0.",
   "procedure": [

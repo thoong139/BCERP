@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-batch",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "phase": "Batch Orchestrator — N FEATs với dependency graph",
   "description": "Điều phối N wf-e2e-verify sessions với topology sort và cross-FEAT isolation",
   "procedure": [

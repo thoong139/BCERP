@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-fix
-version: 1.0.0
-last_updated: 2026-05-13
+version: 1.1.0
+last_updated: 2026-09-12
 description: |
   F6 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --fix).
   Continuous fix loop: đọc issues.json (status=open) → sort severity → fix surgical → spawn F5 retest → update issues → lặp.
@@ -26,6 +26,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Continuous fix loop cho issues phát hiện bởi F1/F2/F5/F7/F8 |
+| **Prerequisites** | `issues.json` (hoặc `--path=<file>`) có ≥1 entry status=open + `--session=<id>` BẮT BUỘC + Serena/GitNexus khả dụng hoặc fallback (PRE-GATE T1-T4) |
 | **Standalone** | NO — require `--session=<id>` |
 | **Input** | `issues.json` (default) HOẶC `--path=<custom>` |
 | **Output** | `fix-log.json`, code patches, UPDATE `issues.json` (open → fixed/still_fail/deferred-locked/unfixable) |
@@ -86,6 +87,29 @@ F1 (issues.json initial) → F2 (more issues) → F5 (retest reveals more)
 ## CI PRE-GATE (CORE-033)
 
 > CI tools auto-detect. F6 can CI cho impact analysis (GitNexus) + surgical fix (Serena).
+
+## Phase 0: Load & Sort Issues (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/fix-loop.md` ROUND header. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE T1-T4: issues.json tồn tại + schema valid + ≥1 status=open + required fields | Fail → E060 |
+| 2 | CI PRE-GATE Na-Nc (impact analysis cần GitNexus; surgical fix cần Serena) | CI flags set |
+| 3 | READ issues.json → filter status=open (exclude still_fail/deferred-locked/unfixable) → SORT severity critical→low | Danh sách sort sẵn sàng |
+| 4 | Route vào fix loop ROUND N (fix-loop.md) | Round entry ghi fix-log.json |
+
+## Phase Routing Map (CORE-032 lazy-load)
+
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | Load + Sort | `procedures/fix-loop.md` §ROUND | PRE-GATE + filter + sort issues |
+| **1** | Fix per issue | `procedures/fix-loop.md` | Impact check → lock → surgical fix (Serena) → UPDATE issues.json atomic |
+| **2** | Spawn retest | `procedures/fix-loop.md` §F5 | SPAWN F5 wf-e2e-retest --scope=<type> → đọc retest-report → fixed/retry |
+| **3** | Retry budget | `procedures/retry-budget.md` | Retry 0-3 per issue; hết → still_fail SKIP forever |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume / --status handlers |
+
+CI PRE-GATE steps (Na-Nc):
 
 | Step | Action | Verify |
 |------|--------|--------|
@@ -186,7 +210,9 @@ Xem `procedures/resume-status.md`.
 
 ---
 
-## Error Codes (E060-E069)
+## Error Handling
+
+Codes E060-E069 (per-skill namespace):
 
 | Code | Mô tả |
 |------|-------|
@@ -200,6 +226,30 @@ Xem `procedures/resume-status.md`.
 | E067 | F5 spawn fail |
 | E068 | Anti-loop F6↔F5 max 3 vòng (escalate orchestrator) |
 | E069 | Atomic write fail |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Retest FAIL sau fix (retry 0-2) | Re-read code, re-analyze với context khác; retry 2 spawn Agent subagent_type=developer 2nd opinion | Retry 3 → status=still_fail, SKIP forever |
+| Surgical fix fail (E063) | Retry với replace_content (narrower scope) nếu replace_symbol_body fail | Vẫn fail → mark issue unfixable candidate, hỏi user |
+| Impact HIGH/CRITICAL (E066) | KHÔNG auto-fix — log WARN + user confirm bắt buộc | User từ chối → defer issue (deferred-locked) |
+| Lock conflict (E064) | Chờ source-{hash}.lock release rồi retry acquire | Vẫn conflict → SKIP issue này round hiện tại |
+| Anti-loop F6↔F5 (E068) | Orchestrator đếm vòng; F6 tự STOP khi detect loop | Max 3 vòng → E068 escalate orchestrator |
+| Atomic write fail (E069) | Restore từ temp rồi write lại | Temp hỏng — STOP |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| fix-log.json + Phase-report.md (CORE-028) | `F6-fix/` | CREATE |
+| status.json | `F6-fix/` | CREATE + UPDATE |
+| issues.json | session root | READ + UPDATE (open → fixed/still_fail/deferred-locked/unfixable) |
+| Code patches | source tree | EDIT (surgical qua Serena) |
+
+> **Next:** F6 xong → F5 `/wf-e2e-retest` xác nhận (hoặc F6 tự spawn trong loop); hết open → orchestrator `/wf-e2e-verify` tiếp F7/F8.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-credentials",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "phase": "support",
   "description": "Credential Vault cho e2e testing pipeline. OS keychain-backed. CDG required for all register/revoke.",
   "registry_scope": {

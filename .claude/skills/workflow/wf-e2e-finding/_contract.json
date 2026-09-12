@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-finding",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "phase": "F0a — Business/DB/API/UI analysis only (FIND, NO live-test)",
   "description": "Analysis-only phase: scan code → generate 8 finding files + init 4 SSOT JSONs. Consumed by wf-e2e-test (F1). Tách từ wf-e2e-test v1.0.0 (Tier 0 Foundation Refactor 2026-05-15).",
   "procedure": [

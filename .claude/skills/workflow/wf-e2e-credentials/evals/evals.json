@@ -1,0 +1,80 @@
+{
+  "skill": "wf-e2e-credentials",
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "TC-CRED-001",
+      "name": "Register — CDG bắt buộc, giá trị nhập qua stdin, không log",
+      "input": {
+        "command": "/wf-e2e-credentials register --feat=FEAT-EW-CRM-001 --key=TEST_ADMIN_PASSWORD",
+        "context": "Dự án đã có .mc-data/work/. Backend macOS keychain khả dụng. Credential TEST_ADMIN_PASSWORD chưa tồn tại."
+      },
+      "expected_behavior": [
+        "Phase 0 dispatch: command hợp lệ, PRE-GATE T1-T4 pass",
+        "Detect backend = macos",
+        "CDG hiển thị key name + FEAT + backend (KHÔNG hiện giá trị), user gõ yes",
+        "Giá trị credential nhập qua stdin riêng, không echo",
+        "POST-GATE: get probe xác nhận credential tồn tại; credentials-manifest.json có entry TEST_ADMIN_PASSWORD → FEAT-EW-CRM-001"
+      ],
+      "assertions": [
+        "stdout KHÔNG chứa giá trị credential (chỉ key names)",
+        "jq '.credentials[] | select(.key==\"TEST_ADMIN_PASSWORD\")' credentials-manifest.json trả về 1 entry",
+        "manifest KHÔNG chứa field value/bí mật nào"
+      ]
+    },
+    {
+      "id": "TC-CRED-002",
+      "name": "Get — inject env var, KHÔNG in ra stdout",
+      "input": {
+        "command": "/wf-e2e-credentials get --feat=FEAT-EW-CRM-001 --key=TEST_ADMIN_PASSWORD",
+        "context": "Credential TEST_ADMIN_PASSWORD đã register ở vault, backend macos."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass (--feat + --key cung cấp)",
+        "Truy xuất từ keychain, inject vào env var TEST_ADMIN_PASSWORD của process",
+        "POST-GATE: env var được set; stdout KHÔNG chứa giá trị"
+      ],
+      "assertions": [
+        "printenv TEST_ADMIN_PASSWORD (trong cùng process scope) không rỗng",
+        "stdout/output files không chứa giá trị credential",
+        "KHÔNG có credential value nào xuất hiện trong prompts của agent"
+      ]
+    },
+    {
+      "id": "TC-CRED-003",
+      "name": "Revoke + CDG rejected + credential not found paths",
+      "input": {
+        "command": "/wf-e2e-credentials revoke --feat=FEAT-EW-CRM-001 --key=TEST_ADMIN_PASSWORD",
+        "context": "Credential tồn tại. Lần 1 user từ chối CDG (E073). Lần 2 user đồng ý → revoke thành công. Lần 3 get lại cùng key."
+      },
+      "expected_behavior": [
+        "Lần 1: CDG hỏi, user NO → E073, vault không đổi gì, exit sạch",
+        "Lần 2: CDG yes → xóa khỏi keychain → POST-GATE get probe FAIL (đã xóa) + manifest updated (entry bỏ đi)",
+        "Lần 3: get → E074 Credential not found, prompt hướng dẫn register"
+      ],
+      "assertions": [
+        "Sau lần 1: manifest vẫn còn entry (không đổi)",
+        "Sau lần 2: get probe FAIL; manifest không còn entry TEST_ADMIN_PASSWORD",
+        "Lần 3 hiển thị E074 + hướng dẫn register, KHÔNG in giá trị nào"
+      ]
+    },
+    {
+      "id": "TC-CRED-004",
+      "name": "Check — report đủ/thiếu credentials cho FEAT",
+      "input": {
+        "command": "/wf-e2e-credentials check --feat=FEAT-EW-FIN-008",
+        "context": "FEAT-EW-FIN-008 cần 3 keys theo manifest template; vault chỉ có 2."
+      },
+      "expected_behavior": [
+        "PRE-GATE pass (--feat cung cấp)",
+        "So sánh required keys vs vault → report missing_count=1, available_count=2",
+        "POST-GATE: report trả về đủ 2 counters"
+      ],
+      "assertions": [
+        "Output có missing_count = 1 và available_count = 2",
+        "Chỉ liệt kê key names, không values",
+        "Exit code/report status phản ánh MISSING (để wf-e2e-test quyết định block hay skip)"
+      ]
+    }
+  ]
+}

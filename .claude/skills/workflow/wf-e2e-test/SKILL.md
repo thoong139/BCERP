@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-test
-version: 2.0.0
-last_updated: 2026-05-15
+version: 2.1.0
+last_updated: 2026-09-12
 description: |
   F1 trong chuỗi wf-e2e-* — Live test code-based 1 feature (KHÔNG FIND — consume findings từ F0a wf-e2e-finding; G5 shim tự spawn F0a nếu thiếu). 5 phase: SETUP → DB → API → UI → INTEGRATION → OUTPUT. KHÔNG dùng Playwright (đó là F2/F7/F8). Cross-module + Parallel-safe LUÔN ON. Live DB + Live API + Live FE BẮT BUỘC; hạ tầng không chạy → MANDATORY auto-start (retry 2 lần), fail → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion, KHÔNG silent fallback code analysis. Block classification 4 nhóm: Nhóm 3 DUAL-WRITE block-test.json + implement-required.json (F4 consume); Nhóm 4 verify code → block-test.json + manual.json (QA consume). ISSUE-IMMEDIATE: ghi NGAY mỗi issue vào issues.json (1 lỗi = 1 write).
 
@@ -23,6 +23,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, AskUserQuestion, 
 | Mục                                   | Nội dung                                                                                                                                                                             |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Mục đích**                  | Test code-based 1 feature qua 6 phase: Business → DB → API → UI → Integration → Output                                                                                           |
+| **Prerequisites** | `req-registry.json` + FEAT-ID hợp lệ + spec > 500 bytes + req_ids cross-ref (PRE-GATE T1-T4); findings từ F0a wf-e2e-finding (G5 shim tự spawn nếu thiếu) |
 | **Standalone**                   | YES — tạo session mới nếu thiếu `--session`                                                                                                                                    |
 | **Cross-module + Parallel-safe** | LUÔN ON (default), không cần flag                                                                                                                                                  |
 | **Input**                        | `<FEAT-ID>` (vd `FEAT-EW-CRM-001`)                                                                                                                                                |
@@ -163,17 +164,29 @@ Mỗi phase 1-5 chạy: `[FIND] → [ASSESS] → đủ? → [LIVE-TEST] (P2-3) h
 
 ---
 
+## Phase 0: SETUP (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/phase0-setup.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Session init: tạo sessions/{FEAT-ID}-*/, lock + heartbeat daemon (cross-session R/W locks) | Lock OK |
+| 2 | `--status`/`--resume`/`--session` handlers (resume-status.md) | Route đúng phase hoặc DỪNG |
+| 3 | PRE-GATE T1-T4 (registry, FEAT-ID, spec content, req_ids cross-ref) | Fail → E001/E002 STOP |
+| 4 | PRE-GATE CONSUME F0a (CORE-036): verify findings/ 8 files + 4 SSOT JSONs | Fail → G5 shim auto-spawn F0a |
+| 5 | status.json init → route P2 (P1 đã chuyển sang F0a) | current_phase resolved |
+
 ## Phase Routing Map (CORE-032 lazy-load)
 
-| Phase | Sub-state | Procedure file | Output |
-|-------|-----------|---------------|--------|
-| **P0 SETUP** | INIT + CONSUME F0a | `procedures/phase0-setup.md` | status.json init + F0a verification |
-| ~~**P1 BUSINESS**~~ | *(Di chuyển sang F0a)* | `procedures/phase1-business.md` (redirect) | Xem wf-e2e-finding |
-| **P2 DB** | LIVE-TEST→FIX→RETEST | `procedures/phase2-db.md` | db-test-report.md (consume db-mapping.md từ F0a) |
-| **P3 API** | LIVE-TEST→FIX→RETEST | `procedures/phase3-api.md` | api-test-report.md (consume api-mapping.md từ F0a) |
-| **P4 UI** | TEST→FIX→RETEST | `procedures/phase4-ui.md` | ui-test-report.md (consume ui-mapping.md từ F0a) |
-| **P5 INTEGRATION** | TEST→FIX→RETEST (LUÔN ON) | `procedures/phase5-integration.md` | `findings/integration-test-report.md` |
-| **P6 OUTPUT** | DONE | `procedures/phase6-output.md` | test-scenario.md (skeleton), user-guide.md (skeleton) |
+| # | Phase | Sub-state | Procedure file | Output |
+|---|-------|-----------|---------------|--------|
+| **0** | P0 SETUP | INIT + CONSUME F0a | `procedures/phase0-setup.md` | status.json init + F0a verification |
+| **1** | ~~P1 BUSINESS~~ | *(Di chuyển sang F0a)* | `procedures/phase1-business.md` (redirect) | Xem wf-e2e-finding |
+| **2** | P2 DB | LIVE-TEST→FIX→RETEST | `procedures/phase2-db.md` | db-test-report.md (consume db-mapping.md từ F0a) |
+| **3** | P3 API | LIVE-TEST→FIX→RETEST | `procedures/phase3-api.md` | api-test-report.md (consume api-mapping.md từ F0a) |
+| **4** | P4 UI | TEST→FIX→RETEST | `procedures/phase4-ui.md` | ui-test-report.md (consume ui-mapping.md từ F0a) |
+| **5** | P5 INTEGRATION | TEST→FIX→RETEST (LUÔN ON) | `procedures/phase5-integration.md` | `findings/integration-test-report.md` |
+| **6** | P6 OUTPUT | DONE | `procedures/phase6-output.md` | test-scenario.md (skeleton), user-guide.md (skeleton) |
 
 **Block classification** áp dụng Phase 2-5: `procedures/block-classification.md` — 4 nhóm + dual-write block-test.json + implement-required.json / manual.json.
 
@@ -250,7 +263,9 @@ Update `status.context_estimate_pct` mỗi POST-GATE để track.
 
 ---
 
-## Error Codes (E010-E022 namespace)
+## Error Handling
+
+Codes E010-E022 namespace (per-skill):
 
 | Code | Phase | Mô tả                                               | Action                                 |
 | ---- | ----- | ----------------------------------------------------- | -------------------------------------- |
@@ -272,6 +287,30 @@ Update `status.context_estimate_pct` mỗi POST-GATE để track.
 | E020 | P4    | Phase 1 outputs chưa available                      | WARN + ghi caveat, continue best-effort |
 | E021 | P4    | Coverage Phase 4 critically low (<50%)              | FAIL POST-GATE, escalate               |
 | E022 | P4    | Critical UI element missing                          | FAIL POST-GATE, escalate               |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Hạ tầng DB/BE/FE chưa chạy (LIVE-TEST P2+) | MANDATORY auto-start `ensure_infrastructure_running` (retry ×2) + auto-diagnose — KHÔNG silent fallback code-only | Fail sau 2 retry → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion |
+| Schema/field violations (E012-E014, E017) | Auto-fix retry tối đa 3 lần (điền lại field/link 2 chiều) | Hết 3 retries → FAIL POST-GATE, escalate |
+| Cross-reference mismatch (E015) | Auto-fix link lại 2 chiều | Hết 3 retries → escalate |
+| Atomic write fail (E016) | Restore từ temp file rồi write lại | Temp hỏng — STOP |
+| code_verification FAIL ghi manual (E019) | KHÔNG auto-fix — escalate issue thay vì manual entry | Luôn escalate |
+| F0a findings thiếu (G5) | Shim auto-spawn F0a wf-e2e-finding rồi re-verify | F0a fail → STOP |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| findings/*.md (12 files) | session root | CREATE (P1 từ F0a, P2-P5 F1 sinh) |
+| outputs/test-scenario.md + outputs/user-guide.md | session outputs | CREATE skeleton (P6 — F7/F8 fill sau) |
+| issues.json / block-test.json / implement-required.json / manual.json | session root | CREATE + APPEND (ISSUE-IMMEDIATE, DUAL-WRITE) |
+| Phase{N}-report.md (CORE-028) | `F1-test/` | CREATE per phase |
+
+> **Next:** F1 xong → F2 `/wf-e2e-browser` → F3 `/wf-e2e-unblock` → F4 → F5 → F6 → F7 → F8; qua orchestrator `/wf-e2e-verify`.
 
 ---
 

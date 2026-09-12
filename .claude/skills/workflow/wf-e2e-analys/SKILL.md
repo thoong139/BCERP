@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-analys
-version: 3.0.0
-last_updated: 2026-05-15
+version: 3.1.0
+last_updated: 2026-09-12
 description: |
   F1 trong chuỗi wf-e2e-* — Phân tích code 1 feature qua 5 lớp: DB → API → UI → Integration → Output.
   Consume findings từ F0a wf-e2e-finding (KHÔNG tự generate findings).
@@ -30,6 +30,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, AskUserQuestion, 
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Phân tích code 1 feature qua 5 lớp: DB → API → UI → Integration → Output |
+| **Prerequisites** | `req-registry.json` + FEAT-ID hợp lệ + spec > 500 bytes + findings/ từ F0a wf-e2e-finding (chi tiết PRE-GATE dưới) |
 | **Standalone** | YES — tạo session mới nếu thiếu `--session` |
 | **Cross-module** | LUÔN ON (default, không cần flag) |
 | **Input** | `<FEAT-ID>` + findings/ từ F0a |
@@ -133,16 +134,28 @@ F0a wf-e2e-finding (findings/)
 
 ---
 
+## Phase 0: SETUP (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/phase0-setup.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | `--status` handler: đọc status.json session gần nhất, in dashboard | DỪNG sau khi in |
+| 2 | Validate FEAT-ID trong registry (jq select) | Hợp lệ; thiếu → E001 |
+| 3 | Load feature metadata + spec (path, module, system, req_ids) | Spec tồn tại > 500 bytes; thiếu → E002 |
+| 4 | Resume check: `--resume`/`--session=<id>` → load status.json → jump phase | current_phase resolved |
+| 5 | PRE-GATE CONSUME F0a (CORE-036): verify findings/ ≥ 4 files + 4 SSOT JSONs | Fail → E010 auto-spawn F0a, retry |
+
 ## Phase Routing Map (CORE-032 lazy-load)
 
-| Phase | Procedure file | Output |
-|-------|---------------|--------|
-| **P0 SETUP** | `procedures/phase0-setup.md` | status.json init + F0a verification |
-| **P2 DB** | `procedures/phase2-db.md` | db-analysis-report.md (consume db-mapping.md từ F0a) |
-| **P3 API** | `procedures/phase3-api.md` | api-analysis-report.md (consume api-mapping.md từ F0a) |
-| **P4 UI** | `procedures/phase4-ui.md` | ui-analysis-report.md (consume ui-mapping.md từ F0a) |
-| **P5 INTEGRATION** | `procedures/phase5-integration.md` | integration-analysis-report.md |
-| **P6 OUTPUT** | `procedures/phase6-output.md` | issues.json, implement-required.json, manual.json populated |
+| # | Phase | Procedure file | Output |
+|---|-------|---------------|--------|
+| **0** | P0 SETUP | `procedures/phase0-setup.md` | status.json init + F0a verification |
+| **2** | P2 DB | `procedures/phase2-db.md` | db-analysis-report.md (consume db-mapping.md từ F0a) |
+| **3** | P3 API | `procedures/phase3-api.md` | api-analysis-report.md (consume api-mapping.md từ F0a) |
+| **4** | P4 UI | `procedures/phase4-ui.md` | ui-analysis-report.md (consume ui-mapping.md từ F0a) |
+| **5** | P5 INTEGRATION | `procedures/phase5-integration.md` | integration-analysis-report.md |
+| **6** | P6 OUTPUT | `procedures/phase6-output.md` | issues.json, implement-required.json, manual.json populated |
 
 ---
 
@@ -180,7 +193,9 @@ Fail T4 → auto-spawn F0a → retry.
 
 ---
 
-## Error Codes (E010-E022)
+## Error Handling
+
+Codes E001-E022 (per-skill namespace, xem `_contract.json.error_codes`):
 
 | Code | Phase | Mô tả | Action |
 |------|-------|-------|--------|
@@ -192,6 +207,30 @@ Fail T4 → auto-spawn F0a → retry.
 | E010 | P0 | F0a findings thiếu — spawn F0a | Auto-spawn F0a |
 | E015 | POST | Cross-reference mismatch | Auto-fix retry x3 |
 | E016 | All | Atomic write fail | Restore from temp |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| F0a findings thiếu (E010) | Auto-spawn F0a wf-e2e-finding rồi retry PRE-GATE | F0a spawn fail hoặc findings vẫn thiếu sau retry |
+| Cross-reference mismatch POST-GATE (E015) | Auto-fix retry tối đa 3 lần | Hết 3 retries — STOP phase, hỏi user |
+| Atomic write fail (E016) | Restore file từ temp file rồi write lại | Temp cũng hỏng — STOP, báo disk issue |
+| Stale lock >30 min (E008) | Auto-release lock, WARN, continue | Lock còn fresh nhưng conflict (E007) → hỏi user retry/abort |
+| Context >90% (E009) | FORCE STOP + checkpoint status.json | User `--resume` ở session mới |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Phase |
+|------|----------------------|-------|
+| db-analysis-report.md | `.mc-data/work/wf-e2e-verify/sessions/{FEAT-ID}-*/F1-test/` | P2 |
+| api-analysis-report.md | `.mc-data/work/wf-e2e-verify/sessions/{FEAT-ID}-*/F1-test/` | P3 |
+| ui-analysis-report.md | `.mc-data/work/wf-e2e-verify/sessions/{FEAT-ID}-*/F1-test/` | P4 |
+| integration-analysis-report.md | `.mc-data/work/wf-e2e-verify/sessions/{FEAT-ID}-*/F1-test/` | P5 |
+| issues.json / block-test.json / implement-required.json / manual.json | `.mc-data/work/wf-e2e-verify/sessions/{FEAT-ID}-*/` | P6 |
+
+> **Next:** F1 xong → F4 `/wf-e2e-implement` (consume implement-required.json) hoặc F6 `/wf-e2e-fix` (consume issues.json); trong pipeline dùng `/wf-e2e-verify`.
 
 ---
 

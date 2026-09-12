@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-retest",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "phase": "F5 — Retest pending items (Playwright BẮT BUỘC cho UI, auto-start mandatory)",
   "description": "F5 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --retest). Scan reports tìm PENDING/SKIP/⬜ → retest → cập nhật reports + issues.json (CORE-039). Playwright BẮT BUỘC cho UI items. FE/BE/DB không chạy → MANDATORY auto-start (retry 2 lần); fail → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion. KHÔNG có cờ --no-playwright, KHÔNG silent fallback static. Code analysis CHỈ hợp lệ cho item Nhóm 4 (visual/real payment/OAuth/hardware/human judgment). v1.1.0 (2026-05-14).",
   "procedure": [

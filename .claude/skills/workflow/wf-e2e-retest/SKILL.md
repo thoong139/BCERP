@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-retest
-version: 1.1.0
-last_updated: 2026-05-14
+version: 1.2.0
+last_updated: 2026-09-12
 description: |
   F5 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --retest).
   Scan reports tìm tests PENDING/SKIP/⬜ → re-check điều kiện → retest → cập nhật reports.
@@ -36,6 +36,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Scan reports tìm PENDING/SKIP/⬜ items → retest → cập nhật reports + issues.json |
+| **Prerequisites** | F1 reports tồn tại trong session (findings/*.md + issues.json + block-test.json) + `--session=<id>` BẮT BUỘC (PRE-GATE) |
 | **Standalone** | NO — require `--session=<id>` |
 | **Input** | Tất cả `findings/*.md`, `outputs/test-scenario.md`, `issues.json`, `block-test.json` |
 | **Output** | `retest-log.md`, UPDATE reports (PENDING→PASS/FAIL), UPDATE `issues.json` (CORE-039) |
@@ -99,6 +100,29 @@ F1 outputs → F2 browser → F3 unblock → F4 implement
 ## CI PRE-GATE (CORE-033)
 
 > CI tools auto-detect. F5 can CI cho code-retest (API routes, DB queries).
+
+## Phase 0: Scan Pending (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/scan-pending.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE: F1 reports tồn tại + ≥1 pending item | Fail → E050 |
+| 2 | CI PRE-GATE Na-Nc (code-retest cần API routes/DB queries) | CI flags set |
+| 3 | Scan 3 sources (reports PENDING/SKIP/⬜, issues fixed chưa retest, block-test unblocked) → categorize ui/code/integration | Danh sách pending có scope |
+| 4 | Route từng item theo scope (playwright-retest / code-retest) | Mỗi item được retest hoặc ESCALATE Nhóm 2 |
+
+## Phase Routing Map (CORE-032 lazy-load)
+
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | Scan pending | `procedures/scan-pending.md` | PRE-GATE + scan 3 sources + categorize |
+| **1** | UI retest | `procedures/playwright-retest.md` | MANDATORY auto-start FE + Playwright → live browser retest |
+| **2** | Code retest | `procedures/code-retest.md` | MANDATORY auto-start BE + DB → curl/dotnet test live |
+| **3** | Update reports | `procedures/update-reports.md` | PENDING → PASS/FAIL + evidence; issues.json CORE-039 (retest_count++) |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume / --status handlers |
+
+CI PRE-GATE steps (Na-Nc):
 
 | Step | Action | Verify |
 |------|--------|--------|
@@ -309,7 +333,9 @@ Fail → auto-fix retry x3 → E058.
 
 ---
 
-## Error Codes (E050-E059)
+## Error Handling
+
+Codes E050-E059 (per-skill namespace):
 
 | Code | Mô tả |
 |------|-------|
@@ -323,6 +349,30 @@ Fail → auto-fix retry x3 → E058.
 | E057 | issues.json update fail (CORE-039) |
 | E058 | POST-GATE T4 fail |
 | E059 | Atomic write fail |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| FE/Playwright/BE/DB chưa chạy (E053) | MANDATORY auto-start (retry ×2) — KHÔNG silent fallback static analysis | Auto-start fail sau 2 retry → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion |
+| Transient test fail (E055) | Retry ×2 với backoff trước khi kết luận FAIL | Fail cả 2 lần → mark FAIL thật, ghi evidence |
+| Browser lock conflict (E052) | Chờ lock release (F2/F7/F8 có thể đang giữ) rồi retry | Vẫn conflict → hỏi user |
+| Report markdown corrupt (E056) | Rebuild section từ retest-log + evidence | Không rebuild được → giữ raw log, STOP phase |
+| Anti-loop F6↔F5 (E054) | Orchestrator tracking; F5 từ chối spawn thêm khi đạt max | Max 3 vòng → E054 escalate orchestrator |
+| Item Nhóm 4 (visual/real payment/OAuth/hardware) | Cho phép static code re-verification (exception có từ F1) | Code verify FAIL → DUAL-WRITE manual.json |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| retest-log.md + Phase-report.md (CORE-028) | `F5-retest/` | CREATE |
+| status.json | `F5-retest/` | CREATE + UPDATE |
+| findings/*.md reports | session root | UPDATE (PENDING → PASS/FAIL + evidence) |
+| issues.json | session root | UPDATE (CORE-039: retest_count++, retest_result) |
+
+> **Next:** F5 xong → F6 `/wf-e2e-fix` nếu issues.json còn open; hết open → orchestrator `/wf-e2e-verify` tiếp F7/F8.
 
 ---
 

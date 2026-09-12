@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-finding
-version: 1.0.0
-last_updated: 2026-05-15
+version: 1.1.0
+last_updated: 2026-09-12
 description: |
   F0a trong chuỗi wf-e2e-*. Phân tích business + mapping (KHÔNG live-test). Output 8 finding files + 4 SSOT JSONs
   (rỗng) cho wf-e2e-test consume. Scope: FIND only — P1 Business, P2 DB-mapping, P3 API-mapping, P4 UI-mapping.
@@ -21,11 +21,24 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, AskUserQuestion, 
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Phân tích nghiệp vụ + mapping code (KHÔNG live-test). Output 8 finding files + 4 SSOT JSONs rỗng |
+| **Prerequisites** | `req-registry.json` + FEAT-ID hợp lệ + spec > 500 bytes + feat.req_ids cross-ref (PRE-GATE T1-T4 dưới) |
 | **Standalone** | YES — tạo session mới nếu thiếu `--session` |
 | **Scope** | FIND only — đọc spec + code, KHÔNG chạy DB/API/browser |
 | **Input** | `<FEAT-ID>` (vd `FEAT-EW-CRM-001`) |
 | **Output** | 8 finding files (`findings/*.md`) + 4 SSOT JSONs rỗng + `finding-summary.md` |
 | **Consumed by** | `wf-e2e-test` (F1) — PRE-GATE consume findings làm context |
+
+### Workflow Position
+
+```
+ORCHESTRATOR /wf-e2e-verify
+        │
+        ▼
+F0a wf-e2e-finding  ← YOU ARE HERE (findings/ + 4 SSOT JSONs rỗng)
+        │
+        ▼
+F1 wf-e2e-test → F2 wf-e2e-browser → ... → F8
+```
 
 ### Flow tổng quan
 
@@ -113,16 +126,27 @@ KHÔNG THỰC HIỆN:
 
 ---
 
+## Phase 0: SETUP (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/phase0-setup.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Session init: tạo `sessions/{FEAT-ID}-*/`, lock, prompt-context.md | Session dir + lock OK |
+| 2 | `--status`/`--resume`/`--session` handlers (resume-status.md) | Route đúng phase hoặc DỪNG |
+| 3 | PRE-GATE T1-T4 (registry, spec, schema validation, cross-ref req_ids) | Fail → E020/E029 STOP |
+| 4 | status.json init → route P1 theo routing map | current_phase = 1 |
+
 ## Phase Routing Map (CORE-032 lazy-load)
 
-| Phase | Procedure file | Mô tả | Output |
-|-------|---------------|-------|--------|
-| **P0 SETUP** | `procedures/phase0-setup.md` | Session init, PRE-GATE validate, lock | status.json |
-| **P1 BUSINESS** | `procedures/phase1-business.md` | FIND→ASSESS→BỔ SUNG→VERIFY | 4 business findings |
-| **P2 DB-MAPPING** | `procedures/phase2-db-mapping.md` | FIND→ASSESS schema + seed | db-mapping.md, db-seed-data.md |
-| **P3 API-MAPPING** | `procedures/phase3-api-mapping.md` | FIND→ASSESS endpoints | api-mapping.md |
-| **P4 UI-MAPPING** | `procedures/phase4-ui-mapping.md` | FIND→ASSESS pages + hooks | ui-mapping.md |
-| **P5 COMPLETION** | `procedures/phase5-completion.md` | Consolidate + init SSOT JSONs + POST-GATE | finding-summary.md, 4 SSOT JSONs |
+| # | Phase | Procedure file | Mô tả | Output |
+|---|-------|---------------|-------|--------|
+| **0** | P0 SETUP | `procedures/phase0-setup.md` | Session init, PRE-GATE validate, lock | status.json |
+| **1** | P1 BUSINESS | `procedures/phase1-business.md` | FIND→ASSESS→BỔ SUNG→VERIFY | 4 business findings |
+| **2** | P2 DB-MAPPING | `procedures/phase2-db-mapping.md` | FIND→ASSESS schema + seed | db-mapping.md, db-seed-data.md |
+| **3** | P3 API-MAPPING | `procedures/phase3-api-mapping.md` | FIND→ASSESS endpoints | api-mapping.md |
+| **4** | P4 UI-MAPPING | `procedures/phase4-ui-mapping.md` | FIND→ASSESS pages + hooks | ui-mapping.md |
+| **5** | P5 COMPLETION | `procedures/phase5-completion.md` | Consolidate + init SSOT JSONs + POST-GATE | finding-summary.md, 4 SSOT JSONs |
 
 **Shared protocols:** `procedures/_shared.md` (session init, atomic write, CI detection, error ledger, context budget).
 
@@ -201,7 +225,9 @@ Fail → auto-fix retry max 3 lần → escalate E026.
 
 ---
 
-## Error Codes (E020-E029)
+## Error Handling
+
+Codes E020-E029 (per-skill namespace):
 
 | Code | Phase | Mô tả | Action |
 |------|-------|-------|--------|
@@ -216,6 +242,16 @@ Fail → auto-fix retry max 3 lần → escalate E026.
 | E028 | All | Context budget > 80% — force checkpoint | FORCE STOP |
 | E029 | P0 | Phase transition blocked — PRE-GATE verify fail | STOP, escalate |
 
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Business rule thiếu (E022) | BỔ SUNG: tìm thêm nguồn (registry.requirements, code annotations) rồi re-VERIFY | Không tìm thấy thêm nguồn — hỏi user cung cấp |
+| Consolidation fail (E026) | Auto-fix retry tối đa 3 lần (Protocol 2) | Hết 3 retries — E026 escalate user |
+| SSOT JSON init fail (E027) | Re-init từ templates (READ → POPULATE → WRITE, CORE-031) | Template cũng thiếu — STOP, báo devkit hỏng |
+| Cross-module gap (E021) / DB-API-UI không thấy (E023-E025) | WARN + ghi N/A trong finding — F0a là FIND only, không block | Gaps critical ảnh hưởng F1 → flag trong finding-summary |
+| Context >80% (E028) | FORCE STOP + checkpoint status.json (ngưỡng thấp hơn F1) | User `--resume` session mới |
+
 ---
 
 ## Related Skills
@@ -225,3 +261,5 @@ Fail → auto-fix retry max 3 lần → escalate E026.
 | `wf-e2e-verify` (orchestrator) | Parent — spawn F0a trước F1 |
 | `wf-e2e-test` (F1) | Consumer — đọc findings làm context cho live-test |
 | `wf-e2e-browser` (F2) | Indirect consumer qua F1 session |
+
+> **Next:** F0a xong → F1 `/wf-e2e-test` consume findings (PRE-GATE CORE-036); qua orchestrator `/wf-e2e-verify`.
