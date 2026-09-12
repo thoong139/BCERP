@@ -1,0 +1,154 @@
+{
+  "$schema": "skill-contract-v1",
+  "skill": "wf-test-business-workflow",
+  "version": "1.0.0",
+  "phase": "testing",
+  "description": "Test E2E + auto-fix + dual-narrative presentation cho business workflow specs (WF-L1 → WF-L6) trong .mc-data/docs/phase1-business/workflows/. Pipeline 5 phase: PRE-GATE → ANALYZE → TEST (Playwright spec + fix loop + MCP verify) → NARRATE (dual-agent) → SPAWN NEXT. Session-based (1 session = 1 WF), resumable, autonomous loop với kill-switch.",
+  "prerequisites": {
+    "files_any_of": [
+      ".mc-data/docs/phase1-business/workflows/WF-L*-*.md"
+    ],
+    "services": {
+      "erp_web": "http://localhost:3000 (200|302)",
+      "backend": "http://localhost:5048/health (200)"
+    }
+  },
+  "inputs": [
+    {
+      "name": "--workflow=WF-L{N}-{NN}",
+      "type": "enum-pattern",
+      "required": false,
+      "description": "Chạy 1 WF cụ thể (kết hợp --no-spawn để không spawn WF kế)."
+    },
+    {
+      "name": "--all",
+      "type": "flag",
+      "required": false,
+      "default": false,
+      "description": "Autonomous loop toàn bộ WF theo thứ tự L1-01 → L6-08 (spawn next session sau mỗi WF)."
+    },
+    {
+      "name": "--set=WF-L1-10,WF-L2-03,...",
+      "type": "list",
+      "required": false,
+      "description": "Chạy danh sách WF tùy chọn theo đúng thứ tự list."
+    },
+    {
+      "name": "--level=L{N}",
+      "type": "enum",
+      "values": ["L1", "L2", "L3", "L4", "L5", "L6"],
+      "required": false,
+      "description": "Chỉ chạy WF thuộc level N."
+    },
+    {
+      "name": "--resume | --status | --stop | --setup-machine | --no-spawn | --dry-run | --phase=analyze|test|narrate",
+      "type": "flags",
+      "required": false,
+      "description": "Điều khiển session/loop (chi tiết SKILL.md §Cách Dùng)."
+    }
+  ],
+  "procedure": [
+    "scripts/next-session.ps1",
+    "templates/checkpoint.json",
+    "templates/prompt-template.md",
+    "templates/wf.spec.ts.template"
+  ],
+  "outputs": {
+    "working": [
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/_runs/progress.json",
+        "required": true,
+        "notes": "SSOT tiến độ toàn bộ WF (pending/inprogress/done/blocked). Atomic write khi claim/complete WF."
+      },
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/_runs/STOP",
+        "required": false,
+        "notes": "Kill-switch file (--stop). Tồn tại → loop halt, WF inprogress hoàn về pending."
+      },
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/sessions/{SESSION_ID}/test-status.json",
+        "required": true,
+        "notes": "Session state machine: analysis_status, test_status, tc_results (object format bắt buộc), next_action cho --resume."
+      },
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/sessions/{SESSION_ID}/workflows/{WF-id}-analysis.md",
+        "required": true,
+        "notes": "Phase 1 ANALYZE output — test plan, actors, state machine, BR assertions, SLA timing."
+      },
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/sessions/{SESSION_ID}/bugs/BUG-{NNN}.json",
+        "required": false,
+        "notes": "Mọi issue chưa fix sau fix loop (kể cả escalated E006)."
+      },
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/sessions/{SESSION_ID}/shared/fix-log.json",
+        "required": false,
+        "notes": "Fix log incremental trong Step 2.3 fix loop."
+      },
+      {
+        "path": ".mc-data/work/wf-test-business-workflow/sessions/{SESSION_ID}/screenshots/",
+        "required": true,
+        "notes": "MCP verify evidence (≥1 .png per WF, POST-GATE Phase 2)."
+      }
+    ],
+    "docs": [
+      {
+        "path": ".mc-data/docs/phase1-business/workflows/_presentations/{WF-id}.presentation.md",
+        "required": true,
+        "notes": "Phase 3 NARRATE output — dual-agent narration (developer + domain-expert), 5 sections, gửi BA/PM."
+      }
+    ],
+    "code": [
+      {
+        "path": "apps/erp-web/e2e/wf/{WF-id}.spec.ts",
+        "required": true,
+        "template": "templates/wf.spec.ts.template",
+        "notes": "Regression spec tái sử dụng (không one-shot). pnpm e2e exit 0 là POST-GATE Phase 2."
+      }
+    ]
+  },
+  "registry_scope": {
+    "fields_owned": [],
+    "notes": "KHÔNG ghi req-registry.json. Skill tiêu thụ WF specs do wf-analyze-requirements sinh.",
+    "write_role": "NONE"
+  },
+  "cross_skill_contracts": {
+    "produces_for": {
+      "human-review": [
+        "_presentations/{WF-id}.presentation.md"
+      ]
+    },
+    "consumes_from": {
+      "wf-analyze-requirements": [
+        ".mc-data/docs/phase1-business/workflows/WF-L*-*.md"
+      ]
+    },
+    "companions": {
+      "wf-fix-bugs": "Invoke khi E006 escalate (bug fix thất bại 3 lần)",
+      "wf-test-flow": "Sibling — test module-level, KHÔNG dùng cho business WF"
+    }
+  },
+  "session_model": {
+    "unit": "1 session = 1 WF",
+    "base_dir": ".mc-data/work/wf-test-business-workflow",
+    "session_id_format": "YYYY-MM-DD-{WF-id}-{NN}",
+    "resume": "test-status.json.next_action",
+    "spawn_next": "scripts/next-session.ps1 — KHÔNG tiếp WF kế trong cùng session (context blow-up); script fail → FALLBACK MODE in-session (E009)"
+  },
+  "error_codes": {
+    "E001": "WF-L*.md không tồn tại — hướng dẫn chạy /wf-analyze-requirements",
+    "E002": "Context > 70% — ghi checkpoint + hướng dẫn --resume",
+    "E003": "Playwright MCP không khả dụng — hướng dẫn manual test guide",
+    "E004": "Backend không chạy — docker compose / dotnet run",
+    "E005": "Naming gap MAJOR, endpoint không match — escalate hỏi user",
+    "E006": "Bug fix thất bại 3 lần — escalate, mark blocked (→ /wf-fix-bugs)",
+    "E007": "Domain expert agent không phù hợp level — fallback developer-only narration",
+    "E008": "Machine config chưa setup — trigger first-run wizard",
+    "E009": "Spawn script fail — FALLBACK MODE in-session",
+    "E010": "STOP file detected — mark inprogress→pending, exit",
+    "E011": "Pre-exit verification fail — fix artifact trước khi spawn"
+  },
+  "known_gaps": [
+    "SKILL.md tham chiếu procedures/ (session-dir.md, resume-routing.md, first-run-wizard.md, phase1-analyze.md, phase3-narrate.md, phase4-spawn-next.md) và scripts (parse-workflow-spec.py, build-progress.py, next-session.py) KHÔNG tồn tại trong repo MCV3 — di sản từ repo EUREKA. Cần bổ sung hoặc dọn tham chiếu trước khi chạy thật (xem báo cáo audit 2026-09-12)."
+  ]
+}
