@@ -28,10 +28,13 @@ find_skill_file() {
     local locations=(
         "$PROJECT_ROOT/.claude/skills/$input/SKILL.md"
         "$PROJECT_ROOT/.claude/skills/workflow/$input/SKILL.md"
+        "$PROJECT_ROOT/.claude/skills/workflows/$input/SKILL.md"
         ".claude/skills/$input/SKILL.md"
         ".claude/skills/workflow/$input/SKILL.md"
+        ".claude/skills/workflows/$input/SKILL.md"
         "./.claude/skills/$input/SKILL.md"
         "./.claude/skills/workflow/$input/SKILL.md"
+        "./.claude/skills/workflows/$input/SKILL.md"
         "$input"
     )
     for loc in "${locations[@]}"; do
@@ -208,7 +211,9 @@ run_audit() {
     ((CRITICAL_TOTAL+=3))
     ((REQUIRED_TOTAL+=2))
     check_item "CRITICAL" "1.1 name field" "grep -qE '^name:' '$SKILL_FILE'"
-    check_item "CRITICAL" "1.2 description with TRIGGER" "grep -A 20 '^description:' '$SKILL_FILE' | grep -qi 'trigger'"
+    # 1.2 quét TOÀN BỘ khối description (1 dòng hoặc multi-line YAML block scalar) — không giới hạn
+    # 20 dòng, vì frontmatter có thể có changelog dài đẩy TRIGGER ra xa (case audit-devkit v5.1).
+    check_item "CRITICAL" "1.2 description with TRIGGER" "awk '/^description:/{f=1} f && /^[A-Za-z_-]+:/ && !/^description:/ {f=0} f' '$SKILL_FILE' | grep -qi 'trigger'"
     check_item "CRITICAL" "1.3 argument-hint field" "grep -qE '^argument-hint:' '$SKILL_FILE'"
     check_item "REQUIRED" "1.4 version field" "grep -qE '^version:' '$SKILL_FILE'"
     check_item "REQUIRED" "1.5 last_updated field" "grep -qE '^last_updated:' '$SKILL_FILE'"
