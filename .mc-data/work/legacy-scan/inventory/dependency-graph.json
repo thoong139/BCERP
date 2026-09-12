@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    
+  },
+  "import_groups": [{"module":"crm","import_count":2},{"module":"sales","import_count":1},{"module":"order.service","import_count":1},{"module":"customer.service","import_count":1}],
+  "circular": []
+}

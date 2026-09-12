@@ -1,0 +1,19 @@
+{
+  "$schema": "inventory/ui-manifest-v1",
+  "generated_at": "2026-09-12T14:53:12Z",
+  "project_root": "",
+  "frameworks": [],
+  "total_screens": 0,
+  "total_routes": 0,
+  "empty_project": true,
+  "screens": [],
+  "infrastructure_screens": [],
+  "route_config_files": [],
+  "coverage": {
+    "screens_with_routes": 0,
+    "screens_without_routes": 0,
+    "routes_without_screens": 0,
+    "infrastructure_count": 0
+  },
+  "_coverage_invariant": "total_screens = screens_with_routes + screens_without_routes"
+}

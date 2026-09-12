@@ -1,0 +1,90 @@
+{
+  "scan_timestamp": "2026-09-12T14:51:12Z",
+  "project_path": ".",
+  "project_size": "MEDIUM",
+  "file_counts": {
+    "total": 459,
+    "source": 30,
+    "doc": 397,
+    "config": 20,
+    "test": 0,
+    "asset": 0
+  },
+  "languages": {
+    "primary": "python",
+    "secondary": ["typescript"],
+    "counts": {
+      "typescript": 6,
+      "javascript": 0,
+      "python": 24,
+      "csharp": 0,
+      "java": 0,
+      "go": 0,
+      "rust": 0,
+      "ruby": 0,
+      "php": 0,
+      "swift": 0,
+      "kotlin": 0,
+      "dart": 0,
+      "c": 0,
+      "h": 0,
+      "cpp": 0
+    }
+  },
+  "frameworks": {
+    "backend": [],
+    "frontend": [],
+    "mobile": [],
+    "database": ["sql"]
+  },
+  "structure": {
+    "type": "single_app",
+    "is_monorepo": false,
+    "apps": []
+  },
+  "code_patterns": {
+    "router_files": 2,
+    "module_dirs": 0,
+    "api_route_files": 2,
+    "config_files": 0,
+    "test_dirs": 14
+  },
+  "doc_formats": {
+    "markdown": 397,
+    "openapi": 0,
+    "jsdoc": 0
+  },
+  "devkit": {
+    "has_mcdata": true,
+    "has_registry": true
+  },
+  "doc_maturity": {
+    "level": "CODE_PLUS_DEVKIT_PARTIAL",
+    "registry_stats": {
+      "systems": 6,
+      "modules": 19,
+      "requirements": 59,
+      "features": 0,
+      "impl_done": 0,
+      "impl_done_pct": 0
+    },
+    "phase_status": {
+      "phase0": { "exists": true, "doc_count": 22 },
+      "phase1": { "exists": true, "doc_count": 9 },
+      "phase2": { "exists": true, "doc_count": 55 },
+      "phase3": { "exists": false, "doc_count": 0 }
+    },
+    "external_docs": {
+      "readme_files": 11,
+      "wiki_files": 367,
+      "openapi_specs": 0
+    },
+    "recommended_action": "merge_and_fill_gaps"
+  },
+  "complexity": {
+    "estimated_systems": 1,
+    "estimated_modules": 5,
+    "lpm_triggered": true,
+    "estimated_sessions": 5
+  }
+}
