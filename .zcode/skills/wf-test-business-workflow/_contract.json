@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-test-business-workflow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "phase": "testing",
   "description": "Test E2E + auto-fix + dual-narrative presentation cho business workflow specs (WF-L1 → WF-L6) trong .mc-data/docs/phase1-business/workflows/. Pipeline 5 phase: PRE-GATE → ANALYZE → TEST (Playwright spec + fix loop + MCP verify) → NARRATE (dual-agent) → SPAWN NEXT. Session-based (1 session = 1 WF), resumable, autonomous loop với kill-switch.",
   "prerequisites": {
@@ -48,10 +48,23 @@
     }
   ],
   "procedure": [
+    "procedures/session-dir.md",
+    "procedures/resume-routing.md",
+    "procedures/first-run-wizard.md",
+    "procedures/phase1-analyze.md",
+    "procedures/phase2-test.md",
+    "procedures/phase3-narrate.md",
+    "procedures/phase4-spawn-next.md",
+    "scripts/parse-workflow-spec.py",
+    "scripts/build-progress.py",
+    "scripts/next-session.py",
     "scripts/next-session.ps1",
     "templates/checkpoint.json",
     "templates/prompt-template.md",
-    "templates/wf.spec.ts.template"
+    "templates/wf.spec.ts.template",
+    "templates/workflow-analysis.template.md",
+    "templates/presentation.template.md",
+    "templates/final-report.template.md"
   ],
   "outputs": {
     "working": [
@@ -149,6 +162,7 @@
     "E011": "Pre-exit verification fail — fix artifact trước khi spawn"
   },
   "known_gaps": [
-    "SKILL.md tham chiếu procedures/ (session-dir.md, resume-routing.md, first-run-wizard.md, phase1-analyze.md, phase3-narrate.md, phase4-spawn-next.md) và scripts (parse-workflow-spec.py, build-progress.py, next-session.py) KHÔNG tồn tại trong repo MCV3 — di sản từ repo EUREKA. Cần bổ sung hoặc dọn tham chiếu trước khi chạy thật (xem báo cáo audit 2026-09-12)."
+    "RESOLVED 2026-09-13: 6 procedures + 3 scripts (parse-workflow-spec.py, build-progress.py, next-session.py) + 3 templates trước đó chỉ được tham chiếu trong SKILL.md đã được tái tạo đầy đủ (di sản EUREKA không còn tham chiếu hỏng). Machine config ghi vào auto-memory của project hiện hành + mirror .machine-mirror.json (không còn path cứng d--EUREKA-2026).",
+    "Skill chạy thật (end-to-end) chỉ khi: (a) apps/erp-web + apps/backend đã implement (Phase 5b), (b) có ≥1 WF-L*.md spec từ wf-analyze-requirements. Trước đó Step 0.3 PRE-GATE luôn fail E001/E004 — đúng thiết kế, không phải lỗi."
   ]
 }
