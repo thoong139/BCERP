@@ -258,3 +258,39 @@ Khi feature có A7-EXT section (micro-task breakdown) trong task file và user d
 **Nếu feature có A7-EXT nhưng user KHÔNG dùng `--micro-task`:**
 - Workflow chạy single-feature phase files như bình thường (implement cả feature, không tách micro-task)
 - A7-EXT section bỏ qua
+
+---
+
+# Multi-Run Logic (từ SKILL.md)
+
+## Multi-Run Logic
+
+```
+IF impl-status.json KHÔNG tồn tại trong $FEATURE_SLUG dir:
+  → Fresh start
+
+ELIF flag --resume:
+  → Load checkpoint → Inject context_digest (Protocol 3.4) → Resume từ next_action
+
+ELIF status == "completed":
+  → Thông báo hoàn thành (Session N) → SET $SESSION_NUMBER = N+1
+  → SET $QA_ATTEMPT_OFFSET = last_qa_attempt_number
+  → Hỏi user: --extend hay --modify cho lần chạy mới?
+
+ELIF status IN ["in_progress", "paused", "error"]:
+  # A3-M4 fix: Nếu impl-status.json.status = "error" nhưng registry.impl_status = "in_progress"
+  # (crash giữa Phase 6 sau khi set registry nhưng trước POST-GATE) → đề xuất recovery:
+  IF status == "error":
+    REG_STATUS=$(jq -r --arg id "$REQ_ID" '.requirements[] | select(.req_id==$id) | .impl_status' \
+                 .mc-data/docs/_meta/req-registry.json)
+    IF REG_STATUS == "in_progress":
+      → WARNING: "Registry còn ở 'in_progress' từ session trước bị crash. Reset về 'not_started'?"
+      → AskUserQuestion: (a) Reset về not_started (khuyến nghị nếu code chưa stable), (b) Giữ in_progress (tiếp tục)
+      → IF reset → jq narrow update impl_status = "not_started" cho REQ-ID này
+  IF flag --fresh:
+    → Xóa impl-status.json, impl-plan.md, checkpoint.json → Fresh start
+  ELSE:
+    → Hỏi: "[Resume] — tiếp tục từ checkpoint | [Fresh] — xóa và bắt đầu lại"
+```
+
+---
