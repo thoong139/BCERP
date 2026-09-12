@@ -1,9 +1,9 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-design",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "phase": "phase3-architecture",
-  "description": "Architecture, API, database design — sinh Phase 3 technical specification docs. v4.0.0: 5 ADR-OPT (Lane Dispatch per system, Session Isolation, Workload Gate, Signal Aggregation dual-dedup, Template Strip). Phase structure: 0→0.5→1→2→3→4→5→6→[7 LEGACY]→8.",
+  "description": "Architecture, API, database design — sinh Phase 3 technical specification docs. v4.1: Business Context Baseline (actor/role matrix, business object lifecycle, cross-module workflow, ownership) chạy trước kiến trúc kỹ thuật và inject vào mọi agent prompt. v4.0.0: 5 ADR-OPT (Lane Dispatch per system, Session Isolation, Workload Gate, Signal Aggregation dual-dedup, Template Strip). Phase structure: 0→0.5→1→2→3→4→5→6→[7 LEGACY]→8.",
   "procedure": "procedures/phase0-context.md",
   "procedure_map": {
     "phase0": "procedures/phase0-context.md",
@@ -129,6 +129,12 @@
         "template": null,
         "required": true,
         "notes": "Workload Gate (ADR-OPT-03) — Phase 0.5 output. Inline schema: markdown với sections (Summary, Systems Workload Table, Gate Decision). Xem procedures/phase0.5-workload-gate.md §POST-GATE."
+      },
+      {
+        "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/business-context.md",
+        "template": null,
+        "required": true,
+        "notes": "Business Context Baseline (v4.1) — Phase 1 Step 1.0 output: actor/role matrix, business object lifecycle (states + transitions), cross-module dependencies, ownership rules, exception events. Session-scoped; injected vào mọi agent prompt Phase 1-5. Inline schema: procedures/phase1-architecture.md §Step 1.0."
       },
       {
         "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/lanes/{system-slug}/signals.json",
@@ -268,6 +274,7 @@
         ".mc-data/docs/phase3-architecture/stakeholder-review.md",
         ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
         ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+        ".mc-data/docs/phase3-architecture/technical-specs/integration-map.md",
         ".mc-data/docs/_meta/design-input-digest.json"
       ],
       "wf-plan-modules": [

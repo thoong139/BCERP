@@ -320,6 +320,58 @@
         }
       ],
       "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "/wf-design-ux (ERP có Sales Order đi qua Sales → Approval → Purchasing → Warehouse → Logistics → Finance; wf-design v4.1 đã tạo P3-01 với Ma Trận Vai Trò + integration-map có object-360 data needs)",
+      "expected_output": "Phase 2 Step 2.0 tạo workflow-context.md (workflow map, workspace mapping, screen inventory + consolidation, shared object mapping) TRƯỚC agent spawn; Order là shared working surface đa mode (Create/View/Edit/Approve) thay vì 3 page riêng; Order Detail thể hiện cross-module status + ownership + progress; mọi tab hoàn chỉnh; Navigation có Screen Justification.",
+      "assertions": [
+        {
+          "text": "Step 2.0 chạy trong MAIN conversation TRƯỚC khi spawn ux-designer/ux-architect — KHÔNG spawn agent cho screen inventory",
+          "type": "behavior"
+        },
+        {
+          "text": "workflow-context.md tạo tại sessions/{SESSION_ID}/ với >= 5 sections (workflow map, workspace mapping, screen inventory, shared object mapping, consolidation)",
+          "type": "file_exists"
+        },
+        {
+          "text": "Consolidation pass: KHÔNG tồn tại đồng thời Order Create Page + Order Edit Page + Order View Page riêng biệt — một Order Workspace/Detail đa mode (create/view/edit/review/approve)",
+          "type": "behavior"
+        },
+        {
+          "text": "Mọi màn hình giữ lại có justification (ai dùng, làm gì, tại sao cần page riêng) trong Navigation §2 hoặc workflow-context",
+          "type": "file_content"
+        },
+        {
+          "text": "Navigation menu top-level tổ chức theo WORKSPACE (Sales/Finance/Operations...), KHÔNG phải danh sách module phẳng",
+          "type": "file_content"
+        },
+        {
+          "text": "Order Detail screen: thể hiện status + progress (stage nào, đang chờ bộ phận nào) + owner/assignee với reassign tại chỗ + cross-module status (Purchasing/Warehouse/Finance) từ integration-map",
+          "type": "file_content"
+        },
+        {
+          "text": "Mọi TABS section thiết kế đầy đủ — KHÔNG có 'tab khác tương tự'/'same pattern'/TODO placeholder (check 4.12)",
+          "type": "file_content"
+        },
+        {
+          "text": "Order List: search + quick filters (My/Pending/Overdue nếu phù hợp) + sort + pagination server-side (20/50/100) + bulk actions nếu workflow cần",
+          "type": "file_content"
+        },
+        {
+          "text": "Phân Quyền trong Navigation dùng role names khớp P3-01 (một role toàn hệ thống, hiển thị theo permission) — không nhân bản màn hình per phòng ban cho cùng business object",
+          "type": "behavior"
+        },
+        {
+          "text": "Phase 4 chạy 13 checks gồm 4.11 (Screen Justification), 4.12 (Tab Completeness), 4.13 (Cross-Module Context) — iteration log ghi nhận đủ 13 entries",
+          "type": "file_content"
+        },
+        {
+          "text": "Danh sách 100.000 records: KHÔNG có thiết kế load-all — pagination/filter server-side hoặc lazy loading được nêu trong spec",
+          "type": "behavior"
+        }
+      ],
+      "files": []
     }
   ]
 }

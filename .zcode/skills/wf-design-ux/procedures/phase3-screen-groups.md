@@ -13,6 +13,8 @@
 - `.mc-data/docs/phase4-ux/design-system.md`
 - `.mc-data/docs/phase2-features/**/*.md`
 - `.mc-data/docs/phase3-architecture/technical-specs/api-contract.md`
+- `.mc-data/docs/phase3-architecture/technical-specs/integration-map.md` (v4.1 — cross-module data needs)
+- `$SCREEN_INVENTORY` + `$WORKFLOW_MAP` (từ Phase 2 Step 2.0 — v4.1)
 
 **OUTPUT:** `.mc-data/docs/phase4-ux/[sys]/[mod]/screens-[group].md` (một file per screen group)
 
@@ -136,6 +138,8 @@ FOR each module IN ui_modules:
       module_features: feature specs của module,
       design_system: design-system.md tokens (key sections only),
       navigation: Navigation-{sys}.md (module section),
+      workflow_context: { $WORKFLOW_MAP slice cho module, $SCREEN_INVENTORY entries của module } (v4.1),
+      integration_map: cross-module dependencies của module (v4.1),
       legacy_ui: $UI_CONTEXT_SUMMARY nếu LEGACY_MODE
     }
   ))
@@ -195,6 +199,22 @@ IF $CONTEXT_PERCENT >= 65%:
   ```
   Nếu FAIL → re-run ux-designer cho screen group đó (max 3 retries)
 - [ ] Mỗi screen group có header "Implements: FEAT-XXX" (FEAT-ID traceability)
+- [ ] **(v4.1 — R7 Tab Completeness)** Không có placeholder tab trong sections TABS:
+  ```bash
+  grep -in 'tương tự\|same pattern\|<!-- TODO' .mc-data/docs/phase4-ux/*/*/screens-*.md \
+    | grep -i 'tab' || echo "PASS: no placeholder tabs"
+  ```
+  Nếu FAIL → re-run ux-designer cho screen group đó với instruction thiết kế đầy đủ từng tab (max 3 retries)
+- [ ] **(v4.1 — R6 Data Grid)** Screen kiểu List phải đề cập search + filter + pagination:
+  ```bash
+  for f in .mc-data/docs/phase4-ux/*/*/screens-*.md; do
+    if grep -qi 'Loại.*List\|Danh Sách' "$f"; then
+      grep -qi 'pagination\|Phân trang' "$f" || echo "FAIL (missing pagination): $f"
+      grep -qi 'filter\|Bộ lọc\|Lọc' "$f" || echo "FAIL (missing filter): $f"
+    fi
+  done
+  ```
+- [ ] **(v4.1 — R4/R5)** Screen detail của business object có trong `$WORKFLOW_MAP` phải reference owner/status (grep "owner\|phụ trách\|trạng thái\|status")
 - [ ] UI-IDs unique across tất cả screen groups (cross-validation Phase 4 sẽ kiểm tra chi tiết)
 - [ ] Checkpoint đã save (per batch hoặc per lane tùy LPM)
 
@@ -208,4 +228,7 @@ IF $CONTEXT_PERCENT >= 65%:
 - Missing section → re-run với instruction bổ sung missing sections
 - Missing FEAT-ID → auto-inject từ Navigation spec
 - Word count < 200 → re-run với instruction tăng detail (layout description, component breakdown)
+- **(v4.1)** Placeholder tab → re-run với instruction thiết kế đầy đủ từng tab theo R7
+- **(v4.1)** List screen thiếu filter/pagination → re-run bổ sung theo R6
+- **(v4.1)** Detail screen thiếu owner/status/progress → re-run với $WORKFLOW_MAP + integration-map context
 - Max 3 retries per screen group, sau đó escalate

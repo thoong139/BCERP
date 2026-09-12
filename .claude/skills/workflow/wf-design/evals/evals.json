@@ -172,6 +172,46 @@
         }
       ],
       "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "/wf-design (dự án ERP có Sales Order đi qua Sales → Approval → Purchasing → Warehouse → Logistics → Finance; registry có departments + features mô tả workflow)",
+      "expected_output": "Phase 1 Step 1.0 tạo business-context.md với 5 sections (actor matrix, lifecycle, cross-module deps, ownership, exceptions) trước lane dispatch; P3-01 thể hiện actor matrix + state machine; api-contract có state transition + assign endpoints + list endpoints có filter/sort/pagination; database-design có status/owner/assignment history; integration-map có object-360 data needs.",
+      "assertions": [
+        {
+          "text": "Step 1.0 chạy trong MAIN conversation TRƯỚC khi spawn architect — KHÔNG spawn agent cho business context",
+          "type": "behavior"
+        },
+        {
+          "text": "business-context.md tạo tại sessions/{SESSION_ID}/ với >= 5 sections (## headings)",
+          "type": "file_exists"
+        },
+        {
+          "text": "$BUSINESS_CONTEXT được inject vào agent prompts Phase 1-5 (block BUSINESS CONTEXT ngay sau phần Context)",
+          "type": "behavior"
+        },
+        {
+          "text": "P3-01-architecture.md thể hiện vòng đời Order (states + transitions) và role/phòng ban ở từng state — trong §3/§5 hoặc section '## 9. Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ'",
+          "type": "file_content"
+        },
+        {
+          "text": "api-contract.md có action endpoints cho state transitions (ví dụ POST /orders/:id/approve) và assignment/reassignment endpoints",
+          "type": "file_content"
+        },
+        {
+          "text": "database-design.md có status + owner/assignee + assignment history/audit cho bảng orders",
+          "type": "file_content"
+        },
+        {
+          "text": "integration-map.md map cross-module data needs (Order Detail cần status từ Purchasing/Warehouse/Finance) + propagation rules",
+          "type": "file_content"
+        },
+        {
+          "text": "Không bịa role/state/module ngoài registry — thông tin thiếu được đánh dấu [NEEDS_REVIEW]",
+          "type": "behavior"
+        }
+      ],
+      "files": []
     }
   ]
 }

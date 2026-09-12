@@ -1,6 +1,7 @@
 # Phase 2: Navigation Specs (per system, SEQUENTIAL)
 
 > Tạo navigation spec cho từng system có UI.
+> **(v4.1) Step 2.0 — Workflow Context + Screen Inventory + Consolidation** chạy TRƯỚC trong main conversation: chốt "minimum necessary screen set" theo luồng nghiệp vụ xuyên phòng ban, KHÔNG đẻ màn hình theo feature.
 > Per system: spawn `ux-designer` (navigation structure) + `ux-architect` (CSS/layout) PARALLEL, merge output.
 
 **PRE-GATE:**
@@ -10,19 +11,48 @@
 
 **INPUT:**
 - `.mc-data/docs/phase4-ux/design-system.md`
-- `.mc-data/docs/phase3-architecture/P3-01-architecture.md`
-- `.mc-data/docs/phase2-features/**/*.md`
+- `.mc-data/docs/phase3-architecture/P3-01-architecture.md` (kể cả §9 Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ nếu wf-design v4.1 tạo)
 - `.mc-data/docs/phase3-architecture/technical-specs/api-contract.md`
+- `.mc-data/docs/phase3-architecture/technical-specs/integration-map.md` (v4.1 — cross-module data needs + propagation rules)
+- `.mc-data/docs/phase2-features/**/*.md`
 
-**OUTPUT:** `.mc-data/docs/phase4-ux/[sys]/Navigation-[sys].md` (một file per system có UI)
+**OUTPUT:**
+- `$SESSION_DIR/workflow-context.md` (Step 2.0 — v4.1)
+- `.mc-data/docs/phase4-ux/[sys]/Navigation-[sys].md` (một file per system có UI)
 
 ---
 
 ## Reference Sections
 
+- `_shared.md` §ERP Working-Context Design Rules (v4.1)
 - `_shared.md` §Agent Prompt Templates → P2-A (ux-architect), P2-B (ux-designer)
 - `_shared.md` §LEGACY Context Injection (nếu LEGACY_MODE)
 - `_shared.md` §Checkpoint Protocol
+
+---
+
+## Step 2.0: Workflow Context + Screen Inventory + Consolidation (v4.1 — BẮT BUỘC, main conversation, TRƯỚC agent spawn)
+
+> Trước khi vẽ menu/màn hình: hiểu luồng vận hành. Đơn vị thiết kế cấp cao hơn Page là **Workspace** (theo phòng ban/nhóm công việc).
+> Nguồn suy luận: P3-01 (systems + phòng ban + roles), integration-map (cross-module deps), features (user stories + workflows).
+
+**Guards:**
+- Scope guard (CORE-006): chỉ screen cho modules/features có trong registry. Thiếu thông tin → `[NEEDS_REVIEW]`.
+- KHÔNG tạo screen chỉ vì 1 action nhỏ — xét reuse: tab/drawer/modal/inline edit/view mode/master-detail/split view.
+- Consolidation KHÔNG máy móc: chỉ gộp khi cùng nghiệp vụ, user hiểu được, không quá tải, permission vẫn rõ, workflow không phức tạp hơn.
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 2.0.1 | **Workflow map** — với mỗi business object chính: stages → role/phòng ban sở hữu → state do bộ phận nào tạo → ai chỉ xem/được sửa/được approve. Nguồn: P3-01 §3/§5/§9 + integration-map | Bảng object × stage × owner × state |
+| 2.0.2 | **Workspace mapping** — mỗi phòng ban/nhóm công việc chính → workspace (VD: Sales Workspace, Finance Workspace). Trong workspace: công việc cần xử lý, alerts/exceptions, task queues, KPIs phục vụ hành động, quick actions, cross-department dependencies. Dashboard = operational/action-oriented khi phù hợp, KHÔNG chỉ xem số | Bảng workspace → vai trò → nội dung |
+| 2.0.3 | **Screen inventory** — liệt kê mọi proposed screen: Purpose \| Primary role \| Business object \| Workspace \| Main actions \| Related screens \| FEAT-IDs. Bao gồm cả màn hình hiện có nếu LEGACY | Bảng inventory đầy đủ |
+| 2.0.4 | **Shared object mapping** — objects dùng chung (Customer, Order, Invoice...) → MỘT shared working surface, role/permission-aware presentation — KHÔNG nhân bản màn hình gần giống nhau per phòng ban | Bảng shared object → surface → role views |
+| 2.0.5 | **Consolidation pass** — với từng màn hình hỏi: trùng màn hình nào? merge được không? thành tab/drawer/inline được không? Create/View/Edit/Review/Approve có cần tách page không (mặc định: chung 1 surface đa mode)? Bỏ màn hình này thì workflow có hỏng không? Mỗi màn hình GIỮ LẠI phải trả lời được: ai dùng, làm gì, tần suất, quyết định gì, tại sao cần page riêng | Bảng screen → quyết định (KEEP/MERGE→TAB/MERGE→DRAWER/INLINE/DROP) + lý do |
+| 2.0.6 | Ghi `$SESSION_DIR/workflow-context.md` (5 sections trên). Set `$WORKFLOW_MAP`, `$SCREEN_INVENTORY`, `$WORKSPACE_MAP`. Verify `test -s` + đủ 5 headings | File + state vars set |
+
+**Đầu ra cho agent prompts:** P2-B (navigation) PHẢI tuân theo screen inventory đã consolidate — KHÔNG tự thêm screen group ngoài inventory. Phát hiện thiếu → ghi `[NEEDS_REVIEW]` + đề xuất cho user, KHÔNG tự thêm.
+
+**Resume:** nếu `workflow-context.md` tồn tại + non-empty → skip Step 2.0 (SKIP-IF-EXISTS).
 
 ---
 
@@ -30,6 +60,7 @@
 
 | Step | Action | Verify |
 |------|--------|--------|
+| 2.0 | **(v4.1)** Workflow Context + Screen Inventory + Consolidation — main conversation, XEM §Step 2.0 ở trên. Set `$WORKFLOW_MAP`, `$SCREEN_INVENTORY`, `$WORKSPACE_MAP` | `test -s $SESSION_DIR/workflow-context.md` |
 | 2.1 | Từ `$SYSTEMS_WITH_UI` — iterate qua từng system (SEQUENTIAL) | Systems list |
 | 2.2 | Per system: `mkdir -p .mc-data/docs/phase4-ux/[sys]/` + **[SCAFFOLD-FIRST]** — xem §Scaffold Navigation | Directory + scaffold exists |
 | 2.3 | **SKIP-IF-EXISTS** — nếu `test -s Navigation-[sys].md` → skip 2.3 + 2.3b cho system này. Ngược lại: spawn `ux-designer` (prompt P2-B, per system) | Agent success (hoặc skip) |
@@ -94,10 +125,12 @@ PER SYSTEM [sys]:
 
 ## POST-GATE
 
+- [ ] `test -s $SESSION_DIR/workflow-context.md` + đủ 5 sections (Step 2.0 — v4.1)
 - [ ] `ls .mc-data/docs/phase4-ux/*/Navigation-*.md` trả về ít nhất 1 file
 - [ ] Mỗi `Navigation-[sys].md` có đủ 4 required sections
 - [ ] Mỗi `Navigation-[sys].md` non-empty (>= 800 từ)
 - [ ] Routes trong menu khớp với api-contract.md (sample check)
+- [ ] **(v4.1)** Mỗi screen group trong Navigation có justification tương ứng trong `$SCREEN_INVENTORY` — KHÔNG có screen ngoài inventory
 - [ ] Checkpoint per system đã save
 
 **Next phase:** `phase3-screen-groups.md`

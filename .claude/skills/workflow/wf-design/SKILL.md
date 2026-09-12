@@ -1,9 +1,9 @@
 ---
 name: wf-design
-version: 4.0.0
-last_updated: 2026-04-23
+version: 4.1.0
+last_updated: 2026-09-12
 description: |
-  Chuyển requirements thành technical design đầy đủ — architecture, API contract, database schema, infra spec, integration rules. Hỗ trợ cả dự án mới (design từ đầu) và dự án có sẵn (legacy — từ extracted data + gap analysis); tự động phát hiện loại dự án và inject context phù hợp.
+  Chuyển requirements thành technical design — architecture, API, database schema, infra spec, integration rules. v4.1: Business Context Baseline (actors/roles, vòng đời business object, cross-module workflow, ownership) làm nền thiết kế ERP liên kết. Hỗ trợ dự án mới và dự án có sẵn (legacy); tự phát hiện loại dự án và inject context phù hợp.
 
   TRIGGER khi:
   - User nói: "thiết kế", "design", "kiến trúc", "architecture", "tech stack"
@@ -73,6 +73,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 > **Internal shared:** Xem `procedures/_shared.md` — State Variables Glossary, Architecture Documentation Labels, LEGACY Context Injection, Agent Prompt Templates, Checkpoint Protocol.
 
 - **Accuracy Assurance** (mọi phase): POST-GATE Enforcement + Fix Rules + Error Tracking
+- **Business Context Baseline** (Phase 1, v4.1): main conversation — actor/role/phòng ban matrix + vòng đời business object (state transitions) + cross-module workflow + ownership/assignment + exception events → `$SESSION_DIR/business-context.md`, inject vào MỌI agent prompt (Phase 1–5) — xem `_shared.md` §Business Context Injection
 - **Auto-Correction Loop** (Phase 4, 5): max 3 iterations
 - **Context & Checkpoint**: thresholds 65/80/90%
 - **Stakeholder Review** (Phase 5): SO-01/02/03 với parallel agents (architect + security)
@@ -87,7 +88,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 | Điều kiện | Chế độ |
 |-----------|--------|
 | Phase 0.5 (workload gate) | SEQUENTIAL — estimate + gate check, hỏi user nếu WARN/BLOCK |
-| Phase 1 (architecture) — Lane Dispatch per system | PARALLEL per system (max `$LPM_PARAMS.max_parallel_agents`): mỗi system = 1 lane, conditional agents trong cùng lane. LPM override: SEQUENTIAL nếu tổng conditionals >= 3 |
+| Phase 1 (architecture) — Lane Dispatch per system | **Step 1.0 Business Context Baseline chạy SEQUENTIAL main-conversation TRƯỚC lane dispatch**; sau đó PARALLEL per system (max `$LPM_PARAMS.max_parallel_agents`): mỗi system = 1 lane, conditional agents trong cùng lane. LPM override: SEQUENTIAL nếu tổng conditionals >= 3 |
 | Phase 2 (technical specs) — Option A: 3 specs per system, trong cùng lane | PARALLEL per system lane: api-contract + database-design + infra-spec trong lane của system đó |
 | Phase 3 (integration map) | SEQUENTIAL sau Phase 2 + Signal Aggregation (component_id + api_id dual dedup) |
 | Phase 4 (cross-validation) | SEQUENTIAL (aggregation conflict resolution → 8-check loop, max 3 iterations) |
@@ -113,6 +114,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
         ├── session-state.json         # PRIMARY checkpoint (3-level L1/L2/L3)
         ├── workload-report.md         # Phase 0.5 output
         ├── feature-digest.md          # Phase 0 conditional
+        ├── business-context.md        # Phase 1 — Business Context Baseline (v4.1)
         ├── design-status.json         # Working copy (synced → parent)
         ├── design-summary.json        # Working copy (synced → parent at Phase 8)
         ├── design-input-digest.json   # Working copy (synced → _meta/ at Phase 8)
@@ -189,7 +191,7 @@ IF $ARGUMENTS chứa "--status":
 |-------|---------------|-----------|----------|
 | **0** | `procedures/phase0-context.md` | Always (entry point) | Context Loading + LEGACY detect + LPM eval + Approach + Session Init (ADR-OPT-02) |
 | **0.5** | `procedures/phase0.5-workload-gate.md` | Always | Workload estimation + gate (ADR-OPT-03): dead_zone/warn/block |
-| **1** | `procedures/phase1-architecture.md` | Always | Architecture Overview — Lane Dispatch per system (ADR-OPT-01) |
+| **1** | `procedures/phase1-architecture.md` | Always | Business Context Baseline (Step 1.0, main conversation — v4.1) + Architecture Overview — Lane Dispatch per system (ADR-OPT-01) |
 | **2** | `procedures/phase2-specs-parallel.md` | Always | Technical Specs per system lane — api-contract + database-design + infra-spec (Option A) |
 | **3** | `procedures/phase3-integration.md` | Always | Signal Aggregation (ADR-OPT-04, dual dedup: component_id + api_id) + Integration Map |
 | **4** | `procedures/phase4-crossval.md` | Always | Aggregation conflict resolution + Cross-Validation (8 checks, auto-correction loop max 3 iterations) |
@@ -252,6 +254,7 @@ Read procedures/phase8-digest-summary.md → execute (Template Strip + canonical
 | execution-plan.md | `.mc-data/work/wf-design/` | 0 | — (Protocol 9 PLN-08 inline) |
 | checkpoint.json | `.mc-data/work/wf-design/` | 0-6 | `templates/checkpoint.json` |
 | feature-digest.md | `.mc-data/work/wf-design/` | 0 (conditional) | — |
+| business-context.md | `.mc-data/work/wf-design/sessions/{SESSION_ID}/` | 1 | — (inline schema trong `procedures/phase1-architecture.md` §Step 1.0) — session-scoped, inject vào agent prompts Phase 1-5 |
 | design-report.md | `.mc-data/work/wf-design/` | 4, 6 | — |
 | deferred-findings.md | `.mc-data/work/wf-design/` | 6 (conditional) | `_meta/deferred-findings-template.md` |
 | phase-summary.md | `.mc-data/work/wf-design/` | 8 | `doc-framework/_meta/phase-summary.template.md` |
@@ -317,7 +320,7 @@ Read procedures/phase8-digest-summary.md → execute (Template Strip + canonical
 | `/wf-analyze-requirements` | Prerequisite (new projects — trước `/wf-define-features`) |
 | `/wf-legacy-scan` | Prerequisite (existing projects) |
 | `/wf-legacy-extract` | Prerequisite cho Phase 7 (LEGACY) — tạo `module-code-mapping.json` |
-| `/wf-design-ux` | **Next step** (nếu project có UI) |
+| `/wf-design-ux` | **Next step** (nếu project có UI) — tiêu thụ business context từ P3-01 + integration-map (actor matrix, lifecycle, cross-module status) cho workflow-aware UX |
 | `/wf-plan-modules` | **Next step** (nếu API-only, hoặc sau `/wf-design-ux`) |
 | `/wf-implement-feature` | Consumer của `design-summary.json` + `design-input-digest.json` |
 
@@ -329,7 +332,7 @@ Read procedures/phase8-digest-summary.md → execute (Template Strip + canonical
 
 ```
 Phase 0: Registry loaded, approach=System, LPM=false → PASS
-Phase 1: P3-01-architecture.md (architect + ai-engineer conditional) → PASS
+Phase 1: business-context.md (actors/roles, lifecycle, cross-module, ownership — Step 1.0) → P3-01-architecture.md (architect + ai-engineer conditional) → PASS
 Phase 2: api-contract.md + database-design.md + infra-spec.md PARALLEL → PASS
 Phase 3: integration-map.md → PASS
 Phase 4: Validation 8/8 checks PASS (1 iteration)

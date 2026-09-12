@@ -18,6 +18,7 @@
 - [Registry Safe-Write](#registry-safe-write)
 - [Token Limit Prevention](#token-limit-prevention)
 - [LEGACY Context Injection](#legacy-context-injection)
+- [Business Context Injection (v4.1)](#business-context-injection-v41)
 - [Agent Prompt Templates](#agent-prompt-templates)
 - [Checkpoint Protocol](#checkpoint-protocol)
 - [LEGACY_MODE Detection](#legacy_mode-detection)
@@ -44,6 +45,7 @@ Các biến in-memory được set/đọc xuyên suốt skill execution.
 | `$LARGE_PROJECT` | Phase 0 | 1, 2, 3, 5 | Boolean — `systems.length >= 5 OR features.length >= 40` |
 | `$LPM_PARAMS` | Phase 0 | 1, 2, 3, 5 | Object `{compression_threshold, digest_size, skeleton_threshold, max_parallel_agents, checkpoint_strategy}` |
 | `$FEATURE_DIGEST_PATH` | Phase 0 | 1, 2, 3 | Path tới `feature-digest.md` (nếu compression triggered) |
+| `$BUSINESS_CONTEXT` | Phase 1 (Step 1.0) | 1–5 (agent spawns) | Nội dung `business-context.md` — actor/role matrix, business object lifecycle, cross-module deps, ownership rules, exception events. Inject vào mọi agent prompt (xem §Business Context Injection) |
 | `$CONTEXT_PERCENT` | Every phase | Every phase | Context budget usage — trigger checkpoint at 65/80% |
 | `$AGENTS_SPAWNED` | Every phase | Phase 8 | Array — log agents đã spawn (name, phase, status) |
 | `$SESSION_DIR` | Phase 0 | 0.5–8 | `.mc-data/work/wf-design/sessions/{YYYYMMDD-HHMMSS}-{hash4}/` — session-scoped working dir |
@@ -85,7 +87,8 @@ Phase 0 (context)        → $REGISTRY_DATA, $APPROACH, $LARGE_PROJECT, $LPM_PAR
                            $SESSION_DIR/design-status.json, design-plan.md, execution-plan.md
 Phase 0.5 (workload)     → $WORKLOAD_ESTIMATE, $GATE_RESULT, $PARTITIONS,
                            $SESSION_DIR/workload-report.md
-Phase 1 (architecture)   → $SESSION_DIR/lanes/{sys}/signals.json,
+Phase 1 (architecture)   → $SESSION_DIR/business-context.md ($BUSINESS_CONTEXT — Step 1.0, v4.1),
+                           $SESSION_DIR/lanes/{sys}/signals.json,
                            P3-01-architecture.md
 Phase 2 (specs parallel) → $SESSION_DIR/lanes/{sys}/specs-signals.json,
                            technical-specs/{api-contract,database-design,infra-spec}.md
@@ -348,6 +351,34 @@ QUY TẮC SAFE-WRITE:
 
 ---
 
+## Business Context Injection (v4.1)
+
+> Áp dụng cho TẤT CẢ agent spawns trong Phase 1–5 (cả NEW và LEGACY).
+> Inject ngay sau phần Context của prompt, TRƯỚC LEGACY block (nếu có).
+> Nguồn: `$BUSINESS_CONTEXT` từ Phase 1 Step 1.0 (`$SESSION_DIR/business-context.md`).
+
+```markdown
+---
+## BUSINESS CONTEXT (ERP Workflow Layer — bắt buộc tuân thủ)
+[$BUSINESS_CONTEXT — actor/role matrix, business object lifecycle (states + transitions),
+cross-module dependencies, ownership/assignment rules, exception events]
+
+Quy tắc sử dụng:
+- Mọi thiết kế (API/DB/integration/review) PHẢI nhất quán với lifecycle states + ownership trong block này
+- API contract PHẢI cover: state transitions (action endpoints), assignment/reassignment,
+  list endpoints có search/filter/sort/pagination server-side, bulk operations (nếu features cần),
+  activity/audit endpoints cho objects có timeline
+- Database PHẢI có: status, owner/assignee, timestamps, audit trail cho mọi object có workflow
+- Integration map PHẢI thể hiện cross-module dependencies (object nào cần trạng thái từ module nào)
+  + propagation rules (realtime/near-realtime/batch)
+- Thiếu/sai thông tin → ghi [NEEDS_REVIEW], KHÔNG tự bịa state/role/module mới ngoài registry
+---
+```
+
+**Tư duy thiết kế (bắt buộc):** Một ERP không phải tập hợp module độc lập. Mỗi API/bảng/integration phải trace được về: *ai* (role/phòng ban) — *đối tượng nào* — *ở stage nào của vòng đời* — *cần thông tin gì từ module khác* — *phải hành động gì*. Không thiết kế backend cho "màn hình CRUD" — thiết kế cho working context của role tại từng workflow stage.
+
+---
+
 ## Agent Prompt Templates
 
 > Templates dùng chung — phase files tham chiếu section này thay vì copy nội dung.
@@ -375,6 +406,16 @@ KHÔNG được tự thêm module mới (Auth, Notification, Admin, Logging, v.v
   - Auth/Security là cross-cutting concern → thiết kế như shared layer/middleware, KHÔNG phải module riêng
   - Notifications, Audit, File Storage → cross-cutting concerns hoặc shared infrastructure
   - Chỉ khi module đã được define trong registry mới thiết kế riêng cho nó
+
+BẮT BUỘC — Business Layer (v4.1, trước khi vẽ kiến trúc kỹ thuật):
+Với mỗi business object chính (theo $BUSINESS_CONTEXT — Order, Customer, ...), kiến trúc PHẢI thể hiện:
+1. Actor matrix: role/phòng ban nào tương tác với object, hành động gì (view/edit/approve/assign)
+2. Lifecycle: các trạng thái + transitions hợp lệ + bộ phận nào tạo/đổi state nào
+3. Cross-module: object cần dữ liệu/trạng thái từ module nào (Phase 4 UX sẽ dùng để thiết kế working surface)
+4. Ownership: owner/assignee/approver ở từng stage + luật reassign
+5. Exceptions: overdue/blocked/rejected/missing-info cần được surfaced lên người dùng
+Nơi ghi trong P3-01: §3 (phân hệ + phòng ban), §4 (data ownership), §5 (giao tiếp + workflow states).
+Nếu cần thêm chỗ → append "## 9. Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ" — KHÔNG được làm thiếu 7 sections chuẩn.
 
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ
 `.claude/doc-framework/phase3-architecture/P3-01-architecture.md`
@@ -455,6 +496,13 @@ Context: Architecture overview, Systems, Modules, Requirements
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ
 `.claude/doc-framework/phase3-architecture/technical-specs/api-contract.md`
 
+Yêu cầu ERP working-surface (v4.1 — theo $BUSINESS_CONTEXT): endpoint set PHẢI phục vụ cả working context + data grid của UI:
+- State transitions: action endpoints cho từng workflow transition (VD: POST /orders/:id/approve) — không chỉ CRUD
+- Assignment: assign/reassign endpoints cho objects có ownership
+- List endpoints: document đầy đủ query params search/filter/sort/pagination (server-side, mặc định limit=20, tối đa 100)
+- Bulk operations khi features yêu cầu (bulk update/assign/export)
+- Activity/audit endpoints cho objects có timeline (GET /orders/:id/activity)
+
 Output: `.mc-data/docs/phase3-architecture/technical-specs/api-contract.md`
 Quality: Non-empty, đúng template structure, REQ-IDs referenced, No placeholders
 Output mục tiêu: Standard ~1500–3000 từ / LPM ~2500–5000 từ. Endpoints đầy đủ nhưng ngắn gọn.
@@ -474,6 +522,13 @@ Context: Architecture overview, Systems, Modules, Requirements
 
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ
 `.claude/doc-framework/phase3-architecture/technical-specs/database-design.md`
+
+Yêu cầu ERP workflow fields (v4.1 — theo $BUSINESS_CONTEXT): mỗi bảng của business object có workflow PHẢI có:
+- `status` + state machine constraint (chỉ cho transitions hợp lệ theo lifecycle)
+- `owner_id`/`assignee_id` FK + `created_by`/`updated_by` + timestamps
+- Assignment history table (nếu multi-stage handoff giữa phòng ban)
+- Audit/Activity log table cho objects có timeline
+- Index cho các cột lọc danh sách hay dùng (status, owner, dates) — phục vụ server-side filtering
 
 Output: `.mc-data/docs/phase3-architecture/technical-specs/database-design.md`
 Quality: Non-empty, đúng template structure, REQ-IDs referenced, No placeholders
@@ -510,6 +565,11 @@ Context: API contract + Database design + Architecture overview
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ:
 `.claude/doc-framework/phase3-architecture/technical-specs/integration-map.md`
 
+Yêu cầu cross-module surfacing (v4.1 — theo $BUSINESS_CONTEXT): ngoài technical integrations, map "object 360" data needs:
+- Mỗi business object cần aggregation data từ module nào (VD: Order Detail cần Purchasing + Warehouse + Finance status)
+- Propagation rules cho cross-department status change (realtime / near-realtime / batch) — để UI working surface không bắt user rời màn hình để hiểu tình trạng
+- Event cho assignment/ownership change (phòng ban khác cần biết record vừa đổi người phụ trách)
+
 Output: `.mc-data/docs/phase3-architecture/technical-specs/integration-map.md`
 Lưu ý: Cross-system rules đã được merge vào integration-map.md (sections 7-9)
 Quality: Non-empty, đúng template structure, REQ-IDs referenced, No placeholders
@@ -525,6 +585,9 @@ Context: Tất cả technical specs + features (hoặc design-digest nếu > 5 f
 Tasks:
 1. Phần B (SO-01): Rà soát xuyên specs — phát hiện xung đột architecture, API↔DB mismatch, duplicate definitions
 2. Phần C (SO-02): Kiểm tra nhất quán — REQ-IDs coverage, thuật ngữ kỹ thuật, data models, phạm vi
+3. (v4.1) Business completeness (so với $BUSINESS_CONTEXT): mỗi business object có state transitions đủ?
+   ownership/assignment được thể hiện (API + DB)? cross-module workflow được integration-map cover?
+   exception events có đường được surfaced? API list endpoints có filter/sort/pagination server-side?
 
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ:
 `.claude/doc-framework/phase3-architecture/stakeholder-review.md` (Phần B và Phần C)
@@ -546,7 +609,9 @@ Output mục tiêu: ~1500–2500 từ. Findings cụ thể với evidence, khôn
 Bạn là security engineer. Thực hiện Gap Analysis (Phần D) cho Phase 3 Architecture Design.
 Context: Tất cả technical specs + architecture
 [INJECT LEGACY BLOCK nếu LEGACY_MODE]
-Task: Phần D (SO-03): Phân tích thiếu sót — API gaps, DB gaps, infra gaps, security gaps, NFR gaps
+Task: Phần D (SO-03): Phân tích thiếu sót — API gaps, DB gaps, infra gaps, security gaps, NFR gaps.
+(v4.1) Thêm: missing workflow endpoints (state transition/assign/reassign), missing assignment history/audit tables,
+missing exception flows, missing cross-module aggregation endpoints cho working surfaces (so với $BUSINESS_CONTEXT).
 
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ:
 `.claude/doc-framework/phase3-architecture/stakeholder-review.md` (Phần D)

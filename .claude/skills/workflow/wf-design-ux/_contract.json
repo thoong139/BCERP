@@ -1,9 +1,9 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-design-ux",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "phase": "phase4-ux",
-  "description": "UX/UI design — sinh Phase 4 design system, navigation và screen specs (conditional: skip nếu api-only). v4.0.0: Session Isolation (ADR-OPT-02), Workload Gate + api-only exit (ADR-OPT-03), Lane Dispatch per UI module (ADR-OPT-01), Signal Aggregation screen_id (ADR-OPT-04), Template Strip + Atomic Write (ADR-OPT-05).",
+  "description": "UX/UI design — sinh Phase 4 design system, navigation và screen specs (conditional: skip nếu api-only). v4.1: Workflow Context + Screen Inventory & Consolidation pass trước khi chốt màn hình (workspace-first, minimum necessary screen set) + ERP working-context rules (cross-module status, ownership/progress, tab completeness, data grid chuẩn ERP). v4.0.0: Session Isolation (ADR-OPT-02), Workload Gate + api-only exit (ADR-OPT-03), Lane Dispatch per UI module (ADR-OPT-01), Signal Aggregation screen_id (ADR-OPT-04), Template Strip + Atomic Write (ADR-OPT-05).",
   "procedure": "procedures/phase0-context.md",
   "prerequisites": {
     "files": [
@@ -30,6 +30,12 @@
       "path": ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
       "description": "API contract — endpoints, response envelopes",
       "required": true,
+      "condition": null
+    },
+    {
+      "path": ".mc-data/docs/phase3-architecture/technical-specs/integration-map.md",
+      "description": "Integration map (v4.1) — cross-module data needs + propagation rules cho working surfaces (object 360)",
+      "required": false,
       "condition": null
     },
     {
@@ -130,6 +136,12 @@
         "notes": "Workload gate output — ADR-OPT-03. Absent nếu api-only (session skipped)."
       },
       {
+        "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/workflow-context.md",
+        "template": null,
+        "required": true,
+        "notes": "Workflow Context + Screen Inventory + Consolidation (v4.1) — Phase 2 Step 2.0 output: workflow map, workspace mapping, screen inventory, shared object mapping, consolidation decisions. Session-scoped; feeds P2-B/P3 agent prompts + Phase 4 checks 4.11-4.13. Inline schema: procedures/phase2-navigation.md §Step 2.0. Absent nếu api-only."
+      },
+      {
         "path": ".mc-data/work/wf-design-ux/sessions/{YYYYMMDD-HHMMSS}-{hash4}/lanes/{module-slug}-screens/signals.json",
         "template": "../_shared/templates/lane-signal.json",
         "required": true,
@@ -211,6 +223,7 @@
         ".mc-data/docs/phase3-architecture/stakeholder-review.md",
         ".mc-data/docs/phase3-architecture/P3-01-architecture.md",
         ".mc-data/docs/phase3-architecture/technical-specs/api-contract.md",
+        ".mc-data/docs/phase3-architecture/technical-specs/integration-map.md",
         ".mc-data/docs/_meta/design-input-digest.json"
       ],
       "wf-annotate-code": [

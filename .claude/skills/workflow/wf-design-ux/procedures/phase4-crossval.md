@@ -1,7 +1,7 @@
 # Phase 4: Signal Aggregation + Cross-Validation (ADR-OPT-04)
 
 > Gom kết quả từ Phase 3 lanes → aggregate + dedup → cross-validate UX consistency.
-> 8 checks chính + 2 CQG checks + accessibility audit — tối đa 3 iterations.
+> 8 checks chính + 2 CQG checks + **3 ERP working-context checks (v4.1)** + accessibility audit — tối đa 3 iterations.
 
 **PRE-GATE:**
 - [ ] Phase 3 (`phase3-screen-groups.md`) POST-GATE PASS
@@ -12,7 +12,9 @@
 - `.mc-data/docs/phase4-ux/*/Navigation-*.md`
 - `.mc-data/docs/phase4-ux/*/*/screens-*.md`
 - `.mc-data/docs/phase3-architecture/technical-specs/api-contract.md`
+- `.mc-data/docs/phase3-architecture/technical-specs/integration-map.md` (v4.1)
 - `.mc-data/docs/phase2-features/**/*.md`
+- `$SESSION_DIR/workflow-context.md` ($SCREEN_INVENTORY + $WORKFLOW_MAP — v4.1)
 
 **OUTPUT:**
 - Các file UX (auto-fix nếu cần)
@@ -30,20 +32,23 @@
 
 ---
 
-## Validation Checks (8 chính + 2 CQG)
+## Validation Checks (8 chính + 2 CQG + 3 ERP v4.1)
 
 | # | Check | Mô tả | Khi FAIL → Auto-Fix |
 |---|-------|-------|----------------------|
-| 4.1 | Feature-Screen Coverage | Mỗi feature có UI → có ≥1 screen group | Tạo screen group stub từ feature spec |
+| 4.1 | Feature-Screen Coverage | Mỗi feature có UI → có ≥1 screen group **trong $SCREEN_INVENTORY** (v4.1: coverage theo inventory đã consolidate, KHÔNG đẻ thêm màn hình mới để cover — action nhỏ ghép vào surface hiện có) | Tạo screen group stub từ feature spec HOẶC ghép vào surface hiện có + update inventory |
 | 4.2 | UI-ID Uniqueness | Tất cả UI-IDs unique, không duplicate | Đổi tên UI-ID trùng + update references |
 | 4.3 | Navigation-Screen Sync | Tất cả screen groups → có entry trong Navigation files | Thêm entry vào Screen Group Registry |
 | 4.4 | API Endpoint Validity | API endpoints trong screens → tồn tại trong api-contract.md | Sửa reference, thêm endpoint, hoặc DEFER High |
 | 4.5 | Design Token Consistency | Tokens dùng nhất quán trong screens | Chuẩn hóa theo design-system.md |
-| 4.6 | Permission Matrix Sync | Permission matrix trong Navigation khớp feature spec | Sync permission theo feature spec |
+| 4.6 | Permission Matrix Sync | Permission matrix trong Navigation khớp feature spec + roles trong P3-01 (v4.1) | Sync permission theo feature spec |
 | 4.7 | Navigation-Screen Bidirectional | Mỗi screen group trong Navigation → có file screen group tương ứng | Tạo missing files hoặc xóa entry Navigation |
 | 4.8 | Accessibility (WCAG) | Spawn `accessibility-auditor` (prompt P4) | Auto-fix theo suggestions (contrast, focus, ARIA) |
 | **CQG-09.1** | All UI Features Covered | `features[].interface_type != api-only` → mỗi feature có ≥1 screen group | Tạo missing screen group stub |
 | **CQG-09.2** | Design System Match | Colors/fonts trong screens match design-system.md | Chuẩn hóa theo design-system.md |
+| **4.11** | Screen Justification Coverage (v4.1) | Mọi screen trong Navigation §2 có justification trong `$SCREEN_INVENTORY` (KEEP/MERGE/DROP + lý do); KHÔNG có screen ngoài inventory | Backfill justification từ screen spec; screen ngoài inventory → [NEEDS_REVIEW] + đề xuất consolidate |
+| **4.12** | Tab Completeness (v4.1 — R7) | Sections TABS không chứa placeholder ("tương tự", "same pattern", TODO); mỗi tab có nội dung thiết kế thực | Re-run ux-designer cho screen đó (max 3) |
+| **4.13** | Cross-Module Context Coverage (v4.1 — R5) | Mọi business object có cross-module dependency trong integration-map → screen detail của nó thể hiện status module khác (tab/panel/summary) | Re-run ux-designer với integration-map context; thiếu aggregation endpoint → DEFER High (api-contract) |
 
 ---
 
@@ -60,7 +65,7 @@ WHILE errors_remaining > 0 AND iteration < MAX_ITERATIONS:
   errors_found = 0
   errors_fixed = 0
   
-  FOR each check IN [4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, CQG-09.1, CQG-09.2]:
+  FOR each check IN [4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, CQG-09.1, CQG-09.2, 4.11, 4.12, 4.13]:
     result = run_check(check)
     
     IF result.status == "passed":
@@ -129,10 +134,13 @@ Sau mỗi iteration, append vào `design-ux-status.json`:
     "4.7": "passed",
     "4.8": "passed",
     "CQG-09.1": "passed",
-    "CQG-09.2": "passed"
+    "CQG-09.2": "passed",
+    "4.11": "passed",
+    "4.12": "fixed",
+    "4.13": "passed"
   },
-  "errors_found": 1,
-  "errors_fixed": 1,
+  "errors_found": 2,
+  "errors_fixed": 2,
   "errors_remaining": 0
 }
 ```
@@ -148,7 +156,7 @@ Sau iteration cuối (PASS hoặc MAX reached), tạo `.mc-data/work/wf-design-u
 
 ## Tổng quan
 - Total iterations: N
-- Total checks: 10 (8 chính + 2 CQG)
+- Total checks: 13 (8 chính + 2 CQG + 3 ERP working-context v4.1)
 - Total errors found: X
 - Total errors fixed: Y
 - Errors remaining: Z

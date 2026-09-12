@@ -1,10 +1,11 @@
 ---
 name: wf-design-ux
-version: 4.0.0
-last_updated: 2026-04-23
+version: 4.1.0
+last_updated: 2026-09-12
 description: |
-  UX/UI design cho hệ thống — hỗ trợ cả dự án mới và dự án có sẵn.
-  Tự động phát hiện loại dự án và load flow phù hợp.
+  UX/UI design cho hệ thống — hỗ trợ cả dự án mới và dự án có sẵn. Tự phát hiện loại dự án và load flow phù hợp.
+
+  v4.1: Workspace-first + working-context — screen inventory & consolidation trước khi chốt màn hình; luồng xuyên phòng ban (actors, cross-module status, ownership); data grid ERP; tab hoàn chỉnh; role-aware.
 
   DỰ ÁN MỚI: Thiết kế UX/UI từ đầu — design system, navigation, screen groups.
   DỰ ÁN CÓ SẴN (LEGACY_MODE): Trích xuất UX/UI documentation từ frontend code hiện có.
@@ -13,7 +14,6 @@ description: |
   - User nói: "thiết kế UI", "design UX", "giao diện", "screen", "navigation"
   - Sau khi /wf-design hoàn thành (architecture ready)
   - Gọi lệnh: /wf-design-ux [system-name] [--status] [--resume]
-  - Đã chạy legacy pipeline và cần tạo Phase 4 UX docs
 
   LUÔN trigger khi user cần thiết kế hoặc trích xuất UX/UI cho hệ thống,
   dù không dùng từ "design-ux".
@@ -79,13 +79,14 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite, AskUserQue
 > **Internal shared:** Xem `procedures/_shared.md` — State Variables Glossary, Phase → File Mapping, Session Isolation Protocol, _shared Module Imports, Conditional Skip Handling, LEGACY Context Injection, Agent Prompt Templates, Checkpoint Protocol.
 
 - **Accuracy Assurance** (mọi phase): POST-GATE Enforcement + Fix Rules + Error Tracking
+- **Workflow Context & Screen Consolidation** (Phase 2, v4.1): main conversation — screen inventory + consolidation pass TRƯỚC khi chốt screen groups; minimum necessary screen set, mỗi screen có justification; workspace-first structure — xem `procedures/phase2-navigation.md` §Step 2.0
 - **Auto-Correction Loop** (Phase 4, 5): max 3 iterations
 - **Context & Checkpoint**: thresholds 65/80/90%
 - **Stakeholder Review** (Phase 5): SO-01/02/03 với parallel agents (ux-designer + architect)
 - **Token Limit Prevention** (Phase 1, 3, 5): input compression + skeleton-first + UX digest
 - **Registry Safe-Write** (Phase 6): CHỈ update field `ux_design_status`
 - **Parallel Execution** (Phase 2, 3, 5): max `$LPM_PARAMS.max_parallel_agents` (Standard: 5, LPM: 3)
-- **Content Quality Gate** (Phase 4): CQG-09.1/09.2 + 8 cross-validation checks
+- **Content Quality Gate** (Phase 4): CQG-09.1/09.2 + 8 cross-validation checks + 3 ERP working-context checks v4.1 (Screen Justification, Tab Completeness, Cross-Module Context)
 - **Large Project Mode** (auto-detect Phase 0): `systems >= 5 OR features >= 40` → compression sớm hơn, skeleton-first, checkpoint per system
 
 ## Execution Strategy
@@ -93,7 +94,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite, AskUserQue
 | Điều kiện | Chế độ |
 |-----------|--------|
 | Phase 1 (design system) — 3 agents | SEQUENTIAL: brand-guardian → ux-researcher → ux-designer |
-| Phase 2 (navigation) — per system | SEQUENTIAL per system; PARALLEL ux-designer + ux-architect trong system |
+| Phase 2 (navigation) — per system | **Step 2.0 Workflow Context + Screen Inventory + Consolidation (main conversation, v4.1) → sau đó** SEQUENTIAL per system; PARALLEL ux-designer + ux-architect trong system |
 | Phase 3 (screen groups) — nhiều systems | PARALLEL per system, SEQUENTIAL per module trong system (max 3-5 agents) |
 | Phase 4 (cross-validation) | SEQUENTIAL (auto-correction loop) |
 | Phase 5 (stakeholder review) | PARALLEL: ux-designer + architect |
@@ -115,6 +116,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite, AskUserQue
 │       │   └── {module-slug}-screens/
 │       │       └── signals.json           # Lane output từ Phase 3
 │       ├── workload-report.md             # Workload gate output
+│       ├── workflow-context.md            # Phase 2 — Workflow map + Screen Inventory + Consolidation (v4.1)
 │       ├── aggregation-result.json        # Signal aggregation output
 │       ├── ux-input-digest.json           # Working copy (post-strip)
 │       └── phase-summary.md              # CORE-028 summary
@@ -145,6 +147,16 @@ STEP 2: Detect LEGACY_MODE (CORE-021)
 STEP 3: Routing
   → Read procedures/phase0-context.md (Phase 0 detail + UI guard + LPM + scaffold cache)
 ```
+
+**Phase 0 step summary (audit trail):**
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 0.1 | Check `req-registry.json` + `P3-01-architecture.md` tồn tại | Files exist, nếu thiếu → STOP (E000/E001) |
+| 0.2 | Detect LEGACY_MODE (CORE-021) — `project-context.md > 500 bytes` | `$LEGACY_MODE` set |
+| 0.3 | Load context: registry (`interface_type`, systems), LEGACY inputs (nếu có) | `$INTERFACE_TYPE`, `$SYSTEMS_WITH_UI` set |
+| 0.4 | Session Init (ADR-OPT-02) + LPM detect + scaffold cache | `$SESSION_DIR` tồn tại, session-state.json valid |
+| 0.5 | Route → `procedures/phase0-context.md` chi tiết | Phase file dispatched |
 
 **Đặc biệt — `--resume` handler:**
 
@@ -180,7 +192,7 @@ IF $ARGUMENTS chứa "--status":
 | **0.5-workload** | `procedures/phase0.5-workload-gate.md` | Always (sau Phase 0) | Workload Gate + api-only conditional skip (ADR-OPT-03) |
 | **0.5-legacy** | `procedures/phase0.5-legacy-ui-analysis.md` | `$LEGACY_MODE = true` | Existing UI Context — build `$UI_CONTEXT_SUMMARY` |
 | **1** | `procedures/phase1-design-system.md` | `$INTERFACE_TYPE != api-only` | Design System — brand/research/design |
-| **2** | `procedures/phase2-navigation.md` | `$INTERFACE_TYPE != api-only` | Navigation Specs per system (SEQUENTIAL) |
+| **2** | `procedures/phase2-navigation.md` | `$INTERFACE_TYPE != api-only` | Workflow Context + Screen Inventory & Consolidation (Step 2.0, v4.1) + Navigation Specs per system (SEQUENTIAL) |
 | **3** | `procedures/phase3-screen-groups.md` | `$INTERFACE_TYPE != api-only` | Screen Groups — Lane Dispatch (ADR-OPT-01) |
 | **4** | `procedures/phase4-crossval.md` | `$INTERFACE_TYPE != api-only` | Signal Aggregation + Cross-Validation (ADR-OPT-04) |
 | **5** | `procedures/phase5-review.md` | `$INTERFACE_TYPE != api-only` | Stakeholder Review (PARALLEL ux-designer + architect) |
@@ -229,6 +241,7 @@ Read procedures/phase7-digest-summary.md → execute → return → STOP
 | design-ux-status.json | `.mc-data/work/wf-design-ux/sessions/{SESSION_ID}/` | 0 | `templates/design-ux-status.json` |
 | design-ux-plan.md | `.mc-data/work/wf-design-ux/` | 0 | `templates/design-ux-plan.md` |
 | checkpoint.json | `.mc-data/work/wf-design-ux/sessions/{SESSION_ID}/` | 0-5 | `templates/checkpoint.json` |
+| workflow-context.md | `.mc-data/work/wf-design-ux/sessions/{SESSION_ID}/` | 2 | — (inline schema trong `procedures/phase2-navigation.md` §Step 2.0) — workflow map + screen inventory + consolidation decisions |
 | cross-validation-report.md | `.mc-data/work/wf-design-ux/` | 4 | — |
 | phase-summary.md | `.mc-data/work/wf-design-ux/sessions/{SESSION_ID}/` | 7 | `doc-framework/_meta/phase-summary.template.md` |
 
@@ -291,7 +304,7 @@ Nếu `interface_type == "api-only"` (detected tại Phase 0.5.0):
 
 | Skill | Quan hệ |
 |-------|---------|
-| `/wf-design` | Prerequisite — cung cấp architecture |
+| `/wf-design` | Prerequisite — cung cấp architecture + business context (actor matrix, lifecycle, integration-map cho cross-module status) |
 | `/wf-plan-modules` | Next step — sử dụng UX digest cho planning |
 | `/ui-ux-pro-max` | Complementary — cho individual component styling |
 | `/wf-legacy-scan` | Entry point cho dự án có sẵn |
@@ -307,9 +320,9 @@ Nếu `interface_type == "api-only"` (detected tại Phase 0.5.0):
 ```
 Phase 0: interface_type=web, LPM=false → PASS
 Phase 1: design-system.md (3 agents) → PASS
-Phase 2: Navigation-crm.md, Navigation-admin.md → PASS
-Phase 3: 12 screen groups (PARALLEL 2 systems) → PASS
-Phase 4: Validation 10/10 checks PASS (1 iteration)
+Phase 2: workflow-context.md (screen inventory + consolidation — Step 2.0) → Navigation-crm.md, Navigation-admin.md → PASS
+Phase 3: 10 screen groups sau consolidation (PARALLEL 2 systems) → PASS
+Phase 4: Validation 13/13 checks PASS (1 iteration)
 Phase 5: APPROVED (0 Critical, 2 Medium RESOLVED)
 Phase 6: ux_design_status=done
 Phase 7: ux-input-digest.json + phase-summary.md → DONE

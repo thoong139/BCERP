@@ -12,6 +12,8 @@
 - `.mc-data/docs/phase4-ux/*/*/screens-*.md`
 - `.mc-data/docs/phase2-features/**/*.md`
 - `.mc-data/docs/phase3-architecture/P3-01-architecture.md`
+- `.mc-data/docs/phase3-architecture/technical-specs/integration-map.md` (v4.1)
+- `$SESSION_DIR/workflow-context.md` (v4.1 — screen inventory + consolidation decisions)
 - SO template từ `.claude/doc-framework/phase4-ux/stakeholder-review.md`
 
 **OUTPUT:** `.mc-data/docs/phase4-ux/stakeholder-review.md` (Phần A: dashboard, B: SO-01, C: SO-02, D: SO-03)

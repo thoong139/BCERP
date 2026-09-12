@@ -2,6 +2,7 @@
 
 > Architect agent thiết kế high-level architecture — làm nền cho tất cả specs sau.
 > Conditional agents (ai-engineer, data-engineer, automation-architect) append sections nếu domain có AI/ML, data pipeline, hoặc workflow automation.
+> **(v4.1) Step 1.0 — Business Context Baseline** chạy TRƯỚC trong main conversation: ERP liên kết bắt đầu từ nghiệp vụ (actors, vòng đời đối tượng, luồng xuyên module), KHÔNG bắt đầu từ màn hình hay bảng DB.
 
 **PRE-GATE:**
 
@@ -19,11 +20,36 @@ jq -e '.phases.P0_5.status == "completed"' $SESSION_DIR/session-state.json
 - `.mc-data/work/wf-define-features/deferred-findings.md` (nếu có)
 - Template `.claude/doc-framework/phase3-architecture/P3-01-architecture.md`
 
-**OUTPUT:** `.mc-data/docs/phase3-architecture/P3-01-architecture.md`
+**OUTPUT:**
+- `$SESSION_DIR/business-context.md` (Step 1.0 — v4.1)
+- `.mc-data/docs/phase3-architecture/P3-01-architecture.md`
 
 ---
 
-## Steps
+## Step 1.0: Business Context Baseline (v4.1 — BẮT BUỘC, main conversation, TRƯỚC lane dispatch)
+
+> Xây baseline nghiệp vụ từ registry + feature specs (+ `$LEGACY_CONTEXT` nếu có), rồi inject vào MỌI agent prompt Phase 1–5 qua `_shared.md` §Business Context Injection.
+> Mục đích: mọi spec kỹ thuật (API/DB/integration) và toàn bộ Phase 4 UX (wf-design-ux) đều suy ra từ cùng một mô hình vận hành — tránh thiết kế rời rạc theo module.
+
+**Scope guard (CORE-006):** chỉ phân tích systems/modules/business objects có trong registry + features. KHÔNG bịa role/state/module mới. Thiếu thông tin → ghi `[NEEDS_REVIEW]` tại chỗ thiếu.
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1.0.1 | **Actor & Role Matrix** — từ `departments[]`, user stories trong features: mỗi role/phòng ban dùng hệ thống/module nào, làm gì (view/edit/approve/assign), cần quyết định gì | Bảng role × module × hành động |
+| 1.0.2 | **Business Object Lifecycle** — mỗi business object chính (theo features): danh sách states, transitions hợp lệ, bộ phận nào tạo/đổi state nào, state nào là terminal | Bảng object × state × owner |
+| 1.0.3 | **Cross-Module Dependency Map** — object cần dữ liệu/trạng thái nào từ module khác (VD: Order Detail cần trạng thái Purchasing + Warehouse + Finance). Nguồn: feature dependencies + integration hints | Bảng object → module cung cấp → loại dữ liệu |
+| 1.0.4 | **Ownership & Assignment Rules** — owner/assignee/approver ở từng stage, luật reassign, escalation (nếu features nói đến) | Bảng stage → owner → reassign rule |
+| 1.0.5 | **Exception Events** — overdue, blocked, thiếu thông tin, rejected, mismatch, integration failed... (từ error paths trong features) | Danh sách exception × object × mức độ |
+| 1.0.6 | Ghi `$SESSION_DIR/business-context.md` (5 sections trên, mỗi section là bảng markdown). Set `$BUSINESS_CONTEXT` = nội dung file. | `test -s $SESSION_DIR/business-context.md` |
+
+**Lưu ý:**
+- Chạy trong MAIN conversation — KHÔNG spawn agent (nhanh, chỉ tổng hợp từ dữ liệu đã load ở Phase 0).
+- LEGACY_MODE: đối chiếu `$LEGACY_CONTEXT` — thông tin nghiệp vụ xác nhận từ code được ghi `[VERIFIED]`, suy diễn ghi `[INFERRED]`.
+- Resume: nếu `business-context.md` đã tồn tại + non-empty → skip Step 1.0 (SKIP-IF-EXISTS pattern).
+
+---
+
+## Steps (Lane Dispatch)
 
 | Step | Action | Verify |
 |------|--------|--------|
@@ -73,6 +99,10 @@ Nếu `$LEGACY_MODE = true`: inject LEGACY BLOCK vào mọi agent prompt (xem `_
 ## POST-GATE
 
 ```bash
+# T0: Business Context Baseline (v4.1) — tồn tại + đủ 5 sections
+test -s $SESSION_DIR/business-context.md
+grep -c '^## ' $SESSION_DIR/business-context.md   # >= 5
+
 # T1: File existence + non-empty
 test -s .mc-data/docs/phase3-architecture/P3-01-architecture.md
 
@@ -88,6 +118,7 @@ Nếu FAIL → retry tạo lại P3-01-architecture.md (tối đa 3 lần). Nế
 1. Architecture sections đầy đủ: Quyết Định, Sơ Đồ, Danh Sách Phân Hệ, Phân Quyền Dữ Liệu, Giao Tiếp, Quy Ước, Môi Trường (7 required)
 2. Modules trong architecture khớp `$TARGET_MODULES` (không có module ngoài registry)
 3. REQ-IDs referenced trong ít nhất section Quyết Định Kiến Trúc
+4. **(v4.1)** Business layer present: P3-01 thể hiện được actor/phòng ban (§3), vòng đời + state transitions của business object chính (trong §5 hoặc section phụ "## 9. Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ"), nhất quán với `$BUSINESS_CONTEXT`
 
 ---
 
