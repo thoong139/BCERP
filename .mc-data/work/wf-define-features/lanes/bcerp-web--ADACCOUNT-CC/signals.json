@@ -1,0 +1,30 @@
+{
+  "lane_key": "bcerp-web--ADACCOUNT-CC",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-ADACCOUNT-CC",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-ADACC-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/adaccount-cc/kyc-phap-nhan-truoc-cap-phat-tkqc.md",
+      "req_ids": ["REQ-FIN-009"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ADACC-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "req_ids": ["REQ-OPS-001"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ADACC-003",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/adaccount-cc/financial-hard-stop-chan-cap-phat-tkqc.md",
+      "req_ids": ["REQ-OPS-002"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T16:19:05Z",
+    "words_written": 10651
+  }
+}

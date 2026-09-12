@@ -1,0 +1,52 @@
+{
+  "lane_key": "bcerp-web--CRM-PIPELINE",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-CRM-PIPELINE",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-CRM-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/crm-pipeline/thu-nhan-lead-da-kenh-va-chong-trung-lap-anti-duplicate.md",
+      "req_ids": [
+        "REQ-SALES-001"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-CRM-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/crm-pipeline/pipeline-v6-0-hard-gate-khong-ghi-nhan-khong-ton-tai-va-phan-bo-lead.md",
+      "req_ids": [
+        "REQ-SALES-002"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-CRM-003",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/crm-pipeline/auto-scoring-k1-k12-va-tier-a-e.md",
+      "req_ids": [
+        "REQ-SALES-003"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-CRM-004",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md",
+      "req_ids": [
+        "REQ-SALES-004"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-CRM-005",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/crm-pipeline/chuyen-tier-sales-cs-va-ra-soat-quy-tier.md",
+      "req_ids": [
+        "REQ-SALES-005"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00Z",
+    "words_written": 14225
+  }
+}

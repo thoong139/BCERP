@@ -1,0 +1,24 @@
+{
+  "lane_key": "core-backend--CAMPAIGN-DELIVERABLE",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-CAMPAIGN-DELIVERABLE",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-CAMP-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/campaign-deliverable/campaign-va-deliverable-management.md",
+      "req_ids": ["REQ-OPS-006"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-CAMP-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md",
+      "req_ids": ["REQ-OPS-012"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T14:46:35Z",
+    "words_written": 10417
+  }
+}

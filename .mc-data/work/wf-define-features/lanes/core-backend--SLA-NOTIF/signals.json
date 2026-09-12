@@ -1,0 +1,18 @@
+{
+  "lane_key": "core-backend--SLA-NOTIF",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-SLA-NOTIF",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-SLANOT-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/sla-notif/sla-va-notification-engine.md",
+      "req_ids": ["REQ-OPS-008"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00+07:00",
+    "words_written": 2999
+  }
+}

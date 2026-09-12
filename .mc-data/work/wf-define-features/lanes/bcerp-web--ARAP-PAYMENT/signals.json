@@ -1,0 +1,54 @@
+{
+  "lane_key": "bcerp-web--ARAP-PAYMENT",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-ARAP-PAYMENT",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-ARAP-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/phe-duyet-vuot-nguong-va-escalation.md",
+      "req_ids": ["REQ-BOD-001"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ARAP-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/phe-duyet-tai-chinh-doc-quyen-cua-cfo.md",
+      "req_ids": ["REQ-BOD-010"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ARAP-003",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/cong-no-ar-ap-aging-nhac-no.md",
+      "req_ids": ["REQ-FIN-007"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ARAP-004",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md",
+      "req_ids": ["REQ-FIN-008"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ARAP-005",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/hoa-don-dien-tu-tt78-2021-nd123-2020.md",
+      "req_ids": ["REQ-FIN-011"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ARAP-006",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md",
+      "req_ids": ["REQ-FIN-013"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-ARAP-007",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/arap-payment/phi-nen-tang-va-nghia-vu-thue.md",
+      "req_ids": ["REQ-FIN-014"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00+07:00",
+    "words_written": 21593
+  }
+}

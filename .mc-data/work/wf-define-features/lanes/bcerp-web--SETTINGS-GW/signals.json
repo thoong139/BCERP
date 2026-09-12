@@ -1,0 +1,24 @@
+{
+  "lane_key": "bcerp-web--SETTINGS-GW",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-SETTINGS-GW",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-STGW-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md",
+      "req_ids": ["REQ-BOD-008"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-STGW-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/settings-gw/api-7-nen-tang-degraded-mode-manual.md",
+      "req_ids": ["REQ-FIN-005"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T23:19:28+07:00",
+    "words_written": 5964
+  }
+}

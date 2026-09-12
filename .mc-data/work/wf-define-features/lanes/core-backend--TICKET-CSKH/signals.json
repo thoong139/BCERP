@@ -1,0 +1,18 @@
+{
+  "lane_key": "core-backend--TICKET-CSKH",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-TICKET-CSKH",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-CSKH-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/ticket-cskh/ticket-va-cskh.md",
+      "req_ids": ["REQ-OPS-009"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00+07:00",
+    "words_written": 5108
+  }
+}

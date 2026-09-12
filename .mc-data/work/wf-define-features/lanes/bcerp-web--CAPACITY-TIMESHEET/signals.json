@@ -1,0 +1,28 @@
+{
+  "lane_key": "bcerp-web--CAPACITY-TIMESHEET",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-CAPACITY-TIMESHEET",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-CAPTS-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/capacity-timesheet/duyet-timesheet-va-capacity-phoi-hop-ops.md",
+      "req_ids": [
+        "REQ-HR-009"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-CAPTS-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/capacity-timesheet/capacity-va-timesheet.md",
+      "req_ids": [
+        "REQ-OPS-007"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T23:37:40+07:00",
+    "words_written": 5777
+  }
+}

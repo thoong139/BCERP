@@ -1,0 +1,24 @@
+{
+  "lane_key": "bcerp-web--KPI-PERFORMANCE",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-KPI-PERFORMANCE",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-KPI-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/kpi-performance/kpi-3-tru-cot-tu-tong-hop-calibration.md",
+      "req_ids": ["REQ-HR-007"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-KPI-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/kpi-performance/pip-30-60-90.md",
+      "req_ids": ["REQ-HR-008"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T16:41:22Z",
+    "words_written": 5821
+  }
+}

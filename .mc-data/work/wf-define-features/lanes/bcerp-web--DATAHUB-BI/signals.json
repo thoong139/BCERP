@@ -1,0 +1,42 @@
+{
+  "lane_key": "bcerp-web--DATAHUB-BI",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-DATAHUB-BI",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-DHUB-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/datahub-bi/p-va-l-toan-cong-ty-realtime.md",
+      "req_ids": ["REQ-BOD-003", "REQ-FIN-016"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-DHUB-002",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/datahub-bi/bi-dashboard-dieu-hanh.md",
+      "req_ids": ["REQ-BOD-004"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-DHUB-003",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md",
+      "req_ids": ["REQ-BOD-006"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-DHUB-004",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md",
+      "req_ids": ["REQ-FIN-015"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-ERP-DHUB-005",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md",
+      "req_ids": ["REQ-FIN-016", "REQ-BOD-003"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T22:54:22+07:00",
+    "words_written": 14161
+  }
+}

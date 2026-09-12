@@ -35,7 +35,7 @@ Xây dựng trên core backend một **credit engine hoa hồng theo thanh toán
 
 **Phạm vi:**
 - Bao gồm: credit engine theo từng đợt thanh toán thực nhận; validate và lưu split credit; clawback tự động (hủy/hoàn phí, nợ quá hạn >90 ngày); quota theo cấp/quý; attainment và coverage tính tự động; khóa/mở khóa kỳ hoa hồng có phê duyệt + audit log; phiên bản hóa chính sách (effective-dated); API read-only cho sale xem hoa hồng/quota của chính mình (kể cả kênh mobile nội bộ, PII Restricted); API tổng hợp cho FIN, HR, BOD.
-- Không bao gồm: dashboard coverage/attainment và luồng phân xử deal trùng trên web (counterpart SYS-BCERP-WEB — engine chỉ lưu kết quả phân xử và tính toán); push alert coverage vàng/đỏ hàng tuần trên mobile (counterpart SYS-MOBILE-INTERNAL — engine chỉ cung cấp dữ liệu); sổ cái AR và phát hành hóa đơn (module AR/AP); bảng lương/KPI template theo vị trí (module HR-CORE — engine chỉ đọc tham chiếu `salary_policy`/`commission_tier` từ dữ liệu HR §6 `CHÍNH_SÁCH_LƯƠNG_2026`); connector phần mềm kế toán VAS (module Settings — cấu hình kết nối ngoại vi vendor-agnostic theo DI-004, không hardcode vendor).
+- Không bao gồm: dashboard coverage/attainment và luồng phân xử deal trùng trên web (counterpart `SYS-BCERP-WEB` — engine chỉ lưu kết quả và tính toán); push alert coverage vàng/đỏ trên mobile (counterpart `SYS-MOBILE-INTERNAL`); sổ cái AR và phát hành hóa đơn (module AR/AP); bảng lương/KPI template theo vị trí (module HR-CORE — engine chỉ đọc tham chiếu `salary_policy`/`commission_tier` từ HR §6 `CHÍNH_SÁCH_LƯƠNG_2026`); connector kế toán VAS (Settings — vendor-agnostic theo DI-004).
 
 ---
 
@@ -43,21 +43,21 @@ Xây dựng trên core backend một **credit engine hoa hồng theo thanh toán
 
 | # | Với tư cách là... | Tôi muốn... | Để... |
 |---|------------------|------------|-------|
-| 1 | SALES_L1/L2 (NVKD) | Gọi API `GET /api/v1/commission/me` (scope chính mình) xem credit, clawback, attainment theo kỳ | Minh bạch thu nhập, tự biết còn cách quota bao xa mà không phải hỏi kế toán |
+| 1 | SALES_L1/L2 (NVKD) | Gọi API `GET /api/v1/commission/me` (scope chính mình) xem credit, clawback, attainment theo kỳ | Minh bạch thu nhập, tự biết còn cách quota bao xa |
 | 2 | SALES_L4 (SM) | Gọi API `POST /api/v1/deals/{id}/commission-splits` ghi trước Gate 2, engine validate tổng ≤100% | Chốt trước ai hưởng credit bao nhiêu, chặn tranh chấp phát sinh sau |
 | 3 | FIN_L2 | Gọi API `POST /api/v1/commission/clawbacks/{id}/confirm` xác nhận clawback sau khi đối chiếu AR (aging, hóa đơn, phiếu thu) | Mọi dòng hồi hoa hồng dẫn chiếu được chứng từ công nợ thật |
 | 4 | SALES_L5 (GDKD) | Gọi API duyệt clawback `approve` trong SLA 3 ngày làm việc kể từ khi aging vượt 90 ngày | Kiểm soát dòng trừ hoa hồng kỳ kế tiếp |
 | 5 | SALES_L5 (GDKD) | Gọi API điều chỉnh quota giữa kỳ theo tỷ lệ ngày làm việc (nghỉ ốm/thai sản/chuyển vị trí) | Quota phản ánh công bằng thời gian làm việc thực tế |
-| 6 | SALES_L1–L5 (qua mobile nội bộ) | Dùng API read-only `GET /api/v1/commission/me/summary` (PII Restricted — chỉ trả dữ liệu của chính người gọi) | Xem hoa hồng/quota của chính mình trên điện thoại, không thể can thiệp dữ liệu người khác |
+| 6 | SALES_L1–L5 (qua mobile nội bộ) | Dùng API read-only `GET /api/v1/commission/me/summary` (PII Restricted — chỉ trả dữ liệu của chính người gọi) | Xem hoa hồng/quota của chính mình trên điện thoại, không can thiệp dữ liệu người khác |
 | 7 | HR_L1 | Gọi API đọc attainment/quota tổng hợp theo cấp `career_level` | Đối chiếu chính sách lương §6 (bảng Level/Rank theo %KPI) với hoa hồng thực tế khi salary review Q4 |
-| 8 | BOD_CFO_CTO | Gọi API báo cáo impact credit/clawback/aging ảnh hưởng hoa hồng theo tháng | Đo chi phí hoa hồng thực tế và rủi ro nợ quá hạn trước khi phê duyệt quỹ lương |
+| 8 | BOD_CFO_CTO | Gọi API báo cáo impact credit/clawback/aging ảnh hưởng hoa hồng theo tháng | Đo chi phí hoa hồng thực tế và rủi ro nợ quá hạn trước khi duyệt quỹ lương |
 | 9 | SYS_ADMIN | Gọi API quản trị ban hành phiên bản chính sách hoa hồng/quota mới (effective-dated) | Đổi thang hoa hồng/quota khi có quyết định ban hành, vẫn tái hiện được con số kỳ cũ |
 
 ---
 
 ## 3. Quy Tắc Nghiệp Vụ
 
-> *Quy tắc bắt buộc — developer phải xử lý đúng trong code. Toàn bộ enforce ở tầng service core backend (UI chỉ vô hiệu hóa nút, API phải tự từ chối), mọi thao tác ghi audit log bất biến.*
+> *Quy tắc bắt buộc — developer phải xử lý đúng trong code. Toàn bộ enforce ở tầng service core backend (UI chỉ vô hiệu hóa nút, API phải tự từ chối), mọi thao tác ghi audit log.*
 
 | Mã | Quy tắc | Khi vi phạm thì... |
 |----|---------|------------------|
@@ -65,7 +65,7 @@ Xây dựng trên core backend một **credit engine hoa hồng theo thanh toán
 | BR-002 | Thang hoa hồng theo cấp (đã chốt theo DI-001): L1 2,5% → L5 6,5%; L4/L5 cộng 0,5% doanh thu đơn vị. Nhân hệ số attainment quý: ≥100% ×1,2; 80–99% ×1,0; 70–79% ×0,9; <70% ×0,8 | Con số chỉ lấy từ bản ghi `commission_policy` phiên bản hiệu lực tại thời điểm phát sinh, không hardcode trong code |
 | BR-003 | Clawback khách hủy/hoàn phí: hồi hoa hồng **theo tỷ lệ tiền hoàn**; nợ quá hạn >90 ngày: clawback **100% phần chưa thu**; trừ vào kỳ kế tiếp; FIN_L2 xác nhận số liệu + SALES_L5 duyệt trong SLA 3 ngày làm việc kể từ khi aging vượt 90; luôn dẫn chiếu hóa đơn/phiếu thu/công nợ | Engine tự sinh dòng clawback, không cho nhập tay số tùy ý; cấm xóa dòng đã áp, sai sót chỉ xử lý bằng dòng điều chỉnh ngược có phê duyệt + audit log |
 | BR-004 | Split credit: chủ deal 70% – người hỗ trợ 30%; SM/TPKD hỗ trợ pre-sale tối đa 20% credit deal; **tổng mọi split ≤100%**; ghi trước Gate 2 — sau Gate 2 chặn bổ sung cứng ở tầng service | API từ chối mọi request ghi/đổi split sau Gate 2 hoặc làm tổng vượt 100%, trả lỗi nghiệp vụ rõ ràng, ghi log attempt |
-| BR-005 | Quota theo cấp/quý (đã chốt theo DI-001): L1 600 triệu → L5 5 tỷ/phòng; pipeline coverage ≥3× quota kỳ kế tiếp = on-track; <2× = đỏ — bắt buộc kế hoạch bổ sung lead, SM (SALES_L4) chịu trách nhiệm; **attainment tự động từ dữ liệu, cấm nhập tay** | Không tồn tại API ghi attainment thủ công; ngưỡng không đạt không chặn ghi nhận, chỉ gắn trạng thái vàng/đỏ cho kênh cảnh báo |
+| BR-005 | Quota theo cấp/quý (đã chốt theo DI-001): L1 600 triệu → L5 5 tỷ/phòng; pipeline coverage ≥3× quota kỳ kế tiếp = on-track; <2× = đỏ — bắt buộc kế hoạch bổ sung lead, SM (SALES_L4) chịu trách nhiệm; **attainment tự động, cấm nhập tay** | Không có API ghi attainment thủ công; ngưỡng không đạt không chặn ghi nhận, chỉ gắn trạng thái vàng/đỏ cho kênh cảnh báo |
 | BR-006 | Khóa kỳ hoa hồng sau khi chốt (SALES_L5 + FIN_L2 đồng chốt); mở khóa phải phê duyệt + audit log bất biến | API ghi vào kỳ `LOCKED` bị từ chối trừ clawback điều chỉnh đã duyệt; mở khóa không có phê duyệt bị chặn kể cả với SYS_ADMIN |
 | BR-007 | Hợp đồng dài hạn >12 tháng: credit chia theo từng kỳ thực nhận; deal bị trả về từ Gate 2: credit **tạm dừng** đến khi handoff lại thành công | Engine tách lịch credit theo schedule thực nhận; đợt thực nhận phát sinh khi deal paused không phát sinh credit, đối soát lệch schedule alert FIN |
 | BR-008 | Nghỉ ốm/thai sản/chuyển vị trí giữa kỳ: quota giảm theo **tỷ lệ ngày làm việc thực tế**, SALES_L5 duyệt | API điều chỉnh quota bắt buộc kèm ngày hiệu lực + lý do; yêu cầu thiếu phê duyệt bị từ chối và log |
@@ -100,7 +100,7 @@ Xây dựng trên core backend một **credit engine hoa hồng theo thanh toán
 > *Các tình huống ngoại lệ engine phải xử lý — đều có audit log bất biến.*
 
 - **Nghỉ ốm/thai sản/chuyển vị trí giữa kỳ:** quota giảm theo tỷ lệ ngày làm việc thực tế, SALES_L5 duyệt trên đề xuất của SALES_L4; attainment sau đó tính trên quota đã điều chỉnh, không tính trên quota gốc.
-- **Hợp đồng dài hạn >12 tháng:** credit chia theo schedule thực nhận; khách thanh toán lệch schedule thì engine ghi credit theo đợt tiền thực về và đẩy lệch schedule sang đối soát của FIN.
+- **Hợp đồng dài hạn >12 tháng:** credit chia theo schedule thực nhận; khách thanh toán lệch schedule thì engine ghi credit theo đợt tiền thực về và đẩy lệch sang đối soát của FIN.
 - **Deal bị trả về từ Gate 2:** credit tạm dừng ngay khi handoff chuyển về "khắc phục"; handoff lại thành công thì credit tiếp tục từ đợt sau.
 - **Khách hủy/hoàn phí một phần:** clawback theo đúng tỷ lệ tiền hoàn trên tổng tiền đã thực nhận; hoàn phủ toàn bộ thì clawback phủ toàn bộ credit đã chi cho deal.
 - **Tranh chấp "deal credit cho ai":** treo credit khi tranh chấp mở; gán split sau khi phân xử chốt theo REQ-SALES-001; SM là đương sự thì GDKD thay thế phân xử.
@@ -112,7 +112,7 @@ Xây dựng trên core backend một **credit engine hoa hồng theo thanh toán
 
 ## 6. Trạng Thái & Chuyển Đổi (State Machine)
 
-**Entity:** Kỳ hoa hồng (Commission Period) và dòng Clawback (Clawback Record) — trạng thái được validate hoàn toàn ở tầng service.
+**Entity:** Kỳ hoa hồng (Commission Period) và dòng Clawback (Clawback Record) — trạng thái validate hoàn toàn ở tầng service.
 
 **Sơ đồ trạng thái — Kỳ hoa hồng:**
 ```

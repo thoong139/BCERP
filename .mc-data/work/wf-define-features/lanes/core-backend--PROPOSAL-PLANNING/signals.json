@@ -1,0 +1,20 @@
+{
+  "lane_key": "core-backend--PROPOSAL-PLANNING",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-PROPOSAL-PLANNING",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-PROPLN-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/proposal-planning/proposal-va-planning-workspace-stage-gate-v6-0.md",
+      "req_ids": [
+        "REQ-OPS-005"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T22:12:43+07:00",
+    "words_written": 4921
+  }
+}

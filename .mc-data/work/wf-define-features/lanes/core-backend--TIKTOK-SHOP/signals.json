@@ -1,0 +1,18 @@
+{
+  "lane_key": "core-backend--TIKTOK-SHOP",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-TIKTOK-SHOP",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-TIKTOK-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/tiktok-shop/tiktok-shop-monitoring.md",
+      "req_ids": ["REQ-OPS-011"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T22:33:29+07:00",
+    "words_written": 3032
+  }
+}
