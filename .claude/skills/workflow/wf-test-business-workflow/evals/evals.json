@@ -1,0 +1,81 @@
+{
+  "skill": "wf-test-business-workflow",
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "TC-WTBW-001",
+      "name": "Happy path 1 WF — ANALYZE → TEST → NARRATE → checkpoint (no-spawn)",
+      "input": {
+        "command": "/wf-test-business-workflow --workflow=WF-L1-01 --no-spawn",
+        "context": "Có WF-L1-01-*.md spec, apps/erp-web + apps/backend đang chạy, machine config đã setup, test accounts có sẵn."
+      },
+      "expected_behavior": [
+        "Phase 0: PRE-GATE pass, progress.json có WF-L1-01 status=inprogress, SESSION_DIR created",
+        "Phase 1: parse-workflow-spec.py xuất analysis-raw.json; workflow-analysis.md > 100 bytes; analysis_status=done",
+        "Phase 2: {WF-id}.spec.ts sinh tại apps/erp-web/e2e/wf/; fix loop chạy đến pnpm e2e exit 0; MCP verify ≥1 screenshot; tc_results dạng object (result/fixed/deferred_reason)",
+        "Phase 3: dual-agent spawn song song; presentation.md 5 sections > 500 bytes; README index updated",
+        "Phase 4: completeness audit + checkpoint + progress.json status=done; --no-spawn → KHÔNG chạy next-session.py"
+      ],
+      "assertions": [
+        "test -f .mc-data/work/wf-test-business-workflow/_runs/checkpoints/WF-L1-01.json",
+        "jq '.workflows[\"WF-L1-01\"].status' progress.json == \"done\"",
+        "test -f .mc-data/docs/phase1-business/workflows/_presentations/WF-L1-01-*.presentation.md",
+        "ls sessions/*/playwright/evidence/WF-L1-01/*.png | wc -l >= 1",
+        "jq '.tc_results[] | select(type != \"object\")' test-status.json — rỗng (không string thuần)"
+      ]
+    },
+    {
+      "id": "TC-WTBW-002",
+      "name": "PRE-GATE fail — chưa có WF specs → E001 STOP",
+      "input": {
+        "command": "/wf-test-business-workflow --all",
+        "context": ".mc-data/docs/phase1-business/workflows/ chưa tồn tại hoặc 0 file WF-L*.md."
+      },
+      "expected_behavior": [
+        "PRE-GATE fail (glob WF-L* rỗng)",
+        "E001: hướng dẫn chạy /wf-analyze-requirements trước",
+        "STOP — không tạo progress.json, không claim WF nào"
+      ],
+      "assertions": [
+        ".mc-data/work/wf-test-business-workflow/_runs/progress.json không được tạo mới",
+        "Output chứa E001 + hướng dẫn prerequisite"
+      ]
+    },
+    {
+      "id": "TC-WTBW-003",
+      "name": "Kill-switch + spawn script fallback",
+      "input": {
+        "command": "/wf-test-business-workflow --resume rồi --stop",
+        "context": "Session WF-L2-03 dở ở test_fixloop. Sau đó user tạo _runs/STOP rồi chạy --resume; cuối cùng spawn script bị fail (editor không mở)."
+      },
+      "expected_behavior": [
+        "--resume: route theo test-status.json next_action=test_fixloop → tiếp Phase 2 Step 2.3, không re-run 2.1-2.2",
+        "STOP tồn tại khi --resume: E010 — WF inprogress mark về pending, exit",
+        "Spawn script exit 1 → FALLBACK MODE: log rõ, claim WF tiếp theo in-session (Step 0.5), lặp đến hết pending hoặc context > 70% (E002)"
+      ],
+      "assertions": [
+        "next-session.log có entry FALLBACK",
+        "progress.json: WF-L2-03 giữ nguyên analysis/progress artifacts, status quay lại pending khi STOP",
+        "Không có WF thứ 2 bị claim khi STOP detected"
+      ]
+    },
+    {
+      "id": "TC-WTBW-004",
+      "name": "Machine config chưa setup → E008 first-run wizard",
+      "input": {
+        "command": "/wf-test-business-workflow --workflow=WF-L1-01 --no-spawn",
+        "context": "Xóa .machine-mirror.json + auto-memory config, FE/BE đang chạy."
+      },
+      "expected_behavior": [
+        "Step 0.2: config không tồn tại → E008 → chạy first-run wizard (procedures/first-run-wizard.md)",
+        "Wizard hỏi W1-W6 (FE URL, backend health, rebuild wait, editor app, test accounts, verify)",
+        "Ghi cả auto-memory + _runs/.machine-mirror.json; continue Phase 0 bình thường"
+      ],
+      "assertions": [
+        "test -f _runs/.machine-mirror.json sau wizard",
+        "jq '.fe_base_url' .machine-mirror.json không rỗng",
+        "Session tiếp tục đến Phase 1 (không exit)"
+      ]
+    }
+  ]
+}
