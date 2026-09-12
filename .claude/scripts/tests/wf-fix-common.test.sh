@@ -147,16 +147,43 @@ acquire_lock "$LOCK_DIR" 2>/dev/null
 assert_true "acquire_lock succeeds after release" $?
 
 # ============================================================
-# Test 4: Lock stale takeover
+# Test 4: Lock takeover — Path A live-PID bảo vệ + takeover khi holder chết
 # ============================================================
 echo
 echo "=== Test 4: Lock stale takeover ==="
-
-# Backdate mtime của .lock 2 phút (vượt MCV3_LOCK_STALE_MINUTES=1)
 LOCK_DIR2="$TMP_ROOT/wf-fix-bugs/sessions/${TODAY}-test-stale-01"
 mkdir -p "$LOCK_DIR2"
-acquire_lock "$LOCK_DIR2" 2>/dev/null
 
+# 4a — Path A: PID sống + cùng host → TỪ CHỐI takeover (chống cướp lock session sống)
+acquire_lock "$LOCK_DIR2" 2>/dev/null
+STDERR_TMP=$(mktemp)
+acquire_lock "$LOCK_DIR2" 2>"$STDERR_TMP"
+RC=$?
+STDERR_CONTENT=$(cat "$STDERR_TMP")
+rm -f "$STDERR_TMP"
+assert_false "acquire_lock refuses live same-host PID" "$RC"
+if echo "$STDERR_CONTENT" | grep -q "locked by live PID"; then
+  echo "  PASS: stderr contains 'locked by live PID'"
+  TESTS_PASS=$((TESTS_PASS + 1))
+  TESTS_RUN=$((TESTS_RUN + 1))
+else
+  echo "  FAIL: stderr should contain 'locked by live PID' (got: $STDERR_CONTENT)" >&2
+  TESTS_FAIL=$((TESTS_FAIL + 1))
+  TESTS_RUN=$((TESTS_RUN + 1))
+  FAILURES+=("stderr should contain 'locked by live PID'")
+fi
+
+# 4b — Holder chết (dead PID) + mtime cũ → takeover với cảnh báo "taking over".
+# Lock đang ghi pid $$ của shell test; mô phỏng holder chết bằng PID vừa kill.
+DEAD_PID_DIR=$(mktemp -d)
+( sleep 30 ) & DEAD_PID=$!
+kill "$DEAD_PID" 2>/dev/null
+wait "$DEAD_PID" 2>/dev/null
+jq --argjson pid "$DEAD_PID" '.pid = $pid' "$LOCK_DIR2/.lock" > "$DEAD_PID_DIR/l.json" \
+  && mv "$DEAD_PID_DIR/l.json" "$LOCK_DIR2/.lock"
+rmdir "$DEAD_PID_DIR" 2>/dev/null || true
+
+# Backdate mtime của .lock 2 phút (vượt MCV3_LOCK_STALE_MINUTES=1)
 # Touch backdating: dùng -d (GNU) hoặc -t (BSD)
 touch -d "2 minutes ago" "$LOCK_DIR2/.lock" 2>/dev/null \
   || touch -t "$(date -u -v-2M +%Y%m%d%H%M.%S 2>/dev/null || echo '202604280900.00')" "$LOCK_DIR2/.lock" 2>/dev/null \
@@ -168,16 +195,16 @@ RC=$?
 STDERR_CONTENT=$(cat "$STDERR_TMP")
 rm -f "$STDERR_TMP"
 
-assert_true "acquire_lock takes over stale lock" "$RC"
-if echo "$STDERR_CONTENT" | grep -q "stale lock"; then
-  echo "  PASS: stderr contains 'stale lock' warning"
+assert_true "acquire_lock takes over stale/dead-holder lock" "$RC"
+if echo "$STDERR_CONTENT" | grep -q "taking over"; then
+  echo "  PASS: stderr contains 'taking over' warning"
   TESTS_PASS=$((TESTS_PASS + 1))
   TESTS_RUN=$((TESTS_RUN + 1))
 else
-  echo "  FAIL: stderr should contain 'stale lock' (got: $STDERR_CONTENT)" >&2
+  echo "  FAIL: stderr should contain 'taking over' (got: $STDERR_CONTENT)" >&2
   TESTS_FAIL=$((TESTS_FAIL + 1))
   TESTS_RUN=$((TESTS_RUN + 1))
-  FAILURES+=("stderr should contain 'stale lock'")
+  FAILURES+=("stderr should contain 'taking over'")
 fi
 
 # ============================================================

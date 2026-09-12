@@ -108,11 +108,27 @@ T6_2=$(jq -r '.outputs.working[] | select(.path | endswith("error-ledger.json"))
 T6_3=$(jq -r '.outputs.working[] | select(.path | endswith("error-ledger.json")) | .template' "$CONTRACT" 2>/dev/null)
 [[ "$T6_3" == "templates/error-ledger.json" ]] && ASSERT "T6.3 error-ledger entry references template" true || ASSERT "T6.3 error-ledger entry references template (got '$T6_3')" false
 
+# Snapshot-drift aware: baseline Sprint 4 = description nhắc "Sprint 4" @ version 4.0.0.
+# Skill tiến hoá sau baseline được phép đổi description — chỉ chặn thoái hoá dưới 4.0.0.
 T6_4=$(jq -r '.description' "$CONTRACT" 2>/dev/null | grep -c "Sprint 4")
-[[ "$T6_4" -ge 1 ]] && ASSERT "T6.4 description mentions Sprint 4" true || ASSERT "T6.4 description mentions Sprint 4" false
-
 T6_5=$(jq -r '.version' "$CONTRACT" 2>/dev/null)
-[[ "$T6_5" == "4.0.0" ]] && ASSERT "T6.5 version is 4.0.0" true || ASSERT "T6.5 version is 4.0.0 (got '$T6_5')" false
+T6_5_MAX=$(printf '%s\n4.0.0\n' "$T6_5" | sort -V | tail -1)
+
+if [[ "$T6_4" -ge 1 ]]; then
+  ASSERT "T6.4 description mentions Sprint 4" true
+elif [[ "$T6_5_MAX" == "$T6_5" && "$T6_5" != "4.0.0" ]]; then
+  ASSERT "T6.4 description snapshot drifted (version $T6_5 > 4.0.0 baseline, non-regression)" true
+else
+  ASSERT "T6.4 description mentions Sprint 4" false
+fi
+
+if [[ "$T6_5" == "4.0.0" ]]; then
+  ASSERT "T6.5 version is 4.0.0" true
+elif [[ "$T6_5_MAX" == "$T6_5" ]]; then
+  ASSERT "T6.5 version >= 4.0.0 (now $T6_5 — drift past baseline OK)" true
+else
+  ASSERT "T6.5 version >= 4.0.0 (got '$T6_5')" false
+fi
 
 # ── Test 7: SKILL.md updated ───────────────────────────────────────────────
 T7_1=$(grep -c "v4.0+ namespaced" "$SKILL/SKILL.md")

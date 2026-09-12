@@ -66,12 +66,13 @@ is_infrastructure() {
   done
 
   # Check for parallel route slots (@slot directories)
-  if [[ "$file" == *"/@"/"* ]] || [[ "$file" == *"\\@"\\* ]]; then
+  # Literal ( ) @ \ phải nằm trong quote — parens không quote làm bash parser lỗi
+  if [[ "$file" == *"/@/"* ]] || [[ "$file" == *'\@\'* ]]; then
     return 0
   fi
 
   # Check for intercepting route segments
-  if [[ "$file" == *"/("*)"/"* ]] && [[ "$file" != *\(*\)"/page."* ]]; then
+  if [[ "$file" == *"/("*")"/* ]] && [[ "$file" != *"("*")/page."* ]]; then
     # Route groups: (name)/ is NOT infrastructure, (.) and (..) are
     if [[ "$file" == *"/(.)"* ]] || [[ "$file" == *"/(..)"* ]]; then
       return 0

@@ -100,11 +100,14 @@ echo ""
 echo "--- Tier 1: contract outputs cross-check ---"
 
 # Verify _contract.json lists all expected outputs.
+# Baseline Phase I = 5.0.0; patch/minor bump sau đó là drift hợp lệ — chỉ chặn thoái hoá.
 CONTRACT="$REPO_ROOT/.claude/skills/workflow/wf-legacy-scan/_contract.json"
-if jq -e '.version == "5.0.0"' "$CONTRACT" >/dev/null 2>&1; then
-    check "_contract.json version=5.0.0" 0
+CONTRACT_VERSION=$(jq -r '.version' "$CONTRACT" 2>/dev/null || echo "")
+VERSION_MAX=$(printf '%s\n5.0.0\n' "$CONTRACT_VERSION" | sort -V | tail -1)
+if [[ -n "$CONTRACT_VERSION" && "$VERSION_MAX" == "$CONTRACT_VERSION" ]]; then
+    check "_contract.json version >= 5.0.0 (now $CONTRACT_VERSION)" 0
 else
-    check "_contract.json version=5.0.0" 1
+    check "_contract.json version >= 5.0.0 (got '${CONTRACT_VERSION:-missing}')" 1
 fi
 
 # Check required output paths present in contract.

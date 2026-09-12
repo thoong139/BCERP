@@ -69,13 +69,50 @@ done
 # ============================================================
 # CHECK A — Bidirectional cross-skill symmetry
 # ============================================================
-# Build index: skill_name -> contract path
-declare -A CONTRACT_OF
+# Normalize cross_skill_contracts về object-form trước khi đối xứng:
+# contract mới (vd wf-preflight, wf-fix-execute) khai báo array-form giàu metadata —
+#   produces_for: [{file, consumer: "skill-a, skill-b", ...}]
+#   consumes_from: [{from_skill, file, condition}]
+# CHECK A theo object-form {skill: [paths]}; chỉ giữ consumer là skill có thật
+# (loại "user (...)" — không phải liên kết skill-to-skill).
+ALL_SKILLS_JSON=$(printf '%s\n' "${SKILL_NAMES[@]}" | jq -R . | jq -s .)
+NORM_CONTRACTS=()
+declare -A ORIG_OF
 for c in "${CONTRACTS[@]}"; do
+  norm="$TMP/norm.json.d/$(basename "$(dirname "$c")").json"
+  mkdir -p "$TMP/norm.json.d"
+  jq --argjson skills "$ALL_SKILLS_JSON" '
+    . as $orig | .cross_skill_contracts as $cc
+    | ($cc.produces_for // {}) as $pf | ($cc.consumes_from // {}) as $cf
+    | $orig + {cross_skill_contracts: {
+        produces_for: (
+          if ($pf | type) == "array" then
+            [ $pf[] | . as $e
+              | (($e.consumer // "") | split(",")[] | split(" ")[0]) as $k
+              | select($k != "" and ($skills | index($k)) != null)
+              | {c: $k, f: $e.file} ]
+            | group_by(.c) | map({(.[0].c): ([.[].f] | unique)}) | add // {}
+          else $pf end),
+        consumes_from: (
+          if ($cf | type) == "array" then
+            [ $cf[] | . as $e
+              | ($e.from_skill // "") as $k
+              | select($k != "" and ($skills | index($k)) != null)
+              | {c: $k, f: $e.file} ]
+            | group_by(.c) | map({(.[0].c): ([.[].f] | unique)}) | add // {}
+          else $cf end)
+      }}' "$c" > "$norm" 2>/dev/null || cp "$c" "$norm"
+  NORM_CONTRACTS+=("$norm")
+  ORIG_OF[$norm]="$c"
+done
+
+# Build index: skill_name -> normalized contract path
+declare -A CONTRACT_OF
+for c in "${NORM_CONTRACTS[@]}"; do
   CONTRACT_OF[$(jq -r .skill "$c" | tr -d '\r')]="$c"
 done
 
-for c in "${CONTRACTS[@]}"; do
+for c in "${NORM_CONTRACTS[@]}"; do
   producer=$(jq -r .skill "$c" | tr -d '\r')
   # Loop through each consumer in produces_for
   consumers=$(jq -r '(.cross_skill_contracts.produces_for // {}) | keys[]' "$c" 2>/dev/null | tr -d '\r' || true)
@@ -84,7 +121,7 @@ for c in "${CONTRACTS[@]}"; do
     paths=$(jq -r --arg k "$consumer" '.cross_skill_contracts.produces_for[$k][]? // empty' "$c" | tr -d '\r')
     # Consumer must exist
     if [[ -z "${CONTRACT_OF[$consumer]:-}" ]]; then
-      add_finding "HIGH" "A-symmetry" "$producer" "Declares produces_for → '$consumer' but no such skill contract exists" "$c"
+      add_finding "HIGH" "A-symmetry" "$producer" "Declares produces_for → '$consumer' but no such skill contract exists" "${ORIG_OF[$c]:-$c}"
       continue
     fi
     cc="${CONTRACT_OF[$consumer]}"
@@ -98,7 +135,7 @@ for c in "${CONTRACTS[@]}"; do
       if [[ "$in_consumes" == "null" && "$in_inputs" == "null" ]]; then
         add_finding "HIGH" "A-symmetry" "$producer" \
           "Promises '$p' to '$consumer' but consumer contract does not declare it in consumes_from[$producer] nor inputs[]" \
-          "$c → $cc"
+          "${ORIG_OF[$c]:-$c} → ${ORIG_OF[$cc]:-$cc}"
       fi
     done <<< "$paths"
   done
@@ -107,7 +144,7 @@ for c in "${CONTRACTS[@]}"; do
   producers_cited=$(jq -r '(.cross_skill_contracts.consumes_from // {}) | keys[]' "$c" 2>/dev/null | tr -d '\r' || true)
   for upstream in $producers_cited; do
     if [[ -z "${CONTRACT_OF[$upstream]:-}" ]]; then
-      add_finding "HIGH" "A-symmetry" "$producer" "Declares consumes_from ← '$upstream' but no such skill contract exists" "$c"
+      add_finding "HIGH" "A-symmetry" "$producer" "Declares consumes_from ← '$upstream' but no such skill contract exists" "${ORIG_OF[$c]:-$c}"
       continue
     fi
     uc="${CONTRACT_OF[$upstream]}"
@@ -119,7 +156,7 @@ for c in "${CONTRACTS[@]}"; do
       if [[ "$found" == "null" ]]; then
         add_finding "HIGH" "A-symmetry" "$producer" \
           "Claims to consume '$p' from '$upstream' but upstream does not promise it in produces_for[$producer]" \
-          "$c ← $uc"
+          "${ORIG_OF[$c]:-$c} ← ${ORIG_OF[$uc]:-$uc}"
       fi
     done <<< "$paths"
   done

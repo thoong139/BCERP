@@ -25,6 +25,22 @@ function Convert-ToWslPath {
     throw "Unsupported path format: $resolved"
 }
 
+function Convert-ToGitBashPath {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $resolved = (Resolve-Path -LiteralPath $Path).Path
+    if ($resolved -match "^([A-Za-z]):\\(.*)$") {
+        $drive = $matches[1].ToLowerInvariant()
+        $rest = $matches[2] -replace "\\", "/"
+        return "/$drive/$rest"
+    }
+
+    throw "Unsupported path format: $resolved"
+}
+
 function Quote-ForBash {
     param(
         [Parameter(Mandatory = $true)]
@@ -58,18 +74,35 @@ if (-not $bash) {
     throw "bash.exe was not found. Install WSL or Git Bash before using this wrapper."
 }
 
-$repoRootWsl = Convert-ToWslPath -Path $repoRoot
-$scriptPathWsl = Convert-ToWslPath -Path $scriptPath
+# Phát hiện loại bash: WSL (System32/WindowsApps/wsl) vs Git Bash (thư mục cài Git).
+# WSL dùng đường dẫn /mnt/<drive>/...; Git Bash dùng /<drive>/... — dùng sai loại
+# đường dẫn sẽ trỏ tới thư mục không tồn tại.
+$bashSource = $bash.Source
+$isWslBash = $bashSource -match "System32|WindowsApps|\\wsl\\"
+
 $quotedArgs = @()
 
 if ($null -ne $ScriptArgs) {
     $quotedArgs = @($ScriptArgs) | ForEach-Object { Quote-ForBash -Value $_ }
 }
 
-$command = "cd $(Quote-ForBash -Value $repoRootWsl) && bash $(Quote-ForBash -Value $scriptPathWsl)"
-if (@($quotedArgs).Count -gt 0) {
-    $command += " " + ($quotedArgs -join " ")
+if ($isWslBash) {
+    $repoRootBash = Convert-ToWslPath -Path $repoRoot
+    $scriptPathBash = Convert-ToWslPath -Path $scriptPath
+    $command = "cd $(Quote-ForBash -Value $repoRootBash) && bash $(Quote-ForBash -Value $scriptPathBash)"
+    if (@($quotedArgs).Count -gt 0) {
+        $command += " " + ($quotedArgs -join " ")
+    }
+    & $bash.Source -lc $command
+    exit $LASTEXITCODE
 }
-
-& $bash.Source -lc $command
-exit $LASTEXITCODE
+else {
+    $repoRootBash = Convert-ToGitBashPath -Path $repoRoot
+    $scriptPathBash = Convert-ToGitBashPath -Path $scriptPath
+    $command = "cd $(Quote-ForBash -Value $repoRootBash) && bash $(Quote-ForBash -Value $scriptPathBash)"
+    if (@($quotedArgs).Count -gt 0) {
+        $command += " " + ($quotedArgs -join " ")
+    }
+    & $bash.Source -c $command
+    exit $LASTEXITCODE
+}
