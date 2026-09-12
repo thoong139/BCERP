@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-annotate-code",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "phase": "post-phase3",
   "description": "Inject REQ-ID comments vào existing code files để thiết lập traceability — v2.1.0: fix BUG-01 checkpoint resume guard, BUG-02 division-by-zero, BUG-03 language-specific insert position (Go/Python), BUG-04 checkpoint freshness check, BUG-05 E046 batch-confirm, BUG-06 E042 in-memory backup, BUG-07 trigger string standardize, BUG-08 gap-categories.json conditional prereq, BUG-09 APPEND_NEW option, ARCH-03 timing warning, ARCH-04 Phase 1 intermediate checkpoint",
   "procedure": ["procedures/phase0-context.md"],
