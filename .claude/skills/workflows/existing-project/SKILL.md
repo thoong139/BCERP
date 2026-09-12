@@ -1,7 +1,7 @@
 ---
 name: existing-project
-version: 4.0.0
-last_updated: 2026-04-19
+version: 4.1.0
+last_updated: 2026-09-12
 description: |
   Orchestrator workflow cho dự án đã có codebase — scan rồi tiếp tục phát triển theo DEVKIT.
   Chuỗi: wf-legacy-scan → wf-brainstorm* → wf-analyze-requirements* → wf-define-features* → wf-design* → wf-annotate-code (conditional) → wf-design-ux* (conditional) → wf-plan-modules → wf-implement-feature → wf-preflight → wf-verify-sync → wf-prepare-deployment. (* = shared skills tự detect legacy mode theo CORE-021 và inject context.)
@@ -113,6 +113,16 @@ IF $ARGUMENTS chứa "--from-phase N":
   → Jump tới phase tương ứng (Phase 0 init vẫn chạy để đảm bảo status file có)
 ```
 
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Kiểm tra prerequisites: codebase directory + source files (heuristic) | Codebase tồn tại; thiếu → E001 STOP |
+| 2 | Parse `$ARGUMENTS` → flags `--resume`, `--from-phase N` | Flags parse đúng giá trị mapping |
+| 3 | `--resume` handler: đọc checkpoint.json, cross-validate filesystem (_shared.md §Resume Protocol) | current_step + phases_completed[] khớp disk; thiếu file → E012 fallback |
+| 4 | `--from-phase N` handler: validate N (E010) + prerequisite phase đích (E011) | Jump đúng phase file sau Phase 0 init |
+| 5 | Không flag → lazy-load `procedures/phase0-init.md` (conflict `.mc-data/` menu, status file) | Routing decision tới `phase-scan.md` |
+
 ---
 
 ## Phase Routing Map (lazy-loaded)
@@ -120,21 +130,21 @@ IF $ARGUMENTS chứa "--from-phase N":
 > SKILL.md routing block KHÔNG chứa execution steps. Toàn bộ logic chi tiết được lazy-load qua các phase files riêng.
 > Read MỖI phase file CHỈ KHI tới phase tương ứng để giảm context load.
 
-| Phase ID | Procedure file | Sub-skill | Điều kiện chạy | Mục đích |
-|----------|---------------|-----------|----------------|----------|
-| **phase0** | `procedures/phase0-init.md` | (init) | Always (entry point) | PRE-GATE, args parsing, conflict menu, status file |
-| **scan** | `procedures/phase-scan.md` | `wf-legacy-scan` | Always (skip nếu pipeline COMPLETE từ run trước) | Detect → classify → extract → synthesize codebase |
-| **brainstorm** | `procedures/phase-brainstorm.md` | `wf-brainstorm` | Always | Phase 0 docs + legacy-decisions.json |
-| **analyze-req** | `procedures/phase-analyze-req.md` | `wf-analyze-requirements` | Always | Phase 1 docs + registry seed |
-| **define-features** | `procedures/phase-define-features.md` | `wf-define-features` | Always | Phase 2 specs + impl_status inheritance |
-| **design** | `procedures/phase-design.md` | `wf-design` | Always | Phase 3 architecture + registry rebuild + gap analysis |
-| **annotate** | `procedures/phase-annotate.md` | `wf-annotate-code` | Conditional — có annotation gaps + có code | Inject REQ-ID vào existing code |
-| **phase4** | `procedures/phase4-ux.md` | `wf-design-ux` | Conditional — `interface_type != "api-only"` AND UI thay đổi | UX/UI design |
-| **phase5a** | `procedures/phase5a-plan.md` | `wf-plan-modules` | Always | Implementation roadmap + task files |
-| **phase5b** | `procedures/phase5b-implement.md` | `wf-implement-feature` | Always (loop per feature) | TDD code implementation |
-| **preflight** | `procedures/phase-preflight.md` | `wf-preflight` | Always | Health check toàn diện (PASS/WARN/FAIL routing) |
-| **verify** | `procedures/phase-verify.md` | `wf-verify-sync` | Always (trừ khi Preflight FAIL) | Traceability sync check |
-| **deployment** | `procedures/phase6-deployment.md` | `wf-prepare-deployment` | Always | Deployment docs + user guides |
+| # | Phase ID | Procedure file | Sub-skill | Điều kiện chạy | Mục đích |
+|---|----------|---------------|-----------|----------------|----------|
+| **0** | phase0 | `procedures/phase0-init.md` | (init) | Always (entry point) | PRE-GATE, args parsing, conflict menu, status file |
+| **1** | scan | `procedures/phase-scan.md` | `wf-legacy-scan` | Always (skip nếu pipeline COMPLETE từ run trước) | Detect → classify → extract → synthesize codebase |
+| **2** | brainstorm | `procedures/phase-brainstorm.md` | `wf-brainstorm` | Always | Phase 0 docs + legacy-decisions.json |
+| **3** | analyze-req | `procedures/phase-analyze-req.md` | `wf-analyze-requirements` | Always | Phase 1 docs + registry seed |
+| **4** | define-features | `procedures/phase-define-features.md` | `wf-define-features` | Always | Phase 2 specs + impl_status inheritance |
+| **5** | design | `procedures/phase-design.md` | `wf-design` | Always | Phase 3 architecture + registry rebuild + gap analysis |
+| **6** | annotate | `procedures/phase-annotate.md` | `wf-annotate-code` | Conditional — có annotation gaps + có code | Inject REQ-ID vào existing code |
+| **7** | phase4 | `procedures/phase4-ux.md` | `wf-design-ux` | Conditional — `interface_type != "api-only"` AND UI thay đổi | UX/UI design |
+| **8** | phase5a | `procedures/phase5a-plan.md` | `wf-plan-modules` | Always | Implementation roadmap + task files |
+| **9** | phase5b | `procedures/phase5b-implement.md` | `wf-implement-feature` | Always (loop per feature) | TDD code implementation |
+| **10** | preflight | `procedures/phase-preflight.md` | `wf-preflight` | Always | Health check toàn diện (PASS/WARN/FAIL routing) |
+| **11** | verify | `procedures/phase-verify.md` | `wf-verify-sync` | Always (trừ khi Preflight FAIL) | Traceability sync check |
+| **12** | deployment | `procedures/phase6-deployment.md` | `wf-prepare-deployment` | Always | Deployment docs + user guides |
 
 ### Routing Flows
 
@@ -189,26 +199,40 @@ phase0 → ... → phase5b → preflight (FAIL) → STOP → gợi ý /wf-fix-bu
 
 ## Error Handling
 
-Xem `procedures/_shared.md §Error Handling Reference` cho danh sách đầy đủ E001–E017.
+Chi tiết đầy đủ (bảng E001–E017 + xử lý): `procedures/_shared.md §Error Handling Reference`.
 
 Tóm tắt:
-- **E001** — Codebase không tồn tại → STOP
-- **E002** — Backup `.mc-data/` fail
-- **E003** — POST-GATE fail sau 3 retries → STOP + hỏi user
-- **E004** — Sub-skill SKILL.md thiếu → STOP (không auto-fix)
-- **E005** — `req-registry.json` thiếu sau shared skills cluster
-- **E006** — `jq` không khả dụng → fallback python
-- **E007** — User dừng giữa vòng lặp 5b → checkpoint + resume
-- **E008** — Feature individual POST-GATE fail → skip/retry
-- **E009** — Verify fail → WARNING, user confirm tiếp tục
-- **E010** — `--from-phase` invalid → hiển thị mapping
-- **E011** — `--from-phase` prerequisites chưa sẵn sàng
-- **E012** — Registry thiếu required fields → rebuild qua wf-design
-- **E013** — Preflight report thiếu sau retry → cho phép skip
-- **E014** — Sub-skill fail sau retry → STOP + hỏi user
-- **E015** — Preflight FAIL → gợi ý `/wf-fix-bugs`
-- **E016** — Status file corrupt → trigger E012 fallback
-- **E017** — Module DEPRECATED (LEGACY_MODE) → sub-skill enforce
+
+| Code | Tình huống | Xử lý |
+|------|-----------|-------|
+| E001 | Codebase không tồn tại | STOP — "Không tìm thấy codebase" |
+| E002 | Backup `.mc-data/` fail | Backup `_mc-data-backup-YYYYMMDD-HHMMSS/` trước khi overwrite |
+| E003 | POST-GATE fail sau 3 retries | STOP + hỏi user |
+| E004 | Sub-skill SKILL.md thiếu | STOP (không auto-fix), báo path |
+| E005 | `req-registry.json` thiếu sau shared skills cluster | Hướng dẫn chạy lại skill chưa xong |
+| E006 | `jq` không khả dụng | Fallback python one-liner |
+| E007 | User dừng giữa vòng lặp 5b | Checkpoint + `--resume` |
+| E008 | Feature POST-GATE fail | Hỏi user: skip hay retry |
+| E009 | Verify fail | Retry ×2, rồi WARNING + user confirm |
+| E010 | `--from-phase` invalid | Hiển thị mapping |
+| E011 | `--from-phase` prerequisites chưa sẵn sàng | Gợi ý chạy từ phase trước |
+| E012 | Registry thiếu required fields | Rebuild qua `/wf-design` (tối đa 1 lần) |
+| E013 | Preflight report thiếu sau retry | Cho phép skip với user xác nhận |
+| E014 | Sub-skill fail sau retry | STOP + hỏi user: retry/skip/abort |
+| E015 | Preflight FAIL | Gợi ý `/wf-fix-bugs` |
+| E016 | Status file corrupt | Rebuild từ output paths (E012 fallback) |
+| E017 | Module DEPRECATED (LEGACY_MODE) | Sub-skill enforce CORE-022 |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| `jq` không khả dụng (E006) | Fallback `python -c "import json; ..."` cho mọi lệnh đọc registry | Python cũng thiếu — STOP yêu cầu cài đặt |
+| Status file corrupt (E016) | Rebuild state từ output paths trên disk (Resume Protocol §Status file fallback) | Output paths không đủ kết luận phases_completed |
+| Registry thiếu required fields (E012) | Chạy lại `/wf-design` legacy flow rebuild registry — tối đa 1 lần | Vẫn thiếu fields sau 1 lần rebuild — hỏi user |
+| Verify POST-GATE fail (E009) | Retry tối đa 2 lần | Vẫn fail — WARNING + user confirm tiếp tục |
+| Preflight report thiếu (E013) | Retry 1 lần | Vẫn thiếu — cho phép skip với user xác nhận |
+| Sub-skill fail (E003/E014) | Sub-skill tự retry tối đa 3 (Protocol 2) trước khi báo orchestrator | Hết retries — STOP, hỏi user retry/skip/abort |
 
 ---
 
@@ -235,3 +259,5 @@ Checkpoint schema: `procedures/_shared.md §Status File Schema + §Context & Che
 | `/wf-preflight` | Health check — kiểm tra sức khỏe dự án |
 | `/status` | Xem tiến độ bất kỳ lúc nào |
 | `/wf-legacy-scan` | Sub-skill — bước đầu tiên của workflow này |
+
+> **Next:** Sau khi hoàn thành → dùng `/status` để xem tổng quan, hoặc `/feature-addition` để thêm features mới.

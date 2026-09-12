@@ -1,7 +1,7 @@
 ---
 name: feature-addition
-version: 4.0.0
-last_updated: 2026-04-19
+version: 4.1.0
+last_updated: 2026-09-12
 description: |
   Orchestrator workflow cho việc thêm tính năng vào dự án đã có đầy đủ architecture.
   Chuỗi: wf-add-scope (conditional) → wf-define-features → wf-design (conditional) →
@@ -112,6 +112,16 @@ IF $ARGUMENTS chứa "--from-phase N":
   → Jump tới phase tương ứng (Phase 0 init vẫn chạy để đảm bảo status file có)
 ```
 
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Kiểm tra prerequisites: `.mc-data/docs/phase3-architecture/` tồn tại + registry có `systems[]` | Đủ → continue; thiếu → E001/E002 STOP |
+| 2 | Parse `$ARGUMENTS` → `$FEATURE_NAME`, flags `--resume`, `--from-phase N` | Flags parse đúng |
+| 3 | `--resume` handler: đọc `feature-addition-status.json`, xác định current_phase | Jump đúng phase; thiếu file → STOP nhắc chạy từ đầu |
+| 4 | `--from-phase N` handler: validate N (E010) | Jump đúng phase file sau Phase 0 init |
+| 5 | Không flag → lazy-load `procedures/phase0-init.md` (status file, LEGACY_MODE detect) | Routing decision tới phase kế (Phase 1 conditional) |
+
 ---
 
 ## Phase Routing Map (lazy-loaded)
@@ -178,25 +188,37 @@ Phase 0 → ... → Phase 5b → Phase 6 (FAIL) → STOP → gợi ý /wf-fix-bu
 
 ## Error Handling
 
-Xem `procedures/_shared.md §Error Handling Reference` cho danh sách đầy đủ E001–E015.
+Chi tiết đầy đủ (bảng E001–E015 + xử lý): `procedures/_shared.md §Error Handling Reference`.
 
 Tóm tắt:
 
-- **E001** — Thiếu `phase3-architecture` → STOP, chạy `/new-project` hoặc `/existing-project` trước
-- **E002** — Registry không hợp lệ → STOP, chạy `/wf-analyze-requirements`
-- **E003** — POST-GATE fail sau 3 retries → STOP + hỏi user
-- **E004** — Sub-skill SKILL.md thiếu → STOP (không auto-fix)
-- **E005** — `jq` không khả dụng → fallback python
-- **E006** — Không có feature cần implement → skip Phase 5b
-- **E007** — User dừng giữa vòng lặp 5b → checkpoint + resume
-- **E008** — Feature individual POST-GATE fail → skip/retry
-- **E009** — Verify fail → WARNING, user confirm tiếp tục
-- **E010** — `--from-phase` invalid → hiển thị mapping, chọn lại
-- **E011** — Context overflow → force checkpoint
-- **E012** — Status file corrupt → rebuild fallback
-- **E013** — Module DEPRECATED (LEGACY_MODE) → STOP
-- **E014** — `wf-add-scope` fail → retry/skip/manual
-- **E015** — Preflight FAIL → gợi ý `/wf-fix-bugs`
+| Code | Tình huống | Xử lý |
+|------|-----------|-------|
+| E001 | Thiếu `phase3-architecture` | STOP — chạy `/new-project` hoặc `/existing-project` trước |
+| E002 | Registry không hợp lệ | STOP — chạy `/wf-analyze-requirements` |
+| E003 | POST-GATE fail sau 3 retries | STOP + hỏi user |
+| E004 | Sub-skill SKILL.md thiếu | STOP (không auto-fix), báo path |
+| E005 | `jq` không khả dụng | Fallback python one-liner |
+| E006 | Không có feature cần implement | Skip Phase 5b |
+| E007 | User dừng giữa vòng lặp 5b | Checkpoint + `--resume` |
+| E008 | Feature POST-GATE fail | Hỏi user: skip hay retry |
+| E009 | Verify fail | WARNING, user confirm tiếp tục |
+| E010 | `--from-phase` invalid | Hiển thị mapping, chọn lại |
+| E011 | Context overflow | Force checkpoint |
+| E012 | Status file corrupt | Rebuild fallback |
+| E013 | Module DEPRECATED (LEGACY_MODE) | STOP |
+| E014 | `wf-add-scope` fail | Retry/skip/manual theo user |
+| E015 | Preflight FAIL | Gợi ý `/wf-fix-bugs` |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| `jq` không khả dụng (E005) | Fallback `python -c "import json; ..."` cho mọi lệnh đọc registry | Python cũng thiếu — STOP yêu cầu cài đặt |
+| Status file corrupt (E012) | Rebuild state từ output paths trên disk | Output paths không đủ kết luận phases_completed |
+| Feature POST-GATE fail (E008) | Hỏi user skip/retry — không tự quyết | User chọn retry và fail lần 2 — skip feature, ghi status |
+| Verify fail (E009) | Retry tối đa 2 lần | Vẫn fail — WARNING + user confirm tiếp tục |
+| Sub-skill fail (E003/E014) | Sub-skill tự retry tối đa 3 (Protocol 2) trước khi báo orchestrator | Hết retries — STOP, hỏi user retry/skip/abort |
 
 ---
 
@@ -224,3 +246,5 @@ Checkpoint schema: `procedures/_shared.md §Status File Schema + §Context & Che
 | `/wf-preflight`     | Health check — Phase 6                                |
 | `/status`           | Xem tiến độ bất kỳ lúc nào                      |
 | `/wf-verify-sync`   | Traceability — Phase 7                                |
+
+> **Next:** Sau khi hoàn thành → dùng `/status` để xem tổng quan; features kế tiếp chạy lại `/feature-addition [tên-feature]`.
