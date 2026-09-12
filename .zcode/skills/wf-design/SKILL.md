@@ -73,7 +73,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 > **Internal shared:** Xem `procedures/_shared.md` — State Variables Glossary, Architecture Documentation Labels, LEGACY Context Injection, Agent Prompt Templates, Checkpoint Protocol.
 
 - **Accuracy Assurance** (mọi phase): POST-GATE Enforcement + Fix Rules + Error Tracking
-- **Business Context Baseline** (Phase 1, v4.1): main conversation — actor/role/phòng ban matrix + vòng đời business object (state transitions) + cross-module workflow + ownership/assignment + exception events → `$SESSION_DIR/business-context.md`, inject vào MỌI agent prompt (Phase 1–5) — xem `_shared.md` §Business Context Injection
+- **Business Context Baseline** (Phase 1, v4.1): main conversation — actor/role/phòng ban matrix + vòng đời business object (state transitions) + cross-module workflow + ownership/assignment + exception events + **module consolidation review** (flag module ứng viên gộp → user quyết, không tự sửa registry) → `$SESSION_DIR/business-context.md`, inject vào MỌI agent prompt (Phase 1–5) — xem `_shared.md` §Business Context Injection
 - **Auto-Correction Loop** (Phase 4, 5): max 3 iterations
 - **Context & Checkpoint**: thresholds 65/80/90%
 - **Stakeholder Review** (Phase 5): SO-01/02/03 với parallel agents (architect + security)

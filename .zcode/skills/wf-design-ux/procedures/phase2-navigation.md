@@ -52,6 +52,11 @@
 
 **Đầu ra cho agent prompts:** P2-B (navigation) PHẢI tuân theo screen inventory đã consolidate — KHÔNG tự thêm screen group ngoài inventory. Phát hiện thiếu → ghi `[NEEDS_REVIEW]` + đề xuất cho user, KHÔNG tự thêm.
 
+**Lite heuristic (dự án nhỏ — KHÔNG hỏi user):** nếu registry có **< 2 phòng ban** VÀ **không có business object nào đi qua > 1 phòng ban** (kiểm tra từ workflow map 2.0.1) → chạy Step 2.0 ở chế độ rút gọn:
+- Chỉ làm 2.0.3 (Screen Inventory) + 2.0.5 (Consolidation); workspace mapping (2.0.2) gọn thành 1 bảng nhỏ (workspace = module group); bỏ 2.0.4 nếu không có shared object.
+- `workflow-context.md` khi đó chỉ cần 2-3 sections (~50 dòng) — đủ dấu vết quyết định consolidate, không ép đầy đủ form ERP.
+- Dự án ERP nhiều phòng ban (như BCERP) luôn chạy đủ 5 steps.
+
 **Resume:** nếu `workflow-context.md` tồn tại + non-empty → skip Step 2.0 (SKIP-IF-EXISTS).
 
 ---
@@ -125,7 +130,7 @@ PER SYSTEM [sys]:
 
 ## POST-GATE
 
-- [ ] `test -s $SESSION_DIR/workflow-context.md` + đủ 5 sections (Step 2.0 — v4.1)
+- [ ] `test -s $SESSION_DIR/workflow-context.md` + đủ 5 sections (hoặc 2-3 sections nếu Lite heuristic — xem §Step 2.0)
 - [ ] `ls .mc-data/docs/phase4-ux/*/Navigation-*.md` trả về ít nhất 1 file
 - [ ] Mỗi `Navigation-[sys].md` có đủ 4 required sections
 - [ ] Mỗi `Navigation-[sys].md` non-empty (>= 800 từ)

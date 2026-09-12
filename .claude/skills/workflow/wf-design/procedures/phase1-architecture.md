@@ -40,7 +40,8 @@ jq -e '.phases.P0_5.status == "completed"' $SESSION_DIR/session-state.json
 | 1.0.3 | **Cross-Module Dependency Map** — object cần dữ liệu/trạng thái nào từ module khác (VD: Order Detail cần trạng thái Purchasing + Warehouse + Finance). Nguồn: feature dependencies + integration hints | Bảng object → module cung cấp → loại dữ liệu |
 | 1.0.4 | **Ownership & Assignment Rules** — owner/assignee/approver ở từng stage, luật reassign, escalation (nếu features nói đến) | Bảng stage → owner → reassign rule |
 | 1.0.5 | **Exception Events** — overdue, blocked, thiếu thông tin, rejected, mismatch, integration failed... (từ error paths trong features) | Danh sách exception × object × mức độ |
-| 1.0.6 | Ghi `$SESSION_DIR/business-context.md` (5 sections trên, mỗi section là bảng markdown). Set `$BUSINESS_CONTEXT` = nội dung file. | `test -s $SESSION_DIR/business-context.md` |
+| 1.0.6 | **Module Consolidation Review** — rà soát danh sách modules trong registry theo ma trận: module × (phòng ban sở hữu \| business objects \| data ownership \| lý do tồn tại riêng). Áp quy tắc: **Gộp** khi cùng phòng ban sở hữu + cùng nhóm lifecycle object + schema chia sẻ tự nhiên; **Tách** khi ownership khác phòng ban hoặc vòng đời triển khai/tech khác hẳn (VD: tích hợp API nền tảng). Module ứng viên gộp → flag `[NEEDS_REVIEW: propose-merge MOD-X + MOD-Y]` — KHÔNG tự sửa registry (CORE-006) | Bảng module consolidation + flags |
+| 1.0.7 | Ghi `$SESSION_DIR/business-context.md` (6 sections trên, mỗi section là bảng markdown). Set `$BUSINESS_CONTEXT` = nội dung file. | `test -s $SESSION_DIR/business-context.md` |
 
 **Lưu ý:**
 - Chạy trong MAIN conversation — KHÔNG spawn agent (nhanh, chỉ tổng hợp từ dữ liệu đã load ở Phase 0).
@@ -99,9 +100,9 @@ Nếu `$LEGACY_MODE = true`: inject LEGACY BLOCK vào mọi agent prompt (xem `_
 ## POST-GATE
 
 ```bash
-# T0: Business Context Baseline (v4.1) — tồn tại + đủ 5 sections
+# T0: Business Context Baseline (v4.1) — tồn tại + đủ 6 sections
 test -s $SESSION_DIR/business-context.md
-grep -c '^## ' $SESSION_DIR/business-context.md   # >= 5
+grep -c '^## ' $SESSION_DIR/business-context.md   # >= 6
 
 # T1: File existence + non-empty
 test -s .mc-data/docs/phase3-architecture/P3-01-architecture.md
@@ -118,7 +119,7 @@ Nếu FAIL → retry tạo lại P3-01-architecture.md (tối đa 3 lần). Nế
 1. Architecture sections đầy đủ: Quyết Định, Sơ Đồ, Danh Sách Phân Hệ, Phân Quyền Dữ Liệu, Giao Tiếp, Quy Ước, Môi Trường (7 required)
 2. Modules trong architecture khớp `$TARGET_MODULES` (không có module ngoài registry)
 3. REQ-IDs referenced trong ít nhất section Quyết Định Kiến Trúc
-4. **(v4.1)** Business layer present: P3-01 thể hiện được actor/phòng ban (§3), vòng đời + state transitions của business object chính (trong §5 hoặc section phụ "## 9. Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ"), nhất quán với `$BUSINESS_CONTEXT`
+4. **(v4.1)** Business layer present: P3-01 thể hiện được actor/phòng ban (§3), vòng đời + state transitions của business object chính (§5 và/hoặc §9 Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ), nhất quán với `$BUSINESS_CONTEXT`; các flag `[NEEDS_REVIEW: propose-merge]` từ Module Consolidation Review (step 1.0.6) được tóm tắt cho user ngay khi kết thúc Phase 1 — user quyết, KHÔNG tự sửa registry
 
 ---
 

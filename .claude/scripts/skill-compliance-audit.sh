@@ -245,8 +245,12 @@ run_audit() {
     check_item "CRITICAL" "4.2 PRE-GATE markers" "grep -q 'PRE-GATE' '$SKILL_FILE'"
     check_item "CRITICAL" "4.3 POST-GATE markers" "grep -q 'POST-GATE' '$SKILL_FILE'"
     check_item "CRITICAL" "4.4 Steps table (Step|Action)" "grep -qE '\| Step \| (Action|Hành động)' '$SKILL_FILE'"
-    local PHASE_COUNT
-    PHASE_COUNT=$(grep -cE '## (Phase|Stage) [0-9]' "$SKILL_FILE" 2>/dev/null || echo "0")
+    local PHASE_COUNT PHASE_HEADINGS PHASE_ROWS
+    # CORE-032 lazy-load: SKILL.md thường chỉ giữ 1 heading "## Phase 0" — các phase còn lại
+    # nằm trong Phase Routing Map table (dạng "| **N** | ..."). Đếm cả hai nguồn.
+    PHASE_HEADINGS=$(grep -cE '## (Phase|Stage) [0-9]' "$SKILL_FILE" 2>/dev/null || true)
+    PHASE_ROWS=$(grep -cE '^\| \*\*[0-9]' "$SKILL_FILE" 2>/dev/null || true)
+    PHASE_COUNT=$(( ${PHASE_HEADINGS:-0} + ${PHASE_ROWS:-0} ))
     check_item "REQUIRED" "4.5 Multiple phases (>=2, found: $PHASE_COUNT)" "[ $PHASE_COUNT -ge 2 ]"
     echo ""
 

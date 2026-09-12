@@ -183,8 +183,12 @@
           "type": "behavior"
         },
         {
-          "text": "business-context.md tạo tại sessions/{SESSION_ID}/ với >= 5 sections (## headings)",
+          "text": "business-context.md tạo tại sessions/{SESSION_ID}/ với >= 6 sections (## headings) — gồm cả Module Consolidation Review",
           "type": "file_exists"
+        },
+        {
+          "text": "Module Consolidation Review chỉ ĐỀ XUẤT gộp qua flag [NEEDS_REVIEW: propose-merge] — KHÔNG tự sửa modules[] trong registry trong standard flow (CORE-006)",
+          "type": "behavior"
         },
         {
           "text": "$BUSINESS_CONTEXT được inject vào agent prompts Phase 1-5 (block BUSINESS CONTEXT ngay sau phần Context)",

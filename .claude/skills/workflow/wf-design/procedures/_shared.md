@@ -45,7 +45,7 @@ Các biến in-memory được set/đọc xuyên suốt skill execution.
 | `$LARGE_PROJECT` | Phase 0 | 1, 2, 3, 5 | Boolean — `systems.length >= 5 OR features.length >= 40` |
 | `$LPM_PARAMS` | Phase 0 | 1, 2, 3, 5 | Object `{compression_threshold, digest_size, skeleton_threshold, max_parallel_agents, checkpoint_strategy}` |
 | `$FEATURE_DIGEST_PATH` | Phase 0 | 1, 2, 3 | Path tới `feature-digest.md` (nếu compression triggered) |
-| `$BUSINESS_CONTEXT` | Phase 1 (Step 1.0) | 1–5 (agent spawns) | Nội dung `business-context.md` — actor/role matrix, business object lifecycle, cross-module deps, ownership rules, exception events. Inject vào mọi agent prompt (xem §Business Context Injection) |
+| `$BUSINESS_CONTEXT` | Phase 1 (Step 1.0) | 1–5 (agent spawns) | Nội dung `business-context.md` (6 sections) — actor/role matrix, business object lifecycle, cross-module deps, ownership rules, exception events, module consolidation review. Inject vào mọi agent prompt (xem §Business Context Injection) |
 | `$CONTEXT_PERCENT` | Every phase | Every phase | Context budget usage — trigger checkpoint at 65/80% |
 | `$AGENTS_SPAWNED` | Every phase | Phase 8 | Array — log agents đã spawn (name, phase, status) |
 | `$SESSION_DIR` | Phase 0 | 0.5–8 | `.mc-data/work/wf-design/sessions/{YYYYMMDD-HHMMSS}-{hash4}/` — session-scoped working dir |
@@ -361,7 +361,7 @@ QUY TẮC SAFE-WRITE:
 ---
 ## BUSINESS CONTEXT (ERP Workflow Layer — bắt buộc tuân thủ)
 [$BUSINESS_CONTEXT — actor/role matrix, business object lifecycle (states + transitions),
-cross-module dependencies, ownership/assignment rules, exception events]
+cross-module dependencies, ownership rules, exception events, module consolidation review]
 
 Quy tắc sử dụng:
 - Mọi thiết kế (API/DB/integration/review) PHẢI nhất quán với lifecycle states + ownership trong block này
@@ -371,6 +371,8 @@ Quy tắc sử dụng:
 - Database PHẢI có: status, owner/assignee, timestamps, audit trail cho mọi object có workflow
 - Integration map PHẢI thể hiện cross-module dependencies (object nào cần trạng thái từ module nào)
   + propagation rules (realtime/near-realtime/batch)
+- Module Consolidation Review: modules bị flag [NEEDS_REVIEW: propose-merge] → thiết kế theo registry
+  hiện tại, KHÔNG tự gộp — chờ user quyết (CORE-006)
 - Thiếu/sai thông tin → ghi [NEEDS_REVIEW], KHÔNG tự bịa state/role/module mới ngoài registry
 ---
 ```
@@ -414,8 +416,9 @@ Với mỗi business object chính (theo $BUSINESS_CONTEXT — Order, Customer, 
 3. Cross-module: object cần dữ liệu/trạng thái từ module nào (Phase 4 UX sẽ dùng để thiết kế working surface)
 4. Ownership: owner/assignee/approver ở từng stage + luật reassign
 5. Exceptions: overdue/blocked/rejected/missing-info cần được surfaced lên người dùng
-Nơi ghi trong P3-01: §3 (phân hệ + phòng ban), §4 (data ownership), §5 (giao tiếp + workflow states).
-Nếu cần thêm chỗ → append "## 9. Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ" — KHÔNG được làm thiếu 7 sections chuẩn.
+Nơi ghi trong P3-01: §3 (phân hệ + phòng ban), §4 (data ownership), §5 (giao tiếp + workflow states),
+và §9 Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ (section optional có sẵn trong template — điền actor matrix +
+lifecycle; chỉ xóa khi KHÔNG có business object nào có workflow). KHÔNG được làm thiếu 7 sections chuẩn.
 
 BẮT BUỘC — Template: Đọc và tuân thủ CHÍNH XÁC cấu trúc từ
 `.claude/doc-framework/phase3-architecture/P3-01-architecture.md`

@@ -228,3 +228,24 @@ LOG LEVELS:
 - KHÔNG cache dữ liệu nhạy cảm (passwords, tokens, PII) trên shared cache
 - Mọi cache entry PHẢI có TTL — không cache vĩnh viễn
 - Khi update data → invalidate cache TRƯỚC khi return response
+
+---
+
+## 9. Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ
+
+> *Section OPTIONAL (v4.1 — wf-design). Chỉ giữ khi hệ thống có business object đi qua workflow xuyên phòng ban. Nếu không có → XÓA section này.*
+
+### 9.1. Ma Trận Vai Trò (Actor Matrix)
+
+| Business Object | Role/Phòng ban | Hành động | Quyết định chính |
+|-----------------|----------------|-----------|------------------|
+| [Object 1] | [Role A] | view, edit | [Quyết định role này đưa ra] |
+| [Object 1] | [Role B] | approve, assign | [Quyết định] |
+
+### 9.2. Vòng Đời Business Object (Lifecycle)
+
+| Business Object | State | Transitions hợp lệ | Bộ phận tạo/đổi state | Owner tại stage |
+|-----------------|-------|--------------------|-----------------------|-----------------|
+| [Object 1] | [State A] | [A → B, A → C] | [Phòng ban] | [Role] |
+
+*Ghi source: nội dung section này PHẢI nhất quán với business-context.md (wf-design Step 1.0) — actors/states không có trong registry/features thì đánh dấu [NEEDS_REVIEW].*

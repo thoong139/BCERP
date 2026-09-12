@@ -134,7 +134,7 @@
         "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/business-context.md",
         "template": null,
         "required": true,
-        "notes": "Business Context Baseline (v4.1) — Phase 1 Step 1.0 output: actor/role matrix, business object lifecycle (states + transitions), cross-module dependencies, ownership rules, exception events. Session-scoped; injected vào mọi agent prompt Phase 1-5. Inline schema: procedures/phase1-architecture.md §Step 1.0."
+        "notes": "Business Context Baseline (v4.1) — Phase 1 Step 1.0 output (6 sections): actor/role matrix, business object lifecycle (states + transitions), cross-module dependencies, ownership rules, exception events, module consolidation review ([NEEDS_REVIEW: propose-merge] flags — user quyết, không tự sửa registry). Session-scoped; injected vào mọi agent prompt Phase 1-5. Inline schema: procedures/phase1-architecture.md §Step 1.0."
       },
       {
         "path": ".mc-data/work/wf-design/sessions/{SESSION_ID}/lanes/{system-slug}/signals.json",

@@ -18,8 +18,14 @@
         "## 7. Môi Trường Triển Khai",
         "## 8. Cross-Cutting Concerns"
       ],
-      "optional_sections": [],
-      "required_metadata": ["READS", "USED BY"]
+      "optional_sections": [
+        "## 9. Ma Trận Vai Trò"
+      ],
+      "required_metadata": [
+        "READS",
+        "USED BY"
+      ],
+      "notes": " §9 (Ma Trận Vai Trò & Vòng Đời Nghiệp Vụ) là optional v4.1 — chỉ giữ khi có business object có workflow xuyên phòng ban; template có ghi chú xóa nếu không cần. Pattern startswith-match."
     },
     "api-contract": {
       "template_file": "phase3-architecture/technical-specs/api-contract.md",
@@ -36,7 +42,10 @@
         "## 8. Rate Limiting"
       ],
       "optional_sections": [],
-      "required_metadata": ["READS", "USED BY"],
+      "required_metadata": [
+        "READS",
+        "USED BY"
+      ],
       "notes": "§6 pattern '## 6. Endpoints By' matches 'By System', 'By Module', etc. §7 pattern '## 7. Internal' matches 'Internal API', 'Internal Service Calls', etc. If author adds a new section between §5 and §8 (e.g. WebSocket), §6-8 will be renumbered — audit should WARN not FAIL."
     },
     "database-design": {
@@ -52,7 +61,10 @@
         "## 6. Index Strategy"
       ],
       "optional_sections": [],
-      "required_metadata": ["READS", "USED BY"],
+      "required_metadata": [
+        "READS",
+        "USED BY"
+      ],
       "notes": "Section 3 is system-specific tables — heading varies per project (e.g. '## 3. CRM Tables'). Use startswith '## 3.' matching"
     },
     "integration-map": {
@@ -71,7 +83,10 @@
         "## 9. Compensation Patterns"
       ],
       "optional_sections": [],
-      "required_metadata": ["READS", "USED BY"],
+      "required_metadata": [
+        "READS",
+        "USED BY"
+      ],
       "notes": "§6-9 may be renumbered if author inserts a project-specific section (e.g. Real-time Integration, WebSocket) between §5 and §6. Content equivalence check is more reliable than strict number matching for §6+."
     },
     "infra-spec": {
@@ -90,7 +105,10 @@
         "## 9. Non-Functional Requirements"
       ],
       "optional_sections": [],
-      "required_metadata": ["READS", "USED BY"],
+      "required_metadata": [
+        "READS",
+        "USED BY"
+      ],
       "notes": "§6-9 names may vary per project (CI/CD Pipeline, Monitoring & Observability, Security Hardening, NFR Targets). Health Check content may appear inside Monitoring section. Audit these by content presence rather than strict heading match."
     },
     "stakeholder-review": {
