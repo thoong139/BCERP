@@ -1,8 +1,11 @@
 ---
 name: wf-prepare-deployment
-version: 2.1.0
-last_updated: 2026-04-28
+version: 2.2.0
+last_updated: 2026-09-12
 changelog:
+  v2.2.0 (2026-09-12) — Compliance audit fix (không đổi execution logic):
+    - Thêm Phase 0 Step Summary table (audit check 4.4).
+    - Thêm Next step (Go-Live) cuối Output Files (audit check 7.2).
   v2.1.0 (2026-04-28) — S9 cross-skill integration:
     - Thêm flag `--from-fix-bugs[=<session_id>]` (optional, opt-in) để consume
       `fix-impact.json` (S7) từ wf-fix-bugs session — Go/No-Go signal cho release.
@@ -145,6 +148,15 @@ STEP 1: Parse $ARGUMENTS
      $HAS_FROM_FIX_BUGS_FLAG=true, sau đó chạy Go/No-Go gate)
 ```
 
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Parse `$ARGUMENTS` → `$SCOPE`, `$RESUME_MODE`, `$HAS_STATUS_FLAG`, `$HAS_FROM_FIX_BUGS_FLAG`, `$FROM_FIX_BUGS_SESSION_ID` (parse `=<id>` nếu có) | Mọi flag captured, không flag lạ |
+| 2 | `--status` handler: lazy-load `procedures/phase0-flags.md §--status Handler`, hiển thị report | STOP sau khi hiển thị |
+| 3 | `--resume` handler: lazy-load `phase0-flags.md §--resume Handler`, set `$RESUME_MODE=true` | Jump đúng phase theo Reconciliation Logic |
+| 4 | Không flag → CONTINUE Phase 1 (prereq; Go/No-Go gate khi `--from-fix-bugs`) | Phase 1 PRE-GATE chạy |
+
 ---
 
 ## Phase Routing Map (lazy-loaded)
@@ -218,6 +230,8 @@ Read procedures/phase5a-review.md → execute → return → DONE
 
 > `deployment-guide.md` chứa tất cả nội dung: Muc 1-8 (Deployment, Phase 2), Muc 9 (Account Management, Phase 3b), Muc 10 (Maintenance, Phase 4).
 > `stakeholder-review.md` chứa: Phần A (Summary), Phần B (Deployment Review), Phần C (Consistency Check), Phần D (Gap Analysis), Production Readiness Final.
+
+> **Next:** Go-Live / Release — không còn skill nào sau bước này trong pipeline DEVKIT; deployment docs tại `.mc-data/docs/phase6-deployment/` là output cuối.
 
 ---
 

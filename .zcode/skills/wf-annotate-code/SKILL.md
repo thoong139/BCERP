@@ -1,7 +1,7 @@
 ---
 name: wf-annotate-code
-version: 2.1.0
-last_updated: 2026-04-25
+version: 2.2.0
+last_updated: 2026-09-12
 description: |
   Inject REQ-ID comments vào existing code files để thiết lập traceability.
   Dùng cho dự án legacy đã có code nhưng chưa có REQ-ID annotations.
@@ -113,6 +113,15 @@ STEP 2: --status handler
 STEP 3: Routing
   → Read procedures/phase0-context.md (Phase 0 chi tiết + --resume handler + maturity check)
 ```
+
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Kiểm tra PRE-GATE: `req-registry.json` + `module-code-mapping.json` + `gap-report.md` + `ledger.stages.gap_analysis.status` | Mọi điều kiện pass; FAIL → E001 STOP |
+| 2 | `--status` handler: đọc `annotate-status.json`, hiển thị trạng thái hiện tại | STOP sau khi hiển thị (không execute phase) |
+| 3 | `--resume` handler + maturity check: đọc checkpoint, detect LEGACY_MODE/maturity | Resume point hợp lệ; invalid → E044 confirm user |
+| 4 | Routing: lazy-load `procedures/phase0-context.md` rồi execute Phase 0 đầy đủ | Phase 0 return, chuyển Phase Routing Map hàng kế |
 
 ---
 

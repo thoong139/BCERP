@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-scenario
-version: 1.3.0
-last_updated: 2026-05-14
+version: 1.4.0
+last_updated: 2026-09-12
 description: |
   F7 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 phần scenario).
   Chạy test-scenario.md (sinh bởi F1) qua Playwright MCP → fill Pass/Fail cho mỗi row + screenshots evidence.
@@ -36,6 +36,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Execute test-scenario.md qua Playwright MCP, điền Pass/Fail + screenshots |
+| **Prerequisites** | `outputs/test-scenario.md` (skeleton từ F1, ≥1 "## Kịch bản N:") + `--session=<id>` BẮT BUỘC + Playwright MCP + FE running (PRE-GATE T1-T4 + lint G1.1) |
 | **Standalone** | NO — require `--session=<id>` |
 | **Input** | `outputs/test-scenario.md` (skeleton từ F1) |
 | **Output** | `screenshots/scenario-*.png`, `scenario-test-report.md`, UPDATE `outputs/test-scenario.md`, `resolution-report.md` (khi có FAIL) |
@@ -115,6 +116,29 @@ F1 wf-e2e-test (test-scenario.md skeleton)
 ## CI PRE-GATE (CORE-033)
 
 > CI tools auto-detect. F7 chu yeu Playwright, CI chi can cho cross-module scenario lookup.
+
+## Phase 0: PRE-GATE & Lock (BẮT BUỘC — entry point)
+
+> Chi tiết: PRE-GATE (CORE-011) + Lint/Flakiness checks + Browser Lock Strategy dưới. Tóm tắt:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE T1-T2: test-scenario.md tồn tại + ≥1 "## Kịch bản N:" | Fail → E070 |
+| 2 | PRE-GATE T3-T4: Playwright MCP available + FE running (curl 200/307) | Fail → E071/E072 |
+| 3 | Lint check G1.1: `lint-scenario.sh --json` → lint-report.json; Flakiness G1.3 cho scenarios mới/modified | block_execution=true → E080 lint BLOCK; flaky → quarantine |
+| 4 | CI PRE-GATE Na-Nc + acquire browser-mcp.lock (TTL 30 min) | Conflict → WAIT poll ×5 → E074 |
+
+## Phase Routing Map (CORE-032 lazy-load)
+
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | PRE-GATE + Lock | (inline + `procedures/_shared.md`) | T1-T4 + lint G1.1 + flakiness G1.3 + browser lock |
+| **1** | Execute per scenario | `procedures/scenario-runner.md` | Navigate → execute → verify DOM → screenshot → fill Pass/Fail |
+| **2** | Failure analysis | `procedures/failure-analyzer.md` | FAIL → collect evidence → classify 7 loại → enrich issues.json → Auto-Fix 2-phase |
+| **3** | Screenshot evidence | `procedures/screenshot-evidence.md` | scenario-{NN}-{slug}.png + strict-evidence check |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume (skip scenarios đã xong) / --status |
+
+CI PRE-GATE steps (Na-Nc):
 
 | Step | Action | Verify |
 |------|--------|--------|
@@ -263,7 +287,9 @@ Xem `procedures/resume-status.md`.
 
 ---
 
-## Error Codes (E070-E081)
+## Error Handling
+
+Codes E070-E082 (per-skill namespace):
 
 | Code | Mô tả |
 |------|-------|
@@ -280,6 +306,33 @@ Xem `procedures/resume-status.md`.
 | E080 | Failure analysis inconclusive (UNKNOWN) — warning only, không block |
 | E081 | Evidence collection partial (console/network unavailable) — warning only, không block |
 | E082 | Auto-fix exhausted — đã thử nhưng vẫn fail, giữ FAIL gốc — warning only, không block |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Scenario FAIL (E076) | failure-analyzer 7 loại → Auto-Fix 2-phase: Browser Fix (selector variants, re-login, transient retry, page reload, data tạo qua UI) → Source Fix (spawn qa-lead/developer/frontend-developer/dba/domain-expert, wait HMR, re-verify) | Auto-fix exhausted → E082 giữ FAIL gốc, ghi resolution-report.md |
+| Selector mismatch | Thử 3 selector variants (text= / data-testid / ARIA role) | Cả 3 fail → classify UI bug thật |
+| Lock conflict (E074) | WAIT poll 10s × 5 (F2/F8 có thể đang giữ); TTL 30 min auto-release stale | Vẫn locked → E074, hỏi user |
+| FE không running (E072) | Auto-start FE (retry ×2) | Vẫn fail → ESCALATE user |
+| Lint FAIL (G1.1) | KHÔNG execute — ghi lint-fixes.md hướng dẫn sửa từng violation | User sửa xong re-run F7 |
+| Scenario flaky (G1.3) | 5x stability check; <4/5 PASS → auto-quarantine (G1.5) | 4/5 PASS → WARN suspect, tiếp tục |
+| Analysis UNKNOWN (E080) | Warning only — SKIP fix (không đủ signal để fix an toàn) | Không escalate |
+| Atomic write fail (E079) | Restore từ temp rồi write lại | Temp hỏng — STOP |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| scenario-test-report.md + lint-report.json + Phase-report.md (CORE-028) | `F7-scenario/` | CREATE |
+| resolution-report.md | `F7-scenario/` (khi có FAIL) | CREATE |
+| login-result.png + scenario-{NN}-{slug}.png + scenario-{NN}-error.png | `screenshots/` | CREATE |
+| outputs/test-scenario.md | session outputs | READ + UPDATE ("Kết quả thực tế" + Pass/Fail) |
+| issues.json | session root | APPEND (FAIL → enrich theo failure-analyzer) |
+
+> **Next:** F7 xong → F8 `/wf-e2e-demo` (user-guide demo, bước cuối); orchestrator `/wf-e2e-verify` finalize.
 
 ---
 

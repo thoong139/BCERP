@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-browser
-version: 1.1.0
-last_updated: 2026-05-14
+version: 1.2.0
+last_updated: 2026-09-12
 description: |
   F2 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 pre-scan + browser execution).
   Pre-scan F1 outputs (ui-test-report, integration-test-report, test-scenario.md) → tìm tests cần
@@ -42,6 +42,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Pre-scan F1 reports tìm tests cần browser + execute qua Playwright MCP |
+| **Prerequisites** | F1 wf-e2e-test outputs (ui-test-report.md, integration-test-report.md, test-scenario.md) + `--session=<id>` BẮT BUỘC + Playwright MCP/FE/BE/DB running hoặc auto-start được (PRE-GATE T1-T4) |
 | **Standalone** | NO — require `--session=<id>` |
 | **Input** | F1 outputs (ui-test-report.md, integration-test-report.md, test-scenario.md, block-test.json, issues.json) |
 | **Output** | `screenshots/browser-*.png`, `browser-test-report.md`, APPEND issues/block-test/implement-required/manual |
@@ -111,11 +112,36 @@ F2 KHÔNG chạy test-scenario.md (đó là F7 wf-e2e-scenario). F2 KHÔNG chạ
 
 > CI tools auto-detect. F2 chu yeu Playwright, CI chi can cho pre-scan code lookup.
 
+## Phase 0: Pre-Scan & Lock (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/pre-scan.md` + `procedures/_shared.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Acquire `browser-mcp.lock` (shared với F7, F8) | Lock OK; conflict → E023 |
+| 2 | PRE-GATE T1-T2: F1 outputs tồn tại + schema valid | Fail → E020 |
+| 3 | CI PRE-GATE Na-Nc (bảng dưới) | CI flags set |
+| 4 | Pre-scan 4 sources (ui-test-report, integration-test-report, block-test, issues) → `pre-scan-report.md` | ≥1 test cần browser (T3); 0 test → early exit sạch |
+| 5 | PRE-GATE T4: Playwright + FE + BE + DB running (auto-start mandatory, retry ×2) | Fail → E021 ESCALATE Nhóm 2 |
+
+CI PRE-GATE steps (Na-Nc):
+
 | Step | Action | Verify |
 |------|--------|--------|
 | **Na** | Load CI Capabilities: Run `bash .claude/scripts/ci-detect.sh`. Graceful: lock held -> fallback Grep. | CI flags set |
 | **Nb** | Index Freshness Check: Run `bash .claude/scripts/ci-freshness-check.sh`. | Freshness status set |
 | **Nc** | Agent Context Injection: Run `bash .claude/scripts/ci-inject-context.sh` (reserved). | CI context ready |
+
+## Phase Routing Map (CORE-032 lazy-load)
+
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | Pre-Scan & Lock | `procedures/pre-scan.md` | Lock + PRE-GATE + pre-scan 4 sources |
+| **1** | Login | `procedures/browser-execute.md` §login | Login qua Playwright + screenshot login-result.png |
+| **2** | Execute per test | `procedures/browser-execute.md` | Navigate → action → snapshot verify → screenshot → classify |
+| **3** | Block classification | `procedures/block-classification.md` | 4 nhóm — Nhóm 3/4 DUAL-WRITE |
+| **4** | Report | `procedures/browser-execute.md` §report | browser-test-report.md + release lock |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume / --status handlers |
 
 ### CI-ROUTE
 
@@ -268,7 +294,9 @@ Xem `procedures/resume-status.md`.
 
 ---
 
-## Error Codes (E020-E029)
+## Error Handling
+
+Codes E020-E029 (per-skill namespace):
 
 | Code | Mô tả |
 |------|-------|
@@ -282,6 +310,31 @@ Xem `procedures/resume-status.md`.
 | E027 | Screenshot fail |
 | E028 | POST-GATE cross-ref fail |
 | E029 | Atomic write fail |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| FE/Playwright/BE/DB chưa chạy (E021) | MANDATORY auto-start qua `ensure_infrastructure_running` (retry ×2) — KHÔNG fallback static analysis | Auto-start fail sau 2 retry → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion |
+| Login fail (E024) | Retry login ×2 với same credentials (credential inject qua env từ vault) | Vẫn fail → classify theo 4 nhóm (thường Nhóm 4 requires_3rd_party_login) |
+| Snapshot mismatch (E026) | KHÔNG auto-fix — đây là UI bug thật → APPEND issues.json (severity=high, type=ui-runtime) | Bug blocker → DUAL-WRITE block-test + route F6 wf-e2e-fix |
+| Screenshot thiếu/<1KB (E027, strict-evidence) | Re-capture screenshot ×1 | Vẫn thiếu → mark evidence_missing, status=BLOCKED |
+| POST-GATE cross-ref fail (E028) | Auto-fix retry ×3 (link lại Nhóm 3→implement-required, Nhóm 4→manual) | Hết 3 retries — STOP phase |
+| Browser lock conflict (E023) | Chờ lock release (F7/F8 đang giữ) rồi retry acquire | Vẫn conflict sau timeout → hỏi user kill session nào giữ lock |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| pre-scan-report.md | `F2-browser/` | CREATE |
+| browser-test-report.md | `F2-browser/` | CREATE |
+| Phase-report.md (CORE-028) | `F2-browser/` | CREATE |
+| login-result.png + browser-{slug}.png | `screenshots/` | CREATE |
+| issues.json / block-test.json / implement-required.json / manual.json | session root | APPEND (DUAL-WRITE khi block) |
+
+> **Next:** F2 xong → F3 `/wf-e2e-unblock` (giải blocks) → F4 `/wf-e2e-implement`; trong pipeline dùng `/wf-e2e-verify`.
 
 ---
 

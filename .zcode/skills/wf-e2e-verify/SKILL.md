@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-verify
-version: 8.0.0
-last_updated: 2026-05-15
+version: 8.1.0
+last_updated: 2026-09-12
 description: |
   ORCHESTRATOR — điều phối 11 sub-skills wf-e2e-* để test E2E 1 feature đầy đủ.
   Flow: F0 infra-check (mandatory) → F0a wf-e2e-finding (mandatory, FIND only)
@@ -9,10 +9,10 @@ description: |
   → F2 wf-e2e-browser → [F3 unblock] → [F4 implement] → F5 retest → [F6 fix]
   → F7 wf-e2e-scenario → F8 wf-e2e-demo.
 
-  Cross-module + Parallel-safe LUÔN ON. --strict-evidence ON by default (screenshot bắt buộc F2/F7/F8).
-  Backward-compat: silent accept legacy flags + WARN deprecation.
+  Cross-module + Parallel-safe LUÔN ON. --strict-evidence ON default (screenshot bắt buộc F2/F7/F8).
+  Backward-compat: silent accept legacy flags + WARN.
 
-  v8.0.0 (2026-05-15): Tier 0 Foundation Refactor — thêm F0/F0a/F0b. F0a tách FIND khỏi F1.
+  v8.0.0: Tier 0 Foundation Refactor — thêm F0/F0a/F0b; F0a tách FIND khỏi F1.
   Context checkpoint G4 sau F0a: suggest /clear + --resume trước F1 nếu context > 50%.
   v7.0.0 (2026-05-13): MAJOR REFACTOR — chia tách monolithic v6.5.0 thành 8 sub-skills.
 
@@ -31,11 +31,26 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, AskUserQuestion, 
 | Mục | Nội dung |
 |-----|----------|
 | **Vai trò** | ORCHESTRATOR — không tự test, gọi 8 sub-skills sequential với conditional skip |
+| **Prerequisites** | FEAT-ID hợp lệ trong registry + spec ≥500 bytes + sub-skills F1-F8 directories tồn tại (PRE-GATE T1-T4) |
 | **Standalone** | YES — entry point chính, tạo session mới nếu thiếu `--session` |
 | **Cross-module + Parallel-safe** | LUÔN ON (default, không cần flag) |
 | **Backward-compat** | Legacy flags được map sang behavior mới + WARN |
 | **Input** | `<FEAT-ID>` |
 | **Output** | `e2e-status.json` (SSOT 8-step), `orchestrator-summary.md`, `phase-summary.md` + tất cả outputs của F1-F8 |
+
+### Workflow Position
+
+```
+/wf-implement-feature (code xong) ──┬── /wf-fix-bugs (bug lane)
+                                    │
+                                    ▼
+                        /wf-e2e-verify  ← YOU ARE HERE — E2E testing lane entry
+                                    │
+                                    ▼
+                        /wf-verify-sync → /wf-prepare-deployment
+```
+
+E2E lane standalone — KHÔNG thuộc main design pipeline; chạy bất kỳ lúc nào sau khi có code.
 
 ### Flow tổng quan
 
@@ -186,15 +201,29 @@ Tất cả 9 skills (orchestrator + F1-F8) ghi vào cùng session dir. SSOT: `e2
 
 ---
 
+## Phase 0: Init & Flag Mapping (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/_shared.md` §init + `procedures/legacy-flags.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE T1-T4: FEAT-ID hợp lệ + registry schema + spec ≥500 bytes + sub-skill dirs | Fail → E001/E002 STOP |
+| 2 | Init: resolve session, create e2e-status.json, acquire .lock + heartbeat | Lock OK; conflict → E007/E008 |
+| 3 | Parse flags + legacy flag mapping (`--phase` → `--from-step`, v.v.) + WARN deprecations | Ambiguous → E006 hỏi user |
+| 4 | CI PRE-GATE Na-Nc → `$CI_CONTEXT` pass vào sub-skill spawns | CI flags set |
+| 5 | Route main orchestration (orchestrate.md) — spawn F0 → F8 theo skip-rules | e2e-status.json.steps cập nhật sau mỗi step |
+
 ## Phase Routing (CORE-032 lazy-load)
 
-| Step | Procedure | Description |
-|------|-----------|-------------|
-| **Init** | `procedures/_shared.md` §init | Resolve session, create e2e-status.json, acquire .lock, parse flags |
-| **Legacy Flag Mapping** | `procedures/legacy-flags.md` | Detect + map legacy flags + WARN |
-| **Main Orchestration** | `procedures/orchestrate.md` | Spawn F1-F8 sequential với skip-rules |
-| **Skip Rules** | `procedures/skip-rules.md` | Conditional logic cho F3/F4/F6 |
-| **Resume/Status** | `procedures/resume-status.md` | --resume + --status handlers |
+| # | Step | Procedure | Description |
+|---|------|-----------|-------------|
+| **0** | Init | `procedures/_shared.md` §init | Resolve session, create e2e-status.json, acquire .lock, parse flags |
+| **1** | Legacy Flag Mapping | `procedures/legacy-flags.md` | Detect + map legacy flags + WARN |
+| **2** | Main Orchestration | `procedures/orchestrate.md` | Spawn F1-F8 sequential với skip-rules |
+| **3** | Skip Rules | `procedures/skip-rules.md` | Conditional logic cho F3/F4/F6 |
+| **4** | Infra Check | `procedures/phase0-infra-check.md` | F0 infra validation trước pipeline |
+| **5** | Seed Manifest | `procedures/phase1.5-seed-manifest.md` | F0b seed data manifest (conditional) |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume + --status handlers |
 
 ---
 
@@ -300,7 +329,7 @@ Fail → auto-fix retry x3 → escalate.
 
 ---
 
-## Error Codes
+## Error Handling
 
 ### E001-E009 — Orchestrator pipeline/session/lock
 
@@ -330,6 +359,18 @@ Fail → auto-fix retry x3 → escalate.
 | E017 | F0b | seed-manifest spawn fail | BLOCKED_SEED |
 | E018 | F0b | Seed data validation fail | BLOCKED_SEED |
 | E019 | F0a/F0b | Context > 50% sau F0a — checkpoint suggested | WARN (không block) |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Sub-skill spawn fail (E003/E015) | Re-spawn sub-skill ×1 | Fail lần 2 → escalate AskUserQuestion |
+| Phase gating cross-ref fail (E005) | Auto-fix retry ×3 (re-verify outputs) | Hết 3 retries → escalate |
+| Infra health fail (E011-E014) | BLOCKED_INFRA + MANDATORY auto-start hạ tầng (retry ×2) trước khi re-check | Vẫn fail → ESCALATE Nhóm 2 (block-test.json) + AskUserQuestion |
+| Legacy flag ambiguous (E006) | KHÔNG auto-fix — WARN + hỏi user chọn | User chọn xong tiếp tục |
+| Anti-loop F6↔F5 (E004) | Orchestrator đếm vòng, chặn spawn khi đạt 3 | Max 3 vòng → E004 escalate |
+| Stale lock (E008) | Auto-release lock (>30 min), retry | Lock fresh conflict (E007) → hỏi user retry/abort |
+| Context >90% (E009) | FORCE STOP + checkpoint e2e-status.json | User `--resume` session mới |
 
 ---
 
@@ -375,6 +416,20 @@ Examples:
 | `wf-e2e-demo` (F8) | Default Playwright |
 | `wf-implement-feature` | Downstream của F4 delegate — PRIMARY owner registry.impl_status |
 | `wf-verify-sync` | Downstream — consume registry updates |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| e2e-status.json (SSOT 8-step) | session root | CREATE + UPDATE (chỉ orchestrator write) |
+| orchestrator-summary.md + phase-summary.md (CORE-028, tiếng Việt ≤15 dòng) | session root | CREATE (finalize) |
+| session-log.json (CORE-026) + error-ledger.json (CORE-034) | session root | APPEND-only |
+| 4 SSOT JSONs (issues, block-test, implement-required, manual) | session root | CREATE bởi F1, APPEND/UPDATE bởi F2-F6 |
+| findings/, outputs/, screenshots/, F1-F8 workspaces | session root | Theo sub-skill contracts |
+
+> **Next:** E2E xong → `/wf-verify-sync` (traceability) → `/wf-prepare-deployment`; FEAT fail còn open → `/wf-fix-bugs`.
 
 ---
 

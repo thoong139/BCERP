@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-scenario",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "phase": "F7 — Playwright MCP scenario test (execute test-scenario.md)",
   "description": "F7 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 phần scenario). Chạy test-scenario.md qua Playwright MCP → fill Pass/Fail + screenshots. Cross-module scenarios LUÔN included. v1.1.0 (2026-05-14): Failure Analysis Engine — classify root cause 7 loại + resolution direction. v1.3.0 (2026-05-14): Auto-Fix 2-Phase — Phase 1 browser fix (selector fallback / re-login / transient retry / page reload / UI create data), Phase 2 source-code fix (spawn agent: qa-lead/developer/frontend-developer/dba + domain expert co-spawn). Fix tất cả failure_type trừ UNKNOWN. Post-fix wait HMR + re-verify.",
   "procedure": [

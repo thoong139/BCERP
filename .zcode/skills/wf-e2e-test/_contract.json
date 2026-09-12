@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-test",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "phase": "F1 — Live test code-based 5 phases (DB/API/UI/Integration/Output) — consume findings từ F0a",
   "description": "v2.0.0 (2026-05-15): Tier 0 Foundation Refactor — tách Phase 1 BUSINESS sang F0a wf-e2e-finding. F1 bây giờ consume findings từ F0a (PRE-GATE CONSUME CORE-036). Backward compat: G5 shim auto-spawn F0a nếu thiếu. Live DB + Live API test BẮT BUỘC. ISSUE-IMMEDIATE. Block classification 4 nhóm DUAL-WRITE.",
   "procedure": [

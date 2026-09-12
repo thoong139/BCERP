@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-prepare-deployment",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "phase": "phase6-deployment",
   "description": "Tạo tài liệu Phase 6 — deployment guide, user guide, maintenance, incident runbook, stakeholder review. Refactored v2.0: 10 phase files + _shared.md (lazy-loaded). v2.1.0 (S9): thêm flag --from-fix-bugs[=<id>] để consume fix-impact.json từ wf-fix-bugs — Phase 1 Go/No-Go gate (BLOCK CDG nếu escalated > 0 hoặc tests_failed > 0). Opt-in, backward compat.",
   "procedure": "procedures/phase0-flags.md",

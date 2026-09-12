@@ -1,7 +1,7 @@
 ---
 name: new-project
-version: 4.0.0
-last_updated: 2026-04-19
+version: 4.1.0
+last_updated: 2026-09-12
 description: |
   Orchestrator chính cho dự án mới từ đầu — tự động chạy tuần tự 10 bước (Phase 0 → Phase 6): đọc và thực thi từng sub-skill trong .claude/skills/workflow/ theo đúng thứ tự, chờ POST-GATE sau mỗi bước, xử lý skip conditions và vòng lặp implement-feature.
 
@@ -114,6 +114,15 @@ IF không có flag:
   → phase0-init.md handle hỏi user → jump tới phase1-brainstorm.md
 ```
 
+### Phase 0 Step Summary
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Validate sub-skill paths tồn tại (10 paths, `_shared.md §Sub-Skill Paths`) | Mọi path tồn tại; thiếu → E004 STOP |
+| 2 | Parse `$ARGUMENTS` → flags `--resume`, `--from-phase N`, `--status` | Flags parse đúng; conflict `--resume`+`--from-phase` → E008 |
+| 3 | Route theo flag: `--status` → Status Check Protocol (STOP); `--resume` → Resume Protocol jump; `--from-phase N` → validate (E007) + Prerequisite Validation jump | Jump đúng phase file |
+| 4 | Không flag → lazy-load `procedures/phase0-init.md`, execute Phase 0 init | Routing decision tới `phase1-brainstorm.md` |
+
 ---
 
 ## Phase Routing Map (lazy-loaded)
@@ -185,24 +194,37 @@ phase0-init (detect --resume) → jump thẳng phase7-implement (tiếp tục lo
 
 ## Error Handling
 
-Xem `procedures/_shared.md §Error Handling Reference` cho danh sách đầy đủ E001–E015.
+Chi tiết đầy đủ (bảng E001–E015 + xử lý): `procedures/_shared.md §Error Handling Reference`.
 
 Tóm tắt:
-- **E001** — POST-GATE fail sau 3 retries → STOP
-- **E002** — User dừng → checkpoint + resume note
-- **E003** — registry.json không tồn tại → kiểm tra Phase 0 output
-- **E004** — Sub-skill SKILL.md thiếu → STOP (không auto-fix)
-- **E005** — Implement loop gián đoạn → checkpoint per-feature, user resume
-- **E006** — Context > 90% → force checkpoint
-- **E007** — `--from-phase` invalid → hiển thị mapping, chọn lại
-- **E008** — `--resume` + `--from-phase` conflict → hỏi user chọn 1
-- **E009** — status.json corrupt → fallback file-based detection
-- **E010** — `--from-phase` prerequisite missing → đề xuất chạy phase trước
-- **E011** — `--resume`/`--status` nhưng `.mc-data/` chưa có → STOP
-- **E012** — `jq` không có → fallback python
-- **E013** — Context overflow giữa sub-skills → FORCE STOP + checkpoint
-- **E014** — Sub-skill timeout/partial → retry 1 lần → escalate
-- **E015** — Preflight FAIL → gợi ý `/wf-fix-bugs` trước verify
+
+| Code | Tình huống | Xử lý |
+|------|-----------|-------|
+| E001 | POST-GATE fail sau 3 retries | STOP phase, hiển thị lỗi, hỏi user |
+| E002 | User dừng giữa bước | Checkpoint + resume note (`--resume`) |
+| E003 | registry.json không tồn tại | Kiểm tra Phase 0 output, chạy lại nếu cần |
+| E004 | Sub-skill SKILL.md thiếu | STOP (không auto-fix), báo path cụ thể |
+| E005 | Implement loop gián đoạn | Checkpoint per-feature, user resume |
+| E006 | Context > 90% | Force checkpoint |
+| E007 | `--from-phase` invalid | Hiển thị mapping, chọn lại |
+| E008 | `--resume` + `--from-phase` conflict | Hỏi user chọn 1 |
+| E009 | status.json corrupt | Xóa file, fallback file-based detection |
+| E010 | `--from-phase` prerequisite missing | Đề xuất chạy phase trước |
+| E011 | `--resume`/`--status` khi `.mc-data/` chưa có | STOP: "Chưa có dự án nào" |
+| E012 | `jq` không có | Fallback python one-liner |
+| E013 | Context overflow giữa sub-skills | FORCE STOP + checkpoint |
+| E014 | Sub-skill timeout/partial | Retry 1 lần → escalate |
+| E015 | Preflight FAIL | Gợi ý `/wf-fix-bugs` trước verify |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Sub-skill timeout / partial output (E014) | Retry sub-skill 1 lần với cùng arguments | Fail lần 2 — escalate kèm stage name + last known state |
+| POST-GATE fail (E001) | Sub-skill tự retry tối đa 3 lần (Protocol 2) trước khi báo orchestrator | Hết 3 retries — STOP phase, hỏi user |
+| status.json corrupt (E009) | Xóa status file → file-based detection (quét `.mc-data/docs/` per-phase markers) | File-based detection không kết luận được bước hiện tại |
+| `jq` không khả dụng (E012) | Fallback `python -c "import json; ..."` cho mọi lệnh đọc registry | Python cũng không có — STOP, yêu cầu cài đặt |
+| Flag conflict (E007/E008/E010) | Không auto-fix — hiển thị mapping/prerequisite rồi hỏi user chọn | User chọn xong vẫn không hợp lệ |
 
 ---
 

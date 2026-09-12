@@ -1,15 +1,15 @@
 ---
 name: wf-fix-execute
-version: 3.8.0
-last_updated: 2026-05-14
+version: 3.8.1
+last_updated: 2026-09-12
 description: |
-  Execute + Report phase cho wf-fix-bugs. Thực hiện sửa lỗi (Batch 1-3) + docs sync + verification loop + final report.
+  Execute + Report phase cho wf-fix-bugs. Sửa lỗi (Batch 1-3) + docs sync + verification loop + final report.
   Phase 3 (Fix): CRITICAL → HIGH (PARALLEL) → MEDIUM+LOW. Source-aware routing: static-scan → inline fix, runtime → agent fix, llm-scan → verify evidence trước fix.
   Phase 4 (Docs Sync): cập nhật feature specs khi behavior đổi.
-  Phase 5 (Verify): State machine loop, max 3 iterations, loop-back internal + step verification (Step 3.5) với retry strategy.
+  Phase 5 (Verify): State machine loop, max 3 iterations, loop-back + step verification (3.5) với retry.
   Phase 6 (Report): fix-report.md + fix-history.md + phase-summary.md. Dry-run: chạy đầy đủ (preview mode).
 
-  CI-ROUTE BẮT BUỘC trong Phase 3 + CI PRE-GATE detection. QD11 enhancement signal filtering (escalate, KHÔNG fix). Process violation awareness (E027/E028/E029/E044/E045).
+  CI-ROUTE BẮT BUỘC trong Phase 3 + CI PRE-GATE detection. QD11 enhancement signal filtering (escalate, KHÔNG fix). Process violation codes E027-E045.
 
   TRIGGER: spawned bởi /wf-fix-bugs (không gọi trực tiếp). Resume: /wf-fix-execute --resume
 

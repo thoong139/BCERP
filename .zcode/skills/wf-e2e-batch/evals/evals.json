@@ -1,0 +1,82 @@
+{
+  "skill": "wf-e2e-batch",
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "TC-BATCH-001",
+      "name": "Happy path — topology dispatch theo dependency matrix",
+      "input": {
+        "command": "/wf-e2e-batch --scope=fin --max-parallel=2",
+        "context": "Module fin có 4 FEATs, FEAT-A không phụ thuộc ai, FEAT-B/C phụ thuộc A (level 1), FEAT-D phụ thuộc B (level 2). Registry valid. Docker Compose available."
+      },
+      "expected_behavior": [
+        "Phase 0 INIT: lock + CI PRE-GATE pass",
+        "Phase 1 DISCOVER: feat-list.json có 4 FEATs",
+        "Phase 2 DEPENDENCY: dependency-matrix.json (schema v2) có CF1 feat-to-feat edges A→B, A→C, B→D",
+        "Phase 3 EXECUTE: topology sort level 0 = [A], level 1 = [B,C], level 2 = [D]; dispatch wf-e2e-verify per FEAT; gate-report sau mỗi 3 FEAT",
+        "Phase 4 AGGREGATE: batch-summary.md (CORE-028, tiếng Việt ≤20 dòng) + batch-impact.json (schema e2e-batch-v1, audit_chain)"
+      ],
+      "assertions": [
+        "jq '.levels | length' dependency-matrix.json == 3",
+        "test -f sessions/{batch-id}/gate-report-1.json",
+        "jq '.feat_results | length' batch-impact.json == 4",
+        "batch-summary.md ≤ 20 dòng"
+      ]
+    },
+    {
+      "id": "TC-BATCH-002",
+      "name": "Circular dependency — E051 báo cycle path, không auto-fix",
+      "input": {
+        "command": "/wf-e2e-batch --feats=FEAT-X,FEAT-Y,FEAT-Z",
+        "context": "FEAT-X phụ thuộc Y, Y phụ thuộc Z, Z phụ thuộc X (cycle)."
+      },
+      "expected_behavior": [
+        "Phase 2 phát hiện cycle trong dependency graph",
+        "E051: hiển thị cycle path (X→Y→Z→X), KHÔNG auto-fix",
+        "Batch dừng trước Phase 3 — không dispatch FEAT nào"
+      ],
+      "assertions": [
+        "error-ledger.json có entry E051",
+        "Không có feat nào có dispatch record trong batch-status.json",
+        "Output hiển thị đúng chu trình X→Y→Z→X"
+      ]
+    },
+    {
+      "id": "TC-BATCH-003",
+      "name": "Gate check CF3 dừng dispatch sau 3 FEATs khi 1 FEAT fail",
+      "input": {
+        "command": "/wf-e2e-batch --scope=sales --auto",
+        "context": "6 FEATs independent (1 level). FEAT thứ 2 fail trong wf-e2e-verify. --auto mode: decision agent xử lý CDG points."
+      },
+      "expected_behavior": [
+        "Dispatch 3 FEATs đầu (gate 1) — FEAT-2 fail",
+        "Gate check sau 3 FEATs: E054 — dừng dispatch 3 FEATs còn lại",
+        "--auto: architect agent quyết định continue/abort, ghi auto-decisions.jsonl",
+        "batch-status.json giữ kết quả partial + gate-report-1.json"
+      ],
+      "assertions": [
+        "jq '.dispatched | length' batch-status.json == 3",
+        "auto-decisions.jsonl có ≥1 entry cho cf3 gate",
+        "error-ledger.json có entry E054"
+      ]
+    },
+    {
+      "id": "TC-BATCH-004",
+      "name": "Dry-run — build dependency graph, không dispatch",
+      "input": {
+        "command": "/wf-e2e-batch --scope=crm --dry-run",
+        "context": "Module crm có 5 FEATs với dependencies hợp lệ."
+      },
+      "expected_behavior": [
+        "Phase 1 + Phase 2 chạy bình thường (feat-list + dependency-matrix)",
+        "Phase 3 KHÔNG dispatch wf-e2e-verify cho FEAT nào",
+        "Báo cáo topology plan (levels + thứ tự sẽ chạy)"
+      ],
+      "assertions": [
+        "dependency-matrix.json tồn tại và valid",
+        "batch-status.json không có feat nào status=dispatched",
+        "Không tạo session wf-e2e-verify mới"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "skill": "wf-e2e-finding",
+  "version": "1.1.0",
+  "test_cases": [
+    {
+      "id": "TC-F0A-001",
+      "name": "Happy path — sinh đủ 8 findings + 4 SSOT JSONs rỗng",
+      "input": {
+        "command": "/wf-e2e-finding FEAT-EW-CRM-001",
+        "context": "Feature FEAT-EW-CRM-001 tồn tại trong registry, spec > 500 bytes, req_ids cross-ref pass. Code có DB migrations + API endpoints + UI components."
+      },
+      "expected_behavior": [
+        "P0 SETUP: session dir + lock + status.json; PRE-GATE T1-T4 pass",
+        "P1 BUSINESS: FIND→ASSESS→BỔ SUNG→VERIFY sinh 4 files (business-understanding, business-rule-catalog, state-machine, cross-module-map)",
+        "P2-P4: db-mapping + db-seed-data, api-mapping, ui-mapping",
+        "P5 COMPLETION: finding-summary.md trỏ tới cả 8 files + init 4 SSOT JSONs rỗng",
+        "POST-GATE: 8 files > 500 bytes, business-understanding ≥3 BR, api-mapping ≥1 endpoint",
+        "KHÔNG chạy live DB/API/browser (FIND only)"
+      ],
+      "assertions": [
+        "ls findings/*.md | wc -l == 9 (8 findings + finding-summary)",
+        "jq '.summary.total' issues.json == 0 (init rỗng)",
+        "grep -c 'BR-' findings/business-rule-catalog.md >= 3",
+        "POST-GATE report PASS"
+      ]
+    },
+    {
+      "id": "TC-F0A-002",
+      "name": "PRE-GATE fail — spec thiếu → E020 STOP",
+      "input": {
+        "command": "/wf-e2e-finding FEAT-EW-FIN-099",
+        "context": "FEAT-EW-FIN-099 có trong registry nhưng spec file size 200 bytes (< 500)."
+      },
+      "expected_behavior": [
+        "P0 PRE-GATE T3 fail (content depth)",
+        "E020: STOP, hỏi user — không advance phase nào",
+        "Không tạo finding files"
+      ],
+      "assertions": [
+        "status.json phase = 0, không có findings/",
+        "Error output chứa E020 + lý do content depth",
+        "Session có lock released sạch"
+      ]
+    },
+    {
+      "id": "TC-F0A-003",
+      "name": "API endpoints không tìm thấy → E024 WARN ghi N/A, không block",
+      "input": {
+        "command": "/wf-e2e-finding FEAT-EW-WMS-003",
+        "context": "Feature có DB + UI nhưng code chưa có API endpoints (backend pending)."
+      },
+      "expected_behavior": [
+        "P3 API-MAPPING: không tìm thấy endpoints → E024 WARN",
+        "api-mapping.md vẫn được tạo với section N/A + ghi rõ lý do",
+        "Pipeline tiếp tục sang P4-P5 (F0a là FIND only, không block)",
+        "finding-summary.md đánh dấu API gap cho F1"
+      ],
+      "assertions": [
+        "test -f findings/api-mapping.md && size > 500 bytes",
+        "api-mapping.md chứa N/A + E024 note",
+        "finding-summary.md có mục API gap",
+        "POST-GATE overall PASS (với WARN)"
+      ]
+    },
+    {
+      "id": "TC-F0A-004",
+      "name": "Context budget 75% — checkpoint sớm rồi --resume",
+      "input": {
+        "command": "/wf-e2e-finding FEAT-EW-SAL-012 --resume",
+        "context": "Session dở dang sau P2 (context từng chạm 75% → STOP sau phase hiện tại). status.json.current_phase=3."
+      },
+      "expected_behavior": [
+        "--resume: load session, jump thẳng P3 API-MAPPING",
+        "Không re-run P0-P2 (findings P1-P2 còn nguyên)",
+        "Hoàn tất P3-P5 + POST-GATE"
+      ],
+      "assertions": [
+        "findings/ vẫn có 4 files P1 + 2 files P2 từ session trước (không ghi đè)",
+        "status.json phases P0-P2 giữ nguyên trạng thái done",
+        "POST-GATE pass sau khi chạy nốt"
+      ]
+    }
+  ]
+}

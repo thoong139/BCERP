@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-unblock
-version: 2.0.0
-last_updated: 2026-05-15
+version: 2.1.0
+last_updated: 2026-09-12
 description: |
   F3 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --unblock-test).
   Đọc block-test.json → phân loại 4 nhóm → auto-unblock Nhóm 1 (Data) + Nhóm 2 (Infra) + Nhóm 4 (Hard Test verify code).
@@ -31,6 +31,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Xử lý blocked tests trong block-test.json → auto-unblock Nhóm 1+2+4 → KHÔNG xử lý Nhóm 3 (defer F4) |
+| **Prerequisites** | `block-test.json` có ≥1 entry status=blocked (từ F1/F2) + `--session=<id>` BẮT BUỘC (PRE-GATE T1-T4) |
 | **Standalone** | NO — require `--session=<id>` từ orchestrator hoặc F1 |
 | **Input** | `block-test.json` (từ F1/F2), `manual.json` (optional read), `findings/` (đọc context) |
 | **Output** | `unblock-report.md`, UPDATE `block-test.json`, APPEND `manual.json` (Group 4 verified-OK) |
@@ -114,19 +115,29 @@ F1 wf-e2e-test / F2 wf-e2e-browser
 
 ---
 
+## Phase 0: Load & Classify Blocks (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/_shared.md` §pre-gate/§load. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE T1-T4: block-test.json tồn tại + schema valid + ≥1 blocked + enum hợp lệ | Fail → E030 STOP |
+| 2 | CI PRE-GATE Na-Nc (Group 4 cần Serena/GitNexus verify code) | CI flags set |
+| 3 | LOAD blocks → group entries by blocking_reason (4 nhóm) | Mọi BLK-NNN được classify |
+| 4 | Loop từng nhóm theo routing map (1/2 auto-fix, 3 skip, 4 verify code) | Mỗi entry có kết quả cuối |
+
 ## Phase Routing (CORE-032 lazy-load)
 
-| Sub-phase | Procedure file | Description |
-|-----------|---------------|-------------|
-| **PRE-GATE** | `procedures/_shared.md` §pre-gate | Validate block-test.json tồn tại + ≥1 entry status=blocked |
-| **LOAD** | `procedures/_shared.md` §load | Load block-test.json + group entries by blocking_reason |
-| **GROUP 1 (Data)** | `procedures/unblock-group1-data.md` | Auto-fix seed data + retest |
-| **GROUP 2 (Infra)** | `procedures/unblock-group2-infra.md` | Infrastructure Auto-Start + retest |
-| **GROUP 3 (Not Impl)** | `procedures/_shared.md` §group3-skip | SKIP — note "delegate to F4" trong unblock-report.md |
-| **GROUP 4 (Hard Test)** | `procedures/unblock-group4-hardtest.md` | Verify code → dual-write manual.json + update block-test.json |
-| **REPORT** | `procedures/_shared.md` §report | Write unblock-report.md từ template + update block-test.json summary |
-
-**Resume + Status handlers:** `procedures/resume-status.md`.
+| # | Sub-phase | Procedure file | Description |
+|---|-----------|---------------|-------------|
+| **0** | PRE-GATE | `procedures/_shared.md` §pre-gate | Validate block-test.json tồn tại + ≥1 entry status=blocked |
+| **1** | LOAD | `procedures/_shared.md` §load | Load block-test.json + group entries by blocking_reason |
+| **2** | GROUP 1 (Data) | `procedures/unblock-group1-data.md` | Auto-fix seed data + retest |
+| **3** | GROUP 2 (Infra) | `procedures/unblock-group2-infra.md` | Infrastructure Auto-Start + retest |
+| **4** | GROUP 3 (Not Impl) | `procedures/_shared.md` §group3-skip | SKIP — note "delegate to F4" trong unblock-report.md |
+| **5** | GROUP 4 (Hard Test) | `procedures/unblock-group4-hardtest.md` | Verify code → dual-write manual.json + update block-test.json |
+| **6** | REPORT | `procedures/_shared.md` §report | Write unblock-report.md từ template + update block-test.json summary |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume / --status handlers |
 
 ---
 
@@ -180,7 +191,9 @@ Xem `procedures/resume-status.md`.
 
 ---
 
-## Error Codes (E030-E039 namespace)
+## Error Handling
+
+Codes E030-E039 namespace (per-skill):
 
 | Code | Mô tả | Action |
 |------|-------|--------|
@@ -194,6 +207,33 @@ Xem `procedures/resume-status.md`.
 | E037 | block-test.json update fail (corrupt) | Atomic write retry |
 | E038 | unblock-report.md template không tồn tại | Re-copy from skill templates |
 | E039 | Lock conflict khi update block-test.json | Retry với backoff |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Group 1 thiếu seed data | Auto-fix: gen SQL INSERT + run + verify count (retry ×2) | Fail 2 lần → E032 keep blocked, log fix-log |
+| Group 2 infra chưa chạy | Infrastructure Auto-Start (DB container/BE/FE) hoặc grant permission (retry ×2) | Fail 2 lần → E033 keep blocked, alert user |
+| Group 3 Not Implemented | KHÔNG attempt unblock — note "delegate to F4 wf-e2e-implement" | Không escalate (đúng thiết kế defer) |
+| Group 4 Hard Test | Verify code (Serena/Grep): PASS → resolved + manual.json; INCONCLUSIVE → manual.json needs human | FAIL → E034 APPEND issues.json escalate |
+| POST-GATE T3 strict fields thiếu (target_file/target_line/proposed_signature/acceptance_criteria) | Auto-fix retry ×3 (điền lại fields) | Hết 3 retries → E030 BLOCK F3 completion |
+| Cross-ref 2 chiều thiếu (E035) | Auto-fix link lại related_manual_id | Hết 3 retries → escalate |
+| Corrupt JSON (E036/E037) | Atomic write retry (rebuild từ entries in-memory) | Vẫn fail → STOP |
+| Template thiếu (E038) | Re-copy from skill templates (CORE-031) | Template gốc thiếu — STOP, báo devkit |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| unblock-report.md + Phase-report.md (CORE-028) | `F3-unblock/` | CREATE |
+| status.json | `F3-unblock/` | CREATE + UPDATE |
+| block-test.json | session root | READ + UPDATE (blocked → unblocked/resolved) |
+| manual.json | session root | APPEND (Group 4 verified-OK) |
+| issues.json | session root | APPEND (E034 — unblock reveals new issue) |
+
+> **Next:** F3 xong → F4 `/wf-e2e-implement` (xử lý Nhóm 3 còn lại) → F5 `/wf-e2e-retest`; qua orchestrator `/wf-e2e-verify`.
 
 ---
 

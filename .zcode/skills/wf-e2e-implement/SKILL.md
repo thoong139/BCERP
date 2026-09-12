@@ -1,7 +1,7 @@
 ---
 name: wf-e2e-implement
-version: 2.0.0
-last_updated: 2026-05-15
+version: 2.1.0
+last_updated: 2026-09-12
 description: |
   F4 trong chuỗi wf-e2e-* (NEW skill — không có trong wf-e2e-verify cũ).
   Đọc implement-required.json (entries status=pending) → DELEGATE sang /wf-implement-feature cho từng item →
@@ -32,6 +32,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Loop qua implement-required.json → DELEGATE wf-implement-feature → update registry + entry status |
+| **Prerequisites** | `implement-required.json` có ≥1 entry status=pending + `--session=<id>` BẮT BUỘC + registry valid (PRE-GATE T1-T4) |
 | **Standalone** | NO — require `--session=<id>` |
 | **Input** | `implement-required.json` (entries status=pending) |
 | **Output** | `impl-log.json`, UPDATE `implement-required.json`, UPDATE `req-registry.json.requirements[].impl_status` (SAFE-UPDATE) |
@@ -97,6 +98,31 @@ F1/F2 (implement-required.json populated)
 ## CI PRE-GATE (CORE-033)
 
 > CI tools auto-detect. F4 can CI cho impact analysis + code search truoc khi delegate.
+
+## Phase 0: Read Impl-Required Queue (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/read-impl-required.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | PRE-GATE T1-T4: implement-required.json tồn tại + schema valid + ≥1 pending + required fields | Fail → E040/E042 |
+| 2 | CI PRE-GATE Na-Nc (impact + code search trước delegate) | CI flags + `$CI_CONTEXT` set |
+| 3 | Sort entries theo priority P0→P1→P2→P3 + parse `--max-time` budget (time-budget.md) | Budget resolved; `--max-items` DEPRECATED → WARN |
+| 4 | Route vào delegate loop (per entry) | status pending → in_progress |
+
+## Phase Routing Map (CORE-032 lazy-load)
+
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | Read queue | `procedures/read-impl-required.md` | PRE-GATE + sort P0→P3 + time budget |
+| **1** | Search-existing-code | `procedures/delegate-impl-feature.md` §search | CORE-020: VERIFY_ONLY / COMPLETE_EXISTING / IMPLEMENT_NEW |
+| **2** | Delegate per entry | `procedures/delegate-impl-feature.md` | Spawn agent invoke /wf-implement-feature → wait receipt → verify |
+| **3** | Registry SAFE-UPDATE | `procedures/safe-update-registry.md` | CORE-008: chỉ upgrade impl_status, atomic write |
+| **4** | Verify completion | `procedures/verify-completion.md` | P0 100%, P1 ≥80% trong budget; thiếu → f4_status=partial |
+| **T** | Time budget | `procedures/time-budget.md` | Budget tracking P0/P1/P2/P3 |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume / --status handlers |
+
+CI PRE-GATE steps (Na-Nc):
 
 | Step | Action | Verify |
 |------|--------|--------|
@@ -324,7 +350,9 @@ STOP
 
 ---
 
-## Error Codes (E040-E049)
+## Error Handling
+
+Codes E040-E049 (per-skill namespace):
 
 | Code | Mô tả |
 |------|-------|
@@ -338,6 +366,31 @@ STOP
 | E047 | Delegate receipt malformed |
 | E048 | POST-GATE T4 registry mismatch |
 | E049 | Atomic write fail |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Delegate timeout 30 min (E044) | Mark entry skipped + APPEND issues.json (escalate) — KHÔNG retry delegate trong cùng entry | Nhiều entries timeout → STOP, báo systemic issue |
+| Delegate receipt malformed (E047) | Re-read receipt + re-verify code refs ×1 | Vẫn malformed → mark skipped, giữ raw receipt để audit |
+| Registry downgrade attempt (E045) | REFUSE (WARN) — CORE-008 không downgrade từ "done" | Không escalate — log là đủ |
+| Registry update fail (E046) | Rebuild từ tmp file, validate lại schema | Registry corrupt thật → STOP, hướng dẫn restore |
+| P1 rate < 80% trong budget | KHÔNG auto-fix — f4_status=partial, KHÔNG advance F5 | DECISION-REQUIRED queue cho items cần quyết định user (KHÔNG silent defer) |
+| Atomic write fail (E049) | Restore từ temp rồi write lại | Temp hỏng — STOP |
+
+---
+
+## Output Files
+
+| File | Path | Loại |
+|------|------|------|
+| impl-log.json + Phase-report.md (CORE-028) | `F4-implement/` (trong session) | CREATE |
+| status.json | `F4-implement/` | CREATE + UPDATE |
+| delegate-receipts/IMPL-REQ-*.json | `F4-implement/` | CREATE (từ delegate sessions) |
+| implement-required.json | session root | READ + UPDATE (pending → in_progress → done/skipped) |
+| req-registry.json `.requirements[].impl_status` | `.mc-data/docs/_meta/` | SAFE-UPDATE (chỉ upgrade, CORE-008) |
+
+> **Next:** F4 xong (f4_status=done) → F5 `/wf-e2e-retest` verify implementations; orchestrator `/wf-e2e-verify` tiếp tục.
 
 ---
 

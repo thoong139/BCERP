@@ -1,7 +1,7 @@
 {
   "$schema": "skill-contract-v1",
   "skill": "wf-e2e-fix",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "phase": "F6 — Continuous fix loop cho issues.json (max 3 retry/issue)",
   "description": "F6 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 cờ --fix). Continuous fix loop: filter status=open → sort severity → surgical fix qua Serena → spawn F5 retest → update issues. DỪNG khi hết open OR all still_fail/deferred-locked/unfixable. Max 3 retry/issue. v1.0.0 (2026-05-13).",
   "procedure": [

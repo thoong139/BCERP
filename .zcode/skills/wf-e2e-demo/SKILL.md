@@ -1,15 +1,15 @@
 ---
 name: wf-e2e-demo
-version: 1.1.0
-last_updated: 2026-05-15
+version: 1.2.0
+last_updated: 2026-09-12
 description: |
   F8 trong chuỗi wf-e2e-* (chia tách từ wf-e2e-verify v6.5.0 Phase 7 phần user-guide).
   Chạy user-guide.md (sinh bởi F1) qua Playwright MCP → demo từng bước hướng dẫn → verify accuracy +
-  capture screenshots cho non-specialist reader. Optionally update user-guide.md nếu phát hiện mismatch.
+  capture screenshots cho non-specialist. Optionally update user-guide.md khi mismatch.
 
   v1.1.0: Thêm auto-fix loop khi step fail. Phân biệt accuracy_wording (text diff nhẹ) vs real_failure
   (element missing / network 4xx-5xx / JS bug / missing data). Real_failure → delegate F7
-  failure-analyzer pattern (2-phase: browser-fix → spawn agent source code fix). DATA_MISSING →
+  failure-analyzer (2-phase: browser-fix → agent source fix). DATA_MISSING →
   apply seed data từ findings/db-seed-data.md trước khi thử tạo qua UI. Mọi step fail APPEND issues.json
   NGAY (ISSUE-IMMEDIATE pattern giống F1/F7), không chờ POST-GATE.
 
@@ -40,6 +40,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, TodoWrite, Agent,
 | Mục | Nội dung |
 |-----|----------|
 | **Mục đích** | Execute user-guide.md qua Playwright → verify accuracy + auto-fix step fail + screenshots |
+| **Prerequisites** | `outputs/user-guide.md` (skeleton từ F1, ≥1 "Bước N") + `--session=<id>` BẮT BUỘC + Playwright MCP + FE running (PRE-GATE T1-T4) |
 | **Standalone** | NO — require `--session=<id>` |
 | **Input** | `outputs/user-guide.md` (skeleton từ F1), `findings/db-seed-data.md` (cho DATA_MISSING fix) |
 | **Output** | `screenshots/demo-*.png`, `demo-report.md`, ISSUES APPEND (real_failure), corrections (accuracy_wording) |
@@ -115,6 +116,29 @@ F1 wf-e2e-test (user-guide.md skeleton + ui-mapping.md)
 ## CI PRE-GATE (CORE-033)
 
 > CI tools auto-detect. F8 chu yeu Playwright, CI chi can cho user-guide lookup.
+
+## Phase 0: Verify User-Guide & Lock (BẮT BUỘC — entry point)
+
+> Chi tiết: `procedures/verify-userguide.md`. Tóm tắt bước thực thi:
+
+| Step | Action | Verify |
+|------|--------|--------|
+| 1 | Acquire `browser-mcp.lock` + reader locks cross-session (BE/FE/DB/Playwright) | Lock OK; conflict → E084 |
+| 2 | PRE-GATE T1-T2: `outputs/user-guide.md` tồn tại + ≥1 step ("**Bước N:**") | Fail → E080 |
+| 3 | CI PRE-GATE Na-Nc + PRE-GATE T3-T4: Playwright available + FE running | Fail → E081/E082 |
+| 4 | Login → screenshot demo-00-login.png | Login OK; fail → E083 |
+
+## Phase Routing Map (CORE-032 lazy-load)
+
+| # | Phase | Procedure file | Mô tả |
+|---|-------|---------------|-------|
+| **0** | Verify + Lock | `procedures/verify-userguide.md` | PRE-GATE + parse user-guide steps + login |
+| **1** | Demo per step | `procedures/userguide-runner.md` | Execute → verify → screenshot → classify (exact/partial/none) |
+| **2** | Auto-fix loop | `procedures/userguide-runner.md` §auto-fix | accuracy_wording → correction; real_failure → delegate F7 failure-analyzer (Phase 1 browser-fix + Phase 2 source fix) |
+| **3** | Report | `procedures/userguide-runner.md` §report | demo-report.md + accuracy score + corrections |
+| **R** | Resume/Status | `procedures/resume-status.md` | --resume / --status handlers |
+
+CI PRE-GATE steps (Na-Nc):
 
 | Step | Action | Verify |
 |------|--------|--------|
@@ -219,7 +243,9 @@ Xem `procedures/resume-status.md`.
 
 ---
 
-## Error Codes (E080-E089)
+## Error Handling
+
+Codes E080-E089 (per-skill namespace):
 
 | Code | Mô tả |
 |------|-------|
@@ -233,6 +259,29 @@ Xem `procedures/resume-status.md`.
 | E087 | Expected state mismatch |
 | E088 | POST-GATE accuracy <50% |
 | E089 | Atomic write fail (user-guide update) |
+
+### Fix Rules
+
+| Error Type | Auto-Fix | Escalate khi |
+|------------|----------|--------------|
+| Step mismatch accuracy_wording (E087 nhẹ) | Log correction vào demo-report.md; apply vào user-guide.md khi `--auto-correct` (atomic write) | User review corrections khi không có --auto-correct |
+| Step real_failure (E086/E087 nặng) | Delegate F7 failure-analyzer 2-phase: browser-fix (selector fallback, re-login, seed data apply từ db-seed-data.md) → source fix (spawn agent, wait HMR, re-verify) | Auto-fix FAIL → mark ❌ ISS-NNN, APPEND issues.json NGAY (ISSUE-IMMEDIATE) |
+| FE không running (E082) | Auto-start FE (retry ×2) | Vẫn fail → ESCALATE user |
+| Accuracy <50% (E088) | KHÔNG auto-fix — verdict "Outdated" → user-guide cần re-generate | User quyết định chạy lại F1 phase 6 hay không |
+| Atomic write fail (E089) | Restore từ temp file rồi write lại | Temp hỏng — STOP, báo disk issue |
+
+---
+
+## Output Files
+
+| File | Path (trong session) | Loại |
+|------|----------------------|------|
+| demo-report.md + Phase-report.md (CORE-028) | `F8-demo/` | CREATE |
+| demo-00-login.png + demo-{NN}-{slug}.png | `screenshots/` | CREATE |
+| issues.json | session root | APPEND (real_failure, ISSUE-IMMEDIATE) |
+| user-guide.md | `outputs/` | READ + optional UPDATE (--auto-correct) |
+
+> **Next:** F8 là bước cuối trong pipeline — orchestrator `/wf-e2e-verify` finalize CORE-028 summary sau F8.
 
 ---
 
