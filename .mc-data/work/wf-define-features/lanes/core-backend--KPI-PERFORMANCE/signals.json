@@ -1,0 +1,24 @@
+{
+  "lane_key": "core-backend--KPI-PERFORMANCE",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-KPI-PERFORMANCE",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-KPI-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/kpi-performance/kpi-3-tru-cot-tu-tong-hop-calibration.md",
+      "req_ids": ["REQ-HR-007"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-KPI-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/kpi-performance/pip-30-60-90.md",
+      "req_ids": ["REQ-HR-008"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T21:06:29+07:00",
+    "words_written": 5964
+  }
+}

@@ -1,0 +1,982 @@
+{
+  "total_input": 58,
+  "total_output": 58,
+  "duplicates": 0,
+  "conflicts": [
+    {
+      "type": "cross_dept_overlap",
+      "req_ids": [
+        "REQ-FIN-006",
+        "REQ-OPS-002"
+      ],
+      "description": "Financial Hard Stop — FIN (nguồn xác nhận khớp tiền) vs OPS (điểm chặn cấp phát TKQC)"
+    },
+    {
+      "type": "cross_dept_overlap",
+      "req_ids": [
+        "REQ-FIN-002",
+        "REQ-OPS-003"
+      ],
+      "description": "Cảnh báo số dư ví — FIN (sổ sách) vs OPS (vận hành nạp)"
+    },
+    {
+      "type": "cross_dept_overlap",
+      "req_ids": [
+        "REQ-HR-009",
+        "REQ-OPS-007"
+      ],
+      "description": "Timesheet approval/capacity — HR (chính sách+duyệt) vs OPS (ghi nhận)"
+    },
+    {
+      "type": "cross_dept_overlap",
+      "req_ids": [
+        "REQ-BOD-003",
+        "REQ-FIN-016"
+      ],
+      "description": "P&L realtime — BOD (dashboard) vs FIN (số liệu nguồn)"
+    }
+  ],
+  "items": [
+    {
+      "req_id": "REQ-BOD-001",
+      "title": "Phê duyệt vượt ngưỡng & escalation",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Ma trận phê duyệt theo ngưỡng 5/50/200 triệu với dual approval, escalation SLA, duyệt mobile MFA (mở chứng từ trước khi duyệt >=200tr) và luồng chi khẩn 4h/hậu kiểm 24h.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-002",
+      "title": "Compensating control kiêm nhiệm CFO kiêm CTO",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Chặn hard giao dịch tiền do CFO/CTO khởi tạo khi chưa có CEO duyệt (mobile duyệt khẩn <=4h), quarterly review CEO ký ngày 1-10 đầu quý, audit log bất biến cho mọi hành vi Super Admin.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-003",
+      "title": "P&L toàn công ty realtime",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "P&L tính lại <=15 phút trên star schema từ GW/timesheet/ví/kế toán, tách tuyệt đối tiền giữ hộ TKQC khỏi doanh thu, chỉ báo freshness trên cả web và mobile read-only.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-004",
+      "title": "BI dashboard điều hành",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "Phase3",
+      "summary": "BI workspace đa KPI một nguồn sự thật theo Metric Catalog, block publish khi quality test fail, mobile bản KPI rút gọn với cảnh báo đỏ khi stale nghiêm trọng.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-005",
+      "title": "Giám sát & truy xuất audit log",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Tra cứu log append-only + hash-chain trên web với meta-log (xem log cũng bị log), xuất log phải CEO duyệt, mobile cấm tra cứu log Mật/Restricted.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-006",
+      "title": "Alert center & cảnh báo rủi ro vận hành",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-MOBILE-INTERNAL",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Alert đa kênh: push mobile <=5 phút cho cảnh báo khẩn, web là trung tâm tổng hợp/xử lý, acknowledge bắt buộc kèm reason, gộp alert theo nguồn khi connector outage.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-007",
+      "title": "Quarterly access review & phân quyền",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Review user x role x level x credentials trong 10 ngày đầu quý do CEO ký, tự vô hiệu quyền không review 2 quý, offboarding thu hồi + rotate credentials <=24h.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-008",
+      "title": "Quản trị Integration Gateway & credentials vault (vai CTO)",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "CTO quản trị vault credentials 7 nền tảng chỉ trên web console MFA (rotate >=90 ngày, không plaintext, log mọi gọi API), mobile cấm toàn bộ thao tác vault để giảm bề mặt tấn công.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-009",
+      "title": "Phê duyệt chính sách, tham số quản trị & tier",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Chính sách/tham số/tier duyệt theo version và ngày hiệu lực (effective-dated, không hồi tố): CEO duyệt chính sách/định mức/tier, CFO duyệt định nghĩa metric và ngưỡng freshness.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-BOD-010",
+      "title": "Phê duyệt tài chính độc quyền của CFO",
+      "dept": "DEPT-BOD",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "MVP",
+      "summary": "Hạn mức tín dụng TKQC, mở lại kỳ đã khóa, backfill M2 là lệnh độc quyền của CFO trên web với log và lý do bắt buộc; sự cố M3 CFO cùng CEO quyết trong 4h.",
+      "_lane": "bod"
+    },
+    {
+      "req_id": "REQ-HR-001",
+      "title": "Hồ sơ nhân sự trung tâm L1–L5 + mã vai",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Vòng đời nhân sự: onboarding (hồ sơ → mã vai/Level → lệnh RBAC theo mã vai → cost rate version đầu tiên), thay đổi Level/vai theo SCD2 hiệu lực từ ngày–đến ngày, offboarding thu hồi tài khoản ERP trong 24h + thu hồi TKQC 24h phối hợp OPS; freelancer ngoài biên chế không tạo hồ sơ.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-002",
+      "title": "HĐLĐ & cảnh báo hết hạn 90/60/30 ngày",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Lưu HĐLĐ + file scan mã hóa (C1); job quét hằng ngày nhắc 90/60/30 ngày cho HR_L2 + TL; quá hạn chưa tái ký → cảnh báo đỏ + escalate BOD; tái ký tạo bản ghi nối tiếp giữ lịch sử; HĐ không xác định thời hạn tắt nhắc.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-003",
+      "title": "Chấm công & overtime",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Ghi công hằng ngày 40h/tuần T2–T6; điều chỉnh công qua người khác duyệt + audit log; OT duyệt trước (retro 24h), CORE chặn cứng khi chuẩn + OT > 48h/tuần và trần 200h/năm, OT vượt trần chỉ HR_L2 duyệt; tổng hợp tháng bàn giao payroll/BHXH cho FIN.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-004",
+      "title": "Nghỉ phép: số dư tự động & duyệt phân cấp",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Tích lũy 12 ngày/năm (1 ngày/tháng); chặn duyệt vượt số dư ở tầng validation; route phân cấp: ≤5 ngày TL duyệt 24h, >5 ngày hoặc không lương HR_L2 duyệt 48h; nghỉ đã duyệt tự trừ số dư và tự giảm capacity tuần; nghỉ ốm ≥3 ngày kèm giấy khám.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-005",
+      "title": "Self-service nhân viên (ESS)",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ1",
+      "summary": "Trang 'Của tôi': hồ sơ (C1 masked), xin nghỉ, điều chỉnh công, timesheet và dữ liệu gốc KPI của mình; thay đổi trường nhạy cảm/ảnh hưởng payroll phải HR_L2 duyệt 24h trước khi hiệu lực; enforce row-level ở CORE + audit log; mobile ngoài scope hiện tại.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-006",
+      "title": "Cost Rate Card version hóa, thẩm định finance",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Workflow 3 chặn: HR_L2 soạn → FIN_L2 thẩm định đối chiếu payroll (ngưỡng ±10% [CẦN CHỐT SỐ]) → BOD duyệt phát hành version; version đã phát hành bất biến; P&L chọn version theo ngày ghi giờ, thiếu version phủ → fallback + cờ dữ liệu; Restricted: chỉ HR_L2 + BOD xem cost cá nhân.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-007",
+      "title": "KPI 3 trụ cột tự tổng hợp + calibration",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ3",
+      "summary": "Tự tổng hợp On-time/Output Volume/SLA-Target, cấm nhập điểm tay; trọng số theo Level hiện hành tại thời điểm đóng kỳ (đọc SCD2); review quý minh bạch dữ liệu gốc, thắc mắc 3 ngày; calibration HR_L2 bắt buộc trước khi trình BOD (L4–L5, top/bottom); cờ quá tải >100% ≥2 tuần miễn phạt On-time; thử việc 70/30 không PIP.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-008",
+      "title": "PIP 30-60-90",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "CORE gợi ý mở PIP (quý <60/100; 2 quý dưới kỳ vọng; vi phạm SLA nghiêm trọng); Manager đề xuất + HR_L2 duyệt trong 5 ngày làm việc; milestone 30/60/90, coaching ≥2 tuần/lần; không đạt mốc 90 → BOD quyết định điều chuyển/hạ Level/chấm dứt HĐLĐ; hồ sơ Restricted; nghỉ dài tạm dừng tính lại mốc.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-009",
+      "title": "Duyệt timesheet & capacity (phối hợp OPS)",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Ranh giới: OPS ghi giờ + gán capacity, HR sở hữu quy tắc duyệt/định mức/escalation/OT; chốt tuần 12:00 T2, TL duyệt 48h cấm tự duyệt (timesheet TL do Manager L4 duyệt); chỉ giờ approved nhân Cost Rate Card vào P&L; correction qua TL + audit log; escalation 4h TL → 8h HR_L2; định mức/billable mục tiêu HR_L2 đề xuất → BOD duyệt chu kỳ năm.",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-HR-010",
+      "title": "Bảo vệ PII nhân sự (lương Confidential/Restricted)",
+      "dept": "DEPT-HR",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Phân loại C1/C2/C3; C1 mã hóa lưu + truyền, cấm xuất raw; ma trận quyền: chỉ HR_L2 + BOD xem lương/cost cá nhân, HR_L1 không xem lương, manager chỉ tổng cost nhóm, SYS_ADMIN không xem giá trị; audit log bất biến mọi lượt xem/sửa; review truy cập C1 theo quý; retention 10 năm lương/chứng từ, 12 tháng hồ sơ ứng tuyển; breach thông báo A06 72h (NĐ 13/2023).",
+      "_lane": "hr"
+    },
+    {
+      "req_id": "REQ-FIN-001",
+      "title": "Sổ phụ ví TKQC & lệnh giao dịch tiền (tiền giữ hộ)",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Sổ phụ ví riêng từng khách (nạp/chi tiêu/phí/điều chỉnh/số dư khả dụng); tiền nạp = tiền giữ hộ (nợ phải trả) không phải doanh thu; mọi top-up/refund/điều chỉnh qua lệnh hệ thống cấm lệnh miệng; SoD 4 vai dòng tiền. BR-FIN-101/102/103/106 (B.1).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-002",
+      "title": "Cảnh báo số dư đủ chi ≥3 ngày + SLA đỏ 2h",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "ADS 7 ngày rolling per TK; 3 mức Xanh/Vàng/Đỏ; SLA đỏ 2h làm việc + escalation owner→TL→AM có timestamp; Mobile push ≤5 phút; góc FIN: tạm giữ giải ngân khi ví đỏ chờ khách nạp. BR-FIN-104 (B.1).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-003",
+      "title": "Dual approval điều chỉnh số dư / đổi tỷ giá / hoàn tiền",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "3 giao dịch rủi ro cao bắt buộc FIN_L1 tạo + FIN_L2 duyệt (CFO vượt ngưỡng >10 triệu [CẦN CHỐT SỐ]); đổi tỷ giá tay chỉ khi có biên bản; hoàn về đúng TK nguồn nạp trùng tên KYC; Mobile duyệt MFA TOTP. BR-FIN-105 (B.1).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-004",
+      "title": "Đối trừ 3 số tự động, đa tiền tệ, chốt & khóa kỳ",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Đối trừ khách nạp ↔ nạp nền tảng ↔ chi tiêu platform hàng ngày; dung sai 0 / 0,5%·10USD / 1%·20USD [CẦN CHỐT SỐ]; ticket discrepancy cấm tự cân số; sổ gốc VND + snapshot tỷ giá + khoản FX riêng; FIN_L2 chốt ngày 3 + khóa kỳ, mở chỉ CFO. BR-FIN-201..205 (B.2).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-005",
+      "title": "API 7 nền tảng + degraded mode manual",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Adapter 7 nền tảng pull hourly batch/queue, lưu raw payload; chưa có quyền API → import statement chuẩn + nhập tay gắn nhãn manual, sai schema bị chặn; backfill khi được cấp API; sync fail retry/backoff + alert. BR-FIN-301 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-006",
+      "title": "Financial Hard Stop \"đã khớp tiền\" FIN_L1",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "TKQC chỉ cấp phát khi FIN_L1 xác nhận \"Đã khớp tiền\" với evidence sao kê + timestamp; chặn trong code, không nút override kể cả CEO/Super Admin; xác nhận chỉ trên WEB MFA TOTP, Mobile chỉ alert; thu hồi sai → TK tự dừng chi tiêu. BR-FIN-302 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-007",
+      "title": "Công nợ AR/AP + aging + nhắc nợ",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Aging AR/AP bucket 0-30/31-60/61-90/>90 ngày; nhắc AR quá hạn tự động; theo dõi hạn AP nền tảng tránh gián đoạn TKQC; AR >90 ngày là nguồn clawback hoa hồng 100%. BR-FIN-303 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-008",
+      "title": "Duyệt chi/giải ngân: ngưỡng, SoD, delegate",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Ma trận ngưỡng 5/50/200 triệu VND → FIN_L2 / FIN_L2+CFO / CFO+CEO [CẦN CHỐT SỐ]; SoD block vai trùng + log; chứng từ upload trước duyệt; nạp nền tảng duyệt gộp tuần; delegate CFO ≤14 ngày; Mobile duyệt MFA + nhắc SLA 24/48/72h. BR-FIN-304 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-009",
+      "title": "KYC pháp nhân trước cấp phát TKQC",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Hồ sơ GPKD/MST/TK ngân hàng trùng tên pháp nhân/UBO 25% [CẦN CHỐT SỐ]; chặn cấp phát khi KYC ≠ Verified; EDD khi khách nước ngoài/khu vực rủi ro cao/flag K2-K4 → ngưỡng siết 50%, review 6 tháng; ngoại lệ TK cùng nhóm mẹ/con BOD duyệt. BR-FIN-401/405 (B.4, call-2).",
+      "business_rules": [
+        "BR-FIN-401",
+        "BR-FIN-405"
+      ],
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-010",
+      "title": "AML monitoring T1–T6 + hoàn tiền đúng nguồn",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Rule engine T1–T6 ngưỡng cấu hình được [CẦN CHỐT SỐ], FATF list đồng bộ qua GW, EDD siết 50%; hoàn chỉ về TK nguồn nạp trùng tên KYC, đổi beneficiary chặn mặc định; hold → điều tra 24h → BOD 24h → quyết định lý do văn bản lưu vĩnh viễn; báo cáo tháng + hồ sơ AML ≥5 năm. BR-FIN-402/403/404/405 (B.4, call-2).",
+      "business_rules": [
+        "BR-FIN-402",
+        "BR-FIN-403",
+        "BR-FIN-404",
+        "BR-FIN-405"
+      ],
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-011",
+      "title": "Hóa đơn điện tử TT78/2021 + NĐ123/2020",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "HĐĐT chuẩn XML mã cơ quan thuế chỉ xuất từ chứng từ đã đối soát/khóa kỳ, gắn hợp đồng + thanh toán thực nhận; chỉ phát hành trên doanh thu phí dịch vụ — không tiền giữ hộ; điều chỉnh/hủy qua nghiệp vụ chuẩn có log; kết nối thuế dùng chung REQ-013. BR-FIN-601 (B.6, call-2).",
+      "business_rules": [
+        "BR-FIN-601"
+      ],
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-012",
+      "title": "Lưu trữ chứng từ & audit log tiền ≥10 năm (WORM)",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Audit log append-only + hash-chain + old→new + reason code bắt buộc, không interface xóa/sửa mọi tầng kể cả Super Admin; meta-log (xem log cũng bị log) — xuất ngoài chuẩn duyệt BOD_CEO; retention WORM: tiền/HĐ/chứng từ ≥10 năm, log hệ thống ≥7 năm; backup AES-256 2 nơi, test restore hằng quý, RTO ≤4h/RPO ≤15 phút; change management chặn deploy thiếu change record. BR-FIN-501..505 (B.5, call-2).",
+      "business_rules": [
+        "BR-FIN-501",
+        "BR-FIN-502",
+        "BR-FIN-503",
+        "BR-FIN-504",
+        "BR-FIN-505"
+      ],
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-013",
+      "title": "Tích hợp phần mềm kế toán VAS hiện hữu",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Tích hợp không thay thế; GW connector API/import-export [CẦN CHỐT SỐ — tên phần mềm]; chỉ xuất bút toán từ chứng từ đã duyệt/khóa kỳ; đối chiếu sổ tháng, chênh lệch phải giải trình. BR-FIN-305 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-014",
+      "title": "Phí nền tảng & nghĩa vụ thuế",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Phí nền tảng ghi nhận theo giao dịch gốc từ statement/API, tách khỏi doanh thu khi tính GM, quy VND dùng snapshot chung; VAT + FCT nhà thầu nước ngoài theo tư vấn thuế [CẦN CHỐT SỐ]; FCT tách khỏi giá vốn media, nền tảng có pháp nhân VN không áp FCT. BR-FIN-306 (B.3) + BR-FIN-602 (B.6, call-2).",
+      "business_rules": [
+        "BR-FIN-602"
+      ],
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-015",
+      "title": "Dashboard & báo cáo tài chính nội bộ",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Dashboard ví/đối soát/discrepancy/aging/hàng chờ duyệt/hạn mức tuần; freshness HH:MM, chi QC tươi ≤1h; Mobile rút gọn. BR-FIN-307 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-016",
+      "title": "BI/BOD dashboard & P&L realtime",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "Star schema + conformed dimensions (Khách/Dự án/TKQC/Nền tảng); tiền giữ hộ tách bạch doanh thu; đổi metric phải CFO duyệt + lịch sử hiệu lực. BR-FIN-307 (B.3).",
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-FIN-017",
+      "title": "Dữ liệu ví read-only cho Client Portal",
+      "dept": "DEPT-FINANCE",
+      "systems": [
+        "SYS-PORTAL-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_system": "SYS-PORTAL-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "View tổng hợp lọc tenant (RLS + filter API), read-only tuyệt đối; khách không thấy giá vốn/chiết khấu/P&L; watermark + disclaimer độ trễ. B.6 (call-2): dữ liệu tài chính khách = Restricted, ma trận truy cập review hằng quý, breach 72h NĐ13/2023 + GDPR, DSAR ticket SLA + DPA bắt buộc khách EU/US. BR-FIN-603/604/605.",
+      "business_rules": [
+        "BR-FIN-603",
+        "BR-FIN-604",
+        "BR-FIN-605"
+      ],
+      "_lane": "finance"
+    },
+    {
+      "req_id": "REQ-SALES-001",
+      "title": "Thu nhận lead đa kênh & chống trùng lặp (anti-duplicate)",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Webhook 4 nguồn (landing/Zalo OA/Fanpage/Messenger) + nhập tay referral/cold; anti-duplicate so khớp SĐT/email/domain/MST theo trọng số, flag kèm bằng chứng không chặn mù; tranh chấp nguồn: ghi trước có bằng chứng → hòa SM 24h → khiếu nại GDKD 3 ngày; retry queue không mất lead; lead cũ ≤180 ngày chấm lại đúng 1 lần. BR-SALES-101..103 (B.1).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-002",
+      "title": "Pipeline V6.0 — hard gate \"không ghi nhận = không tồn tại\" & phân bổ lead",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Stage machine 10 stage, hard block thiếu done criteria ở cả UI và API; Initial Brief SLA 2h 3 trường bắt buộc + escalate; meeting notes bắt buộc trước QUALIFIED; phân bổ lead auto theo nguồn hoặc SM gán 4h [CẦN CHỐT SỐ]; WON 24h tự sinh dự án; mobile chỉ xem không di chuyển stage. BR-SALES-201..203 (B.2).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-003",
+      "title": "AUTO SCORING K1–K12 & Tier A–E",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Chấm 2 lần: autoScore tại Initial Brief, qualifiedTier sau Full Brief, khóa sau Gate 1; K1–K5 knockout (K1 SP thiếu giấy phép, K2 từ chối điều khoản trách nhiệm, K3 ngành cấm, K4 không nạp 100% NSQC; K5 [CẦN CHỐT SỐ]), K6–K12 flag; CQ trọng số 30/25/20/15/10; tier nghịch trực giác A<1.5 AUTO LOST → E≥3.5 bypass; thiếu ≥2/5 CQ chặn chấm; phát hiện stage-gate §2.1 đảo proposal B/C vs D/E — cần hiệu chỉnh. BR-SALES-301..303 (B.3).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-004",
+      "title": "Gate 1 & Gate 2 — Go/No-Go và ký Handoff",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-MOBILE-INTERNAL",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Gate 1: entry machine-checkable (Full Brief + NDA + qualifiedTier + notes), SM ký Go/No-Go SLA 1 ngày, khóa qualifiedTier, mobile là kênh ký chính từ P2 với MFA step-up, SM ≠ chủ deal; Gate 2: package 5 nhóm 100% + SM ký + AM xác nhận SLA 4h + điều kiện nạp 100% NSQC chờ kích hoạt; AM từ chối → trả SM, credit tạm dừng; override knockout chỉ deal chiến lược GDKD duyệt. BR-SALES-401/402 (B.4).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-005",
+      "title": "Chuyển tier Sales → CS & rà soát quý tier",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ1",
+      "summary": "WON chuyển tier nguyên trạng cho CS; đề xuất chuyển tier theo doanh thu thực tế + số TKQC active + churn risk, CS đề xuất → SM + CS TL đồng thuận → GDKD duyệt SLA 3 ngày; rà quý win rate theo tier + độ lệch CQ; tham số ngưỡng/trọng số version hóa effective-dated, GDKD trình BOD. BR-SALES-501..503 (B.5).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-006",
+      "title": "Quotation & Deal Desk — định mức, chiết khấu phân cấp, duyệt GM",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Accountant lập theo định mức version hiện hành; GM engine theo nhóm dịch vụ (agency ≥15%, ads ≥20%, SEO ≥35%, web/design ≥30%); ma trận chiết khấu NVKD ≤5% → TPKD >5–15% (SLA 8h) → GDKD >15–20% (1 ngày) → BOD >20% (2 ngày); bản gửi khách khóa vĩnh viễn, vòng sửa D/E ≤2 B/C ≤4; hiệu lực 30/60 ngày hết hạn → re-quote; duyệt GM 2 ngày phải gửi KH; giá vốn Mật, cấm chiết khấu ẩn. BR-SALES-601..604 (B.6).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-007",
+      "title": "Hợp đồng/LOI/NDA & Brand Safety + e-sign",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Luồng Template → Draft v0.x → Legal → duyệt ma trận giá trị [CẦN CHỐT SỐ] → Final v2.0 → Signed lock; block Full Brief khi chưa NDA mutual; Brand Safety 7 tiêu chí checklist gắn EVALUATION, fail 1/7 dừng, nút từ chối vận hành; chờ kích hoạt khi chưa nạp 100% NSQC; red-line diff check; e-sign Luật GDTĐT 2023 + NĐ 91/2022, audit trail IP/thời gian, retention ≥10 năm, alert 30/60/90 ngày. BR-SALES-701..705 (B.7).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-008",
+      "title": "Handoff & Onboarding Bridge",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Handoff Package 5 nhóm checklist chặn Gate 2 nếu <100% (mục thiếu hiện responsible + due date); ký 3 bên Sales/SM/AM, AM xác nhận SLA 4h, fail → trả SM + credit tạm dừng; milestone Day 1/7/14/30, portal trạng thái đọc từ CORE; ranh giới: Sales bàn giao theo package, OPS thực thi, thiếu sót Day 1–30 quay về SM; WON tự sinh dự án + capacity check, trống = 0 cảnh báo GDKD + OPS_PLAN. BR-SALES-801..803 (B.8).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-SALES-009",
+      "title": "Commission & Quota — hoa hồng theo thực nhận, clawback, coverage ≥3×",
+      "dept": "DEPT-SALES",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "Credit theo thanh toán thực nhận đối chiếu AR (không theo ngày ký), chỉ deal ghi nhận trước Gate 2 + qualifiedTier hợp lệ + quotation duyệt GM; thang L1–L5 [CẦN CHỐT SỐ — khởi tạo 2,5%→6,5%] + attainment ×1,2/×1,0/×0,9/×0,8; clawback hoàn theo tỷ lệ, nợ >90 ngày 100% trừ kỳ kế tiếp; split chủ deal 70/30, SM/TPKD ≤20%, tổng ≤100%, chặn bổ sung sau Gate 2; tranh chấp credit theo kết quả phân xử REQ-001; coverage ≥3× on-track, <2× đỏ; quota L1–L5 [CẦN CHỐT SỐ — 600tr→5 tỷ/phòng]. BR-SALES-901..904 (B.9).",
+      "_lane": "sales"
+    },
+    {
+      "req_id": "REQ-OPS-001",
+      "title": "Ad Account Command Center — registry & vòng đời TKQC",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Registry trung tâm 2.600+ TKQC/7 nền tảng theo vòng đời 5 trạng thái (Khởi tạo→Khớp tiền→Cấp phát→Vận hành→Thu hồi/Đóng); naming/UTM bắt buộc chặn sửa tay; ownership 1 owner + 1 backup không chia sẻ login; die tracking với evidence bất biến + TK dự phòng; thu hồi access 24h theo sự kiện HR; degraded mode manual có nhãn khi chưa có API.",
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-002",
+      "title": "Financial Hard Stop chặn cấp phát TKQC",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Hard Stop: chỉ cấp phát/bật chi tiêu khi FIN_L1 xác nhận 'Đã khớp tiền'; chặn cứng tầng API + UI, không nút override, không trạng thái chờ duyệt, không vai nào bypass kể cả Giám đốc/Super Admin; chủ ý không có bản mobile/portal để không tạo kênh bypass.",
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-003",
+      "title": "Ví TKQC góc ops — cảnh báo số dư & escalation",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "ADS 7 ngày rolling, cảnh báo 3 mức per TK/platform (Xanh ≥3 ngày / Vàng <3 / Đỏ <1 ngày); SLA đỏ 2h + escalation owner→TL→AM có timestamp; mọi top-up/refund/điều chỉnh chỉ qua lệnh hệ thống; dual approval cho nhóm rủi ro cao; SoD 4 vai dòng tiền; khách xem lịch sử điều chỉnh ví read-only mask 'điều chỉnh đối soát'.",
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-004",
+      "title": "Handoff & Onboarding Bridge",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Tiếp nhận Handoff Package 5 nhóm checklist (hợp đồng & phạm vi; tài sản QC & tracking; mục tiêu & baseline KPI; vận hành; điều kiện khởi động), chặn Gate 2 nếu <100%; ký 3 bên SM + hệ thống sinh dự án + AM xác nhận SLA 4h; milestone onboarding Day 1/7/14/30 với tiêu chí pass/fail và cảnh báo trượt mốc.",
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-005",
+      "title": "Proposal & Planning Workspace (stage-gate V6.0)",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Stage-gate V6.0 machine-checkable: Brand Safety 7/7 pass bắt buộc, weighted ≥3,5 (borderline 3,0–3,49 vào hàng đợi thẩm định 4h); proposal theo Tier với đếm và chặn vòng sửa; GM duyệt trước khi gửi; audit log mọi chuyển stage và override.",
+      "business_rules": [
+        "BR-OPS-6.1 Stage-gate machine-checkable: phân loại done criteria hệ thống tự kiểm vs thuần phán đoán; hard block tầng API + audit log",
+        "BR-OPS-6.2 Brand Safety 7 tiêu chí chặn cứng — 1 fail dừng ngay không ngoại lệ; quyền từ chối vận hành (legal xác nhận + TP OPS duyệt 24h)",
+        "BR-OPS-6.3 Template + định mức proposal theo tier, nguồn sự thật phan-loai-khach-hang-tier.md: B/C 15–25 trang Planner ≤4 vòng; D/E 8–12 trang AM ≤2 vòng — FLAG mâu thuẫn với stage-gate-lifecycle-v6.md §2.1 cho Phase 6d",
+        "BR-OPS-6.4 Đếm vòng review D/E ≤2, B/C ≤4; vượt hạn chặn vòng mới, escalate — gia hạn chỉ GM duyệt 1 lần",
+        "BR-OPS-6.5 GM e-approval trước khi gửi khách, SLA 1 ngày LV; Rehearsal trước Pitching; borderline 3,0–3,49 thẩm định 4h"
+      ],
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-006",
+      "title": "Campaign & Deliverable Management",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "WBS + lịch nội dung qua capacity check bắt buộc; duyệt creative đa vai cấm tự duyệt; campaign change log bất biến với lý do bắt buộc; phân bậc duyệt ngân sách buyer/TL/AM theo hạn mức ngày; khách xem tiến độ nghiệm thu theo milestone trên portal.",
+      "business_rules": [
+        "BR-OPS-7.1 WBS sinh từ approved proposal (deliverable map WBS node, dependency finish-to-start); project type bắt buộc: Dự án Khách hàng / Dự án Nội bộ",
+        "BR-OPS-7.2 Editorial calendar với pipeline trạng thái bài (Ý tưởng → Đã xuất bản), cảnh báo trượt deadline TL + AM",
+        "BR-OPS-7.3 Duyệt creative đa vai OPS_CONT → OPS_DES/OPS_EDIT → OPS_PLAN/AM; cấm tự duyệt; SLA từng bước [CẦN CHỐT SỐ]; vượt vòng sửa escalate TL",
+        "BR-OPS-7.4 Campaign change log bất biến: mọi thay đổi ngân sách/bid/target/audience bắt buộc reason + giá trị cũ/mới; bậc duyệt buyer (trong hạn mức) → TL → AM",
+        "BR-OPS-7.5 Nghiệm thu theo WBS/milestone, khách confirm trên PORTAL/M-PORTAL; Gate Day 14 là điều kiện nghiệm thu onboarding",
+        "BR-OPS-7.6 Vận hành song song 2 project type cùng engine; validation cấm tráo nhãn giờ; lệch nhãn phải TL duyệt có log"
+      ],
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-007",
+      "title": "Capacity & Timesheet",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Nhãn Client Billable / Internal Non-billable bắt buộc tại nguồn, cấm sửa sau ghi; utilization 70%/90%/100% với dừng gán tự động và chặn cứng ≥100% (khẩn cấp tối đa 110% ≤5 ngày LV); capacity check gắn mọi gán task và Gate 2 (SLA 4h → TL → HR_L2); thẩm quyền định mức thuộc HR_L2 → BOD.",
+      "business_rules": [
+        "BR-OPS-8.1 Nhãn billable/internal bắt buộc tại thời điểm ghi; cấm sửa nhãn sau ghi — correction + audit log (TL xác nhận 24h); validation cặp project type × nhãn",
+        "BR-OPS-8.2 Định mức theo policy: 40h chuẩn/48h trần mọi Level; billable mục tiêu L1 ≥80% → L5 20–30%; chốt tuần TL duyệt 48h, cấm tự duyệt; giờ chưa duyệt không vào P&L",
+        "BR-OPS-8.3 Capacity check mọi gán + Gate 2 (SLA 4h → TL → HR_L2); <70% cảnh báo, >90% vàng TL duyệt gán, ≥100% đỏ chặn cứng; khẩn cấp 110% ≤5 ngày LV có log",
+        "BR-OPS-8.4 Ranh giới HR: định mức giờ + billable mục tiêu HR_L2 đề xuất → BOD duyệt; OT vượt trần HR_L2; OPS ghi + TL duyệt lần 1; FIN chỉ nhận giờ đã duyệt vào P&L"
+      ],
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-008",
+      "title": "SLA & Notification Engine",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Ma trận tier × priority (Tier E nhanh nhất), mốc GMT+7 giờ làm việc BC, pause khi Pending/Blocked-3rd-party; pre-alert 80%, breach 100% báo AM + CS TL ≤5 phút, AM báo khách trong 30 phút; escalation + override theo cấp CS TL → CX Head → BOD; post-mortem breach lặp; trực Critical 24/7.",
+      "business_rules": [
+        "BR-OPS-9.1 Ma trận tier×priority đầy đủ theo sla-khach-hang.md §2.1 (A thấp nhất — E cao nhất; Critical 24/7); FR = phản hồi có nội dung xử lý; HĐ cao hơn ghi đè profile",
+        "BR-OPS-9.2 SLA clock GMT+7 anchor duy nhất, giờ làm việc BC T2–T6 9:00–18:00; pause Pending (nhắc 2 lần → auto-Closed không tính breach) và Blocked-3rd-party (case ID, tối đa 5 ngày LV); lịch làm việc riêng khách trên portal",
+        "BR-OPS-9.3 Pre-alert 80% (assignee + AM), breach ≤5 phút báo AM + CS TL + dashboard CX Head, AM báo khách 30 phút; override CS TL (lần 1 ≤50%) → CX Head → BOD bắt buộc audit log; post-mortem ≥3 breach/30 ngày hoặc ≥2 cùng root cause/90 ngày"
+      ],
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-009",
+      "title": "Ticket & CSKH",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Queue hợp nhất đa kênh chống trùng lặp, ngoài scope tự tách change request; state machine New→Open→Pending→Resolved→Closed, reopen 7 ngày; CSAT tự động sau Closed, detractor ≤2 liên hệ lại trong 48h; khiếu nại nghiêm trọng leo thang BOD 24h; trigger escalation bắt buộc theo trạng thái.",
+      "business_rules": [
+        "BR-OPS-9.4 Queue hợp nhất portal/email/Zalo + dedupe; state machine New→Open→Pending→Resolved→Closed, reopen 7 ngày giữ ngữ cảnh; trigger escalation bắt buộc chuỗi assignee → AM → CS TL → CX Head → BOD, mỗi chặng 30 phút trong giờ trực",
+        "BR-OPS-9.5 CSAT tự động sau Closed (nhắc tối đa 1 lần sau 48h); detractor ≤2 gọi lại trong 48h LV gắn ticket gốc; khiếu nại nghiêm trọng (Tier D/E, mất tiền, đối soát, đạo đức) BOD 24h; CSAT tier <4,0 hai tháng liên tiếp → review dịch vụ CX Head"
+      ],
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-010",
+      "title": "Client Portal góc nhìn ops — cấp tài khoản & monitor",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_system": "SYS-PORTAL-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ3",
+      "summary": "AM cấp/kích hoạt portal theo milestone Day 1/7/14/30 với GATE Day 14 (khách tự xem số dư + chi tiêu + ticket, ≥1 login/tuần từ ≥2 user); tenant isolation row-level + portal gateway tách zone; khách thấy ví read-only/chi tiêu daily/tiến độ/ticket, không thấy giá vốn/chiết khấu/P&L; disclaimer độ trễ bắt buộc; CLIENT_ADMIN tự quản user.",
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-011",
+      "title": "TikTok Shop Monitoring",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "OAuth per-client + access log bất biến, thu hồi 24h khi hết HĐ; mask PII mặc định, dữ liệu đầy đủ chỉ phiên TTL; tách bạch tuyệt đối GMV khỏi P&L agency (doanh thu BC chỉ từ phí dịch vụ + phí ads thu hộ); lifecycle 3 Gate với checklist thẩm định chủ shop + giấy phép ngành hàng; KHÔNG làm OMS/WMS — chỉ monitoring.",
+      "_lane": "operations"
+    },
+    {
+      "req_id": "REQ-OPS-012",
+      "title": "A/B Testing & chiến lược campaign theo mục tiêu khách",
+      "dept": "DEPT-OPS",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ2→GĐ3",
+      "summary": "Đăng ký thử nghiệm A/B gắn campaign (giả thuyết, mục tiêu theo conversion/traffic/awareness, variant, KPI, thời lượng, ngân sách) do Planner duyệt; truy vết kết quả theo variant từ dữ liệu nền tảng, chống giao thoa audience; learning log theo khách/ngành; không cam kết KPI cứng ngoài hợp đồng.",
+      "business_rules": [
+        "BR-OPS-10.1 Đăng ký thí nghiệm bắt buộc trước khi chạy: giả thuyết + primary metric duy nhất + sample size [CẦN CHỐT SỐ]; không đăng ký không được chi ngân sách; Planner duyệt",
+        "BR-OPS-10.2 Chống chồng chéo: 1 thí nghiệm active/segment audience; trùng segment chặn, bắt buộc exclusion hoặc chờ; platform khác cùng tệp mục tiêu do OPS_PLAN đánh giá",
+        "BR-OPS-10.3 Kết luận win/lose/no signal bắt buộc evidence trên change log bất biến (KPI theo variant + sample); không khai thắng cảm tính; không cam kết KPI cứng ngoài hợp đồng",
+        "BR-OPS-10.4 Learning log theo khách/ngành → review quý OPS_PLAN → cập nhật playbook/template chiến lược có log"
+      ],
+      "_lane": "operations"
+    }
+  ],
+  "validation": {
+    "bad_format": [],
+    "invalid_systems": []
+  },
+  "metadata": {
+    "generated_at": "2026-09-11T19:13:21.722Z",
+    "lanes": [
+      "bod",
+      "hr",
+      "finance",
+      "sales",
+      "operations"
+    ],
+    "interface_type": "web+mobile"
+  }
+}

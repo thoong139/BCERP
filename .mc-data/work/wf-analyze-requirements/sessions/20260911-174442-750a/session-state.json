@@ -1,0 +1,203 @@
+{
+  "session_id": "20260911-174442-750a",
+  "skill_name": "wf-analyze-requirements",
+  "project": "BCERP",
+  "profile_used": "standard",
+  "created_at": "2026-09-12T00:50:00+07:00",
+  "updated_at": "2026-09-12T03:45:00+07:00",
+  "status": "completed",
+  "next_action": "/wf-define-features",
+  "phases": {
+    "P0": {
+      "status": "completed",
+      "completed_at": "2026-09-12T00:50:00+07:00"
+    },
+    "P0_5": {
+      "status": "completed",
+      "completed_at": "2026-09-12T00:55:00+07:00",
+      "workload_estimate": {
+        "total_minutes": 30,
+        "partition_count": 1,
+        "items_count": 5,
+        "gate_status": "dead_zone",
+        "ratio": 0.667
+      }
+    },
+    "P1": {
+      "status": "completed",
+      "completed_at": "2026-09-12T00:55:00+07:00",
+      "scope": "all",
+      "active_depts": [
+        "DEPT-BOD",
+        "DEPT-HR",
+        "DEPT-FINANCE",
+        "DEPT-SALES",
+        "DEPT-OPS"
+      ]
+    },
+    "P2": {
+      "status": "completed",
+      "completed_at": "2026-09-12T01:05:00+07:00",
+      "lpm": true,
+      "max_parallel_agents": 3,
+      "expert_dept_map": {
+        "DEPT-BOD": "business-analyst",
+        "DEPT-HR": "hr-expert",
+        "DEPT-FINANCE": [
+          "finance-expert",
+          "compliance-expert"
+        ],
+        "DEPT-SALES": "sales-expert",
+        "DEPT-OPS": [
+          "paid-media-expert",
+          "marketing-expert"
+        ]
+      },
+      "heavyweight_depts": [
+        "DEPT-FINANCE",
+        "DEPT-OPS"
+      ]
+    },
+    "P3": {
+      "status": "completed",
+      "completed_at": "2026-09-12T01:45:00+07:00",
+      "batches": {
+        "bod": {
+          "status": "completed",
+          "part": "A",
+          "reqs": 10
+        },
+        "hr": {
+          "status": "completed",
+          "part": "A",
+          "reqs": 10
+        },
+        "finance": {
+          "status": "completed",
+          "part": "A",
+          "reqs": 17
+        },
+        "sales": {
+          "status": "completed",
+          "part": "A",
+          "reqs": 9
+        },
+        "operations": {
+          "status": "completed",
+          "part": "A",
+          "reqs": 12
+        }
+      }
+    },
+    "P4": {
+      "status": "completed",
+      "batches": {
+        "hr": {
+          "status": "completed",
+          "completed_at": "2026-09-12T02:15:00+07:00",
+          "signals_file": "lanes/hr/signals.json",
+          "expert": "hr-expert"
+        },
+        "finance": {
+          "status": "completed",
+          "completed_at": "2026-09-12T02:35:00+07:00",
+          "signals_file": "lanes/finance/signals.json",
+          "expert": "finance-expert + compliance-expert (2 calls)"
+        },
+        "bod": {
+          "status": "completed",
+          "completed_at": "2026-09-12T02:20:00+07:00",
+          "signals_file": "lanes/bod/signals.json",
+          "expert": "business-analyst"
+        },
+        "sales": {
+          "status": "completed",
+          "completed_at": "2026-09-12T02:35:00+07:00",
+          "signals_file": "lanes/sales/signals.json",
+          "expert": "sales-expert"
+        },
+        "operations": {
+          "status": "completed",
+          "completed_at": "2026-09-12T02:40:00+07:00",
+          "signals_file": "lanes/operations/signals.json",
+          "expert": "paid-media-expert + marketing-expert (2 calls)"
+        }
+      },
+      "completed_at": "2026-09-12T02:40:00+07:00"
+    },
+    "P6": {
+      "status": "completed",
+      "completed_at": "2026-09-12T02:50:00+07:00",
+      "aggregation": {
+        "dedup_input_count": 58,
+        "dedup_output_count": 58,
+        "duplicates_removed": 0,
+        "conflict_count": 4
+      },
+      "interface_type": "web+mobile"
+    },
+    "P6b": {
+      "status": "completed",
+      "completed_at": "2026-09-12T03:10:00+07:00",
+      "output_file": ".mc-data/docs/phase1-business/P1-02-business-workflow.md"
+    },
+    "P6c": {
+      "status": "completed",
+      "completed_at": "2026-09-12T03:25:00+07:00",
+      "output_file": ".mc-data/docs/phase1-business/stakeholder-review.md",
+      "findings": {
+        "total": 28,
+        "critical": 1,
+        "high": 5,
+        "medium": 17,
+        "low": 5
+      }
+    },
+    "P6d": {
+      "status": "completed",
+      "started_at": "2026-09-12T03:25:00+07:00",
+      "tracks": {
+        "auto_resolved": [
+          "SO2-02"
+        ],
+        "expert_resolving": [
+          "SO3-01",
+          "SO3-02",
+          "SO3-03"
+        ],
+        "blocking": [
+          "SO2-01 -> resolve tai Phase 8"
+        ],
+        "deferred": 7
+      },
+      "completed_at": "2026-09-12T03:45:00+07:00"
+    },
+    "P8": {
+      "status": "completed",
+      "completed_at": "2026-09-12T03:45:00+07:00",
+      "requirements": 59,
+      "modules": 19
+    },
+    "P8b": {
+      "status": "completed",
+      "completed_at": "2026-09-12T03:45:00+07:00",
+      "checks_passed": 8,
+      "errors_remaining": 0
+    },
+    "P8c": {
+      "status": "completed",
+      "completed_at": "2026-09-12T03:45:00+07:00"
+    }
+  },
+  "batches": {},
+  "lanes_completed": [
+    "hr",
+    "bod",
+    "finance",
+    "sales",
+    "operations"
+  ],
+  "digests_produced": [],
+  "cdg_decisions": [],
+  "large_project_mode": null
+}

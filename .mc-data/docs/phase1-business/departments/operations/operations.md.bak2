@@ -1,0 +1,706 @@
+# DEPT-OPS — Phòng Vận Hành Dự Án & Marketing Nội Bộ (OPS)
+
+> **Phòng ban:** Phòng Vận Hành & Marketing Nội Bộ (OPS)
+> **Ngày cập nhật:** 12/09/2026
+> **Trạng thái:** Đang phân tích (Phần A hoàn tất — Phần B hoàn tất cả 2 call: B.1–B.5 call-1/2 paid-media-expert; B.6–B.10 call-2/2 marketing-expert)
+>
+> READS: `P1-01-project-overview.md`, `P0-01-brainstorm.md`, `P0-02-systems-users.md`, policies: `quan-ly-cap-phat-tkqc-financial-hard-stop.md`, `kiem-soat-vi-tkqc-giao-dich-tien.md`, `sla-khach-hang.md`, `stage-gate-lifecycle-v6.md`, `timesheet-capacity.md`, `client-portal-minh-bach-bao-mat.md`, `tiktok-shop-du-lieu-gmv-tham-dinh.md`, `hop-dong-loi-nda-brand-safety.md`
+> USED BY: `departments/_index.md`, `_meta/req-registry.json`, `phase2-features/`
+
+---
+
+## Phần A — Phân Tích BA (Stakeholders & User Needs)
+
+### Ma Trận Requirement × System
+
+> Chú giải: **CORE** = SYS-CORE-BACKEND (api, GĐ1) · **WEB** = SYS-BCERP-WEB (nội bộ, GĐ1) · **GW** = SYS-INTEGRATION-GW (api, GĐ1) · **M-INT** = SYS-MOBILE-INTERNAL (GĐ2) · **PORTAL** = SYS-PORTAL-WEB (GĐ3) · **M-PORTAL** = SYS-MOBILE-PORTAL (GĐ3)
+
+| REQ-ID | Title | Systems | Primary | Lý do tách/gộp |
+|--------|-------|---------|---------|----------------|
+| REQ-OPS-001 | Ad Account Command Center — registry & vòng đời TKQC | CORE, WEB, GW, M-INT | WEB | Registry + ownership + naming/UTM + die tracking gộp 1 REQ (cùng vòng đời 5 trạng thái); GW giữ vai đồng bộ riêng |
+| REQ-OPS-002 | Financial Hard Stop chặn cấp phát TKQC | CORE, WEB | CORE | Tách khỏi REQ-OPS-001 để traceability độc lập control phối hợp FIN_L1; không có bản mobile/portal vì không tồn tại nút duyệt để bypass |
+| REQ-OPS-003 | Ví TKQC góc ops — cảnh báo số dư & escalation | CORE, GW, WEB, M-INT, PORTAL, M-PORTAL | CORE | Alert đỏ push M-INT; khách xem lịch sử điều chỉnh ví trên PORTAL/M-PORTAL — nêu bản từng system trong REQ |
+| REQ-OPS-004 | Handoff & Onboarding Bridge | CORE, WEB, M-INT | WEB | Checklist 5 nhóm trên WEB; AM xác nhận SLA 4h qua M-INT khi di chuyển |
+| REQ-OPS-005 | Proposal & Planning Workspace (stage-gate V6.0) | CORE, WEB, M-INT | WEB | Gate machine-checkable chạy CORE; OPS_PLAN duyệt concept qua M-INT |
+| REQ-OPS-006 | Campaign & Deliverable Management | CORE, GW, WEB, M-INT, PORTAL, M-PORTAL | WEB | WBS/duyệt creative/change log trên WEB; chi tiêu theo campaign từ GW; khách xem nghiệm thu trên PORTAL/M-PORTAL |
+| REQ-OPS-007 | Capacity & Timesheet | CORE, WEB, M-INT | WEB | Engine chặn gán ở CORE; ghi + duyệt trên WEB và M-INT; thẩm quyền định mức thuộc HR (ranh giới ghi rõ) |
+| REQ-OPS-008 | SLA & Notification Engine | CORE, WEB, M-INT, PORTAL, M-PORTAL | CORE | SLA clock chạy CORE; pre-alert/breach push M-INT; đồng hồ hiển thị khách trên PORTAL/M-PORTAL |
+| REQ-OPS-009 | Ticket & CSKH | CORE, WEB, M-INT, PORTAL, M-PORTAL | WEB | Queue hợp nhất ở CORE; assignee xử lý WEB + M-INT; khách tạo ticket/CSAT trên PORTAL/M-PORTAL |
+| REQ-OPS-010 | Client Portal góc nhìn ops — cấp tài khoản & monitor | CORE, WEB, M-INT, PORTAL, M-PORTAL | PORTAL | AM cấp/kích hoạt trên WEB nội bộ; trải nghiệm khách là PORTAL/M-PORTAL |
+| REQ-OPS-011 | TikTok Shop Monitoring | CORE, GW, WEB, M-INT | GW | OAuth per-client trên GW; tách bạch GMV khỏi P&L ở CORE; không có bản portal (GMV chỉ tham chiếu nội bộ) |
+| REQ-OPS-012 | A/B Testing & chiến lược campaign theo mục tiêu khách | CORE, GW, WEB, M-INT | WEB | Thiết kế/đọc kết quả trên WEB; dữ liệu hiệu quả theo variant từ GW |
+
+Phủ đủ 6/6 hệ thống. M-PORTAL không có REQ riêng — chỉ xuất hiện trong touchpoint phía khách (REQ-OPS-003/006/008/009/010) với bản mobile nêu rõ trong từng REQ; không REQ nào của OPS chỉ phục vụ M-PORTAL một mình.
+
+---
+
+### A1. Giới Thiệu Phòng Ban
+
+**Phòng ban này làm gì:** OPS đảm nhiệm **song song Dự án Khách hàng và Dự án Nội bộ** — nhận Handoff sau Gate 2, lên proposal/kế hoạch theo Lifecycle V6.0, sản xuất content/design/edit, vận hành chiến dịch trên 2.600+ TKQC đa nền tảng, bảo vệ SLA, quản sổ ví TKQC góc vận hành. OPS là **end user chính** của BCERP trên cả 6 hệ thống và là phòng ban duy nhất trong 5 phòng có liên quan portal khách.
+
+**Những người sẽ dùng hệ thống:**
+
+| Vai trò | Level | Công việc hàng ngày | Cần hệ thống hỗ trợ gì |
+|---------|-------|--------------------|-----------------------|
+| `OPS_PLAN` — Strategic Planner (kiêm quyền TP) | L5 | Chiến lược, duyệt concept, điều phối nguồn lực | Planning workspace, gate V6.0, dashboard capacity nhóm |
+| `OPS_AM` — Account Manager | L1–L5 | Đầu mối khách, handoff, nghiệm thu, SLA, ticket, cấp portal | Portfolio dashboard, SLA engine, portal admin, mobile duyệt |
+| `OPS_ADS` — Ads Specialist | L1–L4 | Triển khai/tối ưu chiến dịch, xử lý alert số dư/die | Command Center TKQC, alert push, campaign change log |
+| `OPS_CONT` / `OPS_DES` / `OPS_EDIT` | L1–L3 | Nội dung, key visual, quay dựng/hậu kỳ | Lịch nội dung, workflow duyệt creative đa vai, timesheet |
+
+**Stakeholder ngoài phòng (quan ngại chính):** `FIN_L1` — khớp tiền trước cấp TK, đối trừ 3 số (REQ-OPS-002/003); TL OPS — cảnh báo sớm, không nghẽn phê duyệt (REQ-OPS-003/007/008); SM Sales — handoff đủ 100% checklist (REQ-OPS-004); `HR_L2` — định mức giờ/OT/KPI (REQ-OPS-007); OPS_PLAN & BOD — compliance SLA, khiếu nại nghiêm trọng (REQ-OPS-008/009); `CLIENT_ADMIN`/`CLIENT_USER` — minh bạch dữ liệu, không lộ giá vốn (REQ-OPS-010).
+
+---
+
+### A2. Tổng Hợp Nhu Cầu
+
+| STT | Mã nhu cầu | Tên nhu cầu | Ưu tiên |
+|-----|-----------|------------|---------|
+| 1 | REQ-OPS-001 | Ad Account Command Center — registry & vòng đời 2.600+ TKQC | Bắt buộc (HIGH) |
+| 2 | REQ-OPS-002 | Financial Hard Stop chặn cấp phát TKQC | Bắt buộc (HIGH) |
+| 3 | REQ-OPS-003 | Ví TKQC góc ops — cảnh báo số dư & escalation | Bắt buộc (HIGH) |
+| 4 | REQ-OPS-004 | Handoff & Onboarding Bridge | Bắt buộc (HIGH) |
+| 5 | REQ-OPS-005 | Proposal & Planning Workspace (stage-gate V6.0) | Bắt buộc (HIGH) |
+| 6 | REQ-OPS-006 | Campaign & Deliverable Management | Bắt buộc (HIGH) |
+| 7 | REQ-OPS-007 | Capacity & Timesheet | Bắt buộc (HIGH) |
+| 8 | REQ-OPS-008 | SLA & Notification Engine | Bắt buộc (HIGH) |
+| 9 | REQ-OPS-009 | Ticket & CSKH | Quan trọng (MEDIUM) |
+| 10 | REQ-OPS-010 | Client Portal góc nhìn ops — cấp tài khoản & monitor | Bắt buộc (HIGH) |
+| 11 | REQ-OPS-011 | TikTok Shop Monitoring | Quan trọng (MEDIUM) |
+| 12 | REQ-OPS-012 | A/B Testing & chiến lược campaign theo mục tiêu khách | Quan trọng (MEDIUM) |
+
+---
+
+### A3. Chi Tiết Từng Nhu Cầu
+
+#### REQ-OPS-001: Ad Account Command Center — Registry & Vòng Đời TKQC
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ1 · **Ai cần dùng:** OPS_ADS (chính), OPS_AM, OPS_PLAN, TL, FIN_L1 (view-only).
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Registry trung tâm 2.600+ TKQC trên 7 nền tảng: số dư, spend limit, trạng thái theo vòng đời 5 bước (Khởi tạo → Khớp tiền → Cấp phát → Vận hành → Thu hồi/Đóng); lọc theo khách/platform/owner.
+- [ ] Map chặt **1 khách + 1 owner + 1 backup** mỗi TK, tối đa 2 quyền edit; cảnh báo TK thiếu owner/backup, owner sắp nghỉ.
+- [ ] Die account tracking: trạng thái die + **evidence chụp tại thời điểm xảy ra** (snapshot số dư, thông báo platform, thời gian chính xác) vào evidence store bất biến; lịch sử die theo platform để đánh giá rủi ro nạp mới; mỗi khách có ≥1 TK dự phòng đã khởi tạo.
+- [ ] Naming `[ClientCode]-[Platform]-[Objective]-[Market]-[YYMM]` + UTM sinh tự động, chặn sửa tay; campaign không gắn project bị tự pause và tạo task gắn trong 4h làm việc.
+- [ ] Import mở sổ từ Google Sheets có kiểm soát; nhận số liệu degraded mode gắn nhãn `manual` khi chưa có quyền API.
+
+**Quy tắc nghiệp vụ:** theo policy `quan-ly-cap-phat-tkqc-financial-hard-stop.md` §2.2–2.4 — cấm chia sẻ login, RBAC 4 mức (edit/view-only/billing/admin), thu hồi access trong 24h khi nhận sự kiện nghỉ/chuyển từ HR; TK Internal-Sandbox không gắn khách; client-owned TK vẫn áp naming + gắn project.
+
+**Hệ thống liên quan (bản riêng từng system):** CORE — registry, vòng đời, evidence store, audit log bất biến; WEB — màn hình Command Center và import/bulk thao tác của OPS_ADS; GW — đồng bộ số dư/spend hourly 7 nền tảng, nhãn `manual` khi degraded; M-INT (từ GĐ2) — push cảnh báo die/thiếu owner cho OPS_ADS và TL.
+
+#### REQ-OPS-002: Financial Hard Stop Chặn Cấp Phát TKQC
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ1 · **Ai cần dùng:** OPS_ADS/OPS_AM (gặp gate), FIN_L1 (phối hợp xác nhận), TL; không vai nào bypass, kể cả Giám đốc.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Chỉ cho phép cấp phát/bật chi tiêu khi FIN_L1 xác nhận **"Đã khớp tiền"** cho lệnh nạp tương ứng.
+- [ ] Chặn cứng trong code ở cả UI lẫn API; không nút override, không trạng thái "chờ duyệt" — "khách hứa chuyển" không mở khóa; mọi yêu cầu mở khóa thủ công bị từ chối và ghi audit log bất biến.
+- [ ] Xác nhận khớp tiền bị thu hồi → TK tự về "Tạm dừng chi tiêu", khóa nạp mới, alert TL.
+- [ ] OPS_ADS/AM đề xuất nạp chỉ qua lệnh hệ thống (cấm xác nhận miệng Zalo/điện thoại) — input cho FIN đối trừ.
+
+**Quy tắc nghiệp vụ:** policy `quan-ly-cap-phat-tkqc-financial-hard-stop.md` §2.1; SoD 4 vai dòng tiền: đề xuất (OPS_AM/OPS_ADS) ≠ khớp tiền (FIN_L1) ≠ duyệt chi (FIN_L2) ≠ ghi sổ.
+
+**Hệ thống liên quan:** CORE — rule engine hard stop thực thi tầng API (MUST); WEB — luồng đề xuất nạp và hiển thị trạng thái khóa. **Không có bản M-INT/PORTAL** — chủ ý không tạo kênh duyệt để loại nguy cơ bypass.
+
+#### REQ-OPS-003: Ví TKQC Góc Ops — Cảnh Báo Số Dư & Escalation
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** OPS_ADS (owner ví), OPS_AM, TL.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Tính average daily spend 7 ngày rolling; cảnh báo 3 mức per TK/platform: Xanh (đủ chi ≥3 ngày) / Vàng (<3 ngày) / Đỏ (<1 ngày hoặc dưới mức tối thiểu platform).
+- [ ] Alert đỏ vào **SLA 2h làm việc**: owner phải tạo lệnh đề xuất top-up hoặc giảm ngân sách; escalation tự động owner → TL (quá 2h) → AM (quá 4h, chủ động liên hệ khách nạp trong ngày làm việc), mỗi chặng ghi timestamp.
+- [ ] Mọi top-up/refund/điều chỉnh chỉ qua lệnh hệ thống; dual approval (đề xuất ≠ duyệt) cho điều chỉnh số dư, tỷ giá tay, hoàn tiền.
+- [ ] Dashboard số dư + "số ngày chi dự kiến" theo platform/khách; đề xuất top-up một chạm từ alert.
+
+**Quy tắc nghiệp vụ:** policy `kiem-soat-vi-tkqc-giao-dich-tien.md` §2.1–2.3; hạn mức đổi ngân sách ngày theo cấp buyer do TL cấu hình [CẦN CHỐT SỐ: ngưỡng VND/ngày theo cấp Junior/Mid/Senior]; khẩn cấp ngoài giờ xử lý qua on-call nhưng lệnh vẫn phải tạo trên hệ thống.
+
+**Hệ thống liên quan:** CORE — engine cảnh báo, bộ đếm SLA đỏ, sổ lệnh; GW — số dư/spend tươi ≤1h, degraded `manual` khi connector lỗi; WEB — thao tác lệnh chính của OPS_ADS; M-INT — push alert đỏ, xử lý/duyệt ngoài giờ; PORTAL/M-PORTAL — khách xem lịch sử điều chỉnh ví của mình (mask giá vốn thành "điều chỉnh đối soát", read-only tuyệt đối).
+
+#### REQ-OPS-004: Handoff & Onboarding Bridge
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** OPS_AM (chính), OPS_PLAN, TL; phối hợp SM Sales.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Tiếp nhận **Handoff Package 5 nhóm checklist** — chặn Gate 2 nếu <100%; ký 3 bên: SM ký + hệ thống sinh dự án + AM xác nhận trong **SLA 4h**.
+- [ ] Milestone onboarding **Day 1/7/14/30** dạng checklist có tiêu chí đạt, cảnh báo trượt mốc.
+- [ ] WON tự sinh dự án + AM xác nhận capacity trước DEPLOY; khởi tạo TKQC theo demand khách.
+- [ ] Capacity check "xác nhận Capacity trống" gắn Gate 2 — SLA 4h, quá hạn escalate TL rồi HR_L2 (8h).
+
+**Quy tắc nghiệp vụ:** policy `stage-gate-lifecycle-v6.md` §2.1 (Gate 2, WON); khách tái ký được rút gọn Initial Brief nhưng không bỏ Gate 1/Gate 2.
+
+**Hệ thống liên quan:** CORE — workflow gate, tự sinh dự án; WEB — checklist + e-approval ký 3 bên; M-INT — AM xác nhận handoff SLA 4h và nhận push trượt mốc khi di chuyển.
+
+#### REQ-OPS-005: Proposal & Planning Workspace (Stage-Gate V6.0)
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** OPS_PLAN (chính), OPS_AM, GM duyệt gửi.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Stage-gate V6.0 machine-checkable: EVALUATION yêu cầu **Brand Safety 7/7 pass** (fail bất kỳ → dừng ngay, không ngoại lệ) + Weighted ≥3,5; borderline 3,0–3,49 chuyển hàng đợi thẩm định 4h.
+- [ ] Proposal theo Tier: B/C — 8–12 trang, AM soạn, vòng sửa ≤2; D/E — 15–25 trang, Planner soạn, vòng sửa ≤4; hệ thống **đếm vòng review và chặn vượt hạn**; GM duyệt trước khi gửi khách.
+- [ ] Template proposal theo Tier; WBS/nguồn lực sơ bộ sau WON.
+- [ ] SLA từng gate + escalation tự động quá hạn; audit log mọi chuyển stage, chữ ký, override.
+
+**Quy tắc nghiệp vụ:** policy `stage-gate-lifecycle-v6.md` §2.1–2.2; Brand Safety 7 tiêu chí theo `hop-dong-loi-nda-brand-safety.md` §2.4 — OPS có quyền từ chối vận hành khi vi phạm 1/7 tiêu chí (legal xác nhận + TP OPS duyệt trong 24h).
+
+**Hệ thống liên quan:** CORE — gate engine, đếm vòng sửa, hard block tầng API; WEB — soạn proposal từ template, checklist Brand Safety; M-INT — OPS_PLAN/TL duyệt concept, nhận escalate quá SLA gate.
+
+#### REQ-OPS-006: Campaign & Deliverable Management
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** toàn phòng OPS (CONT/DES/EDIT/ADS), OPS_AM nghiệm thu, TL duyệt.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] WBS + lịch nội dung theo dự án; gán task qua capacity check bắt buộc.
+- [ ] Duyệt creative đa vai theo pipeline: CONT soạn → DES/EDIT sản xuất → AM/Planner duyệt; mỗi vòng có trạng thái, cấm tự duyệt task của mình.
+- [ ] **Campaign change log bất biến**: đổi ngân sách/bid ghi lý do bắt buộc, lưu giá trị cũ/mới, ai, khi nào; phân bậc duyệt buyer tự quyết trong hạn mức ngày → TL vượt hạn mức ngày → AM vượt hạn mức dự án.
+- [ ] Nghiệm thu theo milestone; khách tự theo dõi tiến độ.
+
+**Quy tắc nghiệp vụ:** policy `kiem-soat-vi-tkqc-giao-dich-tien.md` §2.4 (hạn mức ngân sách theo bậc); naming/UTM và "campaign không gắn dự án = không tồn tại" theo REQ-OPS-001.
+
+**Hệ thống liên quan:** CORE — workflow duyệt, change log bất biến; GW — chi tiêu thực tế theo campaign để đối chiếu hiệu quả; WEB — lịch nội dung, pipeline creative; M-INT — TL/AM duyệt creative và duyệt tăng ngân sách vượt hạn mức khi di chuyển; PORTAL/M-PORTAL — khách xem tiến độ nghiệm thu theo milestone (realtime, chỉ tenant của mình).
+
+#### REQ-OPS-007: Capacity & Timesheet
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** toàn bộ OPS (ghi), TL duyệt, OPS_PLAN cân đối.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Ghi timesheet hằng ngày với **nhãn Client Billable / Internal Non-billable bắt buộc tại nguồn**; cấm sửa nhãn sau ghi — sai sót tạo correction qua audit log bất biến.
+- [ ] Capacity utilization theo tuần: dưới tải <70% cảnh báo TL; **vàng >90% dừng gán tự động** (gán mới phải TL duyệt); **đỏ ≥100% chặn cứng gán vượt**; khẩn cấp khách tối đa 110% trong ≤5 ngày làm việc liên tục, có log.
+- [ ] Capacity check bắt buộc trước mọi gán task và tại Gate 2; SLA 4h → escalate TL (8h → HR_L2).
+- [ ] **Ranh giới thẩm quyền (ghi rõ):** duyệt timesheet thuộc TL trong 48h (cấm tự duyệt, approver ≠ người ghi); giờ chưa duyệt không vào P&L; điều chỉnh định mức giờ/tuần và tỷ lệ billable mục tiêu thuộc **HR_L2 đề xuất → BOD duyệt** — OPS chỉ sử dụng, không tự thay.
+
+**Quy tắc nghiệp vụ:** policy `timesheet-capacity.md` §2.1–2.6 — 40h chuẩn/tuần, trần ghi nhận 48h gồm OT, OT ≤8h/tuần duyệt trước (retro 24h cho sự cố khẩn cấp); tỷ lệ billable mục tiêu L1 ≥80% → L5 20–30%; nhân sự mới tuần đầu 100% Internal Non-billable.
+
+**Hệ thống liên quan:** CORE — capacity engine, validation nhãn theo cặp loại dự án, chặn tự duyệt; WEB — nhập timesheet, duyệt, dashboard nhóm của TL; M-INT — ghi nhanh cuối ngày, TL duyệt trên di động, push cảnh báo ghi chậm/quá tải.
+
+#### REQ-OPS-008: SLA & Notification Engine
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** OPS_AM (bảo vệ SLA), TL, toàn bộ OPS nhận việc từ ticket/task.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Áp động ma trận **tier × priority** (Tier E nhanh nhất — Tier A chậm nhất; riêng Critical chạy 24/7) theo policy `sla-khach-hang.md` §2.1; cam kết hợp đồng cao hơn ma trận thì ghi đè theo profile khách.
+- [ ] SLA clock: mốc GMT+7, giờ làm việc BC T2–T6 9:00–18:00; pause tự động khi Pending hoặc Blocked-3rd-party (có case ID platform, tối đa 5 ngày LV); khách khai báo lịch làm việc riêng trên portal thì clock High/Medium/Low theo lịch đó.
+- [ ] **Pre-alert 80%** cho assignee + AM; breach 100% báo đỏ AM + CS TL trong ≤5 phút; AM chủ động thông báo khách trong 30 phút theo template (không thông báo là vi phạm riêng).
+- [ ] Escalation tự động; override theo cấp CS TL (gia hạn lần 1 ≤50%) → OPS_PLAN → BOD (miễn theo đợt), bắt buộc lý do + audit log; post-mortem khi ≥3 breach/khách/30 ngày hoặc ≥2 breach cùng root cause/90 ngày.
+- [ ] Trực Critical 24/7 follow-the-sun theo múi giờ khách đa quốc gia [CẦN CHỐT SỐ: bố trí ca trực và nhân sự on-call].
+
+**Hệ thống liên quan:** CORE — SLA engine tính giờ làm việc/múi giờ/pause; WEB — dashboard compliance FR/Res theo tier×priority; M-INT — push pre-alert/breach, duyệt gia hạn trên di động; PORTAL/M-PORTAL — hiển thị đồng hồ SLA song song giờ địa phương khách.
+
+#### REQ-OPS-009: Ticket & CSKH
+
+**Ưu tiên:** Quan trọng (MEDIUM) · **Giai đoạn:** GĐ2 · **Ai cần dùng:** OPS_AM, CS/assignee trong OPS; khách (CLIENT_USER/ADMIN).
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Queue hợp nhất mọi kênh chính thức (portal/email/Zalo) về một hàng đợi theo khách/tier, chống trùng lặp; yêu cầu ngoài scope tự tách change request.
+- [ ] State machine New → Open → Pending → Resolved → Closed; reopen trong 7 ngày giữ ngữ cảnh; Closed tạo ticket mới tham chiếu.
+- [ ] **CSAT tự động** sau Closed (thang 1–5 + câu mở), nhắc tối đa 1 lần sau 48h; detractor ≤2 được liên hệ lại trong 48h làm việc, hành động khắc phục gắn ticket gốc.
+- [ ] **Khiếu nại nghiêm trọng** (khách Tier D/E, mất tiền, sai sót đối soát, đạo đức nhân viên) leo thang BOD trong 24h kèm hồ sơ, OPS_PLAN điều phối.
+- [ ] Trigger escalation bắt buộc: Critical quá First Response, bất kỳ ticket chạm 100% SLA, reopen ≥2 lần, Pending quá 3 ngày LV.
+
+**Hệ thống liên quan:** CORE — queue hợp nhất, state machine, CSAT engine; WEB — nơi assignee xử lý chính; M-INT — assignee nhận việc/phản hồi đầu tiên, nhận push escalation; PORTAL/M-PORTAL — khách tạo ticket, xem trạng thái, trả lời CSAT.
+
+#### REQ-OPS-010: Client Portal Góc Nhìn Ops — Cấp Tài Khoản & Monitor
+
+**Ưu tiên:** Bắt buộc (HIGH) · **Giai đoạn:** GĐ3 · **Ai cần dùng:** OPS_AM (chính); khách CLIENT_ADMIN/CLIENT_USER.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] AM **cấp/kích hoạt tài khoản portal tại milestone onboarding**: Day 1 — tạo CLIENT_ADMIN đầu tiên + gửi invite; Day 7 — ≥80% user kích hoạt, 2FA bật 100%; **Day 14 — GATE "khách kích hoạt portal thành công"** (khách tự xem được số dư + chi tiêu + ticket; ≥1 login/tuần từ ≥2 user); Day 30 — review adoption + thu feedback.
+- [ ] Gate Day 14 trượt → escalate root cause lên CS TL trong 24h, kế hoạch khắc phục có owner + deadline; gate là điều kiện nghiệm thu giai đoạn onboarding.
+- [ ] Monitor phản hồi ticket và adoption theo khách; số user theo hợp đồng (mặc định 2 CLIENT_ADMIN + 10 CLIENT_USER, mở rộng theo tier).
+- [ ] Kiểm soát ranh giới dữ liệu: khách thấy ví read-only/chi tiêu daily/tiến độ/ticket, **không thấy** giá vốn, chiết khấu, P&L, ghi chú nội bộ; watermark mọi download.
+- [ ] Cấp/thu hồi CLIENT_ADMIN: AM đề xuất + xác nhận danh tính POC trong 1 ngày làm việc; portal user do CLIENT_ADMIN tự quản, nội bộ không tạo hộ.
+
+**Hệ thống liên quan:** PORTAL — trải nghiệm khách chính trên web (đa ngôn ngữ/múi giờ, tenant isolation); M-PORTAL — cùng nội dung trên mobile kèm push cảnh báo; CORE — tenant isolation + provisioning tài khoản portal; WEB — AM thao tác cấp tài khoản, theo dõi adoption; M-INT — AM nhận push ticket mới/phản hồi khách và cảnh báo trượt gate.
+
+#### REQ-OPS-011: TikTok Shop Monitoring
+
+**Ưu tiên:** Quan trọng (MEDIUM) · **Giai đoạn:** GĐ3 · **Ai cần dùng:** OPS_AM, OPS_ADS, TL; phối hợp FIN_L1 đối soát settlement.
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Theo dõi **GMV/đơn/settlement/shop health theo khách** qua OAuth per-client (cấm ủy quyền gom chung); access log bất biến; thu hồi ủy quyền trong 24h khi hết HĐ; OAuth hết hạn giữa chừng → cảnh báo và dừng kéo dữ liệu mới.
+- [ ] **Tách bạch tuyệt đối**: GMV/settlement là chỉ số tham chiếu thuộc về khách — chặn mọi mapping vào doanh thu agency; doanh thu BC chỉ từ phí dịch vụ + phí ads thu hộ.
+- [ ] Lifecycle 3 Gate: Verification (thẩm định chủ shop + giấy phép ngành hàng, cảnh báo hết hạn) → Go-live (SM ký + baseline KPI chốt lúc bàn giao) → Đối soát định kỳ settlement vs đơn vs ads theo tần suất HĐ (mặc định hàng tháng).
+- [ ] Mask PII người mua cuối mặc định (SĐT/địa chỉ/tên); dữ liệu đầy đủ chỉ trong phiên có TTL, không persist.
+- [ ] **Ranh giới: KHÔNG làm OMS/WMS** — chỉ monitoring, không quản lý đơn/fulfillment.
+
+**Quy tắc nghiệp vụ:** policy `tiktok-shop-du-lieu-gmv-tham-dinh.md` §2.1–2.5; checklist thẩm định chủ shop/giấy phép là điều kiện Gate 1.
+
+**Hệ thống liên quan:** GW — kết nối OAuth per-client, pull dữ liệu, xử lý PII phiên TTL; CORE — workflow 3 Gate, validation chặn mapping GMV vào sổ doanh thu; WEB — dashboard GMV/shop health theo khách; M-INT — cảnh báo shop health bất thường/ủy quyền sắp hết hạn. **Không có bản portal** — GMV không thuộc nhóm dữ liệu khách thấy mặc định; nếu khách yêu cầu hiển thị theo hợp đồng → cấu hình riêng [CẦN CHỐT SỐ: phạm vi chỉ số GMV hiển thị cho khách].
+
+#### REQ-OPS-012: A/B Testing & Chiến Lược Campaign Theo Mục Tiêu Khách
+
+**Ưu tiên:** Quan trọng (MEDIUM) · **Giai đoạn:** GĐ2 (thiết kế thử nghiệm gắn campaign) → GĐ3 (phân tích chéo đầy đủ) · **Ai cần dùng:** OPS_ADS (thực hiện), OPS_PLAN (duyệt chiến lược), OPS_AM (cập nhật khách).
+
+**Tôi cần hệ thống làm được:**
+
+- [ ] Đăng ký thử nghiệm A/B gắn campaign: giả thuyết, mục tiêu theo mục tiêu khách (conversion/traffic/awareness), variant, KPI đo, thời lượng, ngân sách — Planner duyệt trước khi triển khai.
+- [ ] Truy vết kết quả theo variant từ dữ liệu nền tảng; chống giao thoa audience; đề xuất dừng/khai thắng variant khi đạt ngưỡng [CẦN CHỐT SỐ: chuẩn sample size/confidence nội bộ].
+- [ ] Thư viện learning log theo khách/ngành để tái sử dụng chiến lược; mọi thay đổi ngân sách trong thử nghiệm vẫn qua campaign change log bất biến.
+- [ ] Không cam kết KPI cứng cho khách ngoài hợp đồng (chỉ cam kết đầu vào).
+
+**Hệ thống liên quan:** CORE — đối tượng thử nghiệm, tổng hợp KPI theo variant; GW — dữ liệu hiệu quả theo variant từ API nền tảng (nhãn `manual` khi degraded); WEB — thiết kế thử nghiệm + dashboard kết quả; M-INT — thông báo kết quả/đề xuất dừng variant cho OPS_ADS.
+
+---
+
+### A4. Dữ Liệu Phòng Ban Cần Quản Lý
+
+| STT | Loại dữ liệu | Thông tin cần lưu | Ghi chú quan trọng |
+|-----|-------------|------------------|--------------------|
+| 1 | Tài khoản QC (TKQC) | Platform, platform ID, naming, số dư, spend limit, owner/backup, khách, trạng thái vòng đời | 1 owner + 1 backup; evidence die bất biến |
+| 2 | Lệnh ví | Top-up/refund/điều chỉnh, trạng thái khớp tiền, người đề xuất/duyệt, căn cứ | Cấm lệnh ngoài hệ thống; dual approval nhóm rủi ro cao |
+| 3 | Dự án & WBS | Stage V6.0, done criteria, milestone, deliverable, vòng sửa proposal | Change log bất biến; hard gate thiếu điều kiện |
+| 4 | Timesheet | Giờ, nhãn billable, dự án, trạng thái duyệt, correction | Cấm sửa nhãn sau ghi; correction qua audit log |
+| 5 | Ticket | Kênh, tier × priority, SLA clock, trạng thái, CSAT | State machine chuẩn; escalation có timestamp |
+| 6 | Portal account | CLIENT_ADMIN/USER, 2FA, milestone adoption Day 1/7/14/30 | Tenant isolation tuyệt đối |
+| 7 | TikTok Shop | Shop, GMV/settlement, giấy phép ngành hàng, baseline KPI, scope OAuth | Mask PII; tách bạch khỏi P&L agency |
+
+---
+
+### A5. Báo Cáo & Thống Kê Cần Có
+
+| STT | Tên báo cáo | Nội dung hiển thị | Tần suất | Người xem |
+|-----|------------|-------------------|----------|-----------|
+| 1 | Command Center dashboard | Số dư/spend limit/trạng thái TKQC theo khách/platform, TK die | Realtime (dữ liệu tươi ≤1h) | OPS_ADS, TL, OPS_AM |
+| 2 | Ví & ngày chi dự kiến | Alert đỏ, escalation treo, lệnh nạp chờ khớp tiền | Hằng ngày | OPS_ADS, OPS_AM, TL |
+| 3 | SLA compliance | FR/Res theo tier×priority, breach, MTTR, breach lặp lại | Tuần/tháng | OPS_AM, CS TL, OPS_PLAN, BOD |
+| 4 | Capacity & billable | Utilization nhóm, billable thực tế vs mục tiêu theo bậc, giờ chậm duyệt | Tuần | OPS_PLAN, TL, HR_L2 |
+| 5 | Gate pass rate | SLA từng gate V6.0, vòng sửa proposal, Brand Safety fail | Tuần | OPS_PLAN |
+| 6 | Onboarding adoption | Milestone Day 1/7/14/30, login portal, activation rate | Theo từng khách | OPS_AM |
+
+---
+
+### A6. Điều Phòng Ban KHÔNG Muốn
+
+- Không muốn mất quyền xử lý khẩn cấp TKQC ngoài giờ — xử lý 24/7 được phép, nhưng mọi lệnh vẫn qua hệ thống, không có lối tắt ngoài lệnh.
+- Không muốn khách nhìn thấy ghi chú nội bộ AM, giá vốn, chiết khấu, P&L trên portal.
+- Không muốn GMV TikTok Shop bị hạch toán vào doanh thu agency — red line kiểm soát tài chính.
+- Không muốn giờ dự án nội bộ bị ghi nhầm nhãn Client Billable vào dự án khách (và ngược lại).
+- Không muốn duy trì Google Sheets song song sau go-live — migration một lần có kiểm soát, một nguồn sự thật.
+- Không muốn evidence die account bị sửa hậu kiểm — snapshot tại thời điểm xảy ra phải bất biến.
+
+---
+
+### A7. Đánh Giá Của Team Expert
+
+> *Phần dành cho Team Expert điền sau khi đọc và đánh giá Phần A — hiện đang chờ review.*
+
+| Hạng mục | Kết quả | Ghi chú |
+|----------|---------|---------|
+| Mức độ đầy đủ | Chờ đánh giá | |
+| Tính khả thi | Chờ đánh giá | |
+| Độ rõ ràng | Chờ đánh giá | |
+| Trùng lặp với phòng ban khác | Chờ đánh giá | REQ-OPS-002/003 (phối hợp FIN), REQ-OPS-007 (ranh giới HR), REQ-OPS-004 (phối hợp Sales) cần đối chiếu chéo khi các department file khác hoàn tất |
+
+---
+
+## Phần B — Quy Trình Nghiệp Vụ & Business Rules (Paid Media Expert — Call 1/2)
+
+> **Người viết:** paid-media-expert (Call 1/2) — phạm vi **B.1–B.5**, nhóm paid media & ad ops: REQ-OPS-001/002/003/004/011/010.
+> **Call 2/2:** B.6+ (proposal & stage-gate, campaign & deliverable, capacity/timesheet, SLA engine, ticket, A/B testing — REQ-OPS-005/006/007/008/009/012) do **marketing-expert** viết ở call-2 — không thuộc phạm vi bản này.
+> Mỗi rule ghi rõ: **Actor** (ai thực hiện) · **Hệ thống** (system nào thực thi, theo bản riêng từng system) · **Điều kiện** (khi nào áp dụng) · **Exception** (trường hợp đặc biệt).
+
+### B.1. Ad Account Command Center — Vòng Đời TKQC (REQ-OPS-001)
+
+Vòng đời 5 trạng thái: **Khởi tạo → Khớp tiền → Cấp phát → Vận hành → Thu hồi/Đóng**. Mọi chuyển trạng thái ghi audit log bất biến (ai, khi nào, từ/sang trạng thái nào, căn cứ).
+
+**BR-OPS-1.1 — Đăng ký TKQC mới**
+- Actor: OPS_ADS tạo yêu cầu đăng ký khi có demand/booking từ khách; TL duyệt danh mục nền tảng.
+- Hệ thống: WEB (form đăng ký, chọn platform/khách/dự án) → CORE (sinh mã theo naming, tạo bản ghi registry trạng thái "Khởi tạo — chưa hoạt động", gắn project, audit log) → GW (nối platform ID sau khi tạo trên platform).
+- Điều kiện: TK mới luôn bắt đầu ở "Khởi tạo", chưa bật chi tiêu; xác định owner + backup ngay từ đăng ký.
+- Exception: TK Internal-Sandbox không gắn khách (ngân sách thật ≤ mức TL duyệt, rà soát theo quý); client-owned TK ghi rõ quyền sở hữu — BC không nạp tiền, hard stop áp dụng ở mức đo lường.
+
+**BR-OPS-1.2 — Naming convention + UTM bắt buộc**
+- Chuẩn: `[ClientCode]-[Platform]-[Objective]-[Market]-[YYMM]` (VD `FMCG01-META-CONV-VN-2609`).
+- Hệ thống: CORE validator chặn tạo/sửa naming sai chuẩn ở tầng API; `utm_source`/`utm_medium`/`utm_campaign` sinh tự động từ naming — chặn sửa tay ở cả WEB (form) và GW (khi đẩy qua API platform).
+- Điều kiện: áp dụng mọi TK/campaign/adset/ad thuộc mọi khách, kể cả client-owned.
+- Exception: khách yêu cầu chuẩn riêng → TL duyệt ≤1 ngày làm việc, ghi lý do vào change log.
+
+**BR-OPS-1.3 — Campaign bắt buộc gắn project**
+- Actor: hệ thống (tự động) + OPS_ADS khắc phục.
+- Hệ thống: CORE job quét định kỳ — campaign không gắn dự án bị tự pause (thực thi qua GW khi có quyền API platform) và tạo task gắn dự án trong 4h làm việc; cấm report/hạch toán chi tiêu về khách tới khi gắn xong.
+- Exception (degraded mode): chưa có quyền API → task pause tay cho OPS_ADS, dữ liệu gắn nhãn `manual`.
+
+**BR-OPS-1.4 — Ownership: 1 khách + 1 owner + 1 backup (không chia sẻ login)**
+- Điều kiện: mỗi TK đúng 1 owner (chịu trách nhiệm chi tiêu) + đúng 1 backup; tối đa 2 quyền edit; cấm dùng chung email/mật khẩu/2FA — vi phạm thu hồi quyền ngay + kỷ luật. RBAC 4 mức: edit (owner + backup) / view-only (TL, AM, FIN) / billing (FIN_L1 — thao tác tài chính, không sửa ngân sách chiến dịch) / admin (quản trị, không chỉnh chi tiêu).
+- Hệ thống: CORE registry map chặt + cảnh báo TK thiếu owner/backup và owner sắp nghỉ; WEB màn hình gán quyền; M-INT push cảnh báo (từ GĐ2).
+- Đổi owner/backup: TL duyệt ≤1 ngày làm việc.
+
+**BR-OPS-1.5 — Vận hành: số dư / spend limit / trạng thái sync**
+- Hệ thống: GW pull hourly 7 nền tảng (đủ vòng 2.600+ TK trong ≤60 phút, retry/backoff, lưu raw payload), dữ liệu tươi ≤1h; WEB Command Center hiển thị số dư/spend limit/trạng thái kèm freshness; M-INT push cảnh báo die/thiếu owner.
+- Exception: chưa có quyền API hoặc connector lỗi → dữ liệu degraded gắn nhãn `manual` + nguồn + timestamp (xem BR-OPS-1.8).
+
+**BR-OPS-1.6 — Die account: phát hiện → evidence → khôi phục/thay thế**
+- Phát hiện: GW sync phát hiện trạng thái platform (bị khóa/hạn chế), hoặc OPS_ADS ghi nhận tay khi phát hiện ngoài hệ thống.
+- Actor: OPS_ADS ghi nhận; TL duyệt đóng TK theo SLA policy ví.
+- Hệ thống: evidence chụp **tại thời điểm xảy ra** (snapshot màn hình số dư, thông báo platform, timestamp chính xác) — WEB upload, CORE lưu evidence store bất biến (hash, không sửa/xóa hậu kiểm).
+- Quy trình thay thế: kích hoạt TK dự phòng (mỗi khách ≥1 TK dự phòng đã khởi tạo trên platform chính, chưa bật chi tiêu) → qua Hard Stop khớp tiền (BR-OPS-2.1) → chuyển hướng vận hành trong 4h làm việc. Khôi phục TK gốc chỉ khi platform gỡ hạn chế và xác nhận; lịch sử die theo platform dùng đánh giá rủi ro khi quyết định nạp TK khách mới.
+
+**BR-OPS-1.7 — Thu hồi/khóa access (handoff HR offboarding)**
+- Điều kiện: sự kiện nghỉ việc/chuyển dự án/thay owner từ HR.
+- Hệ thống: HR_L1 ghi sự kiện → CORE tự revoke quyền TKQC trong **24h** + sinh task bàn giao cho backup; SYS_ADMIN rotate credentials liên quan trong vault; khi đóng TK kết thúc HĐ: TL + FIN_L1 xác nhận hết dư nợ (2 ngày làm việc) — thu hồi access, snapshot evidence, archive dữ liệu.
+
+**BR-OPS-1.8 — Đăng ký quyền quảng cáo/API 7 nền tảng + Business Verification + degraded mode "manual"**
+- Actor: SYS_ADMIN/CTO đăng ký developer account & Business Verification từng platform (Meta Business Verification, Google Ads API, TikTok for Business, Bing, X, Pinterest, Yandex); MFA bắt buộc 100% tài khoản quản trị.
+- Checklist Business Verification: pháp nhân BC + giấy ĐKKD khớp domain/website, tài khoản quản trị bật MFA, user quản lý được xác minh, dùng dữ liệu đúng chính sách platform.
+- Cho đến khi có API: degraded mode "manual" là trạng thái vận hành chính thức — import statement chuẩn hóa + nhập tay có cấu trúc (đúng schema registry), gắn nhãn `manual` + nguồn + timestamp; khi được cấp API → backfill tự động và đối chiếu số `manual` vs API trước khi chuyển nguồn.
+- Credentials lưu vault mã hóa — chỉ CTO/Super Admin quản trị, rotate ≥90 ngày, không trả plaintext về UI; **vault chỉ thao tác trên WEB nội bộ với MFA, mobile cấm hiển thị credentials**.
+
+### B.2. Financial Hard Stop & Ví TKQC góc ads-ops (REQ-OPS-002/003)
+
+**BR-OPS-2.1 — Luồng cấp phát TK qua Hard Stop**
+- Actor: OPS_AM/OPS_ADS đề xuất nạp → FIN_L1 khớp tiền.
+- Luồng: tạo lệnh đề xuất nạp trên WEB → FIN_L1 đối soát (tiền khách đã về tài khoản BC và khớp số với lệnh nạp) và xác nhận **"Đã khớp tiền"** (FIN_L1) trên CORE → hard stop mở, TK chuyển "Cấp phát", owner nhận quyền.
+- Điều kiện chặn: trạng thái khớp tiền ≠ "Đã khớp tiền" → chặn cứng ở cả UI (WEB) lẫn API (CORE); **không nút override, không trạng thái "chờ duyệt"**; "khách hứa chuyển/đang chuyển/sếp đã OK" không có giá trị mở khóa; mọi yêu cầu mở khóa thủ công bị từ chối và ghi audit log bất biến. **Không vai nào bypass — kể cả Giám đốc, kể cả Super Admin.**
+- Exception: **không có exception.** Khẩn cấp ngoài giờ vẫn chỉ mở khi đã khớp tiền — xử lý nhanh hơn, không bỏ bước.
+
+**BR-OPS-2.2 — Thu hồi xác nhận khớp tiền**
+- Actor: FIN_L1 phát hiện khớp sai → thu hồi xác nhận → CORE tự chuyển TK về "Tạm dừng chi tiêu", khóa lệnh nạp mới, alert TL. WEB hiển thị trạng thái khóa; M-INT chỉ nhận alert thông tin (không có action).
+
+**BR-OPS-2.3 — Cảnh báo số dư 3 mức (đủ chi ≥3 ngày)**
+- CORE tính average daily spend 7 ngày rolling (cập nhật hằng ngày) per TK/platform: **Xanh** (đủ chi ≥3 ngày — không hành động) / **Vàng** (<3 ngày — owner lập kế hoạch nạp, thông báo AM) / **Đỏ** (<1 ngày hoặc dưới mức tối thiểu platform — vào SLA đỏ).
+- Hệ thống: GW cung cấp số dư/spend tươi ≤1h (nhãn `manual` khi degraded); CORE so ngưỡng + bắn alert; WEB dashboard số dư + "số ngày chi dự kiến" theo platform/khách; M-INT push alert đỏ cho owner.
+
+**BR-OPS-2.4 — SLA đỏ 2h + escalation owner → TL → AM**
+- 0–2h làm việc: OPS_ADS (owner) phải thực hiện 1 trong 2 hành động trên hệ thống: **tạo lệnh đề xuất top-up** hoặc **giảm ngân sách** kéo dài số ngày chi được.
+- Quá 2h không phản hồi → escalate TL; quá 4h → escalate AM — AM chủ động liên hệ khách yêu cầu nạp trong ngày làm việc, thông báo khách trong cùng ngày. Mỗi chặng ghi timestamp.
+- Hệ thống: CORE bộ đếm SLA + auto-escalate; M-INT push và cho phép owner thao tác ngoài giờ; WEB là nơi tạo lệnh chính.
+- Exception: ngoài giờ — escalate qua kênh on-call TL; lệnh vẫn phải tạo trên hệ thống, approval không được bỏ qua.
+
+**BR-OPS-2.5 — Quy tắc lệnh ví (OPS_ADS khi nhận cảnh báo)**
+- Mọi top-up/refund/điều chỉnh **chỉ qua lệnh hệ thống**; cấm xác nhận miệng Zalo/điện thoại/email riêng — FIN từ chối đối chiếu lệnh miệng. OPS_ADS nhận alert đỏ chỉ được **nạp thêm qua lệnh**, không tự ý dùng tiền khách khác đắp ví (cấm mượn chéo ví giữa khách).
+- Dual approval (đề xuất ≠ duyệt) cho 3 nhóm rủi ro cao: điều chỉnh số dư tay, đổi tỷ giá tay, hoàn tiền. SoD 4 vai dòng tiền: **đề xuất (OPS_AM/OPS_ADS) ≠ khớp tiền (FIN_L1) ≠ duyệt chi (FIN_L2) ≠ ghi sổ (kế toán)** — SoD engine chặn 1 người giữ ≥2 vai trong 1 giao dịch.
+- Refund từ platform (TK die còn dư): FIN_L1 khớp tiền hoàn về và ghi có theo giao dịch gốc; hoàn cho khách chỉ sau AM đề xuất + TL duyệt.
+- Hạn mức đổi ngân sách ngày theo cấp buyer do TL cấu hình `[CẦN CHỐT SỐ: ngưỡng VND/ngày theo cấp Junior/Mid/Senior]`.
+
+**Bản riêng theo hệ thống (B.2):** REQ-OPS-002 **chủ ý chỉ có CORE + WEB — không có bản M-INT/PORTAL/M-PORTAL** để không tồn tại nút duyệt nào có thể bypass Hard Stop (mobile với hard stop chỉ nhận thông tin trạng thái, không có action; portal khách không tạo được lệnh). REQ-OPS-003: M-INT nhận push + xử lý/duyệt ngoài giờ; PORTAL/M-PORTAL khách chỉ **xem** lịch sử điều chỉnh ví của mình (trường gắn giá vốn mask thành "điều chỉnh đối soát", read-only tuyệt đối).
+
+### B.3. Handoff & Onboarding — Góc Nhận Bàn Giao (REQ-OPS-004)
+
+**BR-OPS-3.1 — Tiếp nhận Handoff Package 5 nhóm checklist (ký 3 bên)**
+- Actor: OPS_AM tiếp nhận; SM (SALES_L3) ký; hệ thống tự sinh dự án.
+- 5 nhóm checklist bắt buộc (định nghĩa góc OPS nhận bàn giao): **(1) Hợp đồng & phạm vi dịch vụ** (tier, SLA áp dụng, ngân sách); **(2) Tài sản QC & tracking** (TKQC + quyền truy cập, pixel/CAPI/UTM, creative assets, brand guideline); **(3) Mục tiêu & baseline KPI** (theo mục tiêu khách: conversion/traffic/awareness); **(4) Vận hành** (POC khách, ngôn ngữ/múi giờ, lịch họp, lịch làm việc khách); **(5) Điều kiện khởi động** (capacity check, Brand Safety, demand TKQC cần khởi tạo).
+- Điều kiện: Gate 2 chỉ mở khi checklist **100%** (<100% chặn); ký 3 bên: SM ký + hệ thống sinh dự án + AM xác nhận trong **SLA 4h** — từ lúc AM xác nhận, đồng hồ onboarding bắt đầu.
+- Hệ thống: WEB checklist + e-approval ký 3 bên; CORE workflow gate + tự sinh dự án; M-INT AM xác nhận SLA 4h khi di chuyển. Quá SLA escalate TL rồi HR_L2 (8h).
+- Exception: khách tái ký được rút gọn Initial Brief nhưng không bỏ Gate 1/Gate 2.
+
+**BR-OPS-3.2 — Milestone onboarding Day 1/7/14/30 (tiêu chí pass/fail)**
+
+| Mốc | Nội dung góc paid media | Pass | Fail |
+|-----|------------------------|------|------|
+| Day 1 | Tiếp nhận TK + audit cấu hình: map toàn bộ TKQC khách vào registry, audit naming/UTM/quyền platform; tạo CLIENT_ADMIN đầu tiên + gửi invite | 100% TK map đúng naming/owner/backup; danh sách sai lệch có owner khắc phục; khách đăng nhập portal lần đầu | Có TK không map được hoặc naming sai chưa có hành động khắc phục |
+| Day 7 | Cấu hình tracking/UTM: pixel/CAPI/UTM trên nền tảng chính; kiểm tra quyền API hoặc thiết lập degraded | Tracking xác nhận chạy (≥1 conversion test); ≥80% portal user kích hoạt; 2FA 100% | Tracking chưa chạy được hoặc 2FA <100% |
+| Day 14 | **GATE: kích hoạt portal thành công** | Khách tự xem được số dư + chi tiêu + ticket; ≥1 login/tuần từ ≥2 user | Trượt gate → escalate root cause lên CS TL trong 24h, kế hoạch khắc phục có owner + deadline; gate là điều kiện nghiệm thu giai đoạn onboarding |
+| Day 30 | Review đầu tiên: số liệu 30 ngày đầu vs baseline, kế hoạch tối ưu | Báo cáo review gửi khách; feedback ghi nhận; ticket đầu tiên qua portal (nếu phát sinh) | Không có review hoặc baseline chưa chốt |
+
+- Hệ thống: CORE theo dõi mốc + cảnh báo trượt; WEB checklist milestone; M-INT push trượt mốc cho AM; PORTAL/M-PORTAL là bề mặt khách thực hiện phần activation.
+
+### B.4. TikTok Shop Monitoring (REQ-OPS-011)
+
+**BR-OPS-4.1 — OAuth per-client + log truy cập + thu hồi khi hết HĐ**
+- Actor: AM đề xuất kết nối/mở scope; SM duyệt (2 ngày làm việc).
+- Điều kiện: mỗi shop 1 ủy quyền OAuth riêng từng khách, scope ghi rõ; cấm ủy quyền gom chung nhiều shop, cấm đăng nhập chủ shop chia sẻ.
+- Hệ thống: GW thực thi OAuth + lưu scope + access log bất biến (ai, khi nào, API/đối tượng dữ liệu, scope); OAuth hết hạn giữa chừng → cảnh báo + dừng kéo dữ liệu mới, không tự xin mở rộng scope thiếu đồng ý khách; **thu hồi ủy quyền trong 24h** khi hết HĐ/khách yêu cầu — tự động theo sự kiện HĐ + AM xác nhận bằng văn bản cho khách.
+- Exception: khách từ chối cấp OAuth → BC không truy cập dữ liệu; báo cáo ghi nguồn "theo số liệu khách cung cấp", không chịu trách nhiệm đối soát.
+
+**BR-OPS-4.2 — Mask PII + isolation giữa shops**
+- Mask mặc định: SĐT `090****123`, địa chỉ chỉ còn tỉnh/huyện, tên người mua cuối; dữ liệu đầy đủ chỉ trong phiên có TTL, không persist vào DB.
+- Tenant isolation: dữ liệu shop A không bao giờ xuất hiện trong báo cáo/API/export của shop B (tách theo tenant + client code); test truy cập chéo hàng quý.
+- Hệ thống: CORE mask ở tầng API + Row-Level Security theo tenant; GW xử lý phiên TTL.
+
+**BR-OPS-4.3 — Sync GMV/đơn/settlement/shop health qua API**
+- Hệ thống: GW pull theo OAuth per-client; CORE tổng hợp theo khách; WEB dashboard GMV/shop health; M-INT cảnh báo shop health bất thường/ủy quyền sắp hết hạn.
+- Ranh giới: **KHÔNG làm OMS/WMS** — chỉ monitoring, không quản lý đơn/fulfillment; chỉ nhận fulfillment khi HĐ quy định rõ phạm vi + trách nhiệm + phí và SLA riêng đính kèm.
+
+**BR-OPS-4.4 — Tách bạch tuyệt đối GMV khỏi P&L agency**
+- Điều kiện: áp dụng mọi báo cáo và bút toán có dữ liệu TikTok Shop.
+- Hệ thống: CORE validation chặn mọi mapping GMV/settlement vào tài khoản doanh thu trên sổ kế toán (chặn tầng API, không chỉ UI).
+- Doanh thu BC chỉ từ **phí dịch vụ + phí ads thu hộ** (+ phí vận hành shop nếu HĐ quy định). HĐ chia share theo GMV (nếu có): ghi nhận phần share theo HĐ sau khi settlement đối soát khớp — không bao giờ ghi nhận toàn bộ GMV.
+
+**BR-OPS-4.5 — Lifecycle 3 Gate + checklist thẩm định chủ shop & giấy phép ngành hàng**
+- **Gate 1 Verification:** checklist chủ shop (giấy ĐKKD/hộ kinh doanh, người đại diện pháp luật, chứng từ sở hữu shop, khớp người ký HĐ với chủ shop) + giấy phép ngành hàng theo chính sách TikTok Shop hiện hành (thực phẩm chức năng, mỹ phẩm, thực phẩm tươi sống, health care… phải có giấy phép con hợp lệ); lưu ngày hết hạn + cảnh báo trước hạn. AM + FIN_L1 đối chiếu pháp lý.
+- **Gate 2 Go-live:** SM ký duyệt; baseline KPI chốt lúc bàn giao (GMV hiện tại, ADS, tỷ lệ chuyển đổi, tình trạng shop).
+- **Gate 3 Đối soát định kỳ:** settlement vs đơn vs ads theo tần suất HĐ (mặc định hàng tháng); chênh lệch vượt ngưỡng → điều tra ≤3 ngày làm việc (FIN_L1 + AM).
+- Exception: khách tự vận hành shop, BC chỉ chạy ads → Gate 1 rút gọn (ownership + scope đọc), không cần Gate 2 full.
+
+**BR-OPS-4.6 — Cảnh báo SLA shop**
+- Cảnh báo: shop bị hạn chế/khóa, GMV/settlement lệch bất thường, giấy phép & OAuth sắp hết hạn, baseline lệch → push M-INT cho OPS_ADS/AM; xử lý theo SLA ticket của khách (ma trận tier×priority — REQ-OPS-008). Không SLA riêng cho fulfillment (ngoài phạm vi).
+
+### B.5. Client Portal — Góc Ops (REQ-OPS-010)
+
+**BR-OPS-5.1 — AM cấp/kích hoạt tài khoản khách (mốc Day 14 là gate)**
+- Day 1: AM tạo CLIENT_ADMIN đầu tiên (WEB → CORE provisioning) + gửi invite; Day 7: ≥80% user kích hoạt, 2FA 100%; Day 14: **GATE kích hoạt portal thành công** (tiêu chí như BR-OPS-3.2); Day 30: review adoption + thu feedback.
+- Cấp/thu hồi CLIENT_ADMIN: AM đề xuất + xác nhận danh tính POC trong 1 ngày làm việc; portal user do CLIENT_ADMIN tự quản — nội bộ/SYS_ADMIN không tạo hộ; số user theo hợp đồng (mặc định 2 CLIENT_ADMIN + 10 CLIENT_USER, mở rộng theo tier).
+- Hệ thống: WEB thao tác AM + monitor adoption; CORE provisioning + tenant; PORTAL/M-PORTAL trải nghiệm khách; M-INT push ticket mới/phản hồi khách + cảnh báo trượt gate.
+
+**BR-OPS-5.2 — Tenant isolation**
+- Row-Level Security PostgreSQL + filter `tenant_id` ở tầng API; Portal gọi Portal API Gateway riêng, tách network zone, chỉ đọc qua view tổng hợp đã lọc — không bao giờ chạm DB nội bộ; 2FA/OTP bắt buộc; session timeout; khóa sau 5 lần sai mật khẩu. Khách đa nhãn hàng: mỗi pháp nhân/nhãn hàng 1 tenant riêng, không chia sẻ dữ liệu chéo.
+
+**BR-OPS-5.3 — Ranh giới dữ liệu khách thấy / không thấy**
+- **Thấy:** số dư ví TKQC (read-only, theo từng TK của khách), chi tiêu thực tế daily theo TK/campaign, tiến độ nghiệm thu theo milestone, ticket của chính khách, lịch nạp (đã thực hiện + kế hoạch cam kết).
+- **Không thấy:** giá vốn & chiết khấu nội bộ từ platform, P&L/biên lợi nhuận, tỷ giá nội bộ dùng cho hoạch định, dữ liệu khách khác, ghi chú nội bộ AM/vận hành, health score/churn nội bộ. Lịch sử điều chỉnh ví hiển thị với trường gắn giá vốn mask thành "điều chỉnh đối soát".
+- Ví **read-only tuyệt đối** từ phía khách — mọi thay đổi số dư chỉ do nội bộ theo policy ví; watermark (tên user + thời điểm) mọi download + log download.
+- Hệ thống: mask thực thi ở tầng API (CORE), không chỉ ẩn ở UI của PORTAL/M-PORTAL.
+
+**BR-OPS-5.4 — Disclaimer độ trễ dữ liệu**
+- Mọi chỉ số kèm nhãn nguồn + thời điểm cập nhật cuối + độ trễ: số dư 15 phút–24h tùy nền tảng ("số dư tham chiếu; số chính thức theo đối soát cuối ngày với platform"); chi tiêu daily 3–24h ("số liệu platform có thể điều chỉnh hồi tố theo timezone platform"); tiến độ/ticket/lịch nạp realtime. Cấm hiển thị số dư/chi tiêu không kèm timestamp. Số đang tranh chấp: hiển thị "Đang đối soát" + số tham chiếu, không hiện như số chính thức.
+- Hệ thống: GW cung cấp freshness metadata; CORE lưu nguồn; PORTAL/M-PORTAL hiển thị disclaimer bắt buộc.
+
+**BR-OPS-5.5 — Xử lý phản hồi của khách trên portal**
+- Khách tạo ticket/comment trên PORTAL/M-PORTAL → CORE queue hợp nhất (theo REQ-OPS-009, chống trùng lặp); AM nhận push M-INT; xử lý theo SLA tier×priority; hành động nhạy cảm phía khách (thêm user, xuất dữ liệu, đổi mật khẩu) thêm một lớp OTP.
+- Khách phản đối số liệu → AM khởi tạo đối soát, portal hiển thị trạng thái "Đang đối soát"; khiếu nại nghiêm trọng (Tier D/E, mất tiền, sai sót đối soát, đạo đức nhân viên) leo thang BOD trong 24h kèm hồ sơ, OPS_PLAN điều phối.
+
+### Ma Trận Business-Rules × System (Call 1)
+
+| Business Rule | CORE | WEB | GW | PORTAL-WEB | MOBILE-INT | MOBILE-PORTAL | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| BR-OPS-1.1–1.2 Đăng ký + naming/UTM | X (validator, audit) | X (form) | X (đẩy API) | — | — | — | Chỉ nội bộ |
+| BR-OPS-1.3 Gắn project | X (quét, pause, task) | — | X (pause qua API) | — | — | — | Degraded: task tay |
+| BR-OPS-1.4 Ownership 1+1 | X | X | — | — | X (cảnh báo) | — | RBAC 4 mức |
+| BR-OPS-1.5 Sync vận hành | X (registry) | X (Command Center) | X (hourly ≤1h) | — | X (push) | — | Nhãn `manual` |
+| BR-OPS-1.6 Die account | X (evidence bất biến) | X (ghi nhận) | X (phát hiện) | — | X (push) | — | TK dự phòng ≤4h |
+| BR-OPS-1.7 Thu hồi 24h | X (auto revoke) | — | X (revoke + rotate vault) | — | X (task handoff) | — | Sự kiện từ HR |
+| BR-OPS-1.8 Business Verification + degraded | X (schema, nhãn) | X (import/nhập tay) | X (adapter, backfill) | — | — | — | Vault: chỉ WEB MFA, mobile cấm |
+| BR-OPS-2.1 Hard Stop | X (chặn tầng API) | X (UI khóa) | — | — | — | — | **Không mobile/portal — chủ ý, chống bypass** |
+| BR-OPS-2.2 Thu hồi khớp tiền | X (tự pause, khóa nạp) | X (hiển thị) | — | — | X (alert TL) | — | M-INT chỉ nhận thông tin |
+| BR-OPS-2.3–2.4 Cảnh báo + SLA đỏ 2h | X (engine, SLA clock, escalation) | X (dashboard, tạo lệnh) | X (số dư ≤1h) | X (khách xem lịch sử) | X (push + thao tác ngoài giờ) | X (khách xem) | Mỗi chặng có timestamp |
+| BR-OPS-2.5 Lệnh ví + dual approval + SoD | X (SoD engine) | X (tạo lệnh) | — | X (view-only, mask) | X | X (view-only) | Cấm lệnh miệng |
+| BR-OPS-3.1 Handoff 5 nhóm, ký 3 bên | X (gate, sinh dự án) | X (checklist, e-approval) | — | — | X (AM xác nhận 4h) | — | SLA 4h bắt đầu onboarding |
+| BR-OPS-3.2 Milestone D1/7/14/30 | X (tracking mốc) | X (checklist) | — | X (activation phía khách) | X (push trượt mốc) | X (kích hoạt) | Gate Day 14 |
+| BR-OPS-4.1 OAuth per-client | X (workflow) | — | X (OAuth + access log) | — | X (cảnh báo hết hạn) | — | Thu hồi 24h |
+| BR-OPS-4.2 Mask PII + isolation | X (mask tầng API, RLS) | — | X (phiên TTL) | — | — | — | Test chéo quý |
+| BR-OPS-4.3 Sync shop health/GMV | X (tổng hợp) | X (dashboard) | X (pull API) | — | X (push) | — | Không OMS/WMS |
+| BR-OPS-4.4 Tách bạch GMV | X (chặn mapping doanh thu) | — | — | — | — | — | Red line tài chính |
+| BR-OPS-4.5–4.6 3 Gate + cảnh báo shop | X (workflow gate) | X (checklist, báo cáo) | X (settlement data) | — | X (push) | — | Không portal — GMV chỉ tham chiếu nội bộ |
+| BR-OPS-5.1 Cấp/kích hoạt portal | X (provisioning) | X (AM thao tác) | — | X (invite/kích hoạt) | X (monitor) | X | GATE Day 14 |
+| BR-OPS-5.2 Tenant isolation | X (RLS) | — | — | X (gateway riêng) | — | X | 2FA/OTP, session timeout |
+| BR-OPS-5.3 Ranh giới dữ liệu | X (mask tầng API) | — | — | X | — | X | Ví read-only, watermark |
+| BR-OPS-5.4 Disclaimer độ trễ | X (nguồn) | — | X (freshness) | X | — | X | Bắt buộc timestamp |
+| BR-OPS-5.5 Phản hồi khách | X (queue hợp nhất) | X (AM xử lý) | — | X (tạo ticket) | X (push AM) | X | SLA tier×priority |
+
+> **Phạm vi call-1 kết thúc tại đây.** B.6+ — business rules cho REQ-OPS-005 (proposal & stage-gate V6.0), REQ-OPS-006 (campaign & deliverable), REQ-OPS-007 (capacity & timesheet), REQ-OPS-008 (SLA & notification engine), REQ-OPS-009 (ticket & CSKH), REQ-OPS-012 (A/B testing) do **marketing-expert** viết ở **call-2** và sẽ bổ sung tiếp vào ma trận trên.
+
+---
+
+## Phần B (tiếp) — B.6–B.10: Lifecycle V6.0, Campaign Delivery, Capacity, SLA & CSKH (Marketing Expert — Call 2/2)
+
+> **Người viết:** marketing-expert (CMO / OPS_PLAN — Call 2/2) — phạm vi **B.6–B.10**, nhóm marketing & project delivery: REQ-OPS-005/006/007/008/009/012.
+> Định dạng rule giữ nguyên call-1: **Actor · Hệ thống · Điều kiện · Exception**. Nguồn chính sách: `stage-gate-lifecycle-v6.md`, `phan-loai-khach-hang-tier.md`, `hop-dong-loi-nda-brand-safety.md`, `timesheet-capacity.md`, `sla-khach-hang.md`, `client-portal-minh-bach-bao-mat.md`, `P0-02-systems-users.md`.
+
+### B.6. Proposal & Planning Workspace — Stage-Gate V6.0 (REQ-OPS-005)
+
+Nguyên tắc nền: *"Không ghi nhận vào PMS = Không tồn tại"* — trạng thái, điểm scoring, chữ ký, vòng sửa chỉ ghi nhận trên hệ thống; hard block chuyển stage khi thiếu bất kỳ done criteria, chặn cả UI lẫn API.
+
+**BR-OPS-6.1 — Stage-gate machine-checkable: entry/done criteria từng stage**
+- Phân loại tường minh tiêu chí **hệ thống tự kiểm được** và tiêu chí **thuần phán đoán con người** (chỉ bắt buộc có bản ghi trên hệ thống):
+
+| Stage | Done criteria | Hệ thống tự kiểm | Thuần phán đoán con người |
+|---|---|---|---|
+| Raw Data | Đủ trường tối thiểu + anti-duplicate (email/SĐT/website/MST) | ✅ Validation trường + so khớp trùng | — |
+| Initial Brief | 3 trường bắt buộc (Ngân sách/Sản phẩm/Nhu cầu) trong 2h | ✅ Tự kiểm + đếm SLA 2h | — |
+| AUTO SCORING | K1–K5 knockout, K6–K12 flag, CQ | ✅ Engine tự chạy khi đủ Initial Brief | — |
+| First Meeting | Meeting notes tồn tại trên PMS | ✅ Kiểm sự tồn tại | Chất lượng notes |
+| QUALIFIED (Gate 1) | qualifiedTier + SM ký Go/No-Go, SLA 1 ngày LV | ✅ Kiểm e-approval + SLA | Quyết định Go/No-Go |
+| LEAD (Gate 2) | Handoff 5 nhóm = 100% + SM ký + AM xác nhận 4h | ✅ Tự đếm % checklist + e-approval + SLA | — |
+| EVALUATION | Brand Safety 7/7 + Weighted ≥3,5 + 2 cuộc họp đủ 5 output | ✅ Đếm 7/7 + điểm Weighted + đếm output theo checklist | Chất lượng thẩm định; borderline 3,0–3,49 thẩm định 4h |
+| PROPOSAL | Số trang theo tier + vòng sửa trong hạn + Rehearsal trước Pitching + GM duyệt + có Quotation sau Pitching | ✅ Đếm trang + đếm vòng sửa + e-approval GM + checklist Quotation | Chất lượng nội dung; xác nhận Rehearsal đã diễn ra |
+| WON | HĐ/LOI ký + cập nhật 24h + tự sinh dự án + AM xác nhận capacity | ✅ Tự sinh dự án + capacity check + SLA 24h | AM xác nhận |
+| DEPLOY | Launch checklist + Deliverable plan được duyệt + Reporting frequency chốt | ✅ Kiểm checklist tồn tại/đủ mục | Nội dung plan (tiêu chí chi tiết là đề xuất — flag Phase 6d) |
+
+- Actor: hệ thống tự chuyển stage khi đủ criteria; con người chỉ ký/phán đoán phần thuần phán đoán.
+- Hệ thống: CORE gate engine chặn tầng API + audit log bất biến mọi chuyển stage/override/escalation; WEB workspace soạn + checklist; M-INT OPS_PLAN duyệt concept + nhận escalate quá SLA gate.
+- Exception: deal chiến lược SM override knockout K1–K5 — GM phê duyệt lại, lý do bằng văn bản, log bất biến; khách tái ký rút gọn Initial Brief nhưng không bỏ Gate 1/Gate 2.
+
+**BR-OPS-6.2 — Brand Safety 7 tiêu chí chặn cứng (1 fail = không qua gate)**
+- 7 tiêu chí (theo `hop-dong-loi-nda-brand-safety.md` §2.4, ban hành là Phụ lục gắn HĐ): (1) SP hợp pháp + giấy phép con; (2) không vi phạm Ads Policy nền tảng; (3) không spam/leading/misleading; (4) quyền image/video/bản quyền hợp lệ; (5) landing page hợp pháp, khớp nội dung quảng cáo; (6) dữ liệu mục tiêu có cơ sở thu thập hợp lệ; (7) không thuộc ngành cấm/nhạy cảm chưa duyệt nội bộ.
+- Điều kiện: EVALUATION chỉ qua khi **7/7 pass** — fail bất kỳ 1 tiêu chí → dừng ngay, không sang PROPOSAL, **không có ngoại lệ**. Vi phạm K1 (SP hạn chế không giấy phép) là knockout → chấm dứt hợp đồng.
+- Actor: Planner/AM chấm checklist từng tiêu chí pass/fail; khi OPS phát hiện vi phạm ở khách đang vận hành → kích hoạt quyền **từ chối vận hành**: legal-expert xác nhận + TP OPS duyệt trong 24h; nút "Từ chối vận hành" khóa trạng thái HĐ + notify legal + ops.
+- Hệ thống: CORE rule engine all-pass chặn tầng API (không chỉ ẩn UI); WEB checklist gắn từng hợp đồng với trạng thái từng tiêu chí; audit log bất biến.
+
+**BR-OPS-6.3 — Template & định mức proposal theo tier**
+- **Nguồn sự thật: `phan-loai-khach-hang-tier.md` §2.2** (qualifiedTier chốt sau Full Brief, khóa sau Gate 1):
+  - **Tier B/C:** 15–25 trang, **OPS_PLAN soạn**, vòng sửa ≤4.
+  - **Tier D/E:** 8–12 trang, **OPS_AM soạn**, vòng sửa ≤2.
+- ⚠️ **Flag mâu thuẫn chính sách (Phase 6d xử lý):** `stage-gate-lifecycle-v6.md` §2.1 ghi ngược lại (B/C 8–12 trang, AM soạn, ≤2 vòng; D/E 15–25 trang, Planner soạn, ≤4 vòng). Bản này dùng `phan-loai-khach-hang-tier.md` làm nguồn sự thật vì đó là nơi định nghĩa qualifiedTier và được policy SLA tham chiếu trực tiếp; Phase 6d chốt phương án, sửa tài liệu còn lại và gate engine phải đọc cấu hình từ một nguồn duy nhất.
+- Hệ thống: CORE đọc tier từ profile khách (cấm hardcode nhãn tier) → áp template + định mức; WEB soạn từ template theo tier; validator đếm số trang, chặn gửi/xuất bản khi sai định mức.
+- Exception: khách strategic "BOD-sponsored" vẫn chấm qualifiedTier để áp định mức; khách yêu cầu định dạng riêng → GM duyệt lệch định mức, ghi log.
+
+**BR-OPS-6.4 — Đếm vòng review và escalation khi vượt vòng**
+- Điều kiện: mỗi vòng review = reviewer chuyển trạng thái "Request changes" + comment bắt buộc; hệ thống đếm vòng trên proposal và quotation.
+- Ngưỡng: **D/E ≤2 vòng; B/C ≤4 vòng** (nguồn sự thật như BR-OPS-6.3). Chạm giới hạn → chặn tạo vòng sửa mới, escalate: AM/Planner + SM quyết 1 trong 3 — chốt gửi bản hiện có / gia hạn vòng có lý do (GM duyệt, log bất biến) / dừng deal.
+- Hệ thống: CORE đếm + chặn tầng API; WEB hiển thị số vòng còn lại; M-INT push escalation.
+- Exception: gia hạn vòng chỉ GM được duyệt, tối đa 1 lần/proposal, bắt buộc lý do.
+
+**BR-OPS-6.5 — Duyệt proposal nội bộ trước khi gửi khách**
+- Actor: GDKD duyệt GM (Gross Margin) bằng e-approval trong SLA 1 ngày làm việc; quá hạn tự escalate. Chưa qua GDKD duyệt → không tồn tại trạng thái "đã gửi khách": nút gửi khóa ở WEB, API từ chối.
+- Điều kiện kèm: Rehearsal xác nhận hoàn thành trước Pitching; Quotation chỉ phát hành sau Pitching, gắn proposal đã duyệt.
+- Borderline Weighted 3,0–3,49: không tự pass — vào hàng đợi thẩm định do SM chỉ định người, SLA 4h, kết luận kèm lý do ghi trên hệ thống.
+- Hệ thống: CORE e-approval + audit log chữ ký; WEB khóa gửi khi thiếu duyệt; M-INT: GDKD duyệt nhanh + nhận escalate.
+
+### B.7. Campaign & Deliverable Management (REQ-OPS-006)
+
+**BR-OPS-7.1 — WBS sinh từ approved proposal (breakdown + dependency)**
+- Actor: OPS_PLAN/AM tạo WBS sau WON; CORE sinh khung từ template theo loại dịch vụ.
+- Điều kiện: mỗi deliverable trong proposal map ≥1 WBS node; task bắt buộc gắn WBS node (task mồ côi không được tính công — khớp nguyên tắc "không gắn project = không tồn tại" của REQ-OPS-001); dependency mặc định finish-to-start — task không start khi predecessor chưa done, trừ TL duyệt overlap có lý do (log).
+- Phân loại **project type bắt buộc lúc tạo dự án: "Dự án Khách hàng" (Client Billable) hoặc "Dự án Nội bộ" (Internal Non-billable)** — project type khóa tập nhãn timesheet hợp lệ (BR-OPS-8.1) và là gốc của validation cấm tráo nhãn.
+- Hệ thống: CORE sinh khung + validation gắn task; WEB soạn WBS; capacity check bắt buộc trước mọi gán (BR-OPS-8.3).
+
+**BR-OPS-7.2 — Editorial calendar (lịch nội dung)**
+- Actor: OPS_CONT lập lịch tháng/quý gắn WBS node + kênh phát hành (Meta/TikTok/Google/web...).
+- Điều kiện: mỗi bài/ấn phẩm có trạng thái pipeline (Ý tưởng → Soạn → Duyệt nội dung → Sản xuất → Duyệt xuất bản → Đã xuất bản); deadline trượt → cảnh báo TL + AM (AM chủ động cập nhật khách).
+- Hệ thống: CORE lưu pipeline + cảnh báo trượt; WEB board/calendar; M-INT push deadline hôm nay/trượt mốc.
+
+**BR-OPS-7.3 — Duyệt creative đa vai (vòng duyệt + SLA từng bước)**
+- Pipeline bắt buộc: **OPS_CONT (nội dung) → OPS_DES/OPS_EDIT (sản xuất visual/video) → OPS_PLAN/AM (duyệt nghiệp vụ)**; ý kiến khách đi qua AM; khách duyệt nghiệm thu trên portal (BR-OPS-7.5), không can thiệp task nội bộ.
+- Điều kiện: mỗi bước có trạng thái Approved / Request changes (comment bắt buộc khi reject); **cấm tự duyệt task của mình** — approver ≠ creator, chặn tầng API; SLA mỗi bước duyệt nội bộ 8h làm việc `[CẦN CHỐT SỐ: SLA chuẩn từng bước duyệt creative]`; quá SLA nhắc, chậm 2 bước liên tiếp escalate TL.
+- Vòng sửa creative: quá 3 vòng trên 1 deliverable `[CẦN CHỐT SỐ: số vòng sửa chuẩn theo loại deliverable]` → escalate TL chốt phạm vi bằng văn bản với khách (qua AM), tránh sửa vô tận.
+- Hệ thống: WEB nơi duyệt chính; M-INT duyệt nhanh + push khi có việc chờ; CORE lưu vòng, comment, audit.
+
+**BR-OPS-7.4 — Campaign change log bất biến**
+- Điều kiện: **mọi thay đổi** ngân sách/bid/target/audience/creative chính trên chiến dịch (kể cả trong A/B test — BR-OPS-10.3) bắt buộc nhập **reason**; hệ thống lưu giá trị cũ/mới, ai, khi nào — append-only, cấm sửa/xóa.
+- Phân bậc duyệt theo hạn mức (khớp P0-02 §2.3): buyer tự quyết trong hạn mức ngày do TL cấu hình `[CẦN CHỐT SỐ: ngưỡng VND/ngày theo cấp Junior/Mid/Senior]`; vượt hạn mức ngày → TL duyệt; vượt hạn mức dự án → AM duyệt.
+- Hệ thống: CORE change log engine từ chối request thiếu reason ở tầng API; GW đẩy thay đổi xuống platform khi có quyền API; WEB form thay đổi; M-INT duyệt vượt hạn mức khi di chuyển.
+- Exception: khẩn cấp dừng chiến dịch (die account, sự cố brand safety) — pause trước, bổ sung reason vào change log trong 4h làm việc.
+
+**BR-OPS-7.5 — Nghiệm thu deliverable theo WBS (khách confirm trên portal)**
+- Điều kiện: milestone sẵn sàng nghiệm thu khi 100% WBS node thuộc milestone ở trạng thái Approved nội bộ; AM đề xuất nghiệm thu → khách **confirm trên PORTAL/M-PORTAL** (tenant của mình, realtime) — khớp policy minh bạch: khách thấy tiến độ nghiệm thu theo milestone.
+- Chờ confirm quá 5 ngày LV `[CẦN CHỐT SỐ: số ngày chờ confirm nghiệm thu mặc định]` → hệ thống nhắc khách, escalate AM. Milestone onboarding bắt buộc gắn Gate Day 14 (BR-OPS-3.2/5.1).
+- Hệ thống: CORE trạng thái nghiệm thu; PORTAL/M-PORTAL bề mặt khách confirm; WEB AM thao tác; M-INT push AM khi khách phản hồi.
+
+**BR-OPS-7.6 — Vận hành song song Dự án Khách hàng + Dự án Nội bộ**
+- Điều kiện: 2 project type chạy cùng một engine (WBS, editorial calendar, duyệt creative, change log); khác nhau ở người duyệt thay khách (nội bộ: TL/OPS_PLAN), nguồn ngân sách và tập nhãn timesheet hợp lệ.
+- Chặn cứng: giờ làm dự án nội bộ cấm ghi nhãn Client Billable vào dự án khách và ngược lại — validation theo cặp project type × nhãn (BR-OPS-8.1); campaign của chính BC vẫn áp naming/UTM + gắn project nội bộ (BR-OPS-1.2/1.3).
+- Exception: dự án nội bộ phục vụ trực tiếp 1 khách (VD case study có approval khách) — AM đề xuất, TL duyệt chuyển một phần giờ thành Client Billable, có log.
+
+### B.8. Capacity & Timesheet góc OPS (REQ-OPS-007)
+
+**BR-OPS-8.1 — Ghi timesheet: nhãn billable/internal bắt buộc tại nguồn, cấm sửa sau khi chốt tuần**
+- Actor: 100% OPS ghi hằng ngày, chậm nhất trước 12:00 hôm sau; chậm quá 3 ngày → cảnh báo TL.
+- Điều kiện: dòng timesheet **bắt buộc gắn nhãn Client Billable / Internal Non-billable ngay tại thời điểm ghi** — không chọn không lưu được; **cấm sửa nhãn sau khi ghi** — sai sót tạo correction, bản gốc giữ nguyên + audit log (ai, khi nào, sửa gì, lý do; TL xác nhận trong 24h); validation chặn theo cặp project type × nhãn (khớp BR-OPS-7.1).
+- Hệ thống: CORE validation + audit bất biến; WEB nhập chính; M-INT ghi nhanh cuối ngày + push nhắc; TL xem dashboard ghi chậm.
+- Exception: L5/BOD ghi theo dự án, không bắt buộc chi tiết task; nhân sự mới tuần đầu 100% Internal Non-billable, không áp ngưỡng billable.
+
+**BR-OPS-8.2 — Định mức giờ/tuần L1–L5 + chốt tuần + duyệt lần 1**
+- Định mức theo `timesheet-capacity.md` §2.1 (số gốc từ policy, không phải con số OPS tự đặt): **40h chuẩn/tuần mọi Level; trần ghi nhận 48h/tuần gồm OT**; tỷ lệ billable mục tiêu: **L1 ≥80%, L2 ≥75%, L3 60–70%, L4 40–50%, L5 20–30%**.
+- Chốt tuần: nhân sự chốt trước 12:00 thứ Hai tuần kế; **TL duyệt trong 48h** (đây là "duyệt lần 1" góc OPS); **cấm tự duyệt** — approver bắt buộc khác người ghi; timesheet của TL (OPS_PLAN) do Manager L4 duyệt — OPS không có L4 chuyên trách `[CẦN CHỐT SỐ: người duyệt timesheet cấp TL/OPS_PLAN]`.
+- **Giờ chưa duyệt không vào P&L** — chỉ giờ đã duyệt được nhân Cost Rate Card để allocate chi phí nhân sự (handoff FIN — xem BR-OPS-8.4).
+- Hệ thống: CORE chặn tự duyệt + chặn allocate giờ chưa duyệt; WEB duyệt + dashboard; M-INT TL duyệt trên di động.
+
+**BR-OPS-8.3 — Capacity check + ngưỡng vàng/đỏ chặn gán vượt**
+- Capacity check bắt buộc trước **mọi** thao tác gán task và tại Gate 2; SLA 4h → quá 4h escalate TL, quá 8h escalate HR_L2 cân đối đầu người.
+- Ngưỡng utilization tuần (tổng giờ đã gán ÷ capacity khả dụng): **<70% cảnh báo TL; 70–90% nhận gán mới tự do; >90% (vàng) dừng gán tự động — gán mới phải TL phê duyệt; ≥100% (đỏ) chặn cứng gán vượt** — buộc dịch deadline, đổi người hoặc duyệt OT.
+- Exception: khẩn cấp khách (VD die account ngoài giờ) tối đa **110% trong ≤5 ngày làm việc liên tục**, bắt buộc log lý do; vượt mốc → BOD duyệt. Nghỉ phép/ốm đã duyệt không chiếm capacity, không tính utilization.
+- Hệ thống: CORE capacity engine tính tuần + chặn tầng API; WEB dashboard nhóm; M-INT push cảnh báo + TL duyệt gán vùng vàng.
+
+**BR-OPS-8.4 — Ranh giới thẩm quyền duyệt: HR quản chính sách — handoff OPS ↔ HR ↔ FIN**
+- **Thuộc HR (chính sách):** điều chỉnh định mức giờ/tuần + tỷ lệ billable mục tiêu theo bậc = **HR_L2 đề xuất → BOD duyệt** (chu kỳ năm) — OPS chỉ sử dụng cấu hình, không tự thay; **duyệt OT vượt trần tuần 8h hoặc retro** = HR_L2 (24h); trần OT năm 200h.
+- **Thuộc OPS (vận hành):** ghi timesheet toàn phòng + TL duyệt lần 1 trong 48h + duyệt OT trong trần 8h/tuần trước khi thực hiện (retro 24h cho sự cố khẩn cấp) + gán task qua capacity check.
+- **Thuộc FIN (hạch toán):** chỉ giờ đã duyệt được allocate cost vào P&L — nhận dữ liệu từ chuỗi duyệt OPS/HR.
+- Hệ thống: CORE RBAC — OPS không thấy nút sửa định mức; WEB handoff dữ liệu duyệt; báo cáo billable thực tế theo tháng gửi HR_L2 đối chiếu mục tiêu.
+
+### B.9. SLA & Notification Engine + Ticket & CSKH (REQ-OPS-008/009)
+
+**BR-OPS-9.1 — Ma trận tier × priority (nguồn `sla-khach-hang.md` §2.1)**
+- Quy ước nghịch trực giác: **A = thấp nhất, E = cao nhất**; tính bằng giờ làm việc (riêng Critical 24/7); FR = First Response, Res = Resolution; 1 ngày LV = 8 giờ.
+
+| Tier | Critical (FR/Res) | High (FR/Res) | Medium (FR/Res) | Low (FR/Res) |
+|---|---|---|---|---|
+| E | 15 phút / 4 giờ | 30 phút / 8 giờ | 2 giờ / 1 ngày LV | 4 giờ / 2 ngày LV |
+| D | 30 phút / 6 giờ | 1 giờ / 12 giờ | 3 giờ / 1,5 ngày LV | 8 giờ / 3 ngày LV |
+| C | 1 giờ / 8 giờ | 2 giờ / 1 ngày LV | 4 giờ / 2 ngày LV | 8 giờ / 4 ngày LV |
+| B | 2 giờ / 12 giờ | 4 giờ / 1,5 ngày LV | 8 giờ / 3 ngày LV | 1 ngày LV / 5 ngày LV |
+| A | 4 giờ / 1 ngày LV | 8 giờ / 2 ngày LV | 1 ngày LV / 4 ngày LV | 2 ngày LV / 7 ngày LV |
+
+- Định nghĩa đo chuẩn hóa: FR = timestamp phản hồi đầu tiên **có nội dung xử lý** của nhân viên BC (auto-reply không tính); Res = chuyển Resolved kèm mô tả giải pháp; sự cố phụ thuộc nền tảng tính "đạt" khi đã escalate + có case ID + chu kỳ cập nhật 8 giờ — thời gian chờ platform không tính vào breach của BC.
+- HĐ cam kết cao hơn ma trận → ghi đè theo profile khách.
+- Hệ thống: CORE SLA engine áp động theo tier profile; WEB dashboard compliance; PORTAL/M-PORTAL đồng hồ song song giờ khách.
+
+**BR-OPS-9.2 — SLA clock đa múi giờ**
+- **GMT+7 là mốc tính duy nhất** của hệ thống; giờ làm việc BC T2–T6 9:00–18:00 (nghỉ trưa 12:00–13:00) = 8h LV/ngày; T7, CN, lễ VN không tính; **Critical chạy 24/7 mọi ngày** — trực follow-the-sun theo múi giờ khách `[CẦN CHỐT SỐ: bố trí ca trực + nhân sự on-call]`.
+- **Pause tự động:** Pending (chờ khách) — nhắc Critical sau 4h/12h, mức khác 24h/48h LV; sau nhắc thứ 2 mà tiếp tục 24h (Critical) / 24h LV (còn lại) không phản hồi → auto-Closed "khách không phản hồi" (không tính breach), được reopen trong 7 ngày. Blocked-3rd-party: pause khi có case ID platform, tối đa 5 ngày LV, quá hạn tự escalate AM.
+- Khách khai báo lịch làm việc riêng trên portal → clock High/Medium/Low theo lịch đó; PORTAL/M-PORTAL hiển thị song song giờ địa phương khách.
+- Hệ thống: CORE clock engine (múi giờ, giờ làm việc, pause/resume); PORTAL/M-PORTAL hiển thị; M-INT push alert.
+
+**BR-OPS-9.3 — Pre-alert 80%, breach 100%, override có audit log**
+- **80% thời lượng:** cảnh báo vàng assignee + AM; từ 80–100% assignee phải có hành động/cập nhật trên ticket.
+- **100% (breach):** trong **5 phút** báo đỏ AM + CS TL, đẩy dashboard OPS_PLAN; **AM thông báo khách trong 30 phút** theo template chuẩn (lý do, phương án khắc phục, ETA mới) — không thông báo là vi phạm riêng, độc lập breach kỹ thuật.
+- **Override bắt buộc lý do + audit log bất biến (ai, khi nào, giá trị cũ/mới):** gia hạn Resolution lần 1 ≤50% target trước breach — CS TL (1 lần/ticket, 15 phút trong giờ trực); override FR mọi mức + gia hạn lần 2 — OPS_PLAN (30 phút); miễn SLA theo đợt (platform outage toàn cục, force majeure) — BOD theo đề xuất OPS_PLAN (4h).
+- Post-mortem: ≥3 breach/khách/30 ngày hoặc ≥2 breach cùng root cause/90 ngày → post-mortem trong 5 ngày LV (CS TL review, OPS_PLAN phê duyệt); Tier D/E breach ảnh hưởng doanh thu → thêm buổi review với khách do AM chủ trì.
+- Hệ thống: CORE SLA engine + auto-escalation + audit; M-INT push pre-alert/breach + duyệt gia hạn di động; WEB dashboard compliance + template thông báo khách.
+
+**BR-OPS-9.4 — Queue hợp nhất đa kênh + state machine + escalation bắt buộc**
+- Điều kiện: mọi yêu cầu từ **portal/email/Zalo** (kênh chính thức) hợp nhất một queue theo khách/tier; dedupe chống trùng lặp (khách + chủ đề + tài sản); yêu cầu ngoài scope → tự tách change request ngoài SLA vận hành.
+- State machine: New → Open → Pending → Resolved → Closed; **reopen trong 7 ngày** giữ toàn bộ ngữ cảnh; Closed không reopen trực tiếp — tạo ticket mới tham chiếu.
+- Trigger escalation bắt buộc: Critical quá First Response; bất kỳ ticket chạm 100% SLA; reopen ≥2 lần; Pending quá 3 ngày LV; khiếu nại từ CLIENT_ADMIN khách Tier D/E. Chuỗi **assignee → AM → CS TL → OPS_PLAN → BOD**, mỗi chặng SLA xử lý 30 phút trong giờ trực.
+- Hệ thống: CORE queue hợp nhất + state machine; WEB nơi assignee xử lý chính; M-INT nhận việc + phản hồi đầu tiên khi di động; PORTAL/M-PORTAL khách tạo/theo dõi ticket.
+
+**BR-OPS-9.5 — CSAT, detractor, khiếu nại nghiêm trọng**
+- **CSAT tự động** sau Closed (thang 1–5 + 1 câu mở); nhắc tối đa 1 lần sau 48h không phản hồi.
+- **Detractor ≤2:** liên hệ lại trong **48h làm việc**; ghi nội dung liên hệ + hành động khắc phục gắn ticket gốc.
+- **Khiếu nại nghiêm trọng** (khách Tier D/E, mất tiền, sai sót đối soát, đạo đức nhân viên): leo thang **BOD trong 24h** kèm hồ sơ đầy đủ; OPS_PLAN điều phối.
+- Một tier có CSAT <4,0 hai tháng liên tiếp → review dịch vụ bắt buộc do OPS_PLAN chủ trì.
+- Hệ thống: CORE CSAT engine + trigger escalation; PORTAL/M-PORTAL khách trả lời CSAT; WEB/M-INT AM xử lý detractor.
+
+### B.10. A/B Testing & Chiến Lược Campaign Theo Mục Tiêu Khách (REQ-OPS-012)
+
+**BR-OPS-10.1 — Đăng ký thí nghiệm trước khi chạy**
+- Actor: OPS_ADS đăng ký; OPS_PLAN duyệt trước khi triển khai.
+- Điều kiện: đăng ký gắn campaign, bắt buộc đủ: **giả thuyết, metric chính duy nhất** (primary KPI theo mục tiêu khách: conversion/traffic/awareness), variant, audience định nghĩa rõ, thời lượng, ngân sách, **sample size dự kiến** `[CẦN CHỐT SỐ: chuẩn sample size + confidence nội bộ — đề xuất khung confidence 95%]`; thiếu trường → không lưu được đăng ký. Thí nghiệm không đăng ký không được chi ngân sách (CORE chặn theo campaign gắn thử nghiệm).
+- Hệ thống: CORE đối tượng thử nghiệm + validation; WEB form đăng ký; GW dữ liệu hiệu quả theo variant (nhãn `manual` khi degraded); M-INT thông báo duyệt/kết quả.
+
+**BR-OPS-10.2 — Chống chồng chéo thí nghiệm trên cùng audience**
+- Điều kiện: trên cùng một audience/tenant khách, mỗi thời điểm chỉ **1 thí nghiệm active**; đăng ký mới trùng segment với thí nghiệm đang chạy → chặn, bắt buộc chọn audience loại trừ (exclusion) hoặc chờ kết thúc.
+- Hệ thống: CORE kiểm tra overlap audience giữa các thí nghiệm active cùng khách trước khi cho duyệt; GW cung cấp audience size từ platform; WEB hiển thị bản đồ thí nghiệm đang chạy theo khách.
+- Exception: thí nghiệm trên platform khác nhau nhưng cùng tệp mục tiêu → OPS_PLAN đánh giá rủi ro giao thoa rồi mới duyệt, ghi lý do.
+
+**BR-OPS-10.3 — Kết luận phải có evidence trên change log**
+- Điều kiện: dừng variant/khai thắng chỉ khi đạt ngưỡng significance trên metric chính `[CẦN CHỐT SỐ: ngưỡng significance nội bộ]`; kết luận (win/lose/no signal) bắt buộc tạo entry change log gắn evidence: số KPI theo variant, thời gian chạy, sample đạt. Kết thúc duration mà chưa đủ sample → kết luận "no signal" + quyết định gia hạn/dừng có lý do. Mọi thay đổi ngân sách trong thử nghiệm đi qua campaign change log bất biến (BR-OPS-7.4).
+- Cảm tính/"có vẻ tốt" không là căn cứ khai thắng; **không cam kết KPI cứng cho khách ngoài hợp đồng** — chỉ cam kết đầu vào (khớp `hop-dong-loi-nda-brand-safety.md` §2.5).
+- Hệ thống: CORE tổng hợp KPI theo variant + change log; WEB dashboard kết quả + nút kết luận (bắt buộc evidence); M-INT đề xuất dừng variant khi đạt ngưỡng.
+
+**BR-OPS-10.4 — Học hỏi quay lại template/playbook**
+- Actor: OPS_ADS ghi learning log theo khách/ngành ngay khi kết luận; OPS_PLAN review theo quý.
+- Điều kiện: learning thắng/thua gắn thí nghiệm + change log entry; mỗi quý OPS_PLAN rà learning log → cập nhật playbook/template chiến lược (content brief, cấu trúc campaign, audience playbook) thành mặc định cho proposal mới; cập nhật template là thay đổi chính sách nội bộ — có log + OPS_PLAN duyệt.
+- Hệ thống: CORE thư viện learning log tra cứu theo khách/ngành; WEB đọc/soạn playbook; báo cáo tổng hợp theo quý.
+
+### Ma Trận Business-Rules × System (Bổ sung Call 2)
+
+| Business Rule | CORE | WEB | GW | PORTAL-WEB | MOBILE-INT | MOBILE-PORTAL | Ghi chú |
+|---|---|---|---|---|---|---|---|
+| BR-OPS-6.1 Stage-gate machine-checkable | X (gate engine chặn API, audit) | X (workspace) | — | — | X (duyệt concept, escalate) | — | Hard block cả UI + API |
+| BR-OPS-6.2 Brand Safety 7/7 | X (all-pass tầng API) | X (checklist, nút từ chối vận hành) | — | — | X (alert TP OPS/legal) | — | 1 fail = dừng, không ngoại lệ |
+| BR-OPS-6.3 Template theo tier | X (đọc tier profile, validator số trang) | X (template theo tier) | — | — | — | — | Flag mâu thuẫn 2 policy — Phase 6d |
+| BR-OPS-6.4 Đếm vòng review | X (đếm + chặn API) | X (vòng còn lại) | — | — | X (push escalate) | — | D/E ≤2, B/C ≤4; gia hạn chỉ GM |
+| BR-OPS-6.5 GM duyệt trước gửi | X (e-approval, khóa gửi) | X (soạn, gửi) | — | — | X (GM duyệt di động) | — | SLA 1 ngày LV |
+| BR-OPS-7.1 WBS + dependency | X (khung template, validation gắn task) | X (soạn WBS) | — | — | — | — | Project type bắt buộc lúc tạo |
+| BR-OPS-7.2 Editorial calendar | X (pipeline, cảnh báo) | X (board/calendar) | — | — | X (push deadline) | — | — |
+| BR-OPS-7.3 Duyệt creative đa vai | X (chặn tự duyệt, vòng + SLA) | X (duyệt chính) | — | — | X (duyệt nhanh + push) | — | Comment bắt buộc khi reject |
+| BR-OPS-7.4 Change log bất biến | X (engine bắt reason, append-only) | X (form thay đổi) | X (đẩy API platform) | — | X (duyệt vượt hạn mức) | — | Bậc buyer → TL → AM |
+| BR-OPS-7.5 Nghiệm thu theo WBS | X (trạng thái nghiệm thu) | X (AM đề xuất) | — | X (khách confirm) | X (push phản hồi) | X (khách confirm) | Gate Day 14 là điều kiện |
+| BR-OPS-8.1 Nhãn timesheet tại nguồn | X (validation + audit correction) | X (nhập) | — | — | X (ghi nhanh, nhắc) | — | Cấm sửa nhãn sau ghi |
+| BR-OPS-8.2 Định mức + chốt tuần | X (chặn tự duyệt, chặn P&L giờ chưa duyệt) | X (duyệt, dashboard) | — | — | X (TL duyệt di động) | — | 40h/48h; TL duyệt 48h |
+| BR-OPS-8.3 Capacity check + vàng/đỏ | X (engine, chặn cứng ≥100%) | X (dashboard, gán) | — | — | X (push + duyệt vùng vàng) | — | Khẩn cấp 110% ≤5 ngày LV |
+| BR-OPS-8.4 Ranh giới HR | X (RBAC không nút sửa định mức) | X (báo cáo billable) | — | — | — | — | Định mức: HR_L2 → BOD |
+| BR-OPS-9.1 Ma trận tier×priority | X (engine áp động) | X (dashboard compliance) | — | X (đồng hồ khách) | X (push) | X (đồng hồ) | HĐ cao hơn ghi đè profile |
+| BR-OPS-9.2 SLA clock đa múi giờ | X (GMT+7, giờ LV, pause/resume) | X | — | X (giờ địa phương khách) | X (push) | X | Critical 24/7; pause chờ khách/3rd-party |
+| BR-OPS-9.3 Pre-alert 80% / breach / override | X (bộ đếm, audit override) | X (template báo khách) | — | — | X (push đỏ + duyệt gia hạn) | — | AM báo khách trong 30 phút |
+| BR-OPS-9.4 Queue hợp nhất + state machine | X (queue, dedupe, escalation) | X (xử lý chính) | X (webhook Zalo/email) | X (tạo ticket) | X (nhận việc, FR) | X (tạo ticket) | Reopen 7 ngày; chuỗi 5 chặng × 30 phút |
+| BR-OPS-9.5 CSAT + detractor + khiếu nại | X (CSAT engine, trigger BOD 24h) | X (AM xử lý) | — | X (trả lời CSAT) | X (push detractor) | X (CSAT) | Tier <4,0 ×2 tháng → review |
+| BR-OPS-10.1 Đăng ký thí nghiệm | X (đối tượng, chặn không đăng ký) | X (form đăng ký) | X (dữ liệu variant) | — | X (thông báo duyệt) | — | Planner duyệt trước chạy |
+| BR-OPS-10.2 Chống chồng chéo audience | X (kiểm overlap, chặn) | X (bản đồ thí nghiệm) | X (audience size) | — | — | — | 1 thí nghiệm active/segment |
+| BR-OPS-10.3 Kết luận có evidence | X (KPI theo variant, change log) | X (dashboard, nút kết luận) | X (dữ liệu nền tảng) | — | X (đề xuất dừng) | — | Bắt evidence gắn change log |
+| BR-OPS-10.4 Learning log → playbook | X (thư viện learning) | X (soạn playbook) | — | — | — | — | Review quý bởi OPS_PLAN |
+
+> **Flags để Phase 6d xử lý:**
+> 1. **Mâu thuẫn định mức proposal theo tier:** `stage-gate-lifecycle-v6.md` §2.1 (B/C 8–12 trang, AM soạn, ≤2 vòng; D/E 15–25 trang, Planner soạn, ≤4 vòng) **đảo ngược** so với `phan-loai-khach-hang-tier.md` §2.2 — nguồn sự thật được dùng ở BR-OPS-6.3 (B/C 15–25 trang, Planner soạn, ≤4 vòng; D/E 8–12 trang, AM soạn, ≤2 vòng). Chọn 1 nguồn, sửa tài liệu còn lại; gate engine đọc cấu hình tier từ một nguồn duy nhất.
+> 2. **Tiêu chí stage DEPLOY** vẫn là đề xuất bổ sung (tài liệu Lifecycle gốc chưa có chi tiết) — cần hoàn thiện phạm vi launch checklist, cấu trúc deliverable plan, cam kết reporting frequency.
+> 3. **Người duyệt timesheet cấp TL trong OPS:** policy timesheet quy định timesheet TL do "Manager L4" duyệt, nhưng OPS không có L4 chuyên trách (OPS_PLAN là L5 kiêm quyền TP) — cần chốt approver (đề xuất: CFO kiêm CTO hoặc BOD chỉ định).
+> 4. **Số chờ chốt:** SLA từng bước duyệt creative; số vòng sửa creative theo loại deliverable; hạn mức đổi ngân sách ngày theo cấp buyer (VND/ngày, Junior/Mid/Senior); số ngày chờ confirm nghiệm thu mặc định; sample size + confidence + ngưỡng significance cho A/B testing; bố trí ca trực Critical 24/7 follow-the-sun.

@@ -1,0 +1,5972 @@
+{
+  "raw_data": {
+    "bg": "#1A1916",
+    "tc": "#E0DED8",
+    "t": "Raw Data",
+    "r": "Phụ trách: Sales Executive / Marketing",
+    "w": [
+      "Tiếp nhận và phân loại thông tin KH thô từ nhiều nguồn",
+      "Sales Executive tiếp nhận · Sales Manager theo dõi pipeline",
+      "Ngay khi có lead từ bất kỳ nguồn nào",
+      "<em>PMS: tạo project mới</em> · Zalo/Email nhận thông tin",
+      "Mọi KH bắt đầu từ đây — bước sàng lọc đầu tiên quan trọng nhất",
+      "Điền vào PMS · phân loại nguồn: inbound/outbound/referral · chưa cần liên hệ KH"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Lead info thô",
+        "ft": "Landing page / Zalo / Referral",
+        "nt": "Có thể chỉ là tên + SĐT — chưa cần đầy đủ"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "Project được tạo trên hệ thống",
+        "ft": "PMS — stage: RAW_DATA",
+        "nt": "Sales Executive phụ trách tiếp theo"
+      }
+    ],
+    "done": [
+      "Project đã tạo với thông tin cơ bản",
+      "Nguồn lead đã ghi nhận",
+      "Sales Executive đã được assign"
+    ],
+    "sla": [
+      "Ngay khi nhận được thông tin",
+      "24h phải tạo project trên PMS",
+      "Không gia hạn"
+    ],
+    "risks": [
+      {
+        "nm": "Thông tin quá ít không liên hệ được",
+        "esc": [
+          "Sales Executive tìm thêm qua MXH",
+          "Vẫn tạo project với info có sẵn",
+          "Ghi chú cần bổ sung thêm"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Tạo project mới · stage RAW_DATA",
+        "sy": "pms"
+      },
+      {
+        "nm": "Audit Log",
+        "ds": "Ghi nhận nguồn lead",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Next → Brief Sent"
+      }
+    ]
+  },
+  "brief_sent": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Gửi link điền Brief",
+    "r": "Phụ trách: Sales Executive",
+    "w": [
+      "Gửi form khảo sát nhu cầu cho KH để họ suy nghĩ trước về mục tiêu",
+      "Sales Executive soạn và gửi · KH điền",
+      "Trong vòng 24h sau khi tạo project RAW_DATA",
+      "<em>PMS: update stage</em> · Zalo/Email: gửi link form",
+      "Giúp First Meeting hiệu quả hơn · KH nghiêm túc hơn khi đã điền form",
+      "Gửi link form qua Zalo/Email · kèm note ngắn giải thích mục đích"
+    ],
+    "inp": [
+      {
+        "tp": "PMS Record",
+        "nm": "Project ở stage RAW_DATA",
+        "ft": "PMS",
+        "nt": "Đã có thông tin cơ bản của KH"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Form khảo sát đã được gửi",
+        "ft": "Zalo / Email · Link Google Form",
+        "nt": "KH điền · Brief sơ bộ đầu vào cho First Meeting"
+      }
+    ],
+    "done": [
+      "Form đã gửi thành công",
+      "KH đã confirm nhận",
+      "Stage PMS đã update sang BRIEF_SENT"
+    ],
+    "sla": [
+      "Sau khi tạo RAW_DATA",
+      "24h",
+      "Không gia hạn — nếu trễ SM nhận alert"
+    ],
+    "risks": [
+      {
+        "nm": "KH không mở form sau 2 ngày",
+        "esc": [
+          "Sales Executive nhắc qua Zalo",
+          "Ngày 3: thử gọi điện",
+          "Ngày 4: escalate Sales Manager"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Update stage BRIEF_SENT",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert nếu KH chưa submit sau 48h",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "KH điền xong → First Meeting"
+      }
+    ]
+  },
+  "first_meeting": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "First Meeting",
+    "r": "Phụ trách: Sales Executive",
+    "w": [
+      "Gặp mặt online để xác nhận nhu cầu thật sự và lọc KH spy ý tưởng",
+      "Sales Executive chủ trì · KH tham dự · Tier C/D: Sales Manager duyệt bypass",
+      "Trong vòng 3 ngày sau khi KH submit form",
+      "<em>Zoom/Meet/Teams</em> · Zalo: confirm lịch · PMS: update note",
+      "Lọc KH spy ý tưởng · Xác nhận nhu cầu thật · Tăng tỉ lệ chốt",
+      "Tier A/B bắt buộc gặp · Tier C/D: Sales Manager duyệt bypass nếu nhãn lớn"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief sơ bộ từ form KH",
+        "ft": "Google Form response",
+        "nt": "KH tự điền sau khi nhận link"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Tier classification (A/B/C/D)",
+        "ft": "PMS auto-score",
+        "nt": "Hệ thống xếp dựa trên điểm từ LEAD"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Meeting notes + brief bổ sung",
+        "ft": "PMS note · đính kèm project",
+        "nt": "BPVH dùng để soạn Proposal"
+      },
+      {
+        "tp": "Quyết định",
+        "nm": "Tiếp tục hoặc LOST",
+        "ft": "PMS stage update",
+        "nt": "Sales Executive cập nhật ngay sau buổi gặp"
+      }
+    ],
+    "done": [
+      "Brief có đủ mục tiêu + ngân sách sơ bộ",
+      "Stage đã cập nhật trên PMS",
+      "Meeting notes đã lưu"
+    ],
+    "sla": [
+      "Sau khi KH submit Brief form",
+      "3 ngày làm việc",
+      "Được phép +2 ngày nếu có lý do · ghi vào PMS"
+    ],
+    "risks": [
+      {
+        "nm": "KH từ chối lên lịch (Tier A/B)",
+        "esc": [
+          "Sales Executive thử lại 1 lần",
+          "Vẫn từ chối → LOST ngay",
+          "Vào nurturing list"
+        ]
+      },
+      {
+        "nm": "KH không phản hồi sau 3 ngày",
+        "esc": [
+          "Ngày 2: nhắc lần 2 qua Zalo",
+          "Ngày 3: Sales Manager contact trực tiếp",
+          "Ngày 4: LOST"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Update stage · ghi meeting notes",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert SLA sắp hết cho Sales Executive",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Pass → Brief Received"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Từ chối gặp (A/B) → LOST"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Tier C/D → bypass nếu SM duyệt"
+      }
+    ]
+  },
+  "bypass": {
+    "bg": "var(--gray-50)",
+    "tc": "var(--gray-800)",
+    "t": "Bypass First Meeting",
+    "r": "Quyết định: Sales Manager",
+    "w": [
+      "Cho phép Tier C/D bỏ qua First Meeting khi là nhãn lớn đấu thầu nhiều Agency",
+      "Sales Manager là người duy nhất được duyệt bypass",
+      "Khi KH Tier C/D không muốn gặp từng Agency riêng lẻ",
+      "<em>PMS: ghi nhận bypass decision</em> · Zalo: SM duyệt",
+      "Tránh mất cơ hội với nhãn lớn · nhưng vẫn kiểm soát chặt để tránh lạm dụng",
+      "Sales Executive xin phép SM → SM review → Duyệt hoặc từ chối · Ghi lý do vào PMS"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Yêu cầu bypass từ Sales Executive",
+        "ft": "Zalo/PMS request",
+        "nt": "Kèm lý do cụ thể tại sao cần bypass"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "Approved hoặc Rejected",
+        "ft": "PMS record · SM sign-off",
+        "nt": "Nếu approved: flow tiếp tục không qua First Meeting"
+      }
+    ],
+    "done": [
+      "SM đã review và quyết định",
+      "Lý do đã ghi nhận vào PMS"
+    ],
+    "sla": [
+      "Sales Executive submit request",
+      "SM phản hồi trong 4h làm việc",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Sales Executive lạm dụng bypass",
+        "esc": [
+          "SM review pattern hàng tháng",
+          "Quá nhiều bypass không hợp lý → nhắc nhở SE"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Set firstMeetingBypass · firstMeetingBypassById",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Approved → Brief Received"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Rejected → phải tổ chức First Meeting"
+      }
+    ]
+  },
+  "brief_received": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Nhận Brief chi tiết",
+    "r": "Phụ trách: Sales Executive",
+    "w": [
+      "Thu thập brief chi tiết đầy đủ làm đầu vào cho BPVH",
+      "Sales Executive hỗ trợ KH điền · KH là chủ thể cung cấp",
+      "Ngay trong hoặc ngay sau buổi First Meeting",
+      "<em>PMS: upload brief</em> · GG Drive: lưu file · Zalo: clarify nếu thiếu",
+      "Brief đầy đủ là nền tảng để BPVH soạn Proposal chính xác",
+      "KH tự điền HOẶC Sales điền cùng KH trong buổi gặp · Lưu vào PMS ngay"
+    ],
+    "inp": [
+      {
+        "tp": "Kết quả từ bước trước",
+        "nm": "Meeting notes + thông tin First Meeting",
+        "ft": "PMS record",
+        "nt": "Baseline để hỏi thêm nếu KH chưa điền đủ"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief chi tiết đầy đủ",
+        "ft": "PMS record + file đính kèm · GG Drive",
+        "nt": "Người nhận: BPVH — dùng để soạn Proposal và Evaluation"
+      }
+    ],
+    "done": [
+      "Brief có đủ 8 mục cơ bản: mục tiêu, ngân sách, timeline, target audience, sản phẩm, đối thủ, kênh mong muốn, KPI kỳ vọng",
+      "File đã upload lên PMS",
+      "Sales Executive đã review và confirm đủ thông tin"
+    ],
+    "sla": [
+      "Kết thúc First Meeting",
+      "1 ngày làm việc để hoàn thiện",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Brief thiếu thông tin quan trọng",
+        "esc": [
+          "Sales Executive clarify ngay qua Zalo",
+          "Chưa đủ → chưa chuyển sang LEAD",
+          "Ghi note: cần bổ sung phần nào"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Upload brief · update stage BRIEF_RECEIVED",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Lưu file brief đính kèm project",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Brief đủ → LEAD"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Brief chưa đủ → Sales clarify thêm"
+      }
+    ]
+  },
+  "lead": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "LEAD",
+    "r": "Phụ trách: Sales Executive",
+    "w": [
+      "Confirm đây là cơ hội thật đáng đầu tư thời gian · đưa vào pipeline chính thức",
+      "Sales Executive confirm · Sales Manager review nếu cần",
+      "Ngay sau khi nhận đủ brief từ KH",
+      "<em>PMS: update stage LEAD · scoring tool</em>",
+      "Đánh dấu KH chính thức vào phễu · Bắt đầu track conversion rate từ đây",
+      "Sales Executive điền scoring form trong PMS · Hệ thống tính điểm và xếp Tier tự động"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief chi tiết đã hoàn thiện",
+        "ft": "PMS record",
+        "nt": "Đã qua bước BRIEF_RECEIVED"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "Lead với Tier classification",
+        "ft": "PMS — stage: LEAD · Tier: A/B/C/D",
+        "nt": "Sales Executive tiếp tục qualify"
+      }
+    ],
+    "done": [
+      "Tier đã được xếp (A/B/C/D)",
+      "Stage PMS = LEAD",
+      "Sales Executive được assign chính thức"
+    ],
+    "sla": [
+      "Sau khi brief đủ",
+      "1 ngày làm việc",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Không chắc KH thuộc Tier nào",
+        "esc": [
+          "Sales Executive hỏi Sales Manager",
+          "SM review brief và quyết định Tier"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = LEAD · set Tier · clientTier",
+        "sy": "pms"
+      },
+      {
+        "nm": "Dashboard",
+        "ds": "Pipeline view cập nhật",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ QUALIFIED"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Không đủ tiêu chí → LOST"
+      }
+    ]
+  },
+  "qualified": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "QUALIFIED",
+    "r": "Phụ trách: Sales Executive đánh giá",
+    "w": [
+      "Chấm điểm KH theo 5 tiêu chí chuẩn để quyết định bàn giao BPVH",
+      "Sales Executive chấm · Sales Manager review nếu borderline",
+      "Trong vòng 1 ngày sau khi xếp LEAD",
+      "<em>PMS: qualified scorecard form</em>",
+      "Lọc KH không phù hợp trước khi BPVH đầu tư thời gian",
+      "5 tiêu chí: Ngân sách đủ / Ngành phù hợp / KH có quyền quyết định / Timeline hợp lý / Kỳ vọng thực tế · Pass ≥ 4/5"
+    ],
+    "inp": [
+      {
+        "tp": "PMS Record",
+        "nm": "Lead với brief đầy đủ",
+        "ft": "PMS — stage: LEAD",
+        "nt": "Đã có đủ thông tin để đánh giá 5 tiêu chí"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "Pass → bàn giao BPVH / Fail → LOST",
+        "ft": "PMS stage update",
+        "nt": "BPVH (nếu pass) hoặc nurturing list (nếu fail)"
+      }
+    ],
+    "done": [
+      "5 tiêu chí đã chấm điểm đủ",
+      "Quyết định đã ghi nhận trên PMS",
+      "Nếu LOST: lý do đã ghi rõ"
+    ],
+    "sla": [
+      "Sau khi stage = LEAD",
+      "1 ngày",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Borderline: 3/5 tiêu chí",
+        "esc": [
+          "Sales Executive escalate Sales Manager",
+          "SM review brief trực tiếp",
+          "Quyết định cuối thuộc về SM"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = QUALIFIED / LOST · ghi lý do",
+        "sy": "pms"
+      },
+      {
+        "nm": "Audit Log",
+        "ds": "Lưu lịch sử quyết định",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Pass → bàn giao BPVH"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Fail → LOST + nurturing list"
+      }
+    ]
+  },
+  "evaluation": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Evaluation",
+    "r": "Phụ trách: Account Manager + Planner",
+    "w": [
+      "Đánh giá khả năng thực thi từ góc độ vận hành: nguồn lực, timeline, KPI khả thi",
+      "Account Manager chủ trì · Planner hỗ trợ phân tích",
+      "Trong vòng 2 ngày sau khi nhận bàn giao từ Sales",
+      "<em>PMS: evaluation form</em> · Meeting nội bộ 30p",
+      "Đảm bảo BPVH chỉ nhận dự án có thể thực thi tốt",
+      "Review brief · Họp nội bộ 30p · Chấm 5-7 tiêu chí · Xác định service package phù hợp"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief chi tiết đã qualified",
+        "ft": "PMS record + file brief",
+        "nt": "Từ Sales bàn giao"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Tier + scoring từ Sales",
+        "ft": "PMS — clientTier, score",
+        "nt": "Để AM biết mức độ ưu tiên"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "Evaluation report + service package đề xuất",
+        "ft": "PMS — evaluation form · servicePackage",
+        "nt": "AM dùng để chuẩn bị Second Meeting"
+      }
+    ],
+    "done": [
+      "5-7 tiêu chí đã được đánh giá",
+      "Service package đề xuất đã chọn",
+      "Stage PMS = EVALUATION"
+    ],
+    "sla": [
+      "Nhận bàn giao từ Sales",
+      "2 ngày làm việc",
+      "Tối đa +1 ngày nếu brief phức tạp"
+    ],
+    "risks": [
+      {
+        "nm": "Brief quá sơ sài không đủ evaluate",
+        "esc": [
+          "AM yêu cầu Sales clarify thêm",
+          "Chưa chuyển stage cho đến khi đủ info"
+        ]
+      },
+      {
+        "nm": "Dự án vượt quá năng lực hiện tại",
+        "esc": [
+          "AM báo Account Director",
+          "AD quyết định nhận hay từ chối"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = EVALUATION · set servicePackage",
+        "sy": "pms"
+      },
+      {
+        "nm": "Strategic Brief Module",
+        "ds": "Bắt đầu fill brief sections",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Second Meeting"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Vượt năng lực → LOST"
+      }
+    ]
+  },
+  "second_meeting": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Second Meeting",
+    "r": "Phụ trách: Account Manager chủ trì",
+    "w": [
+      "Họp chuyên sâu giữa BPVH và KH để khai thác insight thương hiệu, đối thủ, mục tiêu thực sự",
+      "Account Manager chủ trì · Planner tham dự · Có thể có Creative Lead",
+      "Trong vòng 3 ngày sau Evaluation",
+      "<em>Zoom/Meet</em> · PMS: ghi Strategic Brief · GG Docs: note thô",
+      "Khai thác sâu hơn First Meeting — BPVH hiểu kỹ thuật hơn Sales",
+      "AM chuẩn bị câu hỏi từ Evaluation · Planner focus vào strategy · Ghi live vào Strategic Brief"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief sơ bộ + Evaluation report",
+        "ft": "PMS record",
+        "nt": "AM đã review trước cuộc họp"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Danh sách câu hỏi cần làm rõ",
+        "ft": "AM chuẩn bị · nội bộ",
+        "nt": "Phát sinh từ quá trình Evaluation"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Strategic Brief đầy đủ 16 sections",
+        "ft": "PMS — Strategic Brief Module",
+        "nt": "AM + Planner dùng để soạn Proposal"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Insight KH: USP · đối thủ · target audience",
+        "ft": "PMS note · GG Docs",
+        "nt": "Nền tảng cho strategy trong Proposal"
+      }
+    ],
+    "done": [
+      "16 sections của Strategic Brief đã điền ≥ 80%",
+      "Insight thương hiệu và đối thủ đã ghi nhận",
+      "KPI kỳ vọng đã được confirm lại với KH"
+    ],
+    "sla": [
+      "Sau Evaluation hoàn tất",
+      "3 ngày làm việc để tổ chức meeting",
+      "+2 ngày nếu KH không available"
+    ],
+    "risks": [
+      {
+        "nm": "KH không cung cấp đủ thông tin đối thủ/brand",
+        "esc": [
+          "AM research độc lập qua MXH",
+          "Ghi nhận giả định trong brief",
+          "Confirm lại với KH qua Zalo sau meeting"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Strategic Brief Module",
+        "ds": "Fill 16 sections sau meeting",
+        "sy": "pms"
+      },
+      {
+        "nm": "Event Module",
+        "ds": "Tạo meeting event · ghi attendance",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Proposal Internal (v0.x)"
+      }
+    ]
+  },
+  "proposal_internal": {
+    "bg": "var(--cor-50)",
+    "tc": "var(--cor-800)",
+    "t": "Proposal v0.x — Bản nội bộ",
+    "r": "Phụ trách: Account Manager soạn",
+    "w": [
+      "Soạn bản Proposal draft để team nội bộ review trước khi Rehearsal · Chưa gửi KH",
+      "Account Manager soạn chính · Planner review strategy · Creative Lead review feasibility",
+      "3-5 ngày sau Second Meeting",
+      "<em>GG Slides/Docs: soạn</em> · PMS: track version · meeting nội bộ review",
+      "Tránh sai sót trước khi ra KH · Đảm bảo team alignment trước Rehearsal",
+      "AM soạn v0.1 → họp review nội bộ → chỉnh sửa → v0.2... Tối đa 3 vòng nội bộ"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Strategic Brief đầy đủ",
+        "ft": "PMS — Strategic Brief Module",
+        "nt": "16 sections đã điền"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Service Package đã confirm",
+        "ft": "PMS config",
+        "nt": "Biết làm gì mới soạn proposal được"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal v0.x bản nội bộ",
+        "ft": "Link GG Drive (private) · PMS đính kèm version",
+        "nt": "Team nội bộ · KHÔNG gửi KH"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Feedback list từ internal review",
+        "ft": "PMS comment / GG Docs comment",
+        "nt": "AM tổng hợp để sửa version tiếp theo"
+      }
+    ],
+    "done": [
+      "Proposal v0.x đã được team nội bộ review ít nhất 1 lần",
+      "Strategy đã được Planner confirm",
+      "Giá sơ bộ đã được Account Director confirm trước Rehearsal"
+    ],
+    "sla": [
+      "Sau Second Meeting",
+      "5 ngày làm việc (bao gồm tối đa 3 vòng review)",
+      "Không gia hạn"
+    ],
+    "risks": [
+      {
+        "nm": "Proposal quá nhiều vòng sửa nội bộ (>3)",
+        "esc": [
+          "AM họp với Planner + AD để quyết định nhanh",
+          "Chấp nhận version tốt nhất hiện tại để vào Rehearsal"
+        ]
+      },
+      {
+        "nm": "Team không đồng thuận về strategy",
+        "esc": [
+          "AM escalate Account Director",
+          "AD final decision"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = PROPOSAL_INTERNAL · track revision count",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Lưu từng version v0.1, v0.2, v0.3",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Pass 3 vòng nội bộ → Rehearsal"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Chưa ổn sau v0.3 → họp quyết định nhanh"
+      }
+    ]
+  },
+  "rehearsal": {
+    "bg": "var(--cor-50)",
+    "tc": "var(--cor-800)",
+    "t": "Rehearsal — Pitching nội bộ",
+    "r": "Phụ trách: Account Manager + Planner + Creative Lead",
+    "w": [
+      "Chạy thử toàn bộ bài pitch nội bộ trước khi ra KH · Chốt chiến lược và giá cuối",
+      "Account Manager chủ trì · Planner · Creative Lead · Sales Executive observe",
+      "Sau khi Proposal v0.x đã ổn · Trước khi gửi v1.0 cho KH",
+      "<em>Meeting room nội bộ / Zoom</em> · Không có mặt KH",
+      "Tăng tự tin · Phát hiện điểm yếu · Chuẩn bị kịch bản từ chối · Team alignment",
+      "Pitch y như thật · Phân công ai answer gì · Kịch bản: giá cao/thua đối thủ/thời điểm · Chưa ổn → sửa v0.x"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal v0.x đã qua review nội bộ",
+        "ft": "Link GG Drive (private)",
+        "nt": "Version tốt nhất sau tối đa 3 vòng nội bộ"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Danh sách câu hỏi KH có thể hỏi",
+        "ft": "AM chuẩn bị · nội bộ",
+        "nt": "Từ kinh nghiệm + insight KH từ Second Meeting"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal v1.0 hoàn chỉnh sẵn gửi KH",
+        "ft": "Link GG Drive · PMS đính kèm",
+        "nt": "KH xem qua link"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Q&A script và kịch bản từ chối",
+        "ft": "Note nội bộ trên PMS",
+        "nt": "Phân công ai answer câu hỏi nào khi pitch thật"
+      }
+    ],
+    "done": [
+      "Toàn bộ team đã pitch thử ít nhất 1 lần",
+      "Giá và điều khoản đã được Account Director confirm",
+      "Proposal v1.0 đã upload link lên PMS",
+      "Kịch bản từ chối đã ghi nhận"
+    ],
+    "sla": [
+      "Proposal v0.x đã ổn",
+      "1 buổi (2-3 tiếng)",
+      "Nếu chưa đạt → sửa lại · schedule lại trong 2 ngày"
+    ],
+    "risks": [
+      {
+        "nm": "Pitch thử phát hiện strategy sai cơ bản",
+        "esc": [
+          "Dừng lại · quay về sửa Strategic Brief",
+          "AM + Planner redesign strategy · Mất thêm 2-3 ngày"
+        ]
+      },
+      {
+        "nm": "Team không align về giá",
+        "esc": [
+          "Account Director quyết định giá cuối",
+          "AM không được tự thỏa thuận giá ngoài khung AD duyệt"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = REHEARSAL",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload Proposal v1.0 · lưu Q&A script",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Pass → Gửi Proposal v1.0 cho KH"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Chưa ổn → Sửa lại Proposal v0.x"
+      }
+    ]
+  },
+  "proposal": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Proposal v1.0 — Gửi KH",
+    "r": "Phụ trách: Account Manager",
+    "w": [
+      "Gửi Proposal v1.0 chính thức cho KH xem và phản hồi",
+      "Account Manager gửi · Planner cc · KH nhận và review",
+      "Ngay sau Rehearsal pass",
+      "<em>Email: gửi link GG Drive</em> · Zalo: thông báo ngắn · PMS: log version",
+      "Đây là lần đầu KH thấy Proposal — ấn tượng đầu tiên quan trọng",
+      "Gửi qua email chính thức kèm link GG Drive · Zalo thông báo ngắn · Không upload file lên server"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal v1.0 đã Rehearsal pass",
+        "ft": "Link GG Drive (shareable)",
+        "nt": "Version hoàn chỉnh nhất sau Rehearsal"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Proposal đã gửi đến KH",
+        "ft": "Email + Zalo · Link GG Drive",
+        "nt": "KH và đầu mối phía KH"
+      },
+      {
+        "tp": "PMS Record",
+        "nm": "Timestamp gửi + version được lưu",
+        "ft": "PMS — ProposalRevision record",
+        "nt": "Track: gửi lúc nào · ai gửi · link version nào"
+      }
+    ],
+    "done": [
+      "Email đã gửi thành công",
+      "KH đã confirm nhận",
+      "PMS đã log version + timestamp",
+      "Stage = PROPOSAL"
+    ],
+    "sla": [
+      "Sau Rehearsal pass",
+      "1 ngày làm việc để gửi",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "KH không nhận được email",
+        "esc": [
+          "Thông báo qua Zalo ngay",
+          "Resend với cc thêm địa chỉ khác"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "ProposalRevision Module",
+        "ds": "Tạo revision record v1.0 · lưu link + timestamp",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Proposal Review (chờ feedback KH)"
+      }
+    ]
+  },
+  "proposal_review": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Proposal Review",
+    "r": "Phụ trách: Account Manager + KH",
+    "w": [
+      "Vòng lặp feedback: KH phản hồi → AM chỉnh → gửi version mới",
+      "Account Manager nhận feedback · Planner support chỉnh strategy · KH review",
+      "Mỗi vòng: KH có 3 ngày phản hồi · AM có 2 ngày chỉnh sửa",
+      "<em>Zalo/Email: nhận feedback</em> · PMS: log feedback · GG Drive: update link",
+      "Hoàn thiện Proposal theo kỳ vọng KH trong giới hạn cho phép",
+      "KH feedback → AM nhập vào PMS (text + ảnh chat) → chỉnh → gửi version mới"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal vX.0 đã gửi",
+        "ft": "Link GG Drive · PMS record",
+        "nt": "Version hiện tại KH đang review"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Feedback từ KH",
+        "ft": "Zalo chat / Email · AM nhập vào PMS",
+        "nt": "BẮT BUỘC log vào PMS dù KH gửi qua kênh nào"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal vX+1.0 đã cập nhật",
+        "ft": "Link GG Drive (cùng link · update file)",
+        "nt": "KH review tiếp"
+      },
+      {
+        "tp": "PMS Record",
+        "nm": "Revision history đầy đủ",
+        "ft": "ProposalRevision records",
+        "nt": "Track: bao nhiêu vòng · feedback gì · sửa gì"
+      }
+    ],
+    "done": [
+      "Feedback của KH đã được nhập vào PMS",
+      "Version mới đã được AM chỉnh theo feedback",
+      "Revision count chưa vượt giới hạn (A/B: ≤2 · C/D: ≤4)"
+    ],
+    "sla": [
+      "Sau khi gửi mỗi version",
+      "KH: 3 ngày · AM: 2 ngày sửa",
+      "KH không phản hồi 3 ngày → nhắc · 5 ngày → escalate SM"
+    ],
+    "risks": [
+      {
+        "nm": "Vượt giới hạn revision",
+        "esc": [
+          "PMS tự block · hiển thị cảnh báo",
+          "AM báo Account Director",
+          "AD quyết định: chấp nhận thêm 1 lần hoặc vào Pitching với version hiện tại"
+        ]
+      },
+      {
+        "nm": "KH liên tục thay đổi yêu cầu cơ bản",
+        "esc": [
+          "AM họp riêng với KH để clarify root requirement",
+          "Nếu cần → quay về Second Meeting để rebrief"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "ProposalRevision Module",
+        "ds": "Track versions · log feedback · đếm revision count",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert khi sắp đến giới hạn revision",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "KH satisfied → Pitching"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Vượt giới hạn → AD quyết định"
+      }
+    ]
+  },
+  "pitching": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Pitching",
+    "r": "Phụ trách: Account Manager + Creative Lead",
+    "w": [
+      "Trình bày chính thức Proposal trước KH và ban lãnh đạo phía KH",
+      "Account Manager chủ trì · Creative Lead support · Planner sẵn sàng answer",
+      "Sau khi KH đã review Proposal đủ và sẵn sàng nghe pitch",
+      "<em>Zoom/Meet/Trực tiếp</em> · GG Slides: deck",
+      "Thuyết phục KH chọn BC Agency · Rehearsal giúp team tự tin hơn",
+      "Dùng slide từ GG Slides · Pitch theo kịch bản đã Rehearsal · Dùng Q&A script"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Proposal version cuối đã được KH review",
+        "ft": "Link GG Slides · GG Drive",
+        "nt": "Version KH happy nhất"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Q&A Script từ Rehearsal",
+        "ft": "Note nội bộ PMS",
+        "nt": "Kịch bản xử lý từ chối đã chuẩn bị"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "KH chọn Agency hay không",
+        "ft": "Zalo/Email confirm · PMS update",
+        "nt": "AM update ngay vào PMS sau buổi pitch"
+      },
+      {
+        "tp": "PMS Record",
+        "nm": "Ghi chú buổi pitch: phản ứng KH · điểm cần cải thiện",
+        "ft": "PMS note",
+        "nt": "Dùng để post-mortem nếu LOST"
+      }
+    ],
+    "done": [
+      "Pitch đã diễn ra đầy đủ",
+      "KH đã đưa ra phản hồi",
+      "PMS đã được update stage + ghi chú"
+    ],
+    "sla": [
+      "Sau khi KH confirm lịch pitch",
+      "Trong vòng 5 ngày làm việc",
+      "+3 ngày nếu KH bận"
+    ],
+    "risks": [
+      {
+        "nm": "KH nói cần thêm thời gian suy nghĩ",
+        "esc": [
+          "AM follow up sau 3 ngày",
+          "Tuần 2: Sales Manager contact",
+          "Tuần 3: coi như LOST nếu vẫn im lặng"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = PITCHING",
+        "sy": "pms"
+      },
+      {
+        "nm": "Event Module",
+        "ds": "Tạo pitching event · record attendance",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "KH chọn → Quotation"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "KH từ chối → LOST (ghi lý do 4 nhóm)"
+      }
+    ]
+  },
+  "quotation": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Quotation",
+    "r": "Phụ trách: Account Manager + Accountant",
+    "w": [
+      "Lập bảng báo giá chính thức chi tiết dựa trên scope đã thống nhất sau Pitching",
+      "Account Manager lập scope · Accountant tính giá · Account Director duyệt",
+      "Trong vòng 2 ngày sau khi KH chọn Agency",
+      "<em>GG Sheets: báo giá</em> · Email: gửi chính thức · PMS: lưu version",
+      "Tạo cơ sở pháp lý cho đàm phán · KH có số cụ thể để approve nội bộ",
+      "AM xác định scope chi tiết → Accountant tính giá → AD duyệt → gửi KH"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Scope chi tiết từ Proposal đã được accept",
+        "ft": "PMS record · Proposal final version",
+        "nt": "Biết chính xác làm gì mới tính giá được"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Báo giá chính thức (Quotation)",
+        "ft": "PDF / GG Sheets · Link GG Drive",
+        "nt": "KH và decision maker phía KH"
+      }
+    ],
+    "done": [
+      "Báo giá chi tiết từng hạng mục",
+      "Account Director đã duyệt margin",
+      "KH đã nhận được báo giá",
+      "PMS đã lưu version + timestamp"
+    ],
+    "sla": [
+      "KH chọn Agency sau Pitching",
+      "2 ngày làm việc",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Giá vượt ngân sách KH",
+        "esc": [
+          "AM chủ động nêu trước Negotiation",
+          "Chuẩn bị phương án scope thu nhỏ giữ nguyên giá"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Budget Module",
+        "ds": "Set sơ bộ totalBudget · monthlyBudget",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload quotation PDF",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Negotiation"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "KH reject giá → Negotiation hoặc LOST"
+      }
+    ]
+  },
+  "negotiation": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Negotiation",
+    "r": "Phụ trách: Account Manager + Sales Manager",
+    "w": [
+      "Đàm phán giá, điều khoản HĐ và set reporting frequency cho toàn dự án",
+      "Account Manager dẫn đầu · Sales Manager support · KH + lãnh đạo phía KH",
+      "Sau khi KH nhận Quotation · Kéo dài 1-5 ngày",
+      "<em>Email/Zalo/Gặp trực tiếp</em> · GG Drive: tài liệu · PMS: update config",
+      "Chốt giá và điều khoản cuối · Set reporting frequency · Nền tảng pháp lý HĐ",
+      "Đàm phán từng hạng mục · Set Daily/Weekly/Monthly · KH đồng ý → WON · Fail → LOST"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Quotation chính thức",
+        "ft": "PDF · Link GG Drive",
+        "nt": "Cơ sở đàm phán"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Hợp đồng đã ký (hoặc LOI)",
+        "ft": "PDF scan · Upload PMS hoặc link GG Drive",
+        "nt": "Accountant lưu · PMS gắn project"
+      },
+      {
+        "tp": "Config",
+        "nm": "Reporting Frequency đã set",
+        "ft": "PMS project config · DAILY/WEEKLY/MONTHLY",
+        "nt": "Áp dụng toàn bộ ONGOING"
+      }
+    ],
+    "done": [
+      "HĐ hoặc LOI đã ký 2 bên",
+      "Reporting frequency đã set trên PMS",
+      "Stage đã chuyển WON hoặc LOST"
+    ],
+    "sla": [
+      "KH nhận Quotation",
+      "5 ngày làm việc",
+      "Được phép nếu có lý do pháp lý · SM approve"
+    ],
+    "risks": [
+      {
+        "nm": "Gap giá quá lớn",
+        "esc": [
+          "AM báo SM + Account Director",
+          "Họp nội bộ xem có điều chỉnh không",
+          "Không được → LOST"
+        ]
+      },
+      {
+        "nm": "Kéo dài quá SLA",
+        "esc": [
+          "Reminder 2 ngày/lần",
+          "Quá 7 ngày → SM contact CEO phía KH",
+          "Quá 14 ngày → LOST hoặc PAUSED"
+        ]
+      },
+      {
+        "nm": "Điều khoản pháp lý phức tạp",
+        "esc": [
+          "AM escalate Account Director + CEO",
+          "Tham vấn pháp lý nếu cần"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Set reportingFrequency · stage WON/LOST",
+        "sy": "pms"
+      },
+      {
+        "nm": "Budget Module",
+        "ds": "Set totalBudget · monthlyBudget chính thức",
+        "sy": "pms"
+      },
+      {
+        "nm": "Audit Log",
+        "ds": "Ghi toàn bộ thay đổi giá trong đàm phán",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ WON → chờ tiền TK"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "→ LOST (4 lý do chi tiết)"
+      }
+    ]
+  },
+  "won": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "WON — Chốt thỏa thuận",
+    "r": "Xác nhận: Sales Manager / Account Manager",
+    "w": [
+      "Đánh dấu chính thức thắng deal · Chuyển giao từ Sales sang Operations · Bắt đầu chuẩn bị",
+      "Account Manager · Sales Manager xác nhận",
+      "Ngay khi KH đồng ý qua Negotiation",
+      "<em>PMS: update stage WON</em> · Zalo: thông báo team",
+      "Điểm chuyển giao quan trọng nhất · Sales → Ops · Bắt đầu đồng hồ D-day",
+      "Update PMS → Notify team → Bắt đầu thu thập tài nguyên → Chờ tiền vào TK"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "HĐ đã ký + Quotation chính thức",
+        "ft": "PMS · File Module",
+        "nt": "Cơ sở pháp lý đã hoàn chỉnh"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "Project stage = WON · team được assign",
+        "ft": "PMS",
+        "nt": "Toàn bộ BPVH team"
+      },
+      {
+        "tp": "Action",
+        "nm": "Thu thập tài nguyên bắt đầu ngay",
+        "ft": "PMS checklist task",
+        "nt": "Song song với việc chờ tiền vào TK"
+      }
+    ],
+    "done": [
+      "Stage PMS = WON",
+      "Toàn bộ team BPVH đã được notify",
+      "Checklist thu thập tài nguyên đã tạo trên PMS",
+      "Sales Executive chuyển sang observe mode"
+    ],
+    "sla": [
+      "KH confirm đồng ý",
+      "24h phải update PMS + notify team",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Delay giữa WON và tiền vào TK quá lâu",
+        "esc": [
+          "AM theo dõi · nhắc KH sau 5 ngày",
+          "Quá 14 ngày → Sales Manager contact KH"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = WON · assign full team",
+        "sy": "pms"
+      },
+      {
+        "nm": "Task Module",
+        "ds": "Auto-generate checklist thu thập tài nguyên",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Collecting Assets (song song chờ tiền)"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "D+0 khi tiền vào TK + Accountant confirm"
+      }
+    ]
+  },
+  "collecting": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Thu thập tài nguyên",
+    "r": "Phụ trách: Account Manager chủ trì",
+    "w": [
+      "Thu thập toàn bộ tài sản số KH cần thiết để chạy dự án · Checklist từ scope Proposal",
+      "Account Manager chủ trì · Sales Executive hỗ trợ liên hệ KH",
+      "Bắt đầu ngay sau WON · Song song chờ tiền",
+      "<em>PMS: checklist task</em> · Zalo: yêu cầu KH cung cấp quyền",
+      "Cần đủ tài nguyên trước D+5 · Tránh delay sau khi tiền vào",
+      "Dùng checklist theo service package · Gửi request quyền cho KH · Track từng item trên PMS"
+    ],
+    "inp": [
+      {
+        "tp": "Config",
+        "nm": "Service Package đã chọn",
+        "ft": "PMS — servicePackage field",
+        "nt": "Xác định cần thu thập tài nguyên gì"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Quyền truy cập ad accounts đã request",
+        "ft": "Meta BM / Google Ads / TikTok Ads Manager",
+        "nt": "KH accept trong 1-3 ngày"
+      },
+      {
+        "tp": "PMS Checklist",
+        "nm": "Danh sách tài nguyên: đủ / thiếu / đang chờ",
+        "ft": "PMS task checklist",
+        "nt": "AM theo dõi real-time"
+      }
+    ],
+    "done": [
+      "Checklist tài nguyên đã tạo trên PMS",
+      "Toàn bộ request đã gửi cho KH",
+      "Items chưa có đã ghi nhận + deadline cho KH"
+    ],
+    "sla": [
+      "Ngay sau WON",
+      "Phải hoàn thành trước D+4",
+      "D+5 lùi nếu tài nguyên chưa sẵn sàng"
+    ],
+    "risks": [
+      {
+        "nm": "KH chưa có fanpage/ad account",
+        "esc": [
+          "AM hỗ trợ tạo mới · hướng dẫn từng bước",
+          "D+5 bị lùi đến khi setup xong"
+        ]
+      },
+      {
+        "nm": "KH chậm cấp quyền",
+        "esc": [
+          "Nhắc hàng ngày qua Zalo",
+          "Quá 3 ngày không cấp → AM call trực tiếp",
+          "Quá 5 ngày → Account Director contact KH"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Auto-generate checklist theo service package",
+        "sy": "pms"
+      },
+      {
+        "nm": "CMS Module (tương lai)",
+        "ds": "Track ad account info · top-up status",
+        "sy": "cms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Đủ tài nguyên + tiền vào TK → D+0"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Thiếu tài nguyên → D+5 bị lùi"
+      }
+    ]
+  },
+  "wait_payment": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "Chờ tiền vào TK",
+    "r": "Theo dõi: Accountant",
+    "w": [
+      "Song song với thu thập tài nguyên · Tiền vào TK là điều kiện duy nhất kích hoạt D+0",
+      "Accountant theo dõi hàng ngày · thông báo AM ngay khi confirm",
+      "Từ sau WON cho đến khi tiền vào",
+      "<em>Ngân hàng online</em> · Zalo: Accountant → AM · PMS: payment record",
+      "Không có D+0 thì không có timeline triển khai",
+      "Accountant check sao kê hàng ngày → Tiền vào → Confirm ngay cho AM → AM update PMS"
+    ],
+    "inp": [
+      {
+        "tp": "Tài chính",
+        "nm": "Chờ chuyển khoản từ KH",
+        "ft": "Sao kê ngân hàng",
+        "nt": "Accountant check hàng ngày"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Accountant confirm tiền vào → thông báo AM",
+        "ft": "Zalo · PMS payment record",
+        "nt": "Kích hoạt D+0 ngay lập tức"
+      }
+    ],
+    "done": [
+      "Tiền đã vào TK công ty",
+      "Accountant đã confirm",
+      "AM đã nhận thông báo"
+    ],
+    "sla": [
+      "Sau WON",
+      "Accountant confirm trong 4h làm việc sau khi tiền vào",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Tiền vào nhưng thiếu (chưa đủ phase 1)",
+        "esc": [
+          "Accountant báo AM ngay",
+          "AM contact KH để clarify",
+          "Chưa trigger D+0 cho đến khi đủ số"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Set paymentConfirmedAt · trigger D+0",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM khi D+0 kích hoạt · Alert nếu HĐ chưa có sau 3 ngày",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Tiền vào → D+0 kích hoạt"
+      }
+    ]
+  },
+  "d0_trigger": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "D+0 — Kích hoạt triển khai",
+    "r": "Xác nhận: Accountant → Account Manager",
+    "w": [
+      "Điểm kích hoạt chính thức toàn bộ timeline triển khai",
+      "Accountant xác nhận → thông báo AM ngay",
+      "Khi tiền phase đầu vào TK công ty",
+      "<em>PMS: payment confirmation record</em> · Zalo: Accountant → AM",
+      "Không có D+0 thì không có D+1/2/3/5 — đây là điều kiện duy nhất",
+      "HĐ có thể ký sau · Tiền vào là điều kiện đủ · Accountant confirm → AM update PMS → timeline bắt đầu"
+    ],
+    "inp": [
+      {
+        "tp": "Tài chính",
+        "nm": "Chuyển khoản thanh toán từ KH",
+        "ft": "Sao kê ngân hàng",
+        "nt": "Accountant check hàng ngày"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "HĐ đã ký (khuyến nghị)",
+        "ft": "PMS · File Module",
+        "nt": "HĐ có thể ký sau nhưng cần follow up"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "D+0 timestamp đã set",
+        "ft": "PMS — dStartDate · paymentConfirmedAt",
+        "nt": "Toàn bộ timeline D+1/2/3/5 tính từ ngày này"
+      },
+      {
+        "tp": "Action",
+        "nm": "Cảnh báo nếu HĐ chưa upload",
+        "ft": "PMS system warning",
+        "nt": "Nhắc AM + Accountant follow up HĐ"
+      }
+    ],
+    "done": [
+      "Accountant đã confirm tiền vào",
+      "D+0 timestamp đã set trên PMS",
+      "AM đã nhận thông báo",
+      "Planning Draft bắt đầu ngay"
+    ],
+    "sla": [
+      "Khi tiền vào TK",
+      "Accountant confirm trong 4h làm việc",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "HĐ chưa ký sau 3 ngày từ D+0",
+        "esc": [
+          "PMS tự cảnh báo AM + Account Director",
+          "AM chủ động follow up KH ký HĐ"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Set dStartDate · paymentConfirmedAt · hasContractWarning",
+        "sy": "pms"
+      },
+      {
+        "nm": "Budget Module",
+        "ds": "Confirm payment amount · set budget active",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "D+0 → Planning Draft ngay"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "HĐ chưa ký → cảnh báo nhưng không block"
+      }
+    ]
+  },
+  "planning_draft": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Planning Sơ bộ",
+    "r": "Phụ trách: Account Manager + Planner",
+    "w": [
+      "Soạn bản plan đầu tiên theo flow TT→ĐH→AD ngay từ D+0",
+      "Account Manager soạn chính · Planner review strategy và media logic",
+      "D+0 — bắt đầu ngay trong ngày tiền vào TK",
+      "<em>GG Slides: media deck</em> · GG Sheets: media plan · PMS: link plan",
+      "Có nội dung để kick-off nội bộ D+1 · Draft plan = khung để team góp ý",
+      "TT=Tổng hợp brief+insight · ĐH=Chiến lược+thông điệp+audience · AD=Action plan kênh+lịch+budget"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Strategic Brief đầy đủ 16 sections",
+        "ft": "PMS — Strategic Brief Module",
+        "nt": "Nền tảng cho toàn bộ plan"
+      },
+      {
+        "tp": "Config",
+        "nm": "Service Package + Objective + Reporting Frequency",
+        "ft": "PMS project config",
+        "nt": "Xác định plan cần bao gồm gì"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Planning Draft (TT→ĐH→AD)",
+        "ft": "GG Slides + GG Sheets · Link PMS",
+        "nt": "Team nội bộ · Dùng cho Kick-off Internal D+1"
+      },
+      {
+        "tp": "Checklist",
+        "nm": "Task list theo service package",
+        "ft": "PMS — Task Module (auto-generated)",
+        "nt": "Từ template theo servicePackage + objective"
+      }
+    ],
+    "done": [
+      "TT: brief và insight đã tổng hợp",
+      "ĐH: strategy và thông điệp đã draft",
+      "AD: action plan có kênh + lịch + budget sơ bộ",
+      "Link plan đã upload lên PMS"
+    ],
+    "sla": [
+      "D+0",
+      "Hoàn thành trong ngày D+0 để kịp D+1",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Thiếu thông tin để lên plan",
+        "esc": [
+          "AM request clarify từ KH ngay",
+          "Lên plan với assumption rõ ràng",
+          "Mark assumption để confirm trong Kick-off KH"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Auto-generate task list từ template theo service package",
+        "sy": "pms"
+      },
+      {
+        "nm": "Media Plan Module",
+        "ds": "Tạo media plan sơ bộ",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Kick-off Internal lần 1 (D+1)"
+      }
+    ]
+  },
+  "kickoff_i1": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Kick-off Nội bộ — Lần 1",
+    "r": "Phụ trách: Account Manager chủ trì",
+    "w": [
+      "Toàn bộ team vận hành họp review Planning Draft · Phát hiện vấn đề trước khi ra KH",
+      "Account Manager chủ trì · Planner · Lead Content · Lead Design · Lead Media · Lead Video",
+      "D+1",
+      "<em>Zoom/Meet nội bộ</em> · GG Slides: review live · PMS: ghi feedback",
+      "Team review draft trước khi chốt · Đảm bảo mọi bộ phận understand plan của mình",
+      "Review từng hạng mục · Từng Lead nêu ý kiến feasibility · AM ghi nhận điểm cần sửa"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Planning Draft TT→ĐH→AD từ D+0",
+        "ft": "GG Slides + GG Sheets · Link PMS",
+        "nt": "AM đã chuẩn bị từ D+0"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Danh sách feedback nội bộ + điểm cần sửa",
+        "ft": "PMS comment · GG Docs note",
+        "nt": "AM tổng hợp ngay trong buổi họp"
+      },
+      {
+        "tp": "Action",
+        "nm": "Phân công chỉnh sửa cho từng bộ phận",
+        "ft": "PMS task assignments",
+        "nt": "Deadline: trước Kick-off Internal D+2"
+      }
+    ],
+    "done": [
+      "Toàn bộ team đã tham dự hoặc gửi feedback trước",
+      "Danh sách điểm cần sửa đã được tổng hợp",
+      "Phân công rõ: ai sửa phần nào · deadline khi nào"
+    ],
+    "sla": [
+      "D+1",
+      "1-2 tiếng",
+      "Không thể lùi — nếu ai vắng phải gửi feedback trước qua chat"
+    ],
+    "risks": [
+      {
+        "nm": "Lead bộ phận thấy plan không khả thi",
+        "esc": [
+          "Thảo luận tại chỗ để điều chỉnh scope",
+          "Nếu cần thay đổi lớn → AM + Planner họp thêm sau buổi"
+        ]
+      },
+      {
+        "nm": "Team không đủ resource cho scope",
+        "esc": [
+          "AM escalate Account Director ngay",
+          "Quyết định: thuê thêm / thu hẹp scope / lùi timeline"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = KICKOFF_INTERNAL_1",
+        "sy": "pms"
+      },
+      {
+        "nm": "Event Module",
+        "ds": "Tạo meeting event · track attendance",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Chỉnh sửa plan → Kick-off Internal D+2"
+      }
+    ]
+  },
+  "kickoff_i2": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Kick-off Nội bộ — Lần 2",
+    "r": "Phụ trách: Account Manager chủ trì",
+    "w": [
+      "Review plan đã chỉnh sửa sau D+1 · Chốt lần cuối trước khi trình KH",
+      "Account Manager chủ trì · Planner · toàn bộ team BPVH",
+      "D+2",
+      "<em>Zoom/Meet nội bộ</em> · GG Slides: plan final · PMS: stage update",
+      "Plan hoàn chỉnh · Team confident · Sẵn sàng trình KH",
+      "Review các điểm đã sửa từ D+1 · Chốt plan · Phân công presenter · Chuẩn bị deck KH"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Planning Draft đã chỉnh sửa theo feedback D+1",
+        "ft": "GG Slides updated · Link PMS",
+        "nt": "Đã fix toàn bộ điểm từ Kick-off Internal 1"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Plan hoàn chỉnh đã chốt nội bộ",
+        "ft": "GG Slides final · GG Sheets media plan final",
+        "nt": "KH trong buổi Kick-off D+3"
+      },
+      {
+        "tp": "Action",
+        "nm": "Phân công: ai present gì trong Kick-off KH",
+        "ft": "PMS note",
+        "nt": "AM dẫn chính · Lead bộ phận explain phần của mình"
+      }
+    ],
+    "done": [
+      "Plan đã chỉnh sửa đầy đủ theo feedback D+1",
+      "Toàn bộ team đồng thuận với plan",
+      "Deck KH đã sẵn sàng",
+      "Phân công presenter đã rõ"
+    ],
+    "sla": [
+      "D+2",
+      "1-2 tiếng",
+      "Không thể lùi"
+    ],
+    "risks": [
+      {
+        "nm": "Phát hiện vấn đề mới trong buổi D+2",
+        "esc": [
+          "Nếu nhỏ: sửa ngay trong buổi",
+          "Nếu lớn: AM + Planner ở lại giải quyết sau buổi"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = KICKOFF_INTERNAL_2",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload plan final · deck KH",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Kick-off KH + Client Onboarding (D+3)"
+      }
+    ]
+  },
+  "kickoff_client": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Kick-off KH (Client Onboarding)",
+    "r": "Phụ trách: Account Manager chủ trì",
+    "w": [
+      "Họp chính thức đầu tiên với KH · Present plan · Giới thiệu portal · Set 6 Communication Rules",
+      "Account Manager chủ trì · Toàn bộ team BPVH · KH + đầu mối liên lạc phía KH",
+      "D+3 sau D+0",
+      "<em>Zoom/Meet là chính</em> · PMS Portal: giới thiệu · GG Slides: plan deck · Zalo: confirm",
+      "Align kỳ vọng ngay từ đầu · Set rules rõ tránh tranh chấp · KH biết portal để theo dõi",
+      "Present plan D+2 → Giới thiệu portal → Cấp quyền → KÝ xác nhận 6 Rules → Confirm KPI + reporting"
+    ],
+    "inp": [
+      {
+        "tp": "Kết quả từ bước trước",
+        "nm": "Plan hoàn chỉnh từ Kick-off Internal D+2",
+        "ft": "GG Slides + GG Sheets · Link PMS",
+        "nt": "Đã team nội bộ duyệt qua 2 buổi"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "D+0 đã kích hoạt + checklist tài nguyên đủ",
+        "ft": "PMS payment record · task checklist",
+        "nt": "Xác nhận đủ điều kiện tổ chức"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Biên bản kick-off + 6 Communication Rules đã ký",
+        "ft": "PDF · Upload PMS + email KH",
+        "nt": "KH giữ bản · PMS lưu làm bằng chứng"
+      },
+      {
+        "tp": "Action",
+        "nm": "Client Portal account đã tạo và KH đã login",
+        "ft": "PMS account · Email hướng dẫn",
+        "nt": "KH xem tiến độ bất kỳ lúc nào"
+      },
+      {
+        "tp": "Action",
+        "nm": "Request quyền ad accounts đã gửi",
+        "ft": "Meta BM / Google Ads / TikTok",
+        "nt": "KH accept 1-3 ngày · D+5 lùi nếu chưa có"
+      }
+    ],
+    "done": [
+      "6 Communication Rules đã được KH ký xác nhận",
+      "KH đã đăng nhập portal ít nhất 1 lần",
+      "Request quyền đã gửi đủ",
+      "KPI + reporting frequency đã confirm 2 chiều",
+      "Biên bản đã upload PMS"
+    ],
+    "sla": [
+      "D+3",
+      "1-2 tiếng",
+      "Không gia hạn · D+5 lùi theo nếu trễ"
+    ],
+    "risks": [
+      {
+        "nm": "KH không book được lịch D+3",
+        "esc": [
+          "AM đề xuất 3 slot",
+          "Vẫn không được → Account Director contact",
+          "D+5 tự động lùi"
+        ]
+      },
+      {
+        "nm": "KH từ chối ký 6 Communication Rules",
+        "esc": [
+          "AM giải thích từng rule",
+          "Còn không → Account Director negotiate",
+          "Ghi nhận exception trên PMS"
+        ]
+      },
+      {
+        "nm": "Tài nguyên chưa sẵn sàng",
+        "esc": [
+          "Ghi nhận trên PMS checklist",
+          "Set deadline KH cung cấp",
+          "D+5 lùi đến khi đủ"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = KICKOFF_CLIENT · set communicationRules",
+        "sy": "pms"
+      },
+      {
+        "nm": "Client Portal",
+        "ds": "Tạo account KH · gửi link hướng dẫn",
+        "sy": "pms"
+      },
+      {
+        "nm": "Event Module",
+        "ds": "Tạo recurring event cho weekly/monthly review",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Nhắc KH đăng nhập portal nếu 24h chưa vào",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ ONGOING (D+5)"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "D+5 lùi nếu tài nguyên chưa đủ"
+      }
+    ]
+  },
+  "upsell": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "UPSELL — Mini-flow",
+    "r": "Phát hiện: Account Manager / Sales Executive",
+    "w": [
+      "Khi phát hiện cơ hội mở rộng trong ONGOING · Không cần qua pitching đầy đủ vì KH đã tin tưởng",
+      "AM ghi nhận cơ hội · AM + Sales Executive coordinate",
+      "Bất kỳ lúc nào trong ONGOING khi phát hiện cơ hội",
+      "<em>PMS: tạo upsell opportunity record</em> · Zalo: trao đổi với KH",
+      "Tăng revenue từ KH hiện tại · Chi phí acquisition = 0",
+      "AM ghi nhận → tag loại upsell → soạn đề xuất nhanh → gửi KH → quyết định"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Cơ hội phát hiện trong ONGOING",
+        "ft": "Observation từ AM/team",
+        "nt": "VD: KH hỏi thêm về kênh mới · kết quả tốt muốn scale"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "Accepted hoặc Declined",
+        "ft": "Zalo/Email confirm · PMS record",
+        "nt": "Accepted nhỏ: điều chỉnh project hiện tại · Accepted lớn: project mới"
+      }
+    ],
+    "done": [
+      "Opportunity đã ghi nhận trên PMS",
+      "KH đã quyết định rõ ràng",
+      "Nếu accepted: action đã được trigger"
+    ],
+    "sla": [
+      "Khi phát hiện cơ hội",
+      "AM soạn đề xuất trong 24h",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "KH không đồng ý",
+        "esc": [
+          "Lưu lại · theo dõi tín hiệu sau",
+          "Không ép buộc"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Accepted lớn: tạo project mới + set parentProjectId",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Accepted nhỏ → điều chỉnh budget hiện tại"
+      },
+      {
+        "c": "var(--blu-200)",
+        "t": "Accepted lớn → Project mới + link history"
+      },
+      {
+        "c": "var(--gray-200)",
+        "t": "Declined → Lưu lại"
+      }
+    ]
+  },
+  "wrapup": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Wrap-up Meeting",
+    "r": "Phụ trách: Account Manager chủ trì",
+    "w": [
+      "Họp tổng kết cuối dự án với KH · Review kết quả · Đề xuất tháng tới",
+      "Account Manager chủ trì · Planner tham dự · Sales Executive observe",
+      "Khi còn khoảng 2 tuần trước khi HĐ hết",
+      "<em>Zoom/Meet</em> · GG Slides: summary deck · PMS: ghi nhận feedback",
+      "Tăng tỉ lệ renew · Nhận feedback thật · Chuẩn bị cho Final Report",
+      "Prepare summary deck → Họp với KH → Ghi nhận feedback → Explore cơ hội renew/upsell"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Toàn bộ performance data của dự án",
+        "ft": "Ads Report · Content performance · KPI actual",
+        "nt": "AM + Media chuẩn bị trước buổi họp"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Wrap-up summary deck đã present",
+        "ft": "GG Slides · Link PMS",
+        "nt": "KH giữ + PMS lưu"
+      },
+      {
+        "tp": "PMS Record",
+        "nm": "Feedback KH + tín hiệu renew",
+        "ft": "PMS note",
+        "nt": "Dùng cho quyết định renew và Final Report"
+      }
+    ],
+    "done": [
+      "Buổi họp đã diễn ra",
+      "Feedback KH đã ghi nhận vào PMS",
+      "Tín hiệu renew đã được assess"
+    ],
+    "sla": [
+      "Còn 14 ngày trước khi HĐ hết",
+      "Book lịch trong 3 ngày · Họp 1-1.5 tiếng",
+      "Không · nếu KH không book → Account Director contact"
+    ],
+    "risks": [
+      {
+        "nm": "KH không muốn renew",
+        "esc": [
+          "AM ghi nhận lý do",
+          "Vào LOST nhóm A · nurturing plan",
+          "Sales Manager contact sau 1 tháng"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Event Module",
+        "ds": "Tạo Wrap-up meeting event",
+        "sy": "pms"
+      },
+      {
+        "nm": "Project Module",
+        "ds": "Ghi nhận wrap-up notes + renew signal",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM khi còn 14 ngày trước khi HĐ hết",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Client Survey"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Tín hiệu renew → chuẩn bị RENEW flow"
+      }
+    ]
+  },
+  "survey": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Client Survey",
+    "r": "Phụ trách: Account Manager / CS",
+    "w": [
+      "Thu thập điểm hài lòng và NPS (0-10) từ KH để cải thiện dịch vụ",
+      "Account Manager hoặc CS gửi · KH điền",
+      "Ngay sau Wrap-up Meeting",
+      "<em>Google Form / Typeform</em> · Zalo: gửi link · PMS: lưu kết quả",
+      "Đo NPS để quyết định renew strategy · Data cho case study",
+      "3 hình thức: AM gửi tay / CS gửi / hệ thống tự gửi form"
+    ],
+    "inp": [
+      {
+        "tp": "Kết quả từ bước trước",
+        "nm": "Wrap-up Meeting đã hoàn thành",
+        "ft": "PMS record",
+        "nt": "KH đã có cái nhìn tổng quan trước khi điền survey"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "NPS score + feedback chi tiết",
+        "ft": "PMS — clientSurveyScore · note",
+        "nt": "AM + Account Director review"
+      }
+    ],
+    "done": [
+      "Form đã gửi đến KH",
+      "KH đã điền (hoặc đã nhắc 2 lần)",
+      "Score đã lưu vào PMS"
+    ],
+    "sla": [
+      "Sau Wrap-up Meeting",
+      "Gửi ngay · KH có 3 ngày điền",
+      "Nhắc 1 lần nếu chưa điền sau 2 ngày"
+    ],
+    "risks": [
+      {
+        "nm": "KH không chịu điền survey",
+        "esc": [
+          "AM hỏi trực tiếp qua Zalo (informal)",
+          "Ghi nhận bằng cảm nhận từ Wrap-up Meeting"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Lưu clientSurveyScore · clientSurveyNote",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Final Report"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "NPS < 6 → Account Director review ngay"
+      }
+    ]
+  },
+  "final_report": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "Final Report",
+    "r": "Account Manager viết — Planner duyệt format",
+    "w": [
+      "Báo cáo tổng kết toàn bộ dự án: kết quả thực tế vs KPI, insight sâu, bài học kinh nghiệm",
+      "Account Manager soạn nội dung · Planner duyệt format và insight quality",
+      "Sau Wrap-up Meeting · Trước Client Offboarding",
+      "<em>GG Docs/Slides: soạn</em> · PMS: upload file · Email+Zalo+Portal: gửi KH",
+      "Tổng kết dự án · Proof of work · Input cho quyết định renew · Tài liệu lưu trữ dài hạn",
+      "AM soạn theo template chuẩn (9 sections) → Planner review → AM finalize → gửi KH"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Toàn bộ performance data của dự án",
+        "ft": "Ads Reports · Content performance · KPI actual",
+        "nt": "Export từ tất cả platform"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Feedback từ Wrap-up + NPS survey",
+        "ft": "PMS record",
+        "nt": "Perspective KH về kết quả"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Final Report hoàn chỉnh (9 sections)",
+        "ft": "PDF · GG Slides · Upload PMS + gửi KH",
+        "nt": "KH + lưu nội bộ dài hạn"
+      }
+    ],
+    "done": [
+      "Report đã bao gồm đủ 9 sections theo template",
+      "Planner đã duyệt format và insight quality",
+      "KH đã nhận qua cả 3 kênh: Zalo + Email + Portal"
+    ],
+    "sla": [
+      "Sau Wrap-up Meeting",
+      "3-5 ngày",
+      "+2 ngày nếu data phức tạp"
+    ],
+    "risks": [
+      {
+        "nm": "Data từ platform không khớp nhau",
+        "esc": [
+          "Ưu tiên: thực tế KH > platform export > GA4 > tool trung gian",
+          "Ghi chú rõ nguồn và lý do lệch trong report"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Generate report template · lưu final version",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload Final Report PDF",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ Client Offboarding"
+      }
+    ]
+  },
+  "offboarding": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Client Offboarding",
+    "r": "Phụ trách: Account Manager + Sales Executive",
+    "w": [
+      "Bàn giao toàn bộ tài sản số cho KH · Thu hồi quyền truy cập nội bộ · Ký biên bản",
+      "Account Manager chủ trì · Sales Executive hỗ trợ · KH xác nhận nhận tài sản",
+      "Sau Final Report · Trước khi đóng project",
+      "<em>Meta BM · Google Ads · TikTok</em> · GG Drive: file bàn giao · PMS: biên bản",
+      "Tránh tranh chấp quyền sở hữu tài sản sau này · Cặp đôi với Client Onboarding",
+      "Checklist bàn giao → Gửi từng item cho KH → KH confirm nhận → Ký biên bản → Đóng access nội bộ"
+    ],
+    "inp": [
+      {
+        "tp": "Checklist",
+        "nm": "Danh sách tài sản đã thu thập tại Onboarding",
+        "ft": "PMS task checklist",
+        "nt": "Đối chiếu để đảm bảo bàn giao đủ"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Biên bản bàn giao tài sản số đã ký 2 bên",
+        "ft": "PDF · Upload PMS",
+        "nt": "Bằng chứng pháp lý nếu tranh chấp"
+      },
+      {
+        "tp": "Action",
+        "nm": "Quyền truy cập nội bộ đã thu hồi",
+        "ft": "Meta BM · Google Ads · TikTok · PMS account",
+        "nt": "KH là chủ sở hữu hoàn toàn"
+      }
+    ],
+    "done": [
+      "Toàn bộ tài sản đã bàn giao: ad account, fanpage, pixel, file thiết kế, data",
+      "Biên bản đã ký 2 bên",
+      "Quyền nội bộ đã thu hồi",
+      "PMS đã upload biên bản"
+    ],
+    "sla": [
+      "Sau Final Report",
+      "2-3 ngày làm việc",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "KH claim thiếu tài sản sau khi ký biên bản",
+        "esc": [
+          "Refer về biên bản đã ký",
+          "Nếu có missing thật → bổ sung và ký addendum"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "File Module",
+        "ds": "Upload biên bản bàn giao",
+        "sy": "pms"
+      },
+      {
+        "nm": "Client Portal",
+        "ds": "Deactivate portal access sau khi bàn giao xong",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "→ CLOSED hoặc RENEW"
+      }
+    ]
+  },
+  "closed": {
+    "bg": "var(--gray-50)",
+    "tc": "var(--gray-800)",
+    "t": "CLOSED",
+    "r": "Xác nhận: Account Manager",
+    "w": [
+      "Đóng project chính thức · Lưu trữ toàn bộ dữ liệu · Đưa KH vào nurturing list",
+      "Account Manager xác nhận close · Sales Executive nhận lại để nurture",
+      "Sau Client Offboarding hoàn tất",
+      "<em>PMS: stage CLOSED</em> · CRM/Zalo: nurturing list",
+      "Lưu trữ dữ liệu dài hạn · KH vào chăm sóc để có thể re-engage",
+      "AM close project trên PMS → Sales Executive nhận nurturing brief → Schedule re-contact"
+    ],
+    "inp": [
+      {
+        "tp": "Kết quả từ bước trước",
+        "nm": "Client Offboarding đã hoàn tất",
+        "ft": "PMS · biên bản đã upload",
+        "nt": "Điều kiện bắt buộc trước khi CLOSED"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "Project archived với toàn bộ data",
+        "ft": "PMS — stage: CLOSED · archivedAt",
+        "nt": "Không xóa · lưu vĩnh viễn"
+      },
+      {
+        "tp": "Action",
+        "nm": "KH trong nurturing list của Sales Executive",
+        "ft": "PMS tag + CRM",
+        "nt": "Sales Executive theo dõi"
+      }
+    ],
+    "done": [
+      "Stage PMS = CLOSED",
+      "Toàn bộ files được archive",
+      "KH đã được tag nurturing nhóm A/B/C"
+    ],
+    "sla": [
+      "Sau Client Offboarding",
+      "24h để close trên PMS",
+      "Không"
+    ],
+    "risks": [],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = CLOSED · archivedAt timestamp",
+        "sy": "pms"
+      },
+      {
+        "nm": "Dashboard",
+        "ds": "KH vào Closed clients view · win/loss analytics",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--gray-200)",
+        "t": "End of lifecycle · KH vào nurturing"
+      }
+    ]
+  },
+  "renew": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "RENEW — 3 Luồng",
+    "r": "Phụ trách: Account Manager + Sales Executive",
+    "w": [
+      "KH đồng ý gia hạn hợp tác · Có 3 luồng tùy mức độ thay đổi scope",
+      "Account Manager + Sales Executive phối hợp · KH quyết định luồng",
+      "Luồng A: đề xuất còn 30 ngày · Luồng B/C: bắt đầu discuss từ Wrap-up",
+      "<em>PMS: extend hoặc tạo project mới</em> · Zalo/Email: đàm phán",
+      "Giữ chân KH · Tăng revenue · Mở rộng scope nếu có thể",
+      "A: Giữ project ID → Planning Draft mới · B: QUOTATION mới → D+0 · C: Project mới + parentProjectId"
+    ],
+    "inp": [
+      {
+        "tp": "Kết quả từ bước trước",
+        "nm": "Tín hiệu renew từ Wrap-up + NPS score",
+        "ft": "PMS record · clientSurveyScore",
+        "nt": "NPS ≥ 7 + KPI ≥ 80% → Luồng A ưu tiên"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Luồng A",
+        "nm": "→ PLANNING_DRAFT mới (cùng project ID)",
+        "ft": "D+0 mới khi tiền phase mới vào TK",
+        "nt": "Scope tương tự · không cần pitch lại"
+      },
+      {
+        "tp": "Luồng B",
+        "nm": "→ QUOTATION mới (cùng project ID)",
+        "ft": "Stage QUOTATION mới",
+        "nt": "Scope thay đổi nhẹ · không cần Rehearsal"
+      },
+      {
+        "tp": "Luồng C",
+        "nm": "→ Project mới + link parentProjectId",
+        "ft": "Bắt đầu từ SECOND_MEETING",
+        "nt": "Scope hoàn toàn mới · bỏ Sales stages"
+      }
+    ],
+    "done": [
+      "Luồng renew đã được xác định",
+      "KH đã confirm tiếp tục",
+      "D+0 mới đã được trigger (Luồng A/B)"
+    ],
+    "sla": [
+      "Còn 30 ngày trước khi HĐ hết",
+      "Còn 14 ngày: gặp/gọi trực tiếp · Còn 7 ngày: Account Director vào",
+      "Hết HĐ mà chưa renew → Offboarding → Closed → Nurture"
+    ],
+    "risks": [
+      {
+        "nm": "KH muốn renew nhưng giảm budget",
+        "esc": [
+          "AM + SM evaluate có profitable không",
+          "Nếu không → từ chối khéo và đề xuất scope nhỏ hơn"
+        ]
+      },
+      {
+        "nm": "KH im lặng không phản hồi đề xuất renew",
+        "esc": [
+          "Còn 14 ngày: AM gặp trực tiếp",
+          "Còn 7 ngày: Account Director contact",
+          "Hết HĐ: Offboarding bình thường → CLOSED → Nurturing nhóm A"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Luồng A/B: extend · Luồng C: tạo project mới + parentProjectId",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM khi còn 30/14/7 ngày trước khi HĐ hết",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--teal-200)",
+        "t": "Luồng A → Planning Draft mới"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Luồng B → Quotation mới"
+      },
+      {
+        "c": "var(--blu-200)",
+        "t": "Luồng C → Project mới"
+      }
+    ]
+  },
+  "lost_general": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "LOST Management",
+    "r": "Ghi nhận: Sales Executive (Sales stages) / Account Manager (BPVH stages)",
+    "w": [
+      "Ghi nhận và phân loại dự án LOST · Lập kế hoạch nurturing phù hợp từng nhóm",
+      "Sales Executive ghi nhận (Sales stages) · AM ghi nhận (BPVH stages) · SM review",
+      "Ngay khi xác định LOST · Trong vòng 24h",
+      "<em>PMS: stage LOST · lostReason · nurturing tag</em>",
+      "Mọi LOST đều là cơ hội trong tương lai nếu được chăm sóc đúng cách",
+      "Xác định nhóm (A/B/C/D) → Ghi lý do → Set re-contact date → Assign nurturing owner"
+    ],
+    "inp": [
+      {
+        "tp": "Quyết định",
+        "nm": "KH từ chối tại 1 trong 3 điểm: First Meeting / Pitching / Negotiation",
+        "ft": "PMS — lostStage · lostReason",
+        "nt": "Ghi nhận trong vòng 24h"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "LOST record với phân loại nhóm A/B/C/D",
+        "ft": "PMS — stage: LOST · tag: NURTURE_ACTIVE/PASSIVE/BLACKLIST",
+        "nt": "Sales Executive thực hiện nurturing"
+      },
+      {
+        "tp": "Action",
+        "nm": "Kế hoạch nurturing cụ thể",
+        "ft": "PMS task · re-contact date",
+        "nt": "Phụ thuộc vào nhóm LOST"
+      }
+    ],
+    "done": [
+      "Stage PMS = LOST",
+      "Lý do đã ghi rõ (4 nhóm A/B/C/D)",
+      "Re-contact date đã set",
+      "Nurturing tag đã gán"
+    ],
+    "sla": [
+      "Khi xác định LOST",
+      "24h phải update PMS + set nurturing plan",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Team quên nurture LOST leads theo đúng schedule",
+        "esc": [
+          "PMS tự nhắc Sales Executive khi đến re-contact date",
+          "Sales Manager review nurturing list hàng tháng"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = LOST · set lostReason · lostStage · lostAt",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert Sales Executive khi đến re-contact date",
+        "sy": "pms"
+      },
+      {
+        "nm": "TMS Module (tương lai)",
+        "ds": "Track LOST rate trong KPI cá nhân Sales",
+        "sy": "tms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--amb-200)",
+        "t": "Nhóm A: nurture 3-6 tháng"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Nhóm C spy: blacklist"
+      },
+      {
+        "c": "var(--grn-200)",
+        "t": "Re-qualify → RAW_DATA mới"
+      }
+    ]
+  },
+  "paused": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "PAUSED",
+    "r": "Quyết định: Account Manager + Sales Manager hoặc Account Director",
+    "w": [
+      "Tạm dừng dự án · Có thể xảy ra bất kỳ lúc nào từ Sales đến Triển khai · Không gắn với stage cụ thể",
+      "Account Manager đề xuất · Sales Manager hoặc Account Director duyệt",
+      "Bất kỳ lúc nào trong lifecycle",
+      "<em>PMS: stage PAUSED · ghi lý do + ngày</em> · Zalo: thông báo team và KH",
+      "Bảo vệ cả 2 bên khi có vấn đề bất khả kháng · Tránh LOST không cần thiết",
+      "Xác định lý do → Duyệt pause → Lưu PMS → Set review date → Khi resume: review plan lại"
+    ],
+    "inp": [
+      {
+        "tp": "Quyết định",
+        "nm": "Lý do pause đã xác định",
+        "ft": "Verbal/Zalo → PMS record",
+        "nt": "VD: KH vấn đề nội bộ · thị trường biến động · Agency thiếu resource"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "PAUSED record với lý do + ngày + review date",
+        "ft": "PMS — pausedAt · pauseReason · resumeDate",
+        "nt": "Review date: thường 2-4 tuần sau"
+      },
+      {
+        "tp": "Action",
+        "nm": "Budget và campaign đã tạm dừng (nếu đang ONGOING)",
+        "ft": "Ads platforms · pause tất cả campaign",
+        "nt": "Không để budget tiếp tục chạy khi paused"
+      }
+    ],
+    "done": [
+      "Stage PMS = PAUSED",
+      "Lý do và ngày pause đã ghi",
+      "Review date đã set",
+      "Campaign ads đã pause nếu đang ONGOING"
+    ],
+    "sla": [
+      "Khi quyết định pause",
+      "24h phải update PMS + pause campaign",
+      "Review định kỳ mỗi 2 tuần"
+    ],
+    "risks": [
+      {
+        "nm": "PAUSED kéo dài quá lâu không có hồi âm",
+        "esc": [
+          "Sau 30 ngày: AM contact KH",
+          "Sau 60 ngày: chuyển sang LOST nhóm A",
+          "Ghi nhận trong PMS"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Stage = PAUSED · set pausedAt · pauseReason",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM khi đến review date",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Resume → quay về stage trước khi pause"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Quá 60 ngày → LOST nhóm A"
+      }
+    ]
+  },
+  "og_content": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Content Brief & Production",
+    "r": "Phụ trách: Content Executive/Senior/Lead",
+    "w": [
+      "Lên ý tưởng, viết caption, kịch bản và brief cho Design/Video · Content là ngọn hải đăng",
+      "Content Executive/Senior làm · Content Lead review · AM duyệt final",
+      "Theo lịch trong content calendar · Buffer 20% slot cho trending",
+      "<em>GG Docs: brief</em> · PMS: task assignment · Zalo: coordinate",
+      "Content định hướng toàn bộ creative — Design và Video follow brief của Content",
+      "Content tự QC theo checklist → Lead review → AM duyệt (tối đa 3 vòng nội bộ)"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Media plan + Content calendar",
+        "ft": "PMS · GG Sheets",
+        "nt": "Lịch đăng bài và brief từng hạng mục"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Brand guidelines + brief KH",
+        "ft": "GG Drive · PMS Strategic Brief",
+        "nt": "Tone · color · messaging"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Caption/Copy đã QC đủ checklist",
+        "ft": "GG Docs / PMS Content Post",
+        "nt": "Gửi Design/Video để thực thi visual"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief cho Design và Video",
+        "ft": "PMS — Handoff form",
+        "nt": "Đủ: kích thước · CTA · deadline · reference"
+      }
+    ],
+    "done": [
+      "Checklist TEXT: tone ✓ · độ dài platform ✓ · CTA ✓ · chính tả ✓ · không vi phạm policy ✓",
+      "Checklist ẢNH/VIDEO: kích thước ✓ · text ≤20% ✓ · resolution ✓ · format đúng ✓",
+      "Brief cho Design/Video đã đủ thông tin · có deadline rõ ràng"
+    ],
+    "sla": [
+      "Theo lịch content calendar",
+      "Content: tự QC + Lead review trong 4h · AM review trong 2h",
+      "Tối đa 3 vòng nội bộ · vòng 4 → escalate AM"
+    ],
+    "risks": [
+      {
+        "nm": "Content không qua QC sau 3 vòng",
+        "esc": [
+          "Escalate lên AM",
+          "AM quyết định: chấp nhận version hiện tại hoặc delay lịch đăng"
+        ]
+      },
+      {
+        "nm": "Trend đột xuất cần đăng gấp",
+        "esc": [
+          "Content đề xuất AM trong 2h",
+          "AM approve → dùng buffer slot · push bài planned sang tuần sau",
+          "Không approve: bỏ qua trend"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Content Post Module",
+        "ds": "Track content theo status: IDEA→DRAFT→REVIEW→APPROVED→SCHEDULED→PUBLISHED",
+        "sy": "pms"
+      },
+      {
+        "nm": "Task Module",
+        "ds": "Assign content task · track deadline",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Brief xong → Design/Video bắt đầu thực thi"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Không pass QC → revision"
+      }
+    ]
+  },
+  "og_design": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Design Execution",
+    "r": "Phụ trách: Design Executive/Senior/Lead",
+    "w": [
+      "Thực thi visual theo brief Content · Design không tự quyết concept",
+      "Design Executive/Senior làm · Design Lead review · AM duyệt final",
+      "Sau khi nhận brief từ Content · Theo deadline trong handoff form",
+      "<em>Figma/Photoshop</em> · PMS: task update · GG Drive: file output",
+      "Đảm bảo visual đúng brand · đúng kỹ thuật · đúng deadline",
+      "Nhận brief → Làm theo spec → Self-check → Upload PMS → AM duyệt"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Content brief đầy đủ",
+        "ft": "PMS — Handoff form từ Content",
+        "nt": "Kích thước · CTA · tone · reference · deadline"
+      }
+    ],
+    "out": [
+      {
+        "tp": "File",
+        "nm": "Creative assets đã QC đủ checklist",
+        "ft": "PMS · GG Drive · format đúng platform",
+        "nt": "Gửi lên PMS để AM review"
+      }
+    ],
+    "done": [
+      "Kích thước đúng từng platform",
+      "Text ≤ 20% diện tích (Facebook rule)",
+      "Resolution ≥ 72dpi · file size hợp lý",
+      "Brand color đúng · logo đúng vị trí",
+      "Safe zone: không bị crop trên mobile"
+    ],
+    "sla": [
+      "Nhận brief từ Content",
+      "Theo deadline trong brief (do AM set)",
+      "Nếu trễ: báo AM ngay · không tự ý lùi deadline"
+    ],
+    "risks": [
+      {
+        "nm": "Brief không đủ thông tin để làm",
+        "esc": [
+          "Design hỏi Content ngay qua PMS/Zalo",
+          "Không tự diễn giải brief"
+        ]
+      },
+      {
+        "nm": "Trễ deadline ảnh hưởng lịch đăng",
+        "esc": [
+          "Báo AM ngay khi thấy khó kịp",
+          "AM quyết định: ưu tiên lại hoặc delay post"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Update task status · upload file output",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload creative assets · lưu version",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "File done → AM review"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Revision → sửa theo feedback AM"
+      }
+    ]
+  },
+  "og_video": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Video Production",
+    "r": "Phụ trách: Video Executive/Senior/Lead",
+    "w": [
+      "Quay dựng và edit video theo kịch bản Content · Follow brief chặt chẽ",
+      "Video Executive/Senior làm · Video Lead review · AM duyệt final",
+      "Sau khi nhận kịch bản từ Content · Theo deadline trong handoff form",
+      "<em>Premiere/CapCut/DaVinci</em> · PMS: task update · GG Drive: output",
+      "Video short-form là content chiến lược trên TikTok/Reels — chất lượng quan trọng",
+      "Nhận kịch bản → Lên shot list → Quay/Edit → Self-check → Upload PMS → AM duyệt"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Kịch bản video từ Content + Video brief",
+        "ft": "PMS — Handoff form từ Content",
+        "nt": "Loại video · platform · footage · style · nhạc · deadline"
+      }
+    ],
+    "out": [
+      {
+        "tp": "File",
+        "nm": "Video đã edit đúng spec",
+        "ft": "MP4 H.264 · PMS · GG Drive",
+        "nt": "Gửi lên PMS để AM review"
+      }
+    ],
+    "done": [
+      "Tỉ lệ đúng: 9:16 (TikTok/Reels) · 1:1 (Feed) · 16:9 (YouTube)",
+      "Hook 3 giây đầu đủ mạnh · Không bắt đầu bằng logo",
+      "Subtitle đã thêm (80% xem không bật âm)",
+      "Âm thanh rõ · không có tiếng ồn nền",
+      "CTA xuất hiện trong 5 giây cuối · Không nhạc bản quyền"
+    ],
+    "sla": [
+      "Nhận kịch bản từ Content",
+      "Theo deadline trong brief",
+      "Nếu trễ: báo AM ngay"
+    ],
+    "risks": [
+      {
+        "nm": "Footage quay xong không dùng được",
+        "esc": [
+          "Video báo AM ngay",
+          "Quay bổ sung hoặc chuyển sang dùng motion graphic"
+        ]
+      },
+      {
+        "nm": "Nhạc bị copyright claim sau khi đăng",
+        "esc": [
+          "Dùng nhạc từ thư viện miễn phí",
+          "Mua license trước nếu dùng nhạc thương mại"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Update task status · upload video",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload video files · lưu version",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Video done → AM review"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Revision → sửa theo feedback AM"
+      }
+    ]
+  },
+  "og_am_review": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "AM Duyệt Content/Creative",
+    "r": "Phụ trách: Account Manager — BẮT BUỘC",
+    "w": [
+      "AM review tất cả nội dung trước khi publish · Không có ngoại lệ · Kể cả trường hợp khẩn cấp",
+      "Account Manager BẮT BUỘC · Nếu AM vắng: Planner thay · Nếu cả 2 vắng: Content Lead tự duyệt",
+      "Sau khi Content/Design/Video hoàn thành và tự QC",
+      "<em>PMS: approval flow</em> · Zalo: feedback nhanh · Google Drive: review file",
+      "AM là người hiểu KH nhất · Đảm bảo mọi content align với strategy và kỳ vọng KH",
+      "AM review checklist → APPROVED: chuyển Ads setup · REVISION: gửi lại bộ phận kèm note rõ ràng"
+    ],
+    "inp": [
+      {
+        "tp": "File",
+        "nm": "Content/Creative đã qua self-QC và Lead review",
+        "ft": "PMS · GG Drive",
+        "nt": "Đã pass tối đa 3 vòng nội bộ"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "APPROVED hoặc REVISION",
+        "ft": "PMS approval record · Zalo feedback",
+        "nt": "APPROVED: → Ads setup · REVISION: → bộ phận tương ứng sửa"
+      }
+    ],
+    "done": [
+      "AM đã review toàn bộ nội dung",
+      "Nếu APPROVED: note lý do nếu cần",
+      "Nếu REVISION: ghi rõ điểm cần sửa · không được nói chung chung"
+    ],
+    "sla": [
+      "Sau khi nhận file từ team",
+      "AM review trong 2h · 4h nếu là video dài",
+      "Không được để quá SLA làm trễ lịch đăng"
+    ],
+    "risks": [
+      {
+        "nm": "AM không available (họp · nghỉ phép)",
+        "esc": [
+          "Planner thay thế",
+          "Nếu cả 2 không available: Content Lead tự duyệt + ghi log PMS"
+        ]
+      },
+      {
+        "nm": "Trend cần đăng gấp mà AM chưa review",
+        "esc": [
+          "AM phải được tag ngay · SLA 1h trong trường hợp này",
+          "Nếu qua 1h không reply → Content Lead duyệt + AM review sau"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Approval Module",
+        "ds": "AM approve/reject · ghi comment",
+        "sy": "pms"
+      },
+      {
+        "nm": "Content Post Module",
+        "ds": "Update status: REVIEW → APPROVED/REVISION_REQUESTED",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "APPROVED → Ads lên campaign / Schedule đăng"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "REVISION → bộ phận sửa lại"
+      }
+    ]
+  },
+  "og_ads": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Ads lên Campaign",
+    "r": "Phụ trách: Media Executive/Senior",
+    "w": [
+      "Setup và launch campaign trên các ad platform sau khi creative được AM duyệt",
+      "Media Executive/Senior setup · Media Lead review · AM được notify",
+      "Sau khi AM approve creative",
+      "<em>Meta Ads Manager · Google Ads · TikTok Ads Manager</em> · PMS: task update",
+      "Đây là bước \"point of no return\" — campaign đã active thì tốn tiền · Phải chuẩn",
+      "Pre-launch QC checklist → Setup campaign structure → Review toàn bộ → Launch → Monitor 24h đầu"
+    ],
+    "inp": [
+      {
+        "tp": "File",
+        "nm": "Creative assets đã được AM approve",
+        "ft": "PMS · GG Drive",
+        "nt": "Text + Ảnh/Video đã pass QC"
+      },
+      {
+        "tp": "Config",
+        "nm": "Media plan: audience · budget · placement · bid strategy",
+        "ft": "GG Sheets media plan · PMS",
+        "nt": "Đã được AM + Planner confirm"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Campaign đã active trên platform",
+        "ft": "Ads Manager — Campaign ID · Ad Set ID · Ad ID",
+        "nt": "AM nhận notify ngay khi campaign active"
+      }
+    ],
+    "done": [
+      "Pixel/tracking đã active và fire đúng",
+      "Audience targeting đúng spec",
+      "Budget đúng daily cap = monthly/30 × 1.1",
+      "UTM parameters đã gắn",
+      "Creative đúng format từng placement",
+      "Lead form/Landing page đã test thành công"
+    ],
+    "sla": [
+      "Sau khi AM approve creative",
+      "Launch trong ngày · theo lịch media plan",
+      "Nếu trễ: báo AM kèm lý do"
+    ],
+    "risks": [
+      {
+        "nm": "Ad bị reject sau khi submit",
+        "esc": [
+          "Media fix và resubmit trong 2h",
+          "Nếu vẫn bị reject: báo AM · xem xét thay creative"
+        ]
+      },
+      {
+        "nm": "Budget hết trước cuối tháng",
+        "esc": [
+          "Báo AM ngay khi còn 20% budget",
+          "AM quyết định: báo KH xin tăng budget hoặc giảm tốc độ chi tiêu"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Ads Report Module",
+        "ds": "Bắt đầu pull data ngay khi campaign active",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Track actual vs target real-time",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Campaign active → PUBLISH ✓"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Ad bị reject → fix + resubmit"
+      }
+    ]
+  },
+  "og_partner": {
+    "bg": "var(--cor-50)",
+    "tc": "var(--cor-800)",
+    "t": "Task Đối tác (KOL/PR/Event)",
+    "r": "Phụ trách: Account Manager — Đầu mối duy nhất",
+    "w": [
+      "Đối tác không có tài khoản PMS · AM là đầu mối duy nhất · Tự tạo task và verify evidence",
+      "Account Manager tạo task · giao đối tác qua Zalo · thu evidence · tick done",
+      "Theo lịch campaign hoặc event",
+      "<em>PMS: task management</em> · Zalo: giao việc cho đối tác · GG Drive: upload evidence",
+      "Đối tác không vào hệ thống · nhưng deliverable vẫn được track và verify đầy đủ",
+      "AM tạo task → brief qua Zalo → đối tác thực hiện → gửi evidence → AM verify → tick DONE"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief cho đối tác",
+        "ft": "Zalo/Email từ AM",
+        "nt": "Deadline rõ · deliverable cụ thể · format yêu cầu"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Evidence",
+        "nm": "Ảnh/Video/Screenshot/Report từ đối tác",
+        "ft": "Upload PMS · GG Drive",
+        "nt": "AM verify trước khi tick done · Bằng chứng pháp lý"
+      }
+    ],
+    "done": [
+      "AM đã verify evidence đủ theo brief",
+      "Evidence đã upload lên PMS",
+      "Task status = DONE · isEvidence = true",
+      "Ghi nhận performance của đối tác (đúng hạn / chất lượng)"
+    ],
+    "sla": [
+      "Theo deadline trong brief",
+      "T-2: PMS reminder cho AM · T-1: AM nhắn Zalo đối tác",
+      "Đối tác trễ → AM báo Account Director trong 2h"
+    ],
+    "risks": [
+      {
+        "nm": "Đối tác trễ ảnh hưởng campaign",
+        "esc": [
+          "T-1: AM nhắn trực tiếp",
+          "Đúng deadline chưa có: escalate Account Director ngay",
+          "Chuẩn bị phương án dự phòng (delay / thay đối tác)"
+        ]
+      },
+      {
+        "nm": "Evidence không đúng yêu cầu",
+        "esc": [
+          "AM yêu cầu đối tác làm lại",
+          "Ghi nhận chất lượng vào hồ sơ đối tác trên PMS"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "isPartnerTask=true · isEvidence=true · partnerName",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload evidence files · isEvidence flag",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Evidence verified → Task DONE"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Trễ → Escalate Account Director"
+      }
+    ]
+  },
+  "og_routine": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Routine Optimization",
+    "r": "Media / Content / Design tự quyết",
+    "w": [
+      "Các tác vụ nhỏ trong ngưỡng cho phép · Không cần báo AM · Ghi log vào PMS",
+      "Media Buyer / Content / Design tự thực hiện · AM không cần duyệt",
+      "Daily/ongoing theo signal từ data",
+      "<em>Ads Manager · PMS: ghi log action đã thực hiện</em>",
+      "Tránh bottleneck tại AM cho những việc nhỏ · Tăng tốc độ optimization",
+      "Signal-based: không chờ 7 ngày · Tắt ngay khi CTR <0.5% sau 500 impressions"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Metrics real-time từ Ads Manager",
+        "ft": "Meta/Google/TikTok Ads Manager",
+        "nt": "CTR · CPL · Frequency · Budget pacing"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Optimization đã thực hiện",
+        "ft": "Ads Manager + PMS log",
+        "nt": "Ghi rõ: action gì · tại sao · kết quả kỳ vọng"
+      }
+    ],
+    "done": [
+      "Action đã thực hiện trong ngưỡng được phép",
+      "Log đã ghi vào PMS",
+      "AM sẽ thấy trong daily summary"
+    ],
+    "sla": [
+      "Theo signal từ data",
+      "Routine actions: thực hiện ngay trong ngày",
+      "Nếu không chắc có nằm trong ngưỡng: hỏi AM trước"
+    ],
+    "risks": [
+      {
+        "nm": "Thực hiện action vượt ngưỡng mà không báo AM",
+        "esc": [
+          "AM phát hiện → nhắc nhở · ghi nhận",
+          "Tái diễn → escalate đến Account Director"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Ads Report Module",
+        "ds": "Log optimization actions",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Track signal-based thresholds",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Routine action done → ghi log PMS"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Vượt ngưỡng → báo AM trước khi làm"
+      }
+    ]
+  },
+  "og_threshold": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "Signal-based Decision Rules",
+    "r": "Set lúc Kick-off nội bộ D+1/D+2 · theo từng platform",
+    "w": [
+      "Bộ quy tắc quyết định dựa trên data signal · Không đợi 7 ngày learning phase",
+      "Media Buyer áp dụng · AM acknowledge · set lúc Kick-off nội bộ theo từng platform",
+      "Ongoing · áp dụng từ 24h sau launch",
+      "<em>Ads Manager metrics</em>",
+      "Client không chịu đốt tiền 7 ngày đợi learning phase · Cần quyết định nhanh hơn dựa trên signal",
+      "CHECK 24h: chỉ fix lỗi kỹ thuật · CHECK 48h: first optimization · WINDOW 72h-5 ngày: main optimization"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Campaign metrics sau 24h/48h/72h",
+        "ft": "Ads Manager · realtime",
+        "nt": "CTR · CPL · Impressions · Frequency · Delivery"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "Tắt/Scale/Test/Giữ nguyên",
+        "ft": "Ads Manager action · PMS log",
+        "nt": "Ghi rõ lý do cho mọi action"
+      }
+    ],
+    "done": [
+      "Decision rules đã được set và team nắm rõ",
+      "Actions trong ngưỡng không cần báo AM",
+      "Actions vượt ngưỡng phải báo AM trước"
+    ],
+    "sla": [
+      "24h đầu: chỉ fix lỗi kỹ thuật",
+      "48h: tắt creative CTR <0.5% sau 500 impressions",
+      "72h-5 ngày: main optimization window · scale nếu CPL ≤ target"
+    ],
+    "risks": [
+      {
+        "nm": "Tắt campaign quá sớm khi data chưa đủ",
+        "esc": [
+          "Minimum sample: 500 impressions hoặc 10 conversions",
+          "Không tắt trong 24h đầu trừ lỗi kỹ thuật"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "KPI Module",
+        "ds": "Track signal-based thresholds theo từng project",
+        "sy": "pms"
+      },
+      {
+        "nm": "Project Module",
+        "ds": "routineThresholds field: set lúc kick-off",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Trong ngưỡng → tự làm · ghi log"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Ngoài ngưỡng → báo AM"
+      }
+    ]
+  },
+  "og_emergency": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "Emergency Optimizing",
+    "r": "Trigger: bất kỳ ai phát hiện → tag AM ngay",
+    "w": [
+      "Xử lý khủng hoảng performance · KPI <70% · KH báo về · Lỗi nghiêm trọng",
+      "Ai phát hiện tag AM ngay · AM duyệt action trong 2h · Team thực thi",
+      "Ngay khi phát hiện trigger",
+      "<em>Zalo/Tele: tag AM ngay</em> · PMS: tạo Emergency task · Họp online khẩn",
+      "Ngăn chặn thiệt hại · Khôi phục performance · Duy trì niềm tin của KH",
+      "Phát hiện → Tag AM ngay → AM tạo Emergency task → Họp khẩn → Phân tích nguyên nhân → Triển khai phương án mới"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "KPI thực tế <70% target hoặc KH báo về",
+        "ft": "Ads Manager · Zalo từ KH · PMS KPI tracking",
+        "nt": "Bất kỳ ai phát hiện phải báo ngay"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Phương án tối ưu mới đã triển khai",
+        "ft": "Ads Manager · PMS Emergency task record",
+        "nt": "AM verify kết quả sau 24h đầu"
+      },
+      {
+        "tp": "Quyết định",
+        "nm": "Thay đổi budget/targeting (nếu cần KH duyệt)",
+        "ft": "Zalo confirm từ KH · PMS record",
+        "nt": "BẮT BUỘC KH duyệt trước khi thay đổi budget/targeting"
+      }
+    ],
+    "done": [
+      "AM đã duyệt action trong 2h",
+      "Phương án mới đã được triển khai",
+      "KH đã được thông báo (nếu liên quan đến budget/targeting)",
+      "PMS Emergency task đã log đầy đủ"
+    ],
+    "sla": [
+      "Khi phát hiện trigger",
+      "Tag AM trong 15 phút · AM quyết định action trong 2h",
+      "Không gia hạn · đây là EMERGENCY"
+    ],
+    "risks": [
+      {
+        "nm": "AM không phản hồi trong 2h",
+        "esc": [
+          "Escalate lên Account Director ngay",
+          "AD duyệt action thay AM"
+        ]
+      },
+      {
+        "nm": "KH yêu cầu giải thích ngay lập tức",
+        "esc": [
+          "AM acknowledge ngay qua Zalo: \"Chúng tôi đã phát hiện và đang xử lý\"",
+          "Không cần đợi có giải pháp hoàn chỉnh mới báo KH"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "isEmergency=true · emergencyReason · tag toàn bộ team",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert cấp độ URGENT cho AM và Account Director",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--red-200)",
+        "t": "Trigger → Tag AM ngay trong 15 phút"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Budget/targeting change → BẮT BUỘC KH duyệt"
+      }
+    ]
+  },
+  "og_notify_am": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "Thông báo AM",
+    "r": "Ai phát hiện tag AM ngay",
+    "w": [
+      "Bất kỳ ai trong team phát hiện vấn đề khẩn → tag AM ngay trong Zalo/Tele",
+      "Người phát hiện (Media/Content/Design/Planner) tag AM",
+      "Ngay lập tức khi phát hiện",
+      "<em>Zalo/Tele group dự án: tag @AM</em>",
+      "AM phải biết ngay để duyệt action trong SLA 2h",
+      "Tag @AM + mô tả ngắn vấn đề + số liệu + đề xuất nếu có"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Vấn đề cụ thể cần AM biết",
+        "ft": "Zalo/Tele message · kèm screenshot nếu có",
+        "nt": "KPI nào kém · kém bao nhiêu · từ khi nào"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "AM đã nhận và acknowledge",
+        "ft": "Zalo reply · PMS Emergency task được tạo",
+        "nt": "AM phải reply trong 15 phút"
+      }
+    ],
+    "done": [
+      "AM đã reply acknowledge",
+      "Emergency task đã được tạo trên PMS",
+      "Team biết AM đã nắm tình hình"
+    ],
+    "sla": [
+      "Ngay khi phát hiện",
+      "Người phát hiện: tag ngay · AM: acknowledge trong 15 phút",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "AM không phản hồi trong 30 phút",
+        "esc": [
+          "Escalate lên Account Director",
+          "AD duyệt action thay AM"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Notification",
+        "ds": "Push notification URGENT lên PMS cho AM",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "AM acknowledge → AM duyệt action"
+      }
+    ]
+  },
+  "og_am_action": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "AM Duyệt Emergency Action",
+    "r": "Phụ trách: Account Manager — trong 2h",
+    "w": [
+      "AM review tình huống và duyệt action plan · Quyết định tắt/điều chỉnh/giữ nguyên",
+      "Account Manager quyết định · Planner support phân tích nếu cần",
+      "Trong vòng 2h kể từ khi nhận thông báo",
+      "<em>PMS: tạo Emergency task</em> · Zalo: điều phối team",
+      "AM là người duy nhất được phép tắt toàn bộ campaign · Media chỉ được tắt ad set đơn lẻ (routine)",
+      "Review data → Xác định nguyên nhân → Quyết định action → Assign cho team → Track trong 24h"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Báo cáo vấn đề từ team",
+        "ft": "Zalo · PMS Emergency task",
+        "nt": "KPI thực tế · nguyên nhân phân tích sơ bộ"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Decision đã được duyệt và assign",
+        "ft": "PMS Emergency task · Zalo group",
+        "nt": "Rõ: ai làm gì · deadline khi nào"
+      },
+      {
+        "tp": "Quyết định",
+        "nm": "Có cần họp team khẩn không",
+        "ft": "Calendar/Zalo",
+        "nt": "Nếu cần: schedule ngay trong 30 phút"
+      }
+    ],
+    "done": [
+      "Action plan đã được AM approve",
+      "Đã assign rõ người thực thi",
+      "Timeline rõ ràng: làm gì · khi nào xong",
+      "PMS Emergency task đã update đầy đủ"
+    ],
+    "sla": [
+      "Sau khi nhận thông báo từ team",
+      "AM duyệt action trong 2h",
+      "Không gia hạn"
+    ],
+    "risks": [
+      {
+        "nm": "Tình huống quá phức tạp AM không đủ thông tin",
+        "esc": [
+          "AM tổ chức họp khẩn ngay",
+          "Mời Planner + Media Lead tham gia phân tích"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "isEmergency=true · AM approve action",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Action approved → Team thực thi ngay"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Cần thêm analysis → Họp team khẩn"
+      }
+    ]
+  },
+  "og_team_meet": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "Họp Team Khẩn",
+    "r": "AM chủ trì · 30 phút tối đa",
+    "w": [
+      "Họp online khẩn để phân tích nguyên nhân và phân công giải pháp cụ thể",
+      "Account Manager chủ trì · Planner + Media Lead + Content Lead · 30 phút tối đa",
+      "Ngay sau khi AM quyết định cần họp · Không kéo dài quá 30 phút",
+      "<em>Zoom/Meet: họp ngay</em> · PMS: ghi biên bản action items",
+      "Đồng bộ team · Phân tích root cause · Phân công rõ ràng · Không lãng phí thời gian",
+      "Tóm tắt vấn đề 5p → Root cause analysis 10p → Phương án và phân công 15p → Done"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Emergency task từ PMS + data metrics",
+        "ft": "PMS · Ads Manager screenshot",
+        "nt": "AM chuẩn bị trước cuộc họp"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action Items",
+        "nm": "Danh sách việc cần làm + người thực thi + deadline",
+        "ft": "PMS Emergency task comments",
+        "nt": "Mỗi action phải có: AI (who) · DL (deadline) · Expected result"
+      }
+    ],
+    "done": [
+      "Root cause đã được xác định",
+      "Action items đã phân công rõ ràng",
+      "Tất cả hiểu và đồng thuận",
+      "PMS đã update action items"
+    ],
+    "sla": [
+      "Sau khi AM quyết định cần họp",
+      "Họp trong 30 phút tối đa",
+      "Không kéo dài"
+    ],
+    "risks": [
+      {
+        "nm": "Không xác định được root cause trong 30p",
+        "esc": [
+          "AM phân công 1-2 người research thêm",
+          "Schedule follow-up call trong 2h"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Event Module",
+        "ds": "Tạo emergency meeting event",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Action items rõ → Team triển khai tối ưu"
+      }
+    ]
+  },
+  "og_implement": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "Triển khai Tối ưu",
+    "r": "Phụ trách: Team thực thi · Media/Content/Design",
+    "w": [
+      "Thực thi phương án tối ưu đã được AM approve · Content mới / Creative mới / Chiến lược mới",
+      "Media Buyer / Content / Design thực thi · AM monitor",
+      "Ngay sau khi AM approve action plan",
+      "<em>Ads Manager · Figma · GG Docs</em> · PMS: update task status",
+      "Khôi phục performance càng nhanh càng tốt",
+      "Media: tắt campaign cũ → lên campaign mới với creative/targeting mới → Monitor 24h đầu"
+    ],
+    "inp": [
+      {
+        "tp": "Quyết định",
+        "nm": "Action plan đã được AM approve",
+        "ft": "PMS Emergency task · Zalo",
+        "nt": "Rõ: làm gì · ai làm · deadline"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Campaign/Content mới đã active",
+        "ft": "Ads Manager · MXH · PMS update",
+        "nt": "AM monitor kết quả sau 24h đầu"
+      }
+    ],
+    "done": [
+      "Action đã thực hiện đúng theo plan",
+      "PMS task đã update status",
+      "AM đã nhận thông báo khi done",
+      "Monitoring 24h đầu đang active"
+    ],
+    "sla": [
+      "Sau khi AM approve",
+      "Thực thi trong 2h · báo AM khi done",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Phương án mới vẫn không cải thiện sau 24h",
+        "esc": [
+          "Báo AM ngay",
+          "AM quyết định thử phương án khác hoặc họp khẩn lần 2"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Update Emergency task status",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Track kết quả sau khi triển khai",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Kết quả cải thiện → Back to normal"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Vẫn không tốt sau 24h → Review lại"
+      }
+    ]
+  },
+  "og_kh_approve": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "KH Duyệt Thay đổi Budget/Targeting",
+    "r": "Phụ trách: Account Manager — BẮT BUỘC",
+    "w": [
+      "Mọi thay đổi budget và targeting đều PHẢI được KH approve · Kể cả emergency",
+      "Account Manager liên hệ KH · KH quyết định",
+      "Khi cần thay đổi budget hoặc targeting trong emergency",
+      "<em>Zalo/Điện thoại: liên hệ KH ngay</em>",
+      "Ngân sách là tiền của KH · Agency không có quyền thay đổi khi chưa được approve",
+      "AM contact KH ngay (call trực tiếp nếu urgent) → trình bày tình huống + đề xuất → KH approve/reject"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Đề xuất thay đổi từ team",
+        "ft": "PMS · Zalo",
+        "nt": "Rõ: thay đổi gì · lý do · kết quả kỳ vọng"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "KH approve hoặc reject",
+        "ft": "Zalo/call confirm · PMS record",
+        "nt": "Ghi lại thời gian · nội dung confirm của KH"
+      }
+    ],
+    "done": [
+      "KH đã được inform đầy đủ về tình huống",
+      "KH đã đưa ra quyết định rõ ràng",
+      "Quyết định đã được ghi vào PMS"
+    ],
+    "sla": [
+      "Khi cần thay đổi budget/targeting",
+      "AM contact ngay · KH phản hồi theo SLA đã set trong Communication Rules",
+      "Nếu KH không phản hồi trong SLA → nhắc · Rule 4 (im lặng = đồng ý) áp dụng"
+    ],
+    "risks": [
+      {
+        "nm": "KH không đồng ý thay đổi trong khi performance kém",
+        "esc": [
+          "AM giải thích rõ hơn · đề xuất phương án thay thế không cần đổi budget/targeting",
+          "Ghi nhận: KH không đồng ý → Agency đã đề xuất nhưng bị từ chối"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Ghi nhận KH approval cho budget/targeting change",
+        "sy": "pms"
+      },
+      {
+        "nm": "Audit Log",
+        "ds": "Track mọi thay đổi budget với KH approval",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "KH approve → triển khai ngay"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "KH reject → tìm phương án khác không cần đổi budget"
+      }
+    ]
+  },
+  "og_pull_data": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Pull Data",
+    "r": "Phụ trách: Media / Content tổng hợp · AI Agent (tương lai)",
+    "w": [
+      "Kéo dữ liệu từ tất cả platform về hệ thống theo tần suất báo cáo đã set",
+      "Media Buyer pull ads data · Content pull content performance · AI Agent tự động (giai đoạn 2)",
+      "Daily: sáng sớm trước 8h · Weekly: thứ 2 sáng · Monthly: ngày 1-3 tháng sau",
+      "<em>Ads Manager export CSV</em> · Manus AI (Meta) · Zapier/n8n tự động · GG Sheets master template",
+      "Báo cáo chính xác dựa trên data thật · Không có data = không có insight",
+      "Ưu tiên nguồn: thực tế KH > platform export > GA4/Pixel > tool trung gian"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Raw data từ Ads Manager",
+        "ft": "Meta/Google/TikTok/Shopee export CSV",
+        "nt": "Date range chuẩn: Daily=hôm qua · Weekly=T2→CN · Monthly=ngày 1→cuối tháng"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Data đã tổng hợp trong GG Sheets master template",
+        "ft": "GG Sheets · PMS Ads Report",
+        "nt": "Chờ compile và QC trước khi thành báo cáo"
+      }
+    ],
+    "done": [
+      "Data đã pull đủ từ tất cả platform đang chạy",
+      "Date range đúng chuẩn",
+      "Data đã import vào GG Sheets master template",
+      "Ghi chú rõ nếu có lệch số liệu giữa các nguồn"
+    ],
+    "sla": [
+      "Theo lịch báo cáo (Daily/Weekly/Monthly)",
+      "Pull data trước deadline gửi báo cáo ít nhất 4h",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Số liệu platform lệch nhau (rất thường gặp)",
+        "esc": [
+          "Ưu tiên: thực tế KH > platform > GA4 > tool",
+          "Ghi chú rõ trong báo cáo: \"Số liệu theo X vì Y\"",
+          "Attribution window khác nhau là lý do phổ biến nhất"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Ads Report Module",
+        "ds": "Import data · track theo platform · period",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Update actual values từ data pull",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Data sẵn sàng → Tổng hợp báo cáo"
+      }
+    ]
+  },
+  "og_compile": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Tổng hợp Báo cáo",
+    "r": "Phụ trách: Media + Content compile · AM thêm insight",
+    "w": [
+      "Gom dữ liệu từ nhiều nguồn · tổng hợp theo format báo cáo (Daily/Weekly/Monthly)",
+      "Media Buyer compile ads data · Content compile content performance · AM thêm insight và nhận xét",
+      "Sau khi pull data xong",
+      "<em>GG Sheets master template · GG Slides (Monthly)</em>",
+      "Format khác nhau: Daily=ngắn gọn · Weekly=có trend · Monthly=phân tích sâu + plan tháng tới",
+      "Compile theo template chuẩn → AM review → thêm insight theo framework Why/What/Next"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Raw data đã pull từ tất cả platform",
+        "ft": "GG Sheets master template",
+        "nt": "Ads data + Content performance + Organic + Competitor (nếu có)"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Báo cáo đã compile đủ sections",
+        "ft": "GG Sheets (Daily/Weekly) · GG Slides (Monthly)",
+        "nt": "Chờ AM QC trước khi gửi KH"
+      }
+    ],
+    "done": [
+      "Đủ data từ tất cả platform/kênh",
+      "Số liệu đã double-check",
+      "Format đúng theo loại báo cáo (Daily/Weekly/Monthly)",
+      "Lead funnel đã cập nhật (nếu LEAD_GEN và KH share data)"
+    ],
+    "sla": [
+      "Sau khi pull data",
+      "Compile xong trong 2h",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Lead quality data KH chưa điền",
+        "esc": [
+          "Ghi rõ trong báo cáo: \"Lead funnel chờ KH cập nhật\"",
+          "Nhắc KH điền vào template shared Google Sheet"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Generate báo cáo từ template",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Báo cáo compile xong → AM QC"
+      }
+    ]
+  },
+  "og_am_qc": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "AM QC Báo cáo",
+    "r": "Phụ trách: Account Manager — BẮT BUỘC trước khi gửi",
+    "w": [
+      "AM review toàn bộ báo cáo trước khi gửi KH · Không được gửi khi chưa qua AM QC",
+      "Account Manager BẮT BUỘC · Planner duyệt format (Monthly)",
+      "Sau khi compile xong",
+      "<em>PMS review flow</em> · GG Sheets/Slides: review trực tiếp",
+      "AM hiểu KH nhất · Đảm bảo số liệu chính xác + insight có giá trị + format chuyên nghiệp",
+      "Kiểm tra số liệu → Kiểm tra insight theo framework → Kiểm tra format → APPROVED → gửi KH"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Báo cáo đã compile",
+        "ft": "GG Sheets/Slides",
+        "nt": "Đã qua self-QC của Media/Content"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Báo cáo đã AM QC và approve",
+        "ft": "PDF (Monthly) · GG Sheets (Weekly/Daily)",
+        "nt": "Sẵn sàng gửi KH"
+      },
+      {
+        "tp": "Nội dung",
+        "nm": "AM nhận xét và insight đã thêm",
+        "ft": "Section Insight trong báo cáo",
+        "nt": "Framework: Why / What worked / What didn't / Next action"
+      }
+    ],
+    "done": [
+      "Số liệu đã kiểm tra: đúng platform · đúng date range · không sai sót",
+      "Insight đã có: Why · Top 3 worked · Top 3 didn't · Next actions",
+      "Format professional · đúng template",
+      "AM đã add personal notes/nhận xét nếu cần"
+    ],
+    "sla": [
+      "Sau khi compile",
+      "AM QC trong 1h (Daily) · 2h (Weekly) · 4h (Monthly)",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "AM phát hiện số liệu sai sau khi đã gửi KH",
+        "esc": [
+          "AM báo KH ngay: \"Chúng tôi phát hiện lỗi · đang sửa lại\"",
+          "Sửa và gửi lại trong 4h · Xin lỗi ngắn gọn"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Approval Module",
+        "ds": "AM approve báo cáo trước khi gửi",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Approved → Gửi KH qua 3 kênh"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Sai sót → sửa trước khi gửi"
+      }
+    ]
+  },
+  "og_send_report": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Gửi Báo cáo cho KH",
+    "r": "Phụ trách: Account Manager",
+    "w": [
+      "Gửi báo cáo qua cả 3 kênh theo Communication Rule 6",
+      "Account Manager gửi · Có thể delegate cho Content/CS sau khi AM đã approve",
+      "Theo lịch trong Communication Rules: Daily=sáng sớm · Weekly=thứ 2 · Monthly=ngày 1-5 tháng sau",
+      "<em>Zalo: PDF/ảnh tóm tắt</em> · Email: báo cáo đầy đủ · Portal: upload để lưu trữ",
+      "KH nhận báo cáo đúng hạn = dấu hiệu Agency chuyên nghiệp",
+      "Gửi Zalo + Email cùng lúc → Upload Portal → Ghi nhận thời gian gửi trên PMS"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Báo cáo đã AM approve",
+        "ft": "PDF · GG Sheets/Slides · PMS",
+        "nt": "Đã pass AM QC"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Báo cáo đã gửi qua 3 kênh",
+        "ft": "Zalo + Email + Portal",
+        "nt": "Ghi nhận timestamp gửi trên PMS"
+      },
+      {
+        "tp": "Action",
+        "nm": "Chờ feedback từ KH",
+        "ft": "48h sau khi gửi",
+        "nt": "Theo dõi xem KH có phản hồi không"
+      }
+    ],
+    "done": [
+      "Zalo đã gửi với tóm tắt key numbers",
+      "Email đã gửi với báo cáo đầy đủ kèm file PDF",
+      "Portal đã upload",
+      "PMS đã log timestamp gửi"
+    ],
+    "sla": [
+      "Sau khi AM approve báo cáo",
+      "Gửi đúng lịch theo Communication Rules · Không được trễ",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Trễ báo cáo so với lịch đã cam kết",
+        "esc": [
+          "AM báo KH trước (proactive) nếu biết sẽ trễ",
+          "Giải thích ngắn gọn · gửi sớm nhất có thể"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Log sent timestamp · track delivery status",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Gửi xong → Chờ feedback KH 24-48h"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "KH phản hồi → Xử lý theo loại feedback"
+      }
+    ]
+  },
+  "og_fb_data": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "KH Feedback: Sai Số liệu",
+    "r": "Xử lý: Account Manager",
+    "w": [
+      "KH phát hiện số liệu không khớp · AM phải kiểm tra và sửa ngay",
+      "Account Manager kiểm tra và sửa · Inform KH",
+      "Ngay khi KH báo",
+      "<em>Ads Manager để verify</em> · GG Sheets: sửa số liệu · Email+Zalo: gửi lại",
+      "Tín nhiệm của Agency phụ thuộc vào độ chính xác của số liệu",
+      "AM acknowledge ngay → Kiểm tra lại source → Sửa → Gửi lại trong 4h → Giải thích ngắn gọn"
+    ],
+    "inp": [
+      {
+        "tp": "Feedback",
+        "nm": "KH báo số liệu sai qua Zalo/Email",
+        "ft": "Zalo · Email",
+        "nt": "KH chỉ rõ số liệu nào sai · sai như thế nào"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Báo cáo đã sửa và gửi lại",
+        "ft": "Email + Zalo · PDF mới",
+        "nt": "Kèm giải thích ngắn gọn tại sao sai"
+      },
+      {
+        "tp": "PMS Record",
+        "nm": "Log lỗi để tránh tái diễn",
+        "ft": "PMS · note",
+        "nt": "Root cause: pull sai date range · attribution window · tool lỗi"
+      }
+    ],
+    "done": [
+      "Số liệu đã verify từ source",
+      "Báo cáo đã sửa đúng",
+      "KH đã nhận báo cáo mới trong 4h",
+      "Lỗi đã được log để tránh tái diễn"
+    ],
+    "sla": [
+      "Khi KH báo lỗi",
+      "AM acknowledge trong 30 phút · Sửa và gửi lại trong 4h",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Không tìm ra lý do sai",
+        "esc": [
+          "Ghi nhận cả 2 số · giải thích attribution window khác nhau",
+          "Thống nhất với KH dùng nguồn nào làm chuẩn cho tương lai"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Log correction · update report version",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Sửa xong trong 4h → Gửi lại KH"
+      }
+    ]
+  },
+  "og_fb_explain": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "KH Hỏi Giải thích Kết quả",
+    "r": "Xử lý: Account Manager",
+    "w": [
+      "KH muốn hiểu tại sao số liệu như vậy · AM giải thích qua chat/call · KHÔNG họp thêm",
+      "Account Manager giải thích · Planner support nếu cần phân tích sâu",
+      "Ngay khi KH hỏi",
+      "<em>Zalo/call: giải thích nhanh</em> · GG Slides: nếu cần deck mới",
+      "Giải thích rõ ràng = KH hiểu và tin tưởng hơn · Không họp thêm ngoài lịch",
+      "Acknowledge → Giải thích ngắn gọn không dùng jargon kỹ thuật → Đề xuất discuss sâu hơn trong monthly meeting nếu cần"
+    ],
+    "inp": [
+      {
+        "tp": "Feedback",
+        "nm": "Câu hỏi từ KH về kết quả báo cáo",
+        "ft": "Zalo · Email",
+        "nt": "KH muốn hiểu tại sao · không phải sai số liệu"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "AM đã giải thích đầy đủ qua Zalo/call",
+        "ft": "Zalo message · call · PMS note",
+        "nt": "KH hiểu và satisfied"
+      }
+    ],
+    "done": [
+      "AM đã giải thích trong ngày",
+      "Giải thích không dùng jargon kỹ thuật",
+      "KH đã confirm hiểu · không cần discuss thêm"
+    ],
+    "sla": [
+      "Khi KH hỏi",
+      "AM trả lời trong 2h",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Câu hỏi quá phức tạp cần analysis sâu",
+        "esc": [
+          "AM acknowledge ngay",
+          "Schedule 30p call ngay hôm đó hoặc hôm sau",
+          "Không đưa vào monthly meeting nếu KH cần biết ngay"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Comment Module",
+        "ds": "Log Q&A với KH để tham khảo sau",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Giải thích xong → KH satisfied"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Phức tạp → Schedule quick call"
+      }
+    ]
+  },
+  "og_qbr": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "QBR — Quarterly Business Review",
+    "r": "Phụ trách: Account Manager + Planner · Cho dự án ≥ 3 tháng",
+    "w": [
+      "Review chiến lược 90 ngày · không chỉ nhìn tháng này mà nhìn xu hướng dài hơn",
+      "Account Manager chủ trì · Planner phân tích · Sales Executive observe · KH + decision maker phía KH",
+      "Sau mỗi 3 tháng ONGOING · lần đầu tại tháng thứ 3",
+      "<em>GG Slides: QBR deck</em> · PMS: auto-generate data 3 tháng · Zoom/Meet",
+      "Monthly report nhìn 1 tháng không đủ để thấy trend · QBR giúp catch pattern và re-align strategy · Tăng tỉ lệ renew dài hạn lên đáng kể (industry average +35%)",
+      "Pull 3-tháng data → Analyze trend → Internal review → Present KH → Document outcomes → Plan quý tới"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "3 tháng performance data tổng hợp",
+        "ft": "PMS auto-aggregate · GG Sheets quarterly view",
+        "nt": "KPI actual vs target · creative performance · lead funnel · budget reconciliation"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "3 monthly reports đã gửi KH",
+        "ft": "PMS Report archive",
+        "nt": "Baseline để nhìn lại trend"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "QBR Deck (7 sections)",
+        "ft": "GG Slides · PDF · Upload PMS + gửi KH",
+        "nt": "1.Executive summary · 2.KPI scorecard 90 ngày · 3.What worked vs not · 4.Market context · 5.Strategy adjustment · 6.Budget review · 7.Plan quý tới"
+      },
+      {
+        "tp": "Quyết định",
+        "nm": "Strategy direction quý tới đã được KH confirm",
+        "ft": "PMS record · Zalo/Email confirm",
+        "nt": "Nếu scope thay đổi → trigger Renew Luồng B"
+      },
+      {
+        "tp": "Cơ hội",
+        "nm": "Upsell/Expansion opportunities đã identify",
+        "ft": "PMS note · follow up với Sales",
+        "nt": "QBR là thời điểm vàng để upsell vì có full data"
+      }
+    ],
+    "done": [
+      "3-month data đã pull và tổng hợp đầy đủ",
+      "Internal review AM + Planner đã diễn ra (45-60p)",
+      "QBR deck đã present với KH",
+      "Strategy direction quý tới đã được confirm 2 chiều",
+      "Action items đã assign rõ ràng"
+    ],
+    "sla": [
+      "Tháng thứ 3 của ONGOING (và mỗi 3 tháng sau)",
+      "Prep 5 ngày · Present trong tháng thứ 3",
+      "Không gia hạn — QBR trễ làm mất đi tính chiến lược"
+    ],
+    "risks": [
+      {
+        "nm": "KH không thấy value của QBR (chỉ muốn monthly report)",
+        "esc": [
+          "AM giải thích: QBR nhìn pattern 90 ngày mà monthly report bỏ qua",
+          "Rút ngắn QBR xuống 45 phút nếu KH bận",
+          "Sau QBR đầu tiên KH thường thấy value ngay"
+        ]
+      },
+      {
+        "nm": "Data 3 tháng quá nhiều không biết focus vào đâu",
+        "esc": [
+          "Planner filter: chỉ highlight 3 điều tốt nhất + 3 cần cải thiện",
+          "Executive Summary phải fit trong 1 slide · không overload KH với số liệu"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Auto-generate QBR data aggregate từ 3 monthly reports",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM tháng thứ 3 của dự án: \"Đến lúc làm QBR\"",
+        "sy": "pms"
+      },
+      {
+        "nm": "Project Module",
+        "ds": "Track quarterly_review_date · quarterly_strategy_notes",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "KH satisfied → Plan quý tới được confirm"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Strategy cần đổi lớn → trigger Renew Luồng B"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "KH không hài lòng sau 3 tháng → LOST analysis + full data"
+      }
+    ]
+  },
+  "og_client_health": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Client Health Score",
+    "r": "Phụ trách: PMS tự tính · AM review hàng tuần",
+    "w": [
+      "Composite score (0-100) đánh giá sức khỏe mối quan hệ với KH · cảnh báo sớm trước khi KH churn",
+      "PMS tự tính dựa trên 4 metrics · AM review mỗi tuần · Account Director alert khi < 60",
+      "Tính liên tục trong suốt ONGOING · update hàng tuần",
+      "<em>PMS: auto-calculate từ data có sẵn</em> · Dashboard: AM và AD nhìn thấy real-time",
+      "NPS cuối dự án đến quá muộn để cứu chữa · Client Health Score cảnh báo sớm khi còn cơ hội",
+      "4 thành phần: KPI achievement (40%) + Payment timeliness (20%) + Portal engagement (20%) + Communication responsiveness (20%)"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "KPI actual vs target (realtime)",
+        "ft": "PMS KPI Module · auto từ ads data",
+        "nt": "40% weight — quan trọng nhất"
+      },
+      {
+        "tp": "Dữ liệu",
+        "nm": "Invoice payment history",
+        "ft": "PMS Budget Module · Accountant confirm",
+        "nt": "20% weight — trễ thanh toán là dấu hiệu cực kỳ đáng lo ngại"
+      },
+      {
+        "tp": "Dữ liệu",
+        "nm": "Portal login frequency + report views",
+        "ft": "PMS Portal tracking",
+        "nt": "20% weight — KH không đọc báo cáo = KH không engaged"
+      },
+      {
+        "tp": "Dữ liệu",
+        "nm": "Response rate trong SLA đã set",
+        "ft": "PMS Communication log",
+        "nt": "20% weight — KH phản hồi chậm = đang bất mãn hoặc muốn rời đi"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Score",
+        "nm": "Client Health Score 0-100 tuần này",
+        "ft": "PMS Dashboard · real-time",
+        "nt": "Màu: ≥80 xanh · 60-79 vàng · <60 đỏ"
+      },
+      {
+        "tp": "Action",
+        "nm": "Alert khi score drop đột ngột hoặc < ngưỡng",
+        "ft": "PMS notification → AM + Account Director",
+        "nt": "Drop > 15 điểm trong 1 tuần = phải xử lý ngay"
+      }
+    ],
+    "done": [
+      "Score được update hàng tuần · không phải manual",
+      "AM nhìn thấy trend score theo thời gian",
+      "Account Director nhận alert khi score < 60"
+    ],
+    "sla": [
+      "Update hàng tuần tự động",
+      "AM check score mỗi thứ 2 sáng khi pull weekly report",
+      "Alert gửi trong 24h khi score drop ngưỡng"
+    ],
+    "risks": [
+      {
+        "nm": "Score cao nhưng KH vẫn churn",
+        "esc": [
+          "Add thêm metric: frequency của KH chủ động contact Agency (không phải ngược lại)",
+          "Add: thời gian KH spend trên portal mỗi session"
+        ]
+      },
+      {
+        "nm": "KH không dùng portal → score bị lệch",
+        "esc": [
+          "Portal weight giảm xuống 10% nếu KH đã confirm không dùng portal",
+          "Tăng weight cho Communication responsiveness lên 30%"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Analytics Module",
+        "ds": "Auto-calculate Client Health Score hàng tuần",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM + AD khi score < 60 hoặc drop > 15 điểm",
+        "sy": "pms"
+      },
+      {
+        "nm": "Dashboard",
+        "ds": "Client Health overview cho CEO/COO: tất cả KH active trên 1 view",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Score ≥ 80 → dự án healthy → focus upsell"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Score 60-79 → AM chủ động gặp KH · tìm vấn đề tiềm ẩn"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Score < 60 → Account Director vào cuộc ngay"
+      }
+    ]
+  },
+  "og_creative_library": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Creative Performance Library",
+    "r": "Phụ trách: Media + Content đóng góp · AM validate · Queryable cross-project",
+    "w": [
+      "Thư viện insights từ tất cả A/B test đã chạy · queryable theo ngành/format/platform · không test lại những gì đã biết",
+      "Media Buyer + Content đóng góp sau mỗi A/B test · AM validate quality · Planner dùng khi làm strategy mới",
+      "Cập nhật sau mỗi A/B test được declare winner · Review toàn bộ library đầu mỗi dự án mới",
+      "<em>PMS: Insights Library module</em> · Filter: ngành · platform · format · objective",
+      "Không có library → mỗi dự án làm lại từ đầu · Với library → \"hook dạng question mark work cho F&B trên TikTok\" là searchable",
+      "Test xong → Media điền template → AM approve → tự động indexed vào library → Planner/Content tìm được khi cần"
+    ],
+    "inp": [
+      {
+        "tp": "Kết quả",
+        "nm": "A/B test results đã declare winner",
+        "ft": "PMS A/B test record",
+        "nt": "Chỉ đưa vào library khi đã có winner rõ ràng · không đưa inconclusive"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Entry",
+        "nm": "Insight entry trong Creative Performance Library",
+        "ft": "PMS Insights Library · searchable",
+        "nt": "Format: Ngành · Platform · Variable tested · Winner · Delta % · Applicable to · Tags"
+      },
+      {
+        "tp": "Recommendation",
+        "nm": "Suggested insights khi tạo project mới",
+        "ft": "PMS auto-suggest khi AM chọn service package + objective",
+        "nt": "Ví dụ: \"Với F&B LEAD_GEN trên Meta: hook dạng pain point work hơn benefit +27%\""
+      }
+    ],
+    "done": [
+      "Insight có đủ fields: ngành · platform · variable · winner · delta% · context",
+      "AM đã validate quality (không quá general · có data cụ thể)",
+      "Tags đã gán để searchable: #hook #creative #audience #copy #F&B #TikTok..."
+    ],
+    "sla": [
+      "Sau mỗi A/B test declare winner",
+      "Media/Content điền trong 24h · AM approve trong 24h tiếp",
+      "Không — nhưng undocumented insights = waste of knowledge"
+    ],
+    "risks": [
+      {
+        "nm": "Team lười không đóng góp vào library",
+        "esc": [
+          "Làm thành mandatory: task \"Document A/B insights\" trong mọi A/B test task",
+          "AM không approve close A/B test nếu chưa có insight entry"
+        ]
+      },
+      {
+        "nm": "Library quá nhiều entries · khó tìm",
+        "esc": [
+          "Tag system chặt chẽ: max 5 tags per entry",
+          "Search by: ngành + platform + objective là đủ để filter"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Insights Library Module",
+        "ds": "CRUD insights · tagging · search · cross-project query",
+        "sy": "pms"
+      },
+      {
+        "nm": "AI Layer (tương lai)",
+        "ds": "Auto-suggest relevant insights khi tạo proposal mới",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Insight documented → available cho tất cả dự án tương lai"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Library > 50 entries → xem xét thêm AI search layer"
+      }
+    ]
+  },
+  "og_capacity": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "Capacity Management",
+    "r": "Phụ trách: Account Director + AM theo dõi · CEO/COO quyết định nhận KH mới",
+    "w": [
+      "Track workload từng người để biết khi nào team overload và khi nào dừng nhận KH mới",
+      "Account Director track overall · AM track team của mình · Lead bộ phận track nhân viên",
+      "Ongoing · review hàng tuần · quyết định nhận KH mới phải check capacity trước",
+      "<em>PMS: Capacity Dashboard</em> · Task points · Hours estimate · Allocation view",
+      "Không có visibility → AM nhận KH mới khi team đã 120% load → quality drop → KH churn",
+      "Mỗi task có estimate points/hours → PMS aggregate theo người → Dashboard: ai available · ai overload"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Task assignments + time estimate của toàn team",
+        "ft": "PMS Task Module · story points hoặc hours",
+        "nt": "Mỗi task type có default estimate: viết caption = 2h · design banner = 3h..."
+      },
+      {
+        "tp": "Config",
+        "nm": "Capacity mỗi người (giờ/tuần)",
+        "ft": "PMS HR settings",
+        "nt": "Default: 40h/tuần · trừ meetings · trừ leave"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Dashboard",
+        "nm": "Capacity utilization theo người + theo bộ phận",
+        "ft": "PMS Capacity view · % utilization · weeks out",
+        "nt": "Traffic light: < 80% xanh · 80-100% vàng · > 100% đỏ"
+      },
+      {
+        "tp": "Alert",
+        "nm": "Cảnh báo khi assign task cho người đang overload",
+        "ft": "PMS inline warning khi AM tạo task",
+        "nt": "Không block nhưng warn: \"Người này đang 95% capacity tuần này\""
+      }
+    ],
+    "done": [
+      "Mọi task đều có time estimate · không để trống",
+      "Dashboard cập nhật real-time khi task được assign/complete",
+      "Account Director nhận weekly digest: ai đang overload"
+    ],
+    "sla": [
+      "Setup khi onboard nhân viên mới",
+      "Review capacity trước mỗi quyết định nhận project mới",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Team không điền time estimate → data không có giá trị",
+        "esc": [
+          "Default estimate cho mọi task type: AM gán khi tạo · team có thể adjust",
+          "Sau 1 tháng calibrate: actual hours vs estimate để improve accuracy"
+        ]
+      },
+      {
+        "nm": "Capacity chỉ nhìn đủ tasks nhưng không tính overhead (meetings, admin)",
+        "esc": [
+          "Trừ 20% productive time cho meetings/admin theo mặc định",
+          "Ví dụ: capacity 40h → effective = 32h để tính task assignment"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Capacity Module",
+        "ds": "Track utilization per person · per team · per week",
+        "sy": "tms"
+      },
+      {
+        "nm": "Dashboard",
+        "ds": "CEO/COO view: khi nào phải ngừng nhận KH mới",
+        "sy": "pms"
+      },
+      {
+        "nm": "Task Module",
+        "ds": "Inline capacity warning khi assign",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "< 80% capacity → an toàn nhận thêm project"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "80-100% → AM cân nhắc kỹ · AD approve"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "> 100% → NGỪNG nhận project mới cho đến khi giải phóng resource"
+      }
+    ]
+  },
+  "og_competitive": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Competitive Intelligence",
+    "r": "Phụ trách: Media Buyer thực hiện · AM validate · Đưa vào weekly/monthly report",
+    "w": [
+      "Theo dõi đối thủ của KH đang chạy ads gì · format gì · message gì · để adjust creative direction kịp thời",
+      "Media Buyer check hàng tuần (15 phút) · ghi chú ngắn · đưa vào báo cáo",
+      "Hàng tuần · review đầu mỗi tháng để adjust strategy",
+      "<em>Facebook Ad Library (free)</em> · Zalo/TikTok Search · Không cần tool phức tạp",
+      "Không theo dõi đối thủ → KH hỏi \"tại sao competitor đang thắng?\" Agency không có câu trả lời · Với protocol đơn giản → add value đáng kể mà tốn ít công",
+      "Weekly: Media check FB Ad Library 15p → screenshot 2-3 ads đáng chú ý → note ngắn → add vào weekly report section \"Competitor Pulse\""
+    ],
+    "inp": [
+      {
+        "tp": "Tool",
+        "nm": "Facebook Ad Library",
+        "ft": "facebook.com/ads/library · Free · Không cần account",
+        "nt": "Search theo brand name hoặc domain của đối thủ KH"
+      },
+      {
+        "tp": "Config",
+        "nm": "Danh sách 3-5 đối thủ chính của KH",
+        "ft": "Set lúc Second Meeting + Kick-off KH",
+        "nt": "Lấy từ Strategic Brief: \"Đối thủ cạnh tranh chính là ai?\""
+      }
+    ],
+    "out": [
+      {
+        "tp": "Section báo cáo",
+        "nm": "Competitor Pulse (Weekly: 3-5 dòng · Monthly: 1 slide)",
+        "ft": "Trong weekly/monthly report của KH",
+        "nt": "Format: Competitor A đang push [format] với message [Y] → Implication cho chúng ta: [Z]"
+      },
+      {
+        "tp": "Action",
+        "nm": "Creative direction adjustment nếu cần",
+        "ft": "Content brief update · AM thông báo team",
+        "nt": "Ví dụ: \"Competitor đang shift sang video UGC → chúng ta cần test format này\""
+      }
+    ],
+    "done": [
+      "3-5 đối thủ chính đã list trong PMS từ đầu dự án",
+      "Weekly: Media đã check và ghi note · dù chỉ \"Không có gì mới tuần này\"",
+      "Monthly: Section Competitor Pulse có ít nhất 1 observation có value"
+    ],
+    "sla": [
+      "Hàng tuần · thứ 5 để kịp weekly report thứ 2",
+      "15 phút · không quá 30 phút",
+      "Không — nhưng thiếu section này trong báo cáo là thiếu professional"
+    ],
+    "risks": [
+      {
+        "nm": "Đối thủ không chạy ads → không có data",
+        "esc": [
+          "Expand: check content organic · Google search ads · TikTok content",
+          "Ghi rõ: \"Tuần này competitor không active trên paid\" cũng là thông tin có giá trị"
+        ]
+      },
+      {
+        "nm": "Quá nhiều đối thủ cần theo dõi",
+        "esc": [
+          "Giới hạn 3 đối thủ ưu tiên · review lại mỗi quý",
+          "Focus vào đối thủ đang chạy cùng platform và target audience"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Strategic Brief Module",
+        "ds": "Lưu competitor list · update được khi cần",
+        "sy": "pms"
+      },
+      {
+        "nm": "Report Module",
+        "ds": "Template Competitor Pulse section trong weekly/monthly",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Weekly check done → section báo cáo có giá trị"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Competitor đang outperform → trigger strategy adjustment"
+      }
+    ]
+  },
+  "og_account_health": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "Account Health Monitoring",
+    "r": "Phụ trách: Media Buyer · Daily check · Alert ngay khi phát hiện",
+    "w": [
+      "Kiểm tra sức khỏe kỹ thuật của toàn bộ tài sản ads hàng ngày · Phát hiện sớm trước khi ảnh hưởng đến campaign",
+      "Media Buyer check đầu giờ sáng mỗi ngày làm việc (5-10 phút)",
+      "Daily · mỗi sáng trước 9h · Alert ngay khi phát hiện vấn đề",
+      "<em>Ads Manager: account status</em> · Meta Events Manager: pixel · FB Business Suite: violations",
+      "Ad account bị disable vào 8am mà không ai biết đến 3pm = mất 7 tiếng budget + campaign xuống đà · Với daily check → phát hiện và xử lý trước giờ cao điểm",
+      "Checklist 5 điểm mỗi sáng → nếu tất cả OK: log \"HEALTHY\" → nếu có vấn đề: tag AM trong Zalo ngay"
+    ],
+    "inp": [
+      {
+        "tp": "Check",
+        "nm": "Ads Manager account status",
+        "ft": "Meta / Google / TikTok Ads Manager",
+        "nt": "Active? Bị restrict? Payment error?"
+      },
+      {
+        "tp": "Check",
+        "nm": "Pixel / tracking health",
+        "ft": "Meta Events Manager · Google Tag Assistant",
+        "nt": "Last fired < 24h? Event count bình thường so với hôm qua?"
+      },
+      {
+        "tp": "Check",
+        "nm": "Landing page + Form",
+        "ft": "Manual browser check · Google Search Console",
+        "nt": "Load được không? Form submit test OK? Pixel fire?"
+      },
+      {
+        "tp": "Check",
+        "nm": "Business Manager / BM",
+        "ft": "Meta Business Suite",
+        "nt": "Có violation warning? Admin access còn đủ?"
+      },
+      {
+        "tp": "Check",
+        "nm": "Payment method",
+        "ft": "Ads Manager Billing",
+        "nt": "Credit đủ? Thẻ còn hạn?"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Log",
+        "nm": "Daily Health Check status",
+        "ft": "PMS task: HEALTHY / ISSUE_FOUND",
+        "nt": "Mỗi ngày phải có 1 entry · không bỏ qua kể cả ngày không có gì"
+      },
+      {
+        "tp": "Alert",
+        "nm": "Emergency notification khi phát hiện vấn đề",
+        "ft": "Zalo tag AM ngay · PMS Emergency task",
+        "nt": "SLA xử lý: 2h từ khi phát hiện"
+      }
+    ],
+    "done": [
+      "5 điểm checklist đã check đủ hàng ngày",
+      "Log đã ghi trên PMS (HEALTHY hoặc ISSUE + mô tả)",
+      "Nếu có issue: AM đã được tag trong vòng 5 phút phát hiện"
+    ],
+    "sla": [
+      "Mỗi sáng · trước 9h",
+      "5-10 phút mỗi ngày",
+      "Không — daily check là bắt buộc như check email buổi sáng"
+    ],
+    "risks": [
+      {
+        "nm": "Media quên check vào ngày bận",
+        "esc": [
+          "PMS auto-create \"Daily Health Check\" task mỗi sáng",
+          "Nếu task không được complete trước 10h → alert Lead Media"
+        ]
+      },
+      {
+        "nm": "Pixel fire rate drop không detect được nếu chỉ check thủ công",
+        "esc": [
+          "Phase 2: setup alert tự động trong Meta Events Manager (free)",
+          "Threshold: fire rate drop > 20% so với 7-day average → auto-alert qua email"
+        ]
+      },
+      {
+        "nm": "Ad account bị disable vì policy violation của nội dung",
+        "esc": [
+          "Content QC checklist đã cover vấn đề này",
+          "Nếu vẫn bị: appeal ngay + backup creative sẵn sàng"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Auto-create Daily Health Check task mỗi sáng · isRecurring=true",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert Lead Media nếu task không complete trước 10h",
+        "sy": "pms"
+      },
+      {
+        "nm": "CMS Module (tương lai)",
+        "ds": "Aggregate account health từ nhiều platform · dashboard",
+        "sy": "cms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "HEALTHY → tiếp tục bình thường"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "ISSUE FOUND → tag AM ngay · xử lý trong 2h"
+      }
+    ]
+  },
+  "internal_retro": {
+    "bg": "var(--gray-50)",
+    "tc": "var(--gray-800)",
+    "t": "Internal Retrospective",
+    "r": "Phụ trách: Account Manager · Toàn bộ team BPVH · KHÔNG có KH",
+    "w": [
+      "Họp nội bộ 30-45p sau mỗi dự án CLOSED · nhìn lại những gì đã làm tốt và chưa tốt · đúc rút bài học",
+      "Account Manager chủ trì · Planner + tất cả Leads tham gia · KHÔNG có KH",
+      "Sau Client Offboarding · tuần đầu tiên",
+      "<em>Zoom/Meet nội bộ</em> · PMS: Retrospective template",
+      "Wrap-up Meeting với KH là nhìn ra ngoài · Retro là nhìn vào trong · Không Retro = repeat cùng sai lầm",
+      "Format Start/Stop/Continue · 30-45 phút · action items rõ ràng"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Final Report + Client Survey + Health Score trend",
+        "ft": "PMS archive",
+        "nt": "Dữ liệu khách quan để tránh blame"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Retrospective notes (Start/Stop/Continue)",
+        "ft": "PMS · nội bộ · không public cho KH",
+        "nt": "Action items với assignee + deadline"
+      },
+      {
+        "tp": "Insights",
+        "nm": "Learnings đóng góp vào Creative Performance Library",
+        "ft": "PMS Insights Library",
+        "nt": "Nếu có insight mới về creative/process/audience"
+      }
+    ],
+    "done": [
+      "Team leads đã tham gia",
+      "Start/Stop/Continue đã điền",
+      "≥3 action items đã assign",
+      "Notes đã upload PMS"
+    ],
+    "sla": [
+      "Tuần đầu tiên sau Offboarding",
+      "30-45 phút",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Retro trở thành blame session",
+        "esc": [
+          "Focus vào process · không phải con người",
+          "AM đặt ground rule ngay đầu buổi"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Retrospective record gắn với project",
+        "sy": "pms"
+      },
+      {
+        "nm": "Insights Library",
+        "ds": "Đóng góp learnings cross-project",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Retro done → project truly CLOSED"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Action items → track trong tuần tới"
+      }
+    ]
+  },
+  "og_internal_retro": {
+    "bg": "var(--gray-50)",
+    "tc": "var(--gray-800)",
+    "t": "Internal Retrospective (Post-mortem)",
+    "r": "Phụ trách: Account Manager chủ trì · Toàn bộ team BPVH tham gia",
+    "w": [
+      "Họp nội bộ 30-45 phút sau mỗi dự án CLOSED · nhìn lại những gì đã làm tốt và chưa tốt · đúc rút bài học",
+      "Account Manager chủ trì · Planner · Lead Content · Lead Design · Lead Media · Lead Video tham gia · KHÔNG có KH",
+      "Sau Client Offboarding · Trước khi project thực sự archive · trong tuần đầu tiên sau CLOSED",
+      "<em>Meeting nội bộ / Zoom</em> · PMS: Retrospective template · Insights Library: update nếu có insight mới",
+      "Wrap-up Meeting với KH là nhìn ra ngoài · Retrospective là nhìn vào trong · Team cần cả 2 · Không Retrospective = repeat cùng sai lầm ở dự án tiếp theo",
+      "Format: Start/Stop/Continue · 10p chia sẻ → 10p thảo luận → 10p action items → upload PMS"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Final Report + Wrap-up Meeting notes",
+        "ft": "PMS · GG Slides",
+        "nt": "Cơ sở để nhìn lại toàn bộ dự án"
+      },
+      {
+        "tp": "Dữ liệu",
+        "nm": "Client Health Score trend cả dự án",
+        "ft": "PMS Analytics",
+        "nt": "Dữ liệu khách quan để tránh bias"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "NPS + feedback KH từ Client Survey",
+        "ft": "PMS · clientSurveyScore",
+        "nt": "Voice of customer cho context"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Retrospective notes (Start/Stop/Continue format)",
+        "ft": "PMS Retrospective record · không public cho KH",
+        "nt": "Lưu vĩnh viễn · dùng khi onboard KH tương tự ngành"
+      },
+      {
+        "tp": "Action Items",
+        "nm": "Cải thiện cụ thể cho dự án tiếp theo",
+        "ft": "PMS task · assign cho người phụ trách",
+        "nt": "Ví dụ: \"Cập nhật Content QC checklist thêm mục X\" → assign Lead Content"
+      },
+      {
+        "tp": "Insights",
+        "nm": "Learnings có thể áp dụng cross-project",
+        "ft": "Creative Performance Library · process improvements",
+        "nt": "Đóng góp vào library nếu có insight mới về creative/audience/process"
+      }
+    ],
+    "done": [
+      "Tất cả team leads đã tham gia (hoặc gửi feedback trước nếu vắng)",
+      "Format Start/Stop/Continue đã điền đủ",
+      "Ít nhất 3 action items cụ thể đã được assign",
+      "Retrospective notes đã upload PMS · không để trong chat"
+    ],
+    "sla": [
+      "Trong tuần đầu tiên sau Client Offboarding",
+      "30-45 phút · không kéo dài",
+      "Không — nhưng không Retrospective = không learning"
+    ],
+    "risks": [
+      {
+        "nm": "Team mệt sau dự án · không muốn Retrospective",
+        "esc": [
+          "Giữ format ngắn gọn: 30 phút maximum",
+          "AM set lịch ngay khi schedule Offboarding · không để sau"
+        ]
+      },
+      {
+        "nm": "Retro trở thành blame session thay vì learning",
+        "esc": [
+          "AM đặt ground rule: focus vào process · không phải con người",
+          "\"Tại sao?\" tối đa 2 lần · \"Làm gì tiếp theo?\" là priority"
+        ]
+      },
+      {
+        "nm": "Action items không được theo dõi sau Retro",
+        "esc": [
+          "Tất cả action items phải vào PMS · có assignee + deadline",
+          "AM review trong 1:1 hàng tuần sau đó"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "Retrospective record gắn với project · archive cùng dự án",
+        "sy": "pms"
+      },
+      {
+        "nm": "Insights Library Module",
+        "ds": "Từ Retro có thể đóng góp insight vào library",
+        "sy": "pms"
+      },
+      {
+        "nm": "Task Module",
+        "ds": "Action items từ Retro thành tasks với assignee + deadline",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Retro done → bài học đã documented → project truly CLOSED"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Action items → assign và track trong tuần tới"
+      }
+    ]
+  },
+  "og_am_backup": {
+    "bg": "var(--pur-50)",
+    "tc": "var(--pur-800)",
+    "t": "AM Backup Protocol",
+    "r": "Define tại Kick-off Internal D+1 · Activate khi AM vắng ≥ 1 ngày",
+    "w": [
+      "Define rõ ai backup AM khi vắng · handover checklist · tránh dự án bị block",
+      "AM backup: Planner (define lúc Kick-off Internal D+1) · Vắng cả AM+Planner: Lead Content quyết định · Account Director escalation emergency",
+      "Define lúc D+1 · Activate khi AM vắng · Review sau mỗi lần activate để improve",
+      "<em>PMS: backup_am_id field</em> · Zalo: thông báo team khi backup active",
+      "AM là single point of failure nếu không có backup rõ ràng · Với protocol này team biết chính xác phải làm gì mà không cần đợi AM",
+      "AM thông báo 24h trước (trừ emergency) → Handover Zalo note → Backup AM active → AM review khi quay lại"
+    ],
+    "inp": [
+      {
+        "tp": "Config",
+        "nm": "AM backup đã được define tại D+1",
+        "ft": "PMS Project settings · backup_am_id",
+        "nt": "Ưu tiên: Planner → Lead Content → Account Director"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Handover note: project status + pending items + decisions pending",
+        "ft": "Zalo note trong project group + PMS note",
+        "nt": "AM viết trước khi off · tối đa 10 bullet points · chỉ điều quan trọng"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Backup AM đã notify team và KH (nếu cần)",
+        "ft": "Zalo group nội bộ + email KH nếu vắng > 3 ngày",
+        "nt": "KH chỉ cần biết nếu vắng dài · short absence KH không cần biết"
+      },
+      {
+        "tp": "Log",
+        "nm": "Backup activation log + decisions made",
+        "ft": "PMS note · ghi lại mọi quyết định quan trọng trong thời gian backup",
+        "nt": "AM review khi quay lại để có full context"
+      }
+    ],
+    "done": [
+      "backup_am_id đã set trên PMS từ D+1",
+      "AM đã viết handover note trước khi off",
+      "Backup AM đã notify team",
+      " Mọi quyết định quan trọng trong thời gian backup đã được log vào PMS"
+    ],
+    "sla": [
+      "Define tại D+1 (bắt buộc)",
+      "Handover note phải viết trước 8pm ngày hôm trước",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Backup AM không đủ context để quyết định",
+        "esc": [
+          "Handover note phải đủ chi tiết: KH mood hiện tại · pending decisions · ai đang chờ gì · deadline nào quan trọng nhất"
+        ]
+      },
+      {
+        "nm": "AM vắng đột ngột (bệnh/emergency)",
+        "esc": [
+          "Account Director tự động là backup cuối cùng",
+          "PMS: nếu AM không active > 4h giờ làm việc → alert Account Director"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "backup_am_id · backup_planner_id fields · handover_notes",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert Account Director nếu AM không active > 4h giờ làm việc",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Backup activated → dự án tiếp tục không bị gián đoạn"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Emergency không có backup → Account Director takes over"
+      }
+    ]
+  },
+  "og_ongoing_exit": {
+    "bg": "var(--red-50)",
+    "tc": "var(--red-800)",
+    "t": "ONGOING Exit Conditions",
+    "r": "5 scenarios kết thúc ONGOING trước hoặc đúng hạn",
+    "w": [
+      "ONGOING có thể kết thúc theo 5 kịch bản khác nhau · mỗi kịch bản có protocol riêng · không để mơ hồ",
+      "Account Manager xử lý · Account Director approve early termination · Accountant tính pro-rata",
+      "Có thể xảy ra bất kỳ lúc nào trong ONGOING · không chỉ cuối HĐ",
+      "<em>PMS: exit_reason field</em> · HĐ: termination clause · Zalo: thông báo team",
+      "Kết thúc không rõ ràng = tranh chấp pháp lý · bất mãn cả 2 phía · asset không được bàn giao đúng",
+      "Identify scenario → Follow protocol tương ứng → Document → Fast-track hoặc Normal offboarding"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Lý do kết thúc từ KH hoặc nội bộ nhận diện",
+        "ft": "Zalo/Email từ KH · Hoặc nội bộ detect (payment miss, KPI miss liên tục)",
+        "nt": "5 scenarios: Normal / Early / Non-payment / KPI miss / Crisis"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Quyết định",
+        "nm": "Exit scenario đã xác định + protocol đã trigger",
+        "ft": "PMS exit_reason · Account Director approve nếu cần",
+        "nt": "Normal end: Wrap-up → Survey → Report → Offboarding · Early: Fast-track 7 ngày"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Exit documentation: pro-rata calculation + asset inventory",
+        "ft": "PDF · PMS · Accountant sign-off",
+        "nt": "Bảo vệ pháp lý cho cả 2 phía"
+      }
+    ],
+    "done": [
+      "Exit scenario đã identify và document",
+      "Protocol tương ứng đã trigger",
+      "Accountant đã tính pro-rata nếu early termination",
+      "Account Director đã approve"
+    ],
+    "sla": [
+      "Ngay khi identify exit condition",
+      "Account Director phản hồi trong 4h",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "KH muốn dừng ngay lập tức (không báo trước)",
+        "esc": [
+          "Refer về termination clause trong HĐ (30-day notice)",
+          "Nếu mutual agreement: fast-track 7 ngày · pro-rata payment · không hoàn tiền phần đã thực thi"
+        ]
+      },
+      {
+        "nm": "KPI miss nhưng KH vẫn muốn tiếp tục",
+        "esc": [
+          "Họp mutual review: AM + AD + KH",
+          "Option A: Reset KPI target (realistic)",
+          "Option B: Thay đổi strategy hoàn toàn · Luồng Renew B",
+          "Option C: Mutual termination nếu không tìm được common ground"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Project Module",
+        "ds": "exit_reason · exit_type enum · exit_date · pro_rata_amount",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert toàn bộ team khi ONGOING exit condition identified",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Normal end → Wrap-up Meeting như thường"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Early / KPI miss → Account Director vào cuộc ngay"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Non-payment → PAUSE → 30 ngày → TERMINATE"
+      }
+    ]
+  },
+  "og_campaign_lifecycle": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Campaign Lifecycle — Vòng đời chiến dịch",
+    "r": "Phụ trách: Media Buyer thực thi · AM theo dõi",
+    "w": [
+      "Quản lý vòng đời campaign theo mốc thời gian thực tế · Không đợi 7 ngày learning phase",
+      "Media Buyer thực thi hàng ngày · AM được báo cáo định kỳ · Leads bộ phận phối hợp",
+      "Từ ngày launch cho đến cuối tháng · Áp dụng daily từ D+5",
+      "<em>Ads Manager: daily check</em> · PMS: log action · GG Sheets: pacing tracker",
+      "KH không chịu đốt tiền 7 ngày chờ learning phase · Cần signal-based decision thực tế",
+      "24h fix kỹ thuật → 48h first optimization → 72h-5 ngày main window → Ngày 14 mid-check → Ngày 25-28 end-month prep"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Campaign metrics realtime từ Ads Manager",
+        "ft": "Meta / Google / TikTok Ads Manager",
+        "nt": "CTR · CPL · Impressions · Frequency · Delivery · Budget spent"
+      },
+      {
+        "tp": "Config",
+        "nm": "Routine thresholds đã set lúc Kick-off nội bộ",
+        "ft": "PMS — routineThresholds field",
+        "nt": "Ngưỡng cụ thể theo từng platform và từng dự án"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Action",
+        "nm": "Campaign action (tắt/scale/test/giữ nguyên)",
+        "ft": "Ads Manager action · PMS log",
+        "nt": "Ghi rõ: action gì · tại sao · kết quả kỳ vọng"
+      },
+      {
+        "tp": "Báo cáo",
+        "nm": "Monthly performance summary cho KH",
+        "ft": "PDF · GG Slides · Zalo + Email + Portal",
+        "nt": "Tổng kết tháng · so sánh KPI target vs actual"
+      }
+    ],
+    "done": [
+      "24h: Chỉ fix lỗi kỹ thuật · không optimize vội",
+      "48h: Tắt creative CTR < 0.5% sau 500 impressions · tắt ad set không có click sau 1000 impressions",
+      "Ngày 14: Mid-month check · budget pacing · KPI projection",
+      "Ngày 25-28: End-month prep · scale nếu KPI đạt · chuẩn bị creative tháng tới",
+      "Mọi action đều có log trên PMS"
+    ],
+    "sla": [
+      "D+5 — ngay khi campaign active",
+      "Daily check · action theo signal · không đợi đủ 7 ngày",
+      "Không — phải quyết định nhanh dựa trên data thực tế"
+    ],
+    "risks": [
+      {
+        "nm": "Tắt campaign quá sớm khi data chưa đủ",
+        "esc": [
+          "Minimum sample: 500 impressions hoặc 10 conversions trước khi tắt",
+          "Không tắt trong 24h đầu trừ lỗi kỹ thuật nghiêm trọng"
+        ]
+      },
+      {
+        "nm": "KPI dưới target sau 5 ngày đầu",
+        "esc": [
+          "Media báo AM ngay · không chờ đủ 7 ngày",
+          "AM quyết định: test thêm hay trigger Emergency",
+          "Không tự ý thay đổi budget/targeting khi chưa báo AM"
+        ]
+      },
+      {
+        "nm": "Creative saturate (CTR giảm dần)",
+        "esc": [
+          "Media báo AM · assign Content làm fresh creative",
+          "Test song song creative mới vs cũ · không tắt cái cũ ngay"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Ads Report Module",
+        "ds": "Log optimization actions · campaign performance timeline",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Track KPI actual vs target theo tuần",
+        "sy": "pms"
+      },
+      {
+        "nm": "Task Module",
+        "ds": "Auto-create mid-month check task ngày 14 · end-month prep ngày 25",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "On track → tiếp tục optimize"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "KPI < 70% → Emergency Optimizing"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Ngày 25: còn budget + KPI đạt → đề xuất scale"
+      }
+    ]
+  },
+  "og_handoff_form": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Cross-team Handoff Form",
+    "r": "Phụ trách: Content giao · Design/Video nhận · AM kiểm soát deadline",
+    "w": [
+      "Form giao việc chuẩn hóa khi Content bàn giao cho Design hoặc Video · Tránh thiếu thông tin và trễ deadline",
+      "Content Executive/Senior tạo task + điền form · Design/Video Lead phân công · AM set deadline",
+      "Mỗi khi Content hoàn thành brief và cần Design/Video thực thi",
+      "<em>PMS: task assignment + handoff form</em> · Zalo: thông báo nếu urgent",
+      "Thiếu brief → Design/Video làm sai → revision nhiều lần · Mất thời gian cả team",
+      "Content điền form đầy đủ → tạo task PMS → Design/Video Lead nhận → phân công nhân viên → AM theo dõi deadline"
+    ],
+    "inp": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Content brief + copy đã AM approve",
+        "ft": "PMS Content Post · GG Docs",
+        "nt": "Chỉ handoff sau khi AM đã approve · không handoff draft"
+      },
+      {
+        "tp": "Config",
+        "nm": "Thông tin campaign: platform · format · deadline",
+        "ft": "PMS Media Plan · GG Sheets",
+        "nt": "Design/Video cần biết để làm đúng spec"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Task",
+        "nm": "Task đã tạo trên PMS với đầy đủ thông tin",
+        "ft": "PMS Task Module",
+        "nt": "Design/Video Lead phân công ngay trong ngày"
+      },
+      {
+        "tp": "File",
+        "nm": "Deliverable hoàn chỉnh đúng spec",
+        "ft": "PMS upload · GG Drive · format đúng platform",
+        "nt": "Upload xong → AM review trước khi sử dụng"
+      }
+    ],
+    "done": [
+      "Form Content→Design đủ: project · hạng mục · platform · nội dung chính · key message · CTA · kích thước · số variants · deadline",
+      "Form Content→Video đủ: loại video · platform · kịch bản đính kèm · footage có sẵn · style · nhạc · subtitle · format output · deadline",
+      "Task đã assign trên PMS với deadline rõ ràng",
+      "Lead bộ phận đã acknowledge nhận task"
+    ],
+    "sla": [
+      "Sau khi AM approve content",
+      "Design/Video hoàn thành theo deadline AM set",
+      "T-2 ngày: PMS auto-reminder · T-1: AM nhắn Zalo · Đúng deadline chưa có → escalate Account Director trong 2h"
+    ],
+    "risks": [
+      {
+        "nm": "Brief thiếu thông tin · Design/Video phải hỏi lại",
+        "esc": [
+          "Design/Video hỏi qua PMS comment (không Zalo riêng)",
+          "Content bổ sung trong 1h · nếu lâu hơn → delay deadline tương ứng"
+        ]
+      },
+      {
+        "nm": "Design/Video trễ deadline",
+        "esc": [
+          "T-1: AM Zalo trực tiếp cho Lead",
+          "Đúng deadline chưa có → tạo task \"Late Delivery\" · escalate Account Director trong 2h",
+          "Chuẩn bị phương án: delay lịch đăng hoặc dùng content khác"
+        ]
+      },
+      {
+        "nm": "Đối tác ngoài (KOL/Vendor) trễ",
+        "esc": [
+          "AM là đầu mối duy nhất · team không contact đối tác trực tiếp",
+          "Đối tác không dùng PMS: AM tạo task + giao qua Zalo · nhận evidence rồi upload PMS",
+          "Trễ > 2h so với deadline → AM báo Account Director ngay"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Task Module",
+        "ds": "Handoff task: assignee · deadline · deliverable spec · isPartnerTask flag",
+        "sy": "pms"
+      },
+      {
+        "nm": "Content Post Module",
+        "ds": "Link task handoff vào content post tương ứng",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Reminder T-2 ngày trước deadline · Alert khi task overdue",
+        "sy": "pms"
+      },
+      {
+        "nm": "File Module",
+        "ds": "Upload deliverable · isEvidence nếu là bằng chứng đối tác",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Deliverable đúng hạn + spec → AM review → publish"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Trễ deadline → escalate Account Director trong 2h"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Brief thiếu → Content bổ sung trong 1h"
+      }
+    ]
+  },
+  "og_content_calendar": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Content Calendar Management",
+    "r": "Phụ trách: Content own lịch · Lead Content + AM duyệt",
+    "w": [
+      "Lập và quản lý lịch đăng bài hàng tháng/tuần · Buffer 20% slot cho trending đột xuất",
+      "Content Executive/Senior lập lịch · Lead Content + AM review · AM approve lịch schedule cuối cùng",
+      "Lên lịch tháng: 1 tuần trước khi bắt đầu tháng · Lên lịch tuần: thứ 6 tuần trước",
+      "<em>GG Sheets: content calendar master</em> · PMS: task schedule · Zalo: confirm lịch",
+      "Tránh bị bí content · Đảm bảo đều đặn trên các kênh · Có buffer để xử lý trending",
+      "Content lập lịch tháng → Lead Content + AM review → AM approve → Schedule tool auto-post"
+    ],
+    "inp": [
+      {
+        "tp": "Config",
+        "nm": "Media plan + service package",
+        "ft": "PMS · GG Sheets media plan",
+        "nt": "Số lượng bài/tuần · kênh · loại content"
+      },
+      {
+        "tp": "Thông tin",
+        "nm": "Campaign và promotion schedule từ KH",
+        "ft": "Zalo · Brief từ KH",
+        "nt": "Event · sale · launch cần content đặc biệt"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Content calendar tháng đã được AM approve",
+        "ft": "GG Sheets · PMS Content module",
+        "nt": "Người nhận: toàn bộ team BPVH theo dõi"
+      },
+      {
+        "tp": "Action",
+        "nm": "20% buffer slot đã reserve cho trending",
+        "ft": "GG Sheets · đánh dấu \"BUFFER\"",
+        "nt": "Khi có trend → điền vào buffer · push 1 bài planned sang tuần sau"
+      }
+    ],
+    "done": [
+      "Lịch tháng đã có đủ số bài theo plan",
+      "Lead Content + AM đã review",
+      "AM đã approve",
+      "Buffer 20% đã được mark rõ"
+    ],
+    "sla": [
+      "1 tuần trước khi bắt đầu tháng",
+      "Content lập trong 2 ngày · AM approve trong 1 ngày",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Trend đột xuất nhưng không có buffer slot",
+        "esc": [
+          "Content đề xuất AM trong 2h",
+          "AM approve → dùng buffer slot hoặc push 1 bài planned sang tuần sau",
+          "Trend bài phải đăng trong 24h kể từ khi trend nổi · sau đó trend qua đỉnh"
+        ]
+      },
+      {
+        "nm": "KH muốn thêm bài đột xuất",
+        "esc": [
+          "AM đánh giá: có khả thi không với resource hiện tại",
+          "Nếu có: dùng buffer slot · nếu không: lùi sang tuần sau"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Content Post Module",
+        "ds": "Track lịch · status từng bài · performance sau khi đăng",
+        "sy": "pms"
+      },
+      {
+        "nm": "Task Module",
+        "ds": "Auto-create task theo lịch đã set",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Lịch approved → team thực thi theo lịch"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Trend đột xuất → dùng buffer slot"
+      }
+    ]
+  },
+  "og_lead_quality": {
+    "bg": "var(--teal-50)",
+    "tc": "var(--teal-800)",
+    "t": "Lead Quality Tracking",
+    "r": "Agency track · KH tự nhập conversion data",
+    "w": [
+      "Track chất lượng lead · Phân tích để tối ưu targeting và creative · Agency không nhận bán hàng",
+      "Media Buyer track lead từ platform · KH tự nhập data conversion · AM tổng hợp weekly",
+      "Ongoing · review hàng tuần trong báo cáo",
+      "<em>GG Sheet shared với KH</em> · Zapier/n8n (tự động) · Pancake/Getfly (KH có CRM) · PMS",
+      "Lead quality data = basis để tối ưu targeting · Giúp Agency chứng minh ROI thật",
+      "Agency pull lead thô từ platform → KH điền conversion data vào shared GG Sheet → AM review → Optimize"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Số lead thô từ Ads Manager",
+        "ft": "Meta/Google/TikTok export · CSV",
+        "nt": "Đây là số Agency kiểm soát và chịu trách nhiệm"
+      },
+      {
+        "tp": "Dữ liệu",
+        "nm": "Conversion data từ KH (best effort)",
+        "ft": "GG Sheet shared · Zalo · meeting định kỳ",
+        "nt": "KH tự điền: lead hợp lệ · đã liên hệ · chốt đơn"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Báo cáo",
+        "nm": "Lead Funnel Report trong weekly/monthly báo cáo",
+        "ft": "GG Sheets · PMS Report module",
+        "nt": "Lead thô → Hợp lệ → Đã liên hệ → Qualified → Chốt"
+      },
+      {
+        "tp": "Action",
+        "nm": "Optimization trigger dựa trên lead quality",
+        "ft": "Ads Manager · PMS Emergency task nếu cần",
+        "nt": "Xem cases bên dưới để biết trigger action nào"
+      }
+    ],
+    "done": [
+      "Lead thô đã reconcile với Ads Manager",
+      "KH đã update conversion data (nếu có)",
+      "Lead quality cases đã được phân tích",
+      "Optimization action đã trigger nếu cần"
+    ],
+    "sla": [
+      "Ongoing · review hàng tuần",
+      "AM review lead quality report mỗi thứ 2",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Lead ảo (số điện thoại sai · không liên hệ được)",
+        "esc": [
+          "Thu hẹp audience · loại bỏ placement kém",
+          "Báo Facebook Lead Quality Feedback",
+          "Xử lý trong 48h sau khi KH báo"
+        ]
+      },
+      {
+        "nm": "Lead đúng nhưng sai nhu cầu (creative gây hiểu lầm)",
+        "esc": [
+          "Review lại copy + creative ngay",
+          "AM họp với Content để sửa angle"
+        ]
+      },
+      {
+        "nm": "Lead nhiều nhưng KH chốt ít (không phải lỗi Agency)",
+        "esc": [
+          "AM tư vấn KH về sales script và tốc độ gọi lại",
+          "Cơ hội upsell: đề xuất CRM setup hoặc training sales"
+        ]
+      },
+      {
+        "nm": "CPL tăng đột ngột",
+        "esc": [
+          "Check: competition tăng? Frequency cao? Creative mệt?",
+          "Trigger Emergency Optimizing nếu CPL > 2x target"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Ads Report Module",
+        "ds": "Lead funnel: thô → hợp lệ → chốt",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Track CPL actual vs CPL target",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Lead quality ổn → tiếp tục optimize"
+      },
+      {
+        "c": "var(--red-200)",
+        "t": "Lead kém → trigger action theo case"
+      }
+    ]
+  },
+  "og_ab_test": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "A/B Testing Framework",
+    "r": "Phụ trách: Media Buyer thực hiện · AM approve",
+    "w": [
+      "Test có cấu trúc để tìm ra creative/audience/copy tốt nhất · Chỉ test 1 variable mỗi lần",
+      "Media Buyer setup + đọc kết quả · AM phải approve test trước khi chạy · AM declare winner",
+      "Ongoing · khi có hypothesis cần verify",
+      "<em>Ads Manager: duplicate ad set</em> · PMS: log test + learnings · GG Sheets: Insights Library",
+      "Data-driven optimization · Insights Library giúp không test lại những gì đã biết",
+      "Define hypothesis → AM approve → Setup test → Run 2-7 ngày → Read results → Declare winner (AM duyệt) → Document learnings"
+    ],
+    "inp": [
+      {
+        "tp": "Thông tin",
+        "nm": "Hypothesis cần test",
+        "ft": "Media Buyer đề xuất · AM approve trước khi chạy",
+        "nt": "VD: \"Creative với người thật sẽ có CTR cao hơn graphic design 20%\""
+      },
+      {
+        "tp": "Config",
+        "nm": "Budget test tối thiểu",
+        "ft": "2-3x CPL target/ngày/ad set",
+        "nt": "VD: CPL target 100k → tối thiểu 200-300k/ngày/ad set"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Test results: winner vs loser",
+        "ft": "Ads Manager report · PMS log",
+        "nt": "Chênh lệch ≥ 20% + ≥ 50 clicks hoặc ≥ 10 conversions → declare winner"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Insight đã lưu vào Insights Library",
+        "ft": "PMS Insights Library / GG Sheet dùng chung",
+        "nt": "Format: ngày · project · variable · kết quả · áp dụng cho dự án nào khác?"
+      }
+    ],
+    "done": [
+      "Test chỉ thay đổi 1 variable duy nhất",
+      "AM đã approve test trước khi chạy",
+      "Đủ sample: ≥ 50 clicks hoặc ≥ 10 conversions",
+      "AM đã duyệt kết quả trước khi declare winner",
+      "Winner: scale + giữ lại · Loser: tắt toàn bộ",
+      "Insight đã lưu vào Insights Library"
+    ],
+    "sla": [
+      "Khi có hypothesis cần test",
+      "Test tối thiểu 2 ngày · tối đa 7 ngày",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Test quá nhiều variables cùng lúc",
+        "esc": [
+          "Media Buyer phải test 1 variable duy nhất",
+          "AM không approve test nếu đổi >1 variable"
+        ]
+      },
+      {
+        "nm": "Kết quả không đủ statistical significance",
+        "esc": [
+          "Chờ thêm data (tối đa 7 ngày)",
+          "Nếu vẫn không đủ: extend budget hoặc accept inconclusive"
+        ]
+      },
+      {
+        "nm": "Team không dùng Insights Library",
+        "esc": [
+          "AM nhắc nhở hàng tuần",
+          "Review Insights Library đầu mỗi dự án mới"
+        ]
+      },
+      {
+        "nm": "PIXEL / DATA LEARNINGS cần lưu đúng chỗ",
+        "esc": [
+          "Custom Audience: lưu trong Ad Account",
+          "Lookalike: tạo từ tệp KH chất lượng cao",
+          "Conversion API: cài nếu KH có website",
+          "Offline conversion: upload file lead chất lượng để train thuật toán"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Ads Report Module",
+        "ds": "Lưu A/B test results · link Insights Library",
+        "sy": "pms"
+      },
+      {
+        "nm": "Project Module",
+        "ds": "Track A/B test history theo project",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Winner rõ → Scale winner · tắt loser"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Inconclusive → extend thêm hoặc redesign test"
+      }
+    ]
+  },
+  "og_budget_pacing": {
+    "bg": "var(--amb-50)",
+    "tc": "var(--amb-800)",
+    "t": "Budget Pacing",
+    "r": "Phụ trách: Media Buyer track · AM quyết định",
+    "w": [
+      "Theo dõi tốc độ chi tiêu ngân sách để không hết sớm/còn nhiều cuối tháng",
+      "Media Buyer track hàng ngày · báo AM weekly · AM quyết định điều chỉnh",
+      "Daily check · Weekly report cho AM · Monthly review",
+      "<em>Ads Manager: daily spend</em> · PMS: budget tracking · GG Sheets: pacing sheet",
+      "Ngân sách là tiền của KH · Phải chi đúng pace · KHÔNG tự tăng budget khi chưa có KH đồng ý",
+      "Daily cap = Monthly budget / 30 × 1.1 · Check % đã dùng mỗi tuần · Báo AM nếu lệch >20%"
+    ],
+    "inp": [
+      {
+        "tp": "Config",
+        "nm": "Monthly budget đã set từ HĐ",
+        "ft": "PMS — Budget Module · monthlyBudget",
+        "nt": "Đây là budget KH đã đồng ý · không được vượt khi chưa approve"
+      },
+      {
+        "tp": "Dữ liệu",
+        "nm": "Actual spend hàng ngày từ Ads Manager",
+        "ft": "Ads Manager daily spend report",
+        "nt": "Mỗi platform báo cáo riêng · tổng hợp lại"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Báo cáo",
+        "nm": "Weekly pacing report",
+        "ft": "PMS · GG Sheets · báo cáo weekly",
+        "nt": "% budget đã dùng · projected end-of-month · on-track hay không"
+      },
+      {
+        "tp": "Quyết định",
+        "nm": "Scale/Slow down/Giữ nguyên",
+        "ft": "Ads Manager action · AM approve",
+        "nt": "Mọi thay đổi budget đều cần KH approve"
+      }
+    ],
+    "done": [
+      "Daily cap đã set đúng: monthly/30 × 1.1",
+      "Weekly pacing report đã gửi AM",
+      "Không để budget hết trước ngày 25 mà không báo AM trước"
+    ],
+    "sla": [
+      "Ongoing daily",
+      "Media báo AM khi còn 20% budget (ngày ~20-22)",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Budget hết trước cuối tháng",
+        "esc": [
+          "Báo AM ngay khi còn 20%",
+          "AM contact KH để xin tăng hoặc điều chỉnh pace",
+          "KHÔNG tự giảm delivery mà không báo AM"
+        ]
+      },
+      {
+        "nm": "Cuối tháng còn nhiều budget",
+        "esc": [
+          "KPI đạt → đề xuất AM: scale để vit hết budget",
+          "KPI chưa đạt → scale mạnh hơn với winning creative",
+          "KH không cho scale → roll over hoặc hoàn · phải hỏi KH trước"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Budget Module",
+        "ds": "Track actual spend vs planned · daily pacing",
+        "sy": "pms"
+      },
+      {
+        "nm": "Notification",
+        "ds": "Alert AM khi budget còn 20% · alert nếu pace quá nhanh/chậm",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "On track → tiếp tục theo pace"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Over/Under pace → báo AM · AM quyết định + KH approve nếu cần"
+      }
+    ]
+  },
+  "og_monthly_closing": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Monthly Closing Process",
+    "r": "AM chủ trì · Planner duyệt format",
+    "w": [
+      "Quy trình đóng tháng chính thức: data → internal review → finalize → gửi KH → monthly meeting",
+      "Account Manager chủ trì · Planner duyệt format và insight · Cả team báo cáo phần của mình",
+      "Ngày 25-30 hàng tháng · Monthly meeting: ngày 1-5 tháng sau",
+      "<em>GG Docs/Slides: soạn báo cáo</em> · Zoom/Meet: internal review và monthly meeting KH · PMS: log",
+      "Tổng kết tháng bài bản · Chuẩn bị cho tháng tới · Cơ hội upsell/renew",
+      "Ngày 25-26: Prep → Ngày 27-28: Internal review → Ngày 29-30: Finalize + gửi KH → Ngày 1-5 tháng sau: Monthly meeting"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Full month data từ tất cả platform",
+        "ft": "Ads Report · Content performance · KPI actual",
+        "nt": "Ads Manager + GA4 + Shopee/TikTok Shop + GG Analytics"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Lead funnel data từ KH (nếu có)",
+        "ft": "GG Sheet shared · Zalo từ KH",
+        "nt": "Best effort · ghi rõ nếu KH chưa cung cấp"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Tài liệu",
+        "nm": "Monthly Report (9 sections) đã gửi KH",
+        "ft": "PDF · GG Slides · Upload PMS · Zalo + Email + Portal",
+        "nt": "KH nhận đúng hạn"
+      },
+      {
+        "tp": "Tài liệu",
+        "nm": "Brief tháng tới đã được confirm",
+        "ft": "GG Docs · PMS",
+        "nt": "Strategy mới · budget · KPI target · creative direction"
+      }
+    ],
+    "done": [
+      "Ngày 25-26: full month data đã export và tổng hợp",
+      "Ngày 27-28: internal review AM + Planner đã diễn ra (30-45p)",
+      "Ngày 29-30: báo cáo đã finalize và gửi KH qua 3 kênh",
+      "Ngày 1-5: monthly meeting với KH đã được book lịch",
+      "Budget reconciliation: plan vs actual đã tổng hợp",
+      "Brief tháng tới đã được KH confirm"
+    ],
+    "sla": [
+      "Ngày 25 mỗi tháng bắt đầu",
+      "Monthly report gửi KH trước ngày 1 tháng sau · Monthly meeting ngày 1-5",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Data từ platform không khớp nhau",
+        "esc": [
+          "Ưu tiên nguồn: thực tế KH > platform export > GA4/Pixel > tool trung gian",
+          "Ghi chú rõ trong báo cáo: \"Số liệu theo X vì Y\"",
+          "Attribution window khác nhau là lý do phổ biến nhất (Facebook 7-day click vs Google 30-day)"
+        ]
+      },
+      {
+        "nm": "Team không cung cấp data kịp deadline nội bộ",
+        "esc": [
+          "AM set deadline nội bộ: data xong trước ngày 26",
+          "Ngày 27 vẫn chưa có → escalate ngay"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Monthly closing template · 9 sections · auto-fill từ data",
+        "sy": "pms"
+      },
+      {
+        "nm": "KPI Module",
+        "ds": "Monthly KPI actual vs target comparison",
+        "sy": "pms"
+      },
+      {
+        "nm": "Budget Module",
+        "ds": "Monthly budget reconciliation: plan vs actual",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Report gửi xong → Book lịch Monthly meeting"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "KPI kém → đề xuất điều chỉnh strategy tháng tới"
+      }
+    ]
+  },
+  "og_insight": {
+    "bg": "var(--blu-50)",
+    "tc": "var(--blu-800)",
+    "t": "Insight Template (Weekly/Monthly)",
+    "r": "Phụ trách: Account Manager viết · Planner duyệt (Monthly)",
+    "w": [
+      "Thêm insight có giá trị vào báo cáo theo framework chuẩn · Không chỉ copy số liệu",
+      "Account Manager viết insight · Planner duyệt depth của insight (Monthly)",
+      "Sau khi compile data · Trước khi gửi KH",
+      "<em>GG Docs/Slides: viết insight</em> · PMS Report module",
+      "Insight là thứ phân biệt Agency giỏi và Agency tầm thường · KH trả tiền để biết TẠI SAO · không chỉ con số",
+      "Framework: WHY (tại sao kết quả này) → WHAT WORKED (top 3) → WHAT DIDN'T (top 3) → NEXT ACTIONS"
+    ],
+    "inp": [
+      {
+        "tp": "Dữ liệu",
+        "nm": "Compiled report với đầy đủ metrics",
+        "ft": "GG Sheets · Ads Manager",
+        "nt": "Đã có đủ số liệu để phân tích"
+      }
+    ],
+    "out": [
+      {
+        "tp": "Nội dung",
+        "nm": "Insight section trong Weekly report",
+        "ft": "GG Sheets · Zalo message tóm tắt",
+        "nt": "Ngắn gọn: 3-5 bullet points · không dùng jargon"
+      },
+      {
+        "tp": "Nội dung",
+        "nm": "Insight section trong Monthly report (sâu hơn)",
+        "ft": "GG Slides · Section 7-8 trong monthly template",
+        "nt": "Root cause analysis + Lesson learned + Plan tháng tới"
+      }
+    ],
+    "done": [
+      "Weekly: Why (1-2 dòng) + Top 3 worked + Top 3 didn't + Next week actions đã điền đủ",
+      "Monthly: Executive summary + KPI scorecard + Root cause + Lesson learned + Plan tháng tới đã đủ",
+      "Insight dùng ngôn ngữ KH hiểu · không dùng jargon kỹ thuật",
+      "Planner đã review depth của insight (Monthly only)"
+    ],
+    "sla": [
+      "Sau khi compile data",
+      "AM viết insight: 1h (weekly) · 2h (monthly)",
+      "Không"
+    ],
+    "risks": [
+      {
+        "nm": "Insight chung chung không có value (\"Kết quả tốt vì creative hiệu quả\")",
+        "esc": [
+          "Planner có quyền reject insight chung chung",
+          "AM phải phân tích cụ thể hơn: creative nào · hiệu quả hơn bao nhiêu % · vì sao"
+        ]
+      },
+      {
+        "nm": "AM không có đủ thời gian viết insight chất lượng",
+        "esc": [
+          "Planner support phân tích nếu cần",
+          "Không gửi báo cáo thiếu insight · delay 1-2h còn hơn gửi báo cáo kém"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Report Module",
+        "ds": "Insight template trong monthly/weekly report",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "Insight quality ổn → AM QC → gửi KH"
+      },
+      {
+        "c": "var(--amb-200)",
+        "t": "Insight chung chung → Planner reject → AM viết lại"
+      }
+    ]
+  },
+  "og_silence": {
+    "bg": "var(--grn-50)",
+    "tc": "var(--grn-800)",
+    "t": "Im lặng = Đồng ý (Rule 4)",
+    "r": "Tự động: Hệ thống PMS",
+    "w": [
+      "Nếu KH không phản hồi sau 24h → mặc định đồng ý · Tiếp tục triển khai",
+      "Hệ thống tự động reminder · AM theo dõi",
+      "Sau khi gửi đề xuất/báo cáo cho KH",
+      "<em>PMS: auto-reminder tại 20h · Log timestamp tại 24h</em>",
+      "Tránh project bị block do KH không phản hồi · Đã được KH ký xác nhận trong Communication Rules D+3",
+      "Gửi đề xuất → Hệ thống đếm giờ → 20h: nhắc KH → 24h không phản hồi: log \"Im lặng = Đồng ý\" → Tiếp tục"
+    ],
+    "inp": [
+      {
+        "tp": "Action",
+        "nm": "AM đã gửi đề xuất/báo cáo cho KH",
+        "ft": "Zalo · Email · Portal",
+        "nt": "Timestamp gửi đã được log trên PMS"
+      }
+    ],
+    "out": [
+      {
+        "tp": "PMS Record",
+        "nm": "\"Im lặng = Đồng ý\" đã được log với timestamp",
+        "ft": "PMS · Audit log",
+        "nt": "Bằng chứng nếu KH tranh chấp sau này"
+      },
+      {
+        "tp": "Action",
+        "nm": "AM tiếp tục triển khai theo đề xuất",
+        "ft": "Không cần chờ thêm",
+        "nt": "Đã có communication rule làm cơ sở"
+      }
+    ],
+    "done": [
+      "20h: hệ thống đã gửi reminder cho KH",
+      "24h: không có phản hồi · PMS đã log \"Im lặng = Đồng ý\"",
+      "AM đã tiếp tục triển khai"
+    ],
+    "sla": [
+      "Sau khi gửi đề xuất",
+      "20h: hệ thống nhắc tự động · 24h: mặc định OK",
+      "Không áp dụng cho: thay đổi budget/targeting (luôn cần approve rõ ràng)"
+    ],
+    "risks": [
+      {
+        "nm": "KH phản hồi sau 24h không đồng ý",
+        "esc": [
+          "AM refer về Rule 4 đã ký",
+          "Nếu chưa triển khai: có thể stop theo yêu cầu KH",
+          "Nếu đã triển khai: giải thích rule và xử lý hậu quả nếu có"
+        ]
+      }
+    ],
+    "mods": [
+      {
+        "nm": "Notification",
+        "ds": "Auto-reminder sau 20h · Auto-log sau 24h",
+        "sy": "pms"
+      },
+      {
+        "nm": "Project Module",
+        "ds": "communicationRules.silenceConsentHours = 24",
+        "sy": "pms"
+      }
+    ],
+    "ft": [
+      {
+        "c": "var(--grn-200)",
+        "t": "24h không phản hồi → AM tiếp tục triển khai"
+      }
+    ]
+  }
+}

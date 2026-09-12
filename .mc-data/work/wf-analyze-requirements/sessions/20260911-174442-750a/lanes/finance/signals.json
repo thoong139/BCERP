@@ -1,0 +1,202 @@
+{
+  "lane_key": "finance",
+  "lane_type": "department",
+  "items": [
+    {
+      "req_id": "REQ-FIN-001",
+      "title": "Sổ phụ ví TKQC & lệnh giao dịch tiền (tiền giữ hộ)",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Sổ phụ ví riêng từng khách (nạp/chi tiêu/phí/điều chỉnh/số dư khả dụng); tiền nạp = tiền giữ hộ (nợ phải trả) không phải doanh thu; mọi top-up/refund/điều chỉnh qua lệnh hệ thống cấm lệnh miệng; SoD 4 vai dòng tiền. BR-FIN-101/102/103/106 (B.1)."
+    },
+    {
+      "req_id": "REQ-FIN-002",
+      "title": "Cảnh báo số dư đủ chi ≥3 ngày + SLA đỏ 2h",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "ADS 7 ngày rolling per TK; 3 mức Xanh/Vàng/Đỏ; SLA đỏ 2h làm việc + escalation owner→TL→AM có timestamp; Mobile push ≤5 phút; góc FIN: tạm giữ giải ngân khi ví đỏ chờ khách nạp. BR-FIN-104 (B.1)."
+    },
+    {
+      "req_id": "REQ-FIN-003",
+      "title": "Dual approval điều chỉnh số dư / đổi tỷ giá / hoàn tiền",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "3 giao dịch rủi ro cao bắt buộc FIN_L1 tạo + FIN_L2 duyệt (CFO vượt ngưỡng >10 triệu [CẦN CHỐT SỐ]); đổi tỷ giá tay chỉ khi có biên bản; hoàn về đúng TK nguồn nạp trùng tên KYC; Mobile duyệt MFA TOTP. BR-FIN-105 (B.1)."
+    },
+    {
+      "req_id": "REQ-FIN-004",
+      "title": "Đối trừ 3 số tự động, đa tiền tệ, chốt & khóa kỳ",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Đối trừ khách nạp ↔ nạp nền tảng ↔ chi tiêu platform hàng ngày; dung sai 0 / 0,5%·10USD / 1%·20USD [CẦN CHỐT SỐ]; ticket discrepancy cấm tự cân số; sổ gốc VND + snapshot tỷ giá + khoản FX riêng; FIN_L2 chốt ngày 3 + khóa kỳ, mở chỉ CFO. BR-FIN-201..205 (B.2)."
+    },
+    {
+      "req_id": "REQ-FIN-005",
+      "title": "API 7 nền tảng + degraded mode manual",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-INTEGRATION-GW", "SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Adapter 7 nền tảng pull hourly batch/queue, lưu raw payload; chưa có quyền API → import statement chuẩn + nhập tay gắn nhãn manual, sai schema bị chặn; backfill khi được cấp API; sync fail retry/backoff + alert. BR-FIN-301 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-006",
+      "title": "Financial Hard Stop \"đã khớp tiền\" FIN_L1",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "TKQC chỉ cấp phát khi FIN_L1 xác nhận \"Đã khớp tiền\" với evidence sao kê + timestamp; chặn trong code, không nút override kể cả CEO/Super Admin; xác nhận chỉ trên WEB MFA TOTP, Mobile chỉ alert; thu hồi sai → TK tự dừng chi tiêu. BR-FIN-302 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-007",
+      "title": "Công nợ AR/AP + aging + nhắc nợ",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Aging AR/AP bucket 0-30/31-60/61-90/>90 ngày; nhắc AR quá hạn tự động; theo dõi hạn AP nền tảng tránh gián đoạn TKQC; AR >90 ngày là nguồn clawback hoa hồng 100%. BR-FIN-303 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-008",
+      "title": "Duyệt chi/giải ngân: ngưỡng, SoD, delegate",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Ma trận ngưỡng 5/50/200 triệu VND → FIN_L2 / FIN_L2+CFO / CFO+CEO [CẦN CHỐT SỐ]; SoD block vai trùng + log; chứng từ upload trước duyệt; nạp nền tảng duyệt gộp tuần; delegate CFO ≤14 ngày; Mobile duyệt MFA + nhắc SLA 24/48/72h. BR-FIN-304 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-009",
+      "title": "KYC pháp nhân trước cấp phát TKQC",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Hồ sơ GPKD/MST/TK ngân hàng trùng tên pháp nhân/UBO 25% [CẦN CHỐT SỐ]; chặn cấp phát khi KYC ≠ Verified; EDD khi khách nước ngoài/khu vực rủi ro cao/flag K2-K4 → ngưỡng siết 50%, review 6 tháng; ngoại lệ TK cùng nhóm mẹ/con BOD duyệt. BR-FIN-401/405 (B.4, call-2).",
+      "business_rules": ["BR-FIN-401", "BR-FIN-405"]
+    },
+    {
+      "req_id": "REQ-FIN-010",
+      "title": "AML monitoring T1–T6 + hoàn tiền đúng nguồn",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Rule engine T1–T6 ngưỡng cấu hình được [CẦN CHỐT SỐ], FATF list đồng bộ qua GW, EDD siết 50%; hoàn chỉ về TK nguồn nạp trùng tên KYC, đổi beneficiary chặn mặc định; hold → điều tra 24h → BOD 24h → quyết định lý do văn bản lưu vĩnh viễn; báo cáo tháng + hồ sơ AML ≥5 năm. BR-FIN-402/403/404/405 (B.4, call-2).",
+      "business_rules": ["BR-FIN-402", "BR-FIN-403", "BR-FIN-404", "BR-FIN-405"]
+    },
+    {
+      "req_id": "REQ-FIN-011",
+      "title": "Hóa đơn điện tử TT78/2021 + NĐ123/2020",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "HĐĐT chuẩn XML mã cơ quan thuế chỉ xuất từ chứng từ đã đối soát/khóa kỳ, gắn hợp đồng + thanh toán thực nhận; chỉ phát hành trên doanh thu phí dịch vụ — không tiền giữ hộ; điều chỉnh/hủy qua nghiệp vụ chuẩn có log; kết nối thuế dùng chung REQ-013. BR-FIN-601 (B.6, call-2).",
+      "business_rules": ["BR-FIN-601"]
+    },
+    {
+      "req_id": "REQ-FIN-012",
+      "title": "Lưu trữ chứng từ & audit log tiền ≥10 năm (WORM)",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Audit log append-only + hash-chain + old→new + reason code bắt buộc, không interface xóa/sửa mọi tầng kể cả Super Admin; meta-log (xem log cũng bị log) — xuất ngoài chuẩn duyệt BOD_CEO; retention WORM: tiền/HĐ/chứng từ ≥10 năm, log hệ thống ≥7 năm; backup AES-256 2 nơi, test restore hằng quý, RTO ≤4h/RPO ≤15 phút; change management chặn deploy thiếu change record. BR-FIN-501..505 (B.5, call-2).",
+      "business_rules": ["BR-FIN-501", "BR-FIN-502", "BR-FIN-503", "BR-FIN-504", "BR-FIN-505"]
+    },
+    {
+      "req_id": "REQ-FIN-013",
+      "title": "Tích hợp phần mềm kế toán VAS hiện hữu",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-INTEGRATION-GW", "SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Tích hợp không thay thế; GW connector API/import-export [CẦN CHỐT SỐ — tên phần mềm]; chỉ xuất bút toán từ chứng từ đã duyệt/khóa kỳ; đối chiếu sổ tháng, chênh lệch phải giải trình. BR-FIN-305 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-014",
+      "title": "Phí nền tảng & nghĩa vụ thuế",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Phí nền tảng ghi nhận theo giao dịch gốc từ statement/API, tách khỏi doanh thu khi tính GM, quy VND dùng snapshot chung; VAT + FCT nhà thầu nước ngoài theo tư vấn thuế [CẦN CHỐT SỐ]; FCT tách khỏi giá vốn media, nền tảng có pháp nhân VN không áp FCT. BR-FIN-306 (B.3) + BR-FIN-602 (B.6, call-2).",
+      "business_rules": ["BR-FIN-602"]
+    },
+    {
+      "req_id": "REQ-FIN-015",
+      "title": "Dashboard & báo cáo tài chính nội bộ",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Dashboard ví/đối soát/discrepancy/aging/hàng chờ duyệt/hạn mức tuần; freshness HH:MM, chi QC tươi ≤1h; Mobile rút gọn. BR-FIN-307 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-016",
+      "title": "BI/BOD dashboard & P&L realtime",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "Star schema + conformed dimensions (Khách/Dự án/TKQC/Nền tảng); tiền giữ hộ tách bạch doanh thu; đổi metric phải CFO duyệt + lịch sử hiệu lực. BR-FIN-307 (B.3)."
+    },
+    {
+      "req_id": "REQ-FIN-017",
+      "title": "Dữ liệu ví read-only cho Client Portal",
+      "dept": "DEPT-FINANCE",
+      "systems": ["SYS-PORTAL-WEB", "SYS-CORE-BACKEND"],
+      "primary_system": "SYS-PORTAL-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "View tổng hợp lọc tenant (RLS + filter API), read-only tuyệt đối; khách không thấy giá vốn/chiết khấu/P&L; watermark + disclaimer độ trễ. B.6 (call-2): dữ liệu tài chính khách = Restricted, ma trận truy cập review hằng quý, breach 72h NĐ13/2023 + GDPR, DSAR ticket SLA + DPA bắt buộc khách EU/US. BR-FIN-603/604/605.",
+      "business_rules": ["BR-FIN-603", "BR-FIN-604", "BR-FIN-605"]
+    }
+  ],
+  "metadata": {
+    "agent_type": "finance-expert",
+    "profile": "LPM",
+    "call": "1/2",
+    "sections": "B.1-B.3",
+    "part_b_words": 2900,
+    "part_b_words_note": "ước tính từ tiếng Việt (từ ghép = 1 từ); wc -w thô 4421 kể cả bảng Ma trận Business-Rules x System",
+    "business_rules": ["BR-FIN-101","BR-FIN-102","BR-FIN-103","BR-FIN-104","BR-FIN-105","BR-FIN-106","BR-FIN-107","BR-FIN-201","BR-FIN-202","BR-FIN-203","BR-FIN-204","BR-FIN-205","BR-FIN-301","BR-FIN-302","BR-FIN-303","BR-FIN-304","BR-FIN-305","BR-FIN-306","BR-FIN-307","BR-FIN-308"],
+    "pending_call_2": false,
+    "completed_at": "2026-09-12T01:45:00+07:00",
+    "call2": {
+      "agent_type": "compliance-expert",
+      "sections": "B.4-B.6",
+      "part_b_words": 2500,
+      "part_b_words_note": "ước tính từ tiếng Việt (từ ghép = 1 từ); wc -w thô 3849 kể cả bảng T1-T6, bảng retention và Ma trận Business-Rules x System (Bổ sung call-2)",
+      "business_rules": ["BR-FIN-401","BR-FIN-402","BR-FIN-403","BR-FIN-404","BR-FIN-405","BR-FIN-501","BR-FIN-502","BR-FIN-503","BR-FIN-504","BR-FIN-505","BR-FIN-601","BR-FIN-602","BR-FIN-603","BR-FIN-604","BR-FIN-605"],
+      "can_chot_so": ["UBO 25%", "ngưỡng T1–T6", "retention KYC/AML ≥5 năm", "FCT nền tảng/tỷ lệ/kỳ kê khai", "thời điểm lập HĐĐT từng loại dịch vụ", "retention HĐĐT"],
+      "completed_at": "2026-09-12T01:54:23+07:00"
+    }
+  }
+}

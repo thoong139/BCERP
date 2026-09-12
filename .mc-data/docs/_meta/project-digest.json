@@ -1,0 +1,39 @@
+{
+  "$schema": "project-digest-schema-v1.0",
+  "project_name": "BCERP",
+  "project_summary": "ERP nội bộ đầy đủ cho BC Agency — digital marketing agency trung gian quản lý 2.600+ tài khoản quảng cáo đa nền tảng cho 1.000+ khách hàng toàn cầu. Số hóa Lifecycle V6.0 (lead → deliverable), đối soát TKQC qua API thay ảnh chụp màn hình, Client Portal minh bạch multi-tenant, Financial Hard Stop kiểm soát tiền giữ hộ, P&L dự án realtime, capacity & KPI tự động.",
+  "departments": [
+    { "name": "Ban Điều Hành (BOD)", "role": "Business owner — duyệt ngưỡng cao, xem P&L toàn công ty" },
+    { "name": "Phòng Hành chính Nhân sự (HR)", "role": "End user — hồ sơ L1-L5, chấm công, KPI, Cost Rate Card" },
+    { "name": "Phòng Tài chính - Kế toán", "role": "Business owner — khớp tiền, đối soát, giải ngân, khóa kỳ" },
+    { "name": "Phòng Kinh Doanh (Sales)", "role": "End user — pipeline V6.0, báo giá, hoa hồng" },
+    { "name": "Phòng Vận hành & Marketing nội bộ (OPS)", "role": "End user chính — campaign, timesheet, SLA, AM khách hàng" }
+  ],
+  "systems": [
+    { "name": "BCERP Core Backend", "purpose": "API + DB + job queue nguồn sự thật chung, chứa audit log bất biến và integration gateway" },
+    { "name": "BCERP Web nội bộ", "purpose": "Web app ERP cho 18 roles nội bộ, 19 phân hệ" },
+    { "name": "API Integration Gateway", "purpose": "Adapter 7 nền tảng QC + TikTok Business + webhooks lead; vault credentials, degraded mode" },
+    { "name": "Client Portal Web", "purpose": "Portal đối ngoại multi-tenant: khách xem số dư ví, chi tiêu, tiến độ, ticket" },
+    { "name": "Mobile App — BCERP Internal", "purpose": "Duyệt di động, cảnh báo push, timesheet cho nhân sự" },
+    { "name": "Mobile App — BC Portal", "purpose": "Mobile cho khách hàng, tenant-isolated" }
+  ],
+  "interface_type": "web+mobile",
+  "tech_stack_summary": "Node.js/TypeScript + NestJS backend, React/Next.js web, React Native mobile (1 codebase 2 variant), PostgreSQL (RLS tenant isolation, append-only audit), Redis + BullMQ queue, Keycloak 2 realms (nội bộ MFA / portal OTP), Docker trên cloud có region VN.",
+  "key_constraints": [
+    "Financial Hard Stop: cấm cấp phát TKQC khi FIN_L1 chưa xác nhận đã khớp tiền — chặn cứng trong code, không override",
+    "Immutable audit log append-only + hash-chain ≥10 năm cho sự kiện tiền/hợp đồng; kể cả Super Admin không xóa/sửa",
+    "Tiền nạp khách hạch toán là tiền giữ hộ — tách bạch khỏi doanh thu dịch vụ",
+    "SoD 4 vai dòng tiền + dual approval; compensating control cho kiêm nhiệm CFO kiêm CTO (Super Admin)",
+    "Chưa có quyền API developer 7 nền tảng — degraded mode nhập tay có cấu trúc, backfill khi được cấp",
+    "Client Portal tenant isolation + 2FA; khách không thấy giá vốn/chiết khấu/P&L",
+    "Phát triển đầy đủ KHÔNG MVP; không đặt mốc go-live cứng"
+  ],
+  "nfr_highlights": {
+    "performance": "API P95 <500ms; sync hourly 2.600+ TK (queue ≤60 phút/vòng); chi tiêu QC tươi ≤1h; cảnh báo ≤5 phút",
+    "security": "MFA TOTP nội bộ, OTP portal, vault credentials, RBAC 4-tier dữ liệu, quarterly access review, breach notification 72h (NĐ 13/2023 + GDPR)",
+    "scalability": "Portal 1.000+ khách ~2.000-3.000 user (concurrent 200-300); uptime 99,9% portal 7×24 đa múi giờ; RTO ≤4h, RPO ≤15 phút"
+  },
+  "project_complexity": "high",
+  "estimated_effort_days": null,
+  "target_launch": null
+}

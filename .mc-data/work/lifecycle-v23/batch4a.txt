@@ -1,0 +1,1454 @@
+===== og_content =====
+{
+ "t": "Content Brief & Production",
+ "r": "Phụ trách: Content Executive/Senior/Lead",
+ "w": [
+  "Lên ý tưởng, viết caption, kịch bản và brief cho Design/Video · Content là ngọn hải đăng",
+  "Content Executive/Senior làm · Content Lead review · AM duyệt final",
+  "Theo lịch trong content calendar · Buffer 20% slot cho trending",
+  "<em>GG Docs: brief</em> · PMS: task assignment · Zalo: coordinate",
+  "Content định hướng toàn bộ creative — Design và Video follow brief của Content",
+  "Content tự QC theo checklist → Lead review → AM duyệt (tối đa 3 vòng nội bộ)"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Media plan + Content calendar",
+   "ft": "PMS · GG Sheets",
+   "nt": "Lịch đăng bài và brief từng hạng mục"
+  },
+  {
+   "tp": "Tài liệu",
+   "nm": "Brand guidelines + brief KH",
+   "ft": "GG Drive · PMS Strategic Brief",
+   "nt": "Tone · color · messaging"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Caption/Copy đã QC đủ checklist",
+   "ft": "GG Docs / PMS Content Post",
+   "nt": "Gửi Design/Video để thực thi visual"
+  },
+  {
+   "tp": "Tài liệu",
+   "nm": "Brief cho Design và Video",
+   "ft": "PMS — Handoff form",
+   "nt": "Đủ: kích thước · CTA · deadline · reference"
+  }
+ ],
+ "done": [
+  "Checklist TEXT: tone ✓ · độ dài platform ✓ · CTA ✓ · chính tả ✓ · không vi phạm policy ✓",
+  "Checklist ẢNH/VIDEO: kích thước ✓ · text ≤20% ✓ · resolution ✓ · format đúng ✓",
+  "Brief cho Design/Video đã đủ thông tin · có deadline rõ ràng"
+ ],
+ "sla": [
+  "Theo lịch content calendar",
+  "Content: tự QC + Lead review trong 4h · AM review trong 2h",
+  "Tối đa 3 vòng nội bộ · vòng 4 → escalate AM"
+ ],
+ "risks": [
+  {
+   "nm": "Content không qua QC sau 3 vòng",
+   "esc": [
+    "Escalate lên AM",
+    "AM quyết định: chấp nhận version hiện tại hoặc delay lịch đăng"
+   ]
+  },
+  {
+   "nm": "Trend đột xuất cần đăng gấp",
+   "esc": [
+    "Content đề xuất AM trong 2h",
+    "AM approve → dùng buffer slot · push bài planned sang tuần sau",
+    "Không approve: bỏ qua trend"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Content Post Module",
+   "ds": "Track content theo status: IDEA→DRAFT→REVIEW→APPROVED→SCHEDULED→PUBLISHED",
+   "sy": "pms"
+  },
+  {
+   "nm": "Task Module",
+   "ds": "Assign content task · track deadline",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Brief xong → Design/Video bắt đầu thực thi"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Không pass QC → revision"
+  }
+ ]
+}
+===== og_design =====
+{
+ "t": "Design Execution",
+ "r": "Phụ trách: Design Executive/Senior/Lead",
+ "w": [
+  "Thực thi visual theo brief Content · Design không tự quyết concept",
+  "Design Executive/Senior làm · Design Lead review · AM duyệt final",
+  "Sau khi nhận brief từ Content · Theo deadline trong handoff form",
+  "<em>Figma/Photoshop</em> · PMS: task update · GG Drive: file output",
+  "Đảm bảo visual đúng brand · đúng kỹ thuật · đúng deadline",
+  "Nhận brief → Làm theo spec → Self-check → Upload PMS → AM duyệt"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Content brief đầy đủ",
+   "ft": "PMS — Handoff form từ Content",
+   "nt": "Kích thước · CTA · tone · reference · deadline"
+  }
+ ],
+ "out": [
+  {
+   "tp": "File",
+   "nm": "Creative assets đã QC đủ checklist",
+   "ft": "PMS · GG Drive · format đúng platform",
+   "nt": "Gửi lên PMS để AM review"
+  }
+ ],
+ "done": [
+  "Kích thước đúng từng platform",
+  "Text ≤ 20% diện tích (Facebook rule)",
+  "Resolution ≥ 72dpi · file size hợp lý",
+  "Brand color đúng · logo đúng vị trí",
+  "Safe zone: không bị crop trên mobile"
+ ],
+ "sla": [
+  "Nhận brief từ Content",
+  "Theo deadline trong brief (do AM set)",
+  "Nếu trễ: báo AM ngay · không tự ý lùi deadline"
+ ],
+ "risks": [
+  {
+   "nm": "Brief không đủ thông tin để làm",
+   "esc": [
+    "Design hỏi Content ngay qua PMS/Zalo",
+    "Không tự diễn giải brief"
+   ]
+  },
+  {
+   "nm": "Trễ deadline ảnh hưởng lịch đăng",
+   "esc": [
+    "Báo AM ngay khi thấy khó kịp",
+    "AM quyết định: ưu tiên lại hoặc delay post"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "Update task status · upload file output",
+   "sy": "pms"
+  },
+  {
+   "nm": "File Module",
+   "ds": "Upload creative assets · lưu version",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "File done → AM review"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Revision → sửa theo feedback AM"
+  }
+ ]
+}
+===== og_video =====
+{
+ "t": "Video Production",
+ "r": "Phụ trách: Video Executive/Senior/Lead",
+ "w": [
+  "Quay dựng và edit video theo kịch bản Content · Follow brief chặt chẽ",
+  "Video Executive/Senior làm · Video Lead review · AM duyệt final",
+  "Sau khi nhận kịch bản từ Content · Theo deadline trong handoff form",
+  "<em>Premiere/CapCut/DaVinci</em> · PMS: task update · GG Drive: output",
+  "Video short-form là content chiến lược trên TikTok/Reels — chất lượng quan trọng",
+  "Nhận kịch bản → Lên shot list → Quay/Edit → Self-check → Upload PMS → AM duyệt"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Kịch bản video từ Content + Video brief",
+   "ft": "PMS — Handoff form từ Content",
+   "nt": "Loại video · platform · footage · style · nhạc · deadline"
+  }
+ ],
+ "out": [
+  {
+   "tp": "File",
+   "nm": "Video đã edit đúng spec",
+   "ft": "MP4 H.264 · PMS · GG Drive",
+   "nt": "Gửi lên PMS để AM review"
+  }
+ ],
+ "done": [
+  "Tỉ lệ đúng: 9:16 (TikTok/Reels) · 1:1 (Feed) · 16:9 (YouTube)",
+  "Hook 3 giây đầu đủ mạnh · Không bắt đầu bằng logo",
+  "Subtitle đã thêm (80% xem không bật âm)",
+  "Âm thanh rõ · không có tiếng ồn nền",
+  "CTA xuất hiện trong 5 giây cuối · Không nhạc bản quyền"
+ ],
+ "sla": [
+  "Nhận kịch bản từ Content",
+  "Theo deadline trong brief",
+  "Nếu trễ: báo AM ngay"
+ ],
+ "risks": [
+  {
+   "nm": "Footage quay xong không dùng được",
+   "esc": [
+    "Video báo AM ngay",
+    "Quay bổ sung hoặc chuyển sang dùng motion graphic"
+   ]
+  },
+  {
+   "nm": "Nhạc bị copyright claim sau khi đăng",
+   "esc": [
+    "Dùng nhạc từ thư viện miễn phí",
+    "Mua license trước nếu dùng nhạc thương mại"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "Update task status · upload video",
+   "sy": "pms"
+  },
+  {
+   "nm": "File Module",
+   "ds": "Upload video files · lưu version",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Video done → AM review"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Revision → sửa theo feedback AM"
+  }
+ ]
+}
+===== og_am_review =====
+{
+ "t": "AM Duyệt Content/Creative",
+ "r": "Phụ trách: Account Manager — BẮT BUỘC",
+ "w": [
+  "AM review tất cả nội dung trước khi publish · Không có ngoại lệ · Kể cả trường hợp khẩn cấp",
+  "Account Manager BẮT BUỘC · Nếu AM vắng: Planner thay · Nếu cả 2 vắng: Content Lead tự duyệt",
+  "Sau khi Content/Design/Video hoàn thành và tự QC",
+  "<em>PMS: approval flow</em> · Zalo: feedback nhanh · Google Drive: review file",
+  "AM là người hiểu KH nhất · Đảm bảo mọi content align với strategy và kỳ vọng KH",
+  "AM review checklist → APPROVED: chuyển Ads setup · REVISION: gửi lại bộ phận kèm note rõ ràng"
+ ],
+ "inp": [
+  {
+   "tp": "File",
+   "nm": "Content/Creative đã qua self-QC và Lead review",
+   "ft": "PMS · GG Drive",
+   "nt": "Đã pass tối đa 3 vòng nội bộ"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Quyết định",
+   "nm": "APPROVED hoặc REVISION",
+   "ft": "PMS approval record · Zalo feedback",
+   "nt": "APPROVED: → Ads setup · REVISION: → bộ phận tương ứng sửa"
+  }
+ ],
+ "done": [
+  "AM đã review toàn bộ nội dung",
+  "Nếu APPROVED: note lý do nếu cần",
+  "Nếu REVISION: ghi rõ điểm cần sửa · không được nói chung chung"
+ ],
+ "sla": [
+  "Sau khi nhận file từ team",
+  "AM review trong 2h · 4h nếu là video dài",
+  "Không được để quá SLA làm trễ lịch đăng"
+ ],
+ "risks": [
+  {
+   "nm": "AM không available (họp · nghỉ phép)",
+   "esc": [
+    "Planner thay thế",
+    "Nếu cả 2 không available: Content Lead tự duyệt + ghi log PMS"
+   ]
+  },
+  {
+   "nm": "Trend cần đăng gấp mà AM chưa review",
+   "esc": [
+    "AM phải được tag ngay · SLA 1h trong trường hợp này",
+    "Nếu qua 1h không reply → Content Lead duyệt + AM review sau"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Approval Module",
+   "ds": "AM approve/reject · ghi comment",
+   "sy": "pms"
+  },
+  {
+   "nm": "Content Post Module",
+   "ds": "Update status: REVIEW → APPROVED/REVISION_REQUESTED",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "APPROVED → Ads lên campaign / Schedule đăng"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "REVISION → bộ phận sửa lại"
+  }
+ ]
+}
+===== og_ads =====
+{
+ "t": "Ads lên Campaign",
+ "r": "Phụ trách: Media Executive/Senior",
+ "w": [
+  "Setup và launch campaign trên các ad platform sau khi creative được AM duyệt",
+  "Media Executive/Senior setup · Media Lead review · AM được notify",
+  "Sau khi AM approve creative",
+  "<em>Meta Ads Manager · Google Ads · TikTok Ads Manager</em> · PMS: task update",
+  "Đây là bước \"point of no return\" — campaign đã active thì tốn tiền · Phải chuẩn",
+  "Pre-launch QC checklist → Setup campaign structure → Review toàn bộ → Launch → Monitor 24h đầu"
+ ],
+ "inp": [
+  {
+   "tp": "File",
+   "nm": "Creative assets đã được AM approve",
+   "ft": "PMS · GG Drive",
+   "nt": "Text + Ảnh/Video đã pass QC"
+  },
+  {
+   "tp": "Config",
+   "nm": "Media plan: audience · budget · placement · bid strategy",
+   "ft": "GG Sheets media plan · PMS",
+   "nt": "Đã được AM + Planner confirm"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Campaign đã active trên platform",
+   "ft": "Ads Manager — Campaign ID · Ad Set ID · Ad ID",
+   "nt": "AM nhận notify ngay khi campaign active"
+  }
+ ],
+ "done": [
+  "Pixel/tracking đã active và fire đúng",
+  "Audience targeting đúng spec",
+  "Budget đúng daily cap = monthly/30 × 1.1",
+  "UTM parameters đã gắn",
+  "Creative đúng format từng placement",
+  "Lead form/Landing page đã test thành công"
+ ],
+ "sla": [
+  "Sau khi AM approve creative",
+  "Launch trong ngày · theo lịch media plan",
+  "Nếu trễ: báo AM kèm lý do"
+ ],
+ "risks": [
+  {
+   "nm": "Ad bị reject sau khi submit",
+   "esc": [
+    "Media fix và resubmit trong 2h",
+    "Nếu vẫn bị reject: báo AM · xem xét thay creative"
+   ]
+  },
+  {
+   "nm": "Budget hết trước cuối tháng",
+   "esc": [
+    "Báo AM ngay khi còn 20% budget",
+    "AM quyết định: báo KH xin tăng budget hoặc giảm tốc độ chi tiêu"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Ads Report Module",
+   "ds": "Bắt đầu pull data ngay khi campaign active",
+   "sy": "pms"
+  },
+  {
+   "nm": "KPI Module",
+   "ds": "Track actual vs target real-time",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Campaign active → PUBLISH ✓"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Ad bị reject → fix + resubmit"
+  }
+ ]
+}
+===== og_partner =====
+{
+ "t": "Task Đối tác (KOL/PR/Event)",
+ "r": "Phụ trách: Account Manager — Đầu mối duy nhất",
+ "w": [
+  "Đối tác không có tài khoản PMS · AM là đầu mối duy nhất · Tự tạo task và verify evidence",
+  "Account Manager tạo task · giao đối tác qua Zalo · thu evidence · tick done",
+  "Theo lịch campaign hoặc event",
+  "<em>PMS: task management</em> · Zalo: giao việc cho đối tác · GG Drive: upload evidence",
+  "Đối tác không vào hệ thống · nhưng deliverable vẫn được track và verify đầy đủ",
+  "AM tạo task → brief qua Zalo → đối tác thực hiện → gửi evidence → AM verify → tick DONE"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Brief cho đối tác",
+   "ft": "Zalo/Email từ AM",
+   "nt": "Deadline rõ · deliverable cụ thể · format yêu cầu"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Evidence",
+   "nm": "Ảnh/Video/Screenshot/Report từ đối tác",
+   "ft": "Upload PMS · GG Drive",
+   "nt": "AM verify trước khi tick done · Bằng chứng pháp lý"
+  }
+ ],
+ "done": [
+  "AM đã verify evidence đủ theo brief",
+  "Evidence đã upload lên PMS",
+  "Task status = DONE · isEvidence = true",
+  "Ghi nhận performance của đối tác (đúng hạn / chất lượng)"
+ ],
+ "sla": [
+  "Theo deadline trong brief",
+  "T-2: PMS reminder cho AM · T-1: AM nhắn Zalo đối tác",
+  "Đối tác trễ → AM báo Account Director trong 2h"
+ ],
+ "risks": [
+  {
+   "nm": "Đối tác trễ ảnh hưởng campaign",
+   "esc": [
+    "T-1: AM nhắn trực tiếp",
+    "Đúng deadline chưa có: escalate Account Director ngay",
+    "Chuẩn bị phương án dự phòng (delay / thay đối tác)"
+   ]
+  },
+  {
+   "nm": "Evidence không đúng yêu cầu",
+   "esc": [
+    "AM yêu cầu đối tác làm lại",
+    "Ghi nhận chất lượng vào hồ sơ đối tác trên PMS"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "isPartnerTask=true · isEvidence=true · partnerName",
+   "sy": "pms"
+  },
+  {
+   "nm": "File Module",
+   "ds": "Upload evidence files · isEvidence flag",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Evidence verified → Task DONE"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Trễ → Escalate Account Director"
+  }
+ ]
+}
+===== og_handoff_form =====
+{
+ "t": "Cross-team Handoff Form",
+ "r": "Phụ trách: Content giao · Design/Video nhận · AM kiểm soát deadline",
+ "w": [
+  "Form giao việc chuẩn hóa khi Content bàn giao cho Design hoặc Video · Tránh thiếu thông tin và trễ deadline",
+  "Content Executive/Senior tạo task + điền form · Design/Video Lead phân công · AM set deadline",
+  "Mỗi khi Content hoàn thành brief và cần Design/Video thực thi",
+  "<em>PMS: task assignment + handoff form</em> · Zalo: thông báo nếu urgent",
+  "Thiếu brief → Design/Video làm sai → revision nhiều lần · Mất thời gian cả team",
+  "Content điền form đầy đủ → tạo task PMS → Design/Video Lead nhận → phân công nhân viên → AM theo dõi deadline"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Content brief + copy đã AM approve",
+   "ft": "PMS Content Post · GG Docs",
+   "nt": "Chỉ handoff sau khi AM đã approve · không handoff draft"
+  },
+  {
+   "tp": "Config",
+   "nm": "Thông tin campaign: platform · format · deadline",
+   "ft": "PMS Media Plan · GG Sheets",
+   "nt": "Design/Video cần biết để làm đúng spec"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Task",
+   "nm": "Task đã tạo trên PMS với đầy đủ thông tin",
+   "ft": "PMS Task Module",
+   "nt": "Design/Video Lead phân công ngay trong ngày"
+  },
+  {
+   "tp": "File",
+   "nm": "Deliverable hoàn chỉnh đúng spec",
+   "ft": "PMS upload · GG Drive · format đúng platform",
+   "nt": "Upload xong → AM review trước khi sử dụng"
+  }
+ ],
+ "done": [
+  "Form Content→Design đủ: project · hạng mục · platform · nội dung chính · key message · CTA · kích thước · số variants · deadline",
+  "Form Content→Video đủ: loại video · platform · kịch bản đính kèm · footage có sẵn · style · nhạc · subtitle · format output · deadline",
+  "Task đã assign trên PMS với deadline rõ ràng",
+  "Lead bộ phận đã acknowledge nhận task"
+ ],
+ "sla": [
+  "Sau khi AM approve content",
+  "Design/Video hoàn thành theo deadline AM set",
+  "T-2 ngày: PMS auto-reminder · T-1: AM nhắn Zalo · Đúng deadline chưa có → escalate Account Director trong 2h"
+ ],
+ "risks": [
+  {
+   "nm": "Brief thiếu thông tin · Design/Video phải hỏi lại",
+   "esc": [
+    "Design/Video hỏi qua PMS comment (không Zalo riêng)",
+    "Content bổ sung trong 1h · nếu lâu hơn → delay deadline tương ứng"
+   ]
+  },
+  {
+   "nm": "Design/Video trễ deadline",
+   "esc": [
+    "T-1: AM Zalo trực tiếp cho Lead",
+    "Đúng deadline chưa có → tạo task \"Late Delivery\" · escalate Account Director trong 2h",
+    "Chuẩn bị phương án: delay lịch đăng hoặc dùng content khác"
+   ]
+  },
+  {
+   "nm": "Đối tác ngoài (KOL/Vendor) trễ",
+   "esc": [
+    "AM là đầu mối duy nhất · team không contact đối tác trực tiếp",
+    "Đối tác không dùng PMS: AM tạo task + giao qua Zalo · nhận evidence rồi upload PMS",
+    "Trễ > 2h so với deadline → AM báo Account Director ngay"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "Handoff task: assignee · deadline · deliverable spec · isPartnerTask flag",
+   "sy": "pms"
+  },
+  {
+   "nm": "Content Post Module",
+   "ds": "Link task handoff vào content post tương ứng",
+   "sy": "pms"
+  },
+  {
+   "nm": "Notification",
+   "ds": "Reminder T-2 ngày trước deadline · Alert khi task overdue",
+   "sy": "pms"
+  },
+  {
+   "nm": "File Module",
+   "ds": "Upload deliverable · isEvidence nếu là bằng chứng đối tác",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Deliverable đúng hạn + spec → AM review → publish"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Trễ deadline → escalate Account Director trong 2h"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Brief thiếu → Content bổ sung trong 1h"
+  }
+ ]
+}
+===== og_content_calendar =====
+{
+ "t": "Content Calendar Management",
+ "r": "Phụ trách: Content own lịch · Lead Content + AM duyệt",
+ "w": [
+  "Lập và quản lý lịch đăng bài hàng tháng/tuần · Buffer 20% slot cho trending đột xuất",
+  "Content Executive/Senior lập lịch · Lead Content + AM review · AM approve lịch schedule cuối cùng",
+  "Lên lịch tháng: 1 tuần trước khi bắt đầu tháng · Lên lịch tuần: thứ 6 tuần trước",
+  "<em>GG Sheets: content calendar master</em> · PMS: task schedule · Zalo: confirm lịch",
+  "Tránh bị bí content · Đảm bảo đều đặn trên các kênh · Có buffer để xử lý trending",
+  "Content lập lịch tháng → Lead Content + AM review → AM approve → Schedule tool auto-post"
+ ],
+ "inp": [
+  {
+   "tp": "Config",
+   "nm": "Media plan + service package",
+   "ft": "PMS · GG Sheets media plan",
+   "nt": "Số lượng bài/tuần · kênh · loại content"
+  },
+  {
+   "tp": "Thông tin",
+   "nm": "Campaign và promotion schedule từ KH",
+   "ft": "Zalo · Brief từ KH",
+   "nt": "Event · sale · launch cần content đặc biệt"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Content calendar tháng đã được AM approve",
+   "ft": "GG Sheets · PMS Content module",
+   "nt": "Người nhận: toàn bộ team BPVH theo dõi"
+  },
+  {
+   "tp": "Action",
+   "nm": "20% buffer slot đã reserve cho trending",
+   "ft": "GG Sheets · đánh dấu \"BUFFER\"",
+   "nt": "Khi có trend → điền vào buffer · push 1 bài planned sang tuần sau"
+  }
+ ],
+ "done": [
+  "Lịch tháng đã có đủ số bài theo plan",
+  "Lead Content + AM đã review",
+  "AM đã approve",
+  "Buffer 20% đã được mark rõ"
+ ],
+ "sla": [
+  "1 tuần trước khi bắt đầu tháng",
+  "Content lập trong 2 ngày · AM approve trong 1 ngày",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Trend đột xuất nhưng không có buffer slot",
+   "esc": [
+    "Content đề xuất AM trong 2h",
+    "AM approve → dùng buffer slot hoặc push 1 bài planned sang tuần sau",
+    "Trend bài phải đăng trong 24h kể từ khi trend nổi · sau đó trend qua đỉnh"
+   ]
+  },
+  {
+   "nm": "KH muốn thêm bài đột xuất",
+   "esc": [
+    "AM đánh giá: có khả thi không với resource hiện tại",
+    "Nếu có: dùng buffer slot · nếu không: lùi sang tuần sau"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Content Post Module",
+   "ds": "Track lịch · status từng bài · performance sau khi đăng",
+   "sy": "pms"
+  },
+  {
+   "nm": "Task Module",
+   "ds": "Auto-create task theo lịch đã set",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Lịch approved → team thực thi theo lịch"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Trend đột xuất → dùng buffer slot"
+  }
+ ]
+}
+===== og_campaign_lifecycle =====
+{
+ "t": "Campaign Lifecycle — Vòng đời chiến dịch",
+ "r": "Phụ trách: Media Buyer thực thi · AM theo dõi",
+ "w": [
+  "Quản lý vòng đời campaign theo mốc thời gian thực tế · Không đợi 7 ngày learning phase",
+  "Media Buyer thực thi hàng ngày · AM được báo cáo định kỳ · Leads bộ phận phối hợp",
+  "Từ ngày launch cho đến cuối tháng · Áp dụng daily từ D+5",
+  "<em>Ads Manager: daily check</em> · PMS: log action · GG Sheets: pacing tracker",
+  "KH không chịu đốt tiền 7 ngày chờ learning phase · Cần signal-based decision thực tế",
+  "24h fix kỹ thuật → 48h first optimization → 72h-5 ngày main window → Ngày 14 mid-check → Ngày 25-28 end-month prep"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Campaign metrics realtime từ Ads Manager",
+   "ft": "Meta / Google / TikTok Ads Manager",
+   "nt": "CTR · CPL · Impressions · Frequency · Delivery · Budget spent"
+  },
+  {
+   "tp": "Config",
+   "nm": "Routine thresholds đã set lúc Kick-off nội bộ",
+   "ft": "PMS — routineThresholds field",
+   "nt": "Ngưỡng cụ thể theo từng platform và từng dự án"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Campaign action (tắt/scale/test/giữ nguyên)",
+   "ft": "Ads Manager action · PMS log",
+   "nt": "Ghi rõ: action gì · tại sao · kết quả kỳ vọng"
+  },
+  {
+   "tp": "Báo cáo",
+   "nm": "Monthly performance summary cho KH",
+   "ft": "PDF · GG Slides · Zalo + Email + Portal",
+   "nt": "Tổng kết tháng · so sánh KPI target vs actual"
+  }
+ ],
+ "done": [
+  "24h: Chỉ fix lỗi kỹ thuật · không optimize vội",
+  "48h: Tắt creative CTR < 0.5% sau 500 impressions · tắt ad set không có click sau 1000 impressions",
+  "Ngày 14: Mid-month check · budget pacing · KPI projection",
+  "Ngày 25-28: End-month prep · scale nếu KPI đạt · chuẩn bị creative tháng tới",
+  "Mọi action đều có log trên PMS"
+ ],
+ "sla": [
+  "D+5 — ngay khi campaign active",
+  "Daily check · action theo signal · không đợi đủ 7 ngày",
+  "Không — phải quyết định nhanh dựa trên data thực tế"
+ ],
+ "risks": [
+  {
+   "nm": "Tắt campaign quá sớm khi data chưa đủ",
+   "esc": [
+    "Minimum sample: 500 impressions hoặc 10 conversions trước khi tắt",
+    "Không tắt trong 24h đầu trừ lỗi kỹ thuật nghiêm trọng"
+   ]
+  },
+  {
+   "nm": "KPI dưới target sau 5 ngày đầu",
+   "esc": [
+    "Media báo AM ngay · không chờ đủ 7 ngày",
+    "AM quyết định: test thêm hay trigger Emergency",
+    "Không tự ý thay đổi budget/targeting khi chưa báo AM"
+   ]
+  },
+  {
+   "nm": "Creative saturate (CTR giảm dần)",
+   "esc": [
+    "Media báo AM · assign Content làm fresh creative",
+    "Test song song creative mới vs cũ · không tắt cái cũ ngay"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Ads Report Module",
+   "ds": "Log optimization actions · campaign performance timeline",
+   "sy": "pms"
+  },
+  {
+   "nm": "KPI Module",
+   "ds": "Track KPI actual vs target theo tuần",
+   "sy": "pms"
+  },
+  {
+   "nm": "Task Module",
+   "ds": "Auto-create mid-month check task ngày 14 · end-month prep ngày 25",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "On track → tiếp tục optimize"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "KPI < 70% → Emergency Optimizing"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Ngày 25: còn budget + KPI đạt → đề xuất scale"
+  }
+ ]
+}
+===== og_lead_quality =====
+{
+ "t": "Lead Quality Tracking",
+ "r": "Agency track · KH tự nhập conversion data",
+ "w": [
+  "Track chất lượng lead · Phân tích để tối ưu targeting và creative · Agency không nhận bán hàng",
+  "Media Buyer track lead từ platform · KH tự nhập data conversion · AM tổng hợp weekly",
+  "Ongoing · review hàng tuần trong báo cáo",
+  "<em>GG Sheet shared với KH</em> · Zapier/n8n (tự động) · Pancake/Getfly (KH có CRM) · PMS",
+  "Lead quality data = basis để tối ưu targeting · Giúp Agency chứng minh ROI thật",
+  "Agency pull lead thô từ platform → KH điền conversion data vào shared GG Sheet → AM review → Optimize"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Số lead thô từ Ads Manager",
+   "ft": "Meta/Google/TikTok export · CSV",
+   "nt": "Đây là số Agency kiểm soát và chịu trách nhiệm"
+  },
+  {
+   "tp": "Dữ liệu",
+   "nm": "Conversion data từ KH (best effort)",
+   "ft": "GG Sheet shared · Zalo · meeting định kỳ",
+   "nt": "KH tự điền: lead hợp lệ · đã liên hệ · chốt đơn"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Báo cáo",
+   "nm": "Lead Funnel Report trong weekly/monthly báo cáo",
+   "ft": "GG Sheets · PMS Report module",
+   "nt": "Lead thô → Hợp lệ → Đã liên hệ → Qualified → Chốt"
+  },
+  {
+   "tp": "Action",
+   "nm": "Optimization trigger dựa trên lead quality",
+   "ft": "Ads Manager · PMS Emergency task nếu cần",
+   "nt": "Xem cases bên dưới để biết trigger action nào"
+  }
+ ],
+ "done": [
+  "Lead thô đã reconcile với Ads Manager",
+  "KH đã update conversion data (nếu có)",
+  "Lead quality cases đã được phân tích",
+  "Optimization action đã trigger nếu cần"
+ ],
+ "sla": [
+  "Ongoing · review hàng tuần",
+  "AM review lead quality report mỗi thứ 2",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Lead ảo (số điện thoại sai · không liên hệ được)",
+   "esc": [
+    "Thu hẹp audience · loại bỏ placement kém",
+    "Báo Facebook Lead Quality Feedback",
+    "Xử lý trong 48h sau khi KH báo"
+   ]
+  },
+  {
+   "nm": "Lead đúng nhưng sai nhu cầu (creative gây hiểu lầm)",
+   "esc": [
+    "Review lại copy + creative ngay",
+    "AM họp với Content để sửa angle"
+   ]
+  },
+  {
+   "nm": "Lead nhiều nhưng KH chốt ít (không phải lỗi Agency)",
+   "esc": [
+    "AM tư vấn KH về sales script và tốc độ gọi lại",
+    "Cơ hội upsell: đề xuất CRM setup hoặc training sales"
+   ]
+  },
+  {
+   "nm": "CPL tăng đột ngột",
+   "esc": [
+    "Check: competition tăng? Frequency cao? Creative mệt?",
+    "Trigger Emergency Optimizing nếu CPL > 2x target"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Ads Report Module",
+   "ds": "Lead funnel: thô → hợp lệ → chốt",
+   "sy": "pms"
+  },
+  {
+   "nm": "KPI Module",
+   "ds": "Track CPL actual vs CPL target",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Lead quality ổn → tiếp tục optimize"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Lead kém → trigger action theo case"
+  }
+ ]
+}
+===== og_account_health =====
+{
+ "t": "Account Health Monitoring",
+ "r": "Phụ trách: Media Buyer · Daily check · Alert ngay khi phát hiện",
+ "w": [
+  "Kiểm tra sức khỏe kỹ thuật của toàn bộ tài sản ads hàng ngày · Phát hiện sớm trước khi ảnh hưởng đến campaign",
+  "Media Buyer check đầu giờ sáng mỗi ngày làm việc (5-10 phút)",
+  "Daily · mỗi sáng trước 9h · Alert ngay khi phát hiện vấn đề",
+  "<em>Ads Manager: account status</em> · Meta Events Manager: pixel · FB Business Suite: violations",
+  "Ad account bị disable vào 8am mà không ai biết đến 3pm = mất 7 tiếng budget + campaign xuống đà · Với daily check → phát hiện và xử lý trước giờ cao điểm",
+  "Checklist 5 điểm mỗi sáng → nếu tất cả OK: log \"HEALTHY\" → nếu có vấn đề: tag AM trong Zalo ngay"
+ ],
+ "inp": [
+  {
+   "tp": "Check",
+   "nm": "Ads Manager account status",
+   "ft": "Meta / Google / TikTok Ads Manager",
+   "nt": "Active? Bị restrict? Payment error?"
+  },
+  {
+   "tp": "Check",
+   "nm": "Pixel / tracking health",
+   "ft": "Meta Events Manager · Google Tag Assistant",
+   "nt": "Last fired < 24h? Event count bình thường so với hôm qua?"
+  },
+  {
+   "tp": "Check",
+   "nm": "Landing page + Form",
+   "ft": "Manual browser check · Google Search Console",
+   "nt": "Load được không? Form submit test OK? Pixel fire?"
+  },
+  {
+   "tp": "Check",
+   "nm": "Business Manager / BM",
+   "ft": "Meta Business Suite",
+   "nt": "Có violation warning? Admin access còn đủ?"
+  },
+  {
+   "tp": "Check",
+   "nm": "Payment method",
+   "ft": "Ads Manager Billing",
+   "nt": "Credit đủ? Thẻ còn hạn?"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Log",
+   "nm": "Daily Health Check status",
+   "ft": "PMS task: HEALTHY / ISSUE_FOUND",
+   "nt": "Mỗi ngày phải có 1 entry · không bỏ qua kể cả ngày không có gì"
+  },
+  {
+   "tp": "Alert",
+   "nm": "Emergency notification khi phát hiện vấn đề",
+   "ft": "Zalo tag AM ngay · PMS Emergency task",
+   "nt": "SLA xử lý: 2h từ khi phát hiện"
+  }
+ ],
+ "done": [
+  "5 điểm checklist đã check đủ hàng ngày",
+  "Log đã ghi trên PMS (HEALTHY hoặc ISSUE + mô tả)",
+  "Nếu có issue: AM đã được tag trong vòng 5 phút phát hiện"
+ ],
+ "sla": [
+  "Mỗi sáng · trước 9h",
+  "5-10 phút mỗi ngày",
+  "Không — daily check là bắt buộc như check email buổi sáng"
+ ],
+ "risks": [
+  {
+   "nm": "Media quên check vào ngày bận",
+   "esc": [
+    "PMS auto-create \"Daily Health Check\" task mỗi sáng",
+    "Nếu task không được complete trước 10h → alert Lead Media"
+   ]
+  },
+  {
+   "nm": "Pixel fire rate drop không detect được nếu chỉ check thủ công",
+   "esc": [
+    "Phase 2: setup alert tự động trong Meta Events Manager (free)",
+    "Threshold: fire rate drop > 20% so với 7-day average → auto-alert qua email"
+   ]
+  },
+  {
+   "nm": "Ad account bị disable vì policy violation của nội dung",
+   "esc": [
+    "Content QC checklist đã cover vấn đề này",
+    "Nếu vẫn bị: appeal ngay + backup creative sẵn sàng"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "Auto-create Daily Health Check task mỗi sáng · isRecurring=true",
+   "sy": "pms"
+  },
+  {
+   "nm": "Notification",
+   "ds": "Alert Lead Media nếu task không complete trước 10h",
+   "sy": "pms"
+  },
+  {
+   "nm": "CMS Module (tương lai)",
+   "ds": "Aggregate account health từ nhiều platform · dashboard",
+   "sy": "cms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "HEALTHY → tiếp tục bình thường"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "ISSUE FOUND → tag AM ngay · xử lý trong 2h"
+  }
+ ]
+}
+===== og_am_backup =====
+{
+ "t": "AM Backup Protocol",
+ "r": "Define tại Kick-off Internal D+1 · Activate khi AM vắng ≥ 1 ngày",
+ "w": [
+  "Define rõ ai backup AM khi vắng · handover checklist · tránh dự án bị block",
+  "AM backup: Planner (define lúc Kick-off Internal D+1) · Vắng cả AM+Planner: Lead Content quyết định · Account Director escalation emergency",
+  "Define lúc D+1 · Activate khi AM vắng · Review sau mỗi lần activate để improve",
+  "<em>PMS: backup_am_id field</em> · Zalo: thông báo team khi backup active",
+  "AM là single point of failure nếu không có backup rõ ràng · Với protocol này team biết chính xác phải làm gì mà không cần đợi AM",
+  "AM thông báo 24h trước (trừ emergency) → Handover Zalo note → Backup AM active → AM review khi quay lại"
+ ],
+ "inp": [
+  {
+   "tp": "Config",
+   "nm": "AM backup đã được define tại D+1",
+   "ft": "PMS Project settings · backup_am_id",
+   "nt": "Ưu tiên: Planner → Lead Content → Account Director"
+  },
+  {
+   "tp": "Tài liệu",
+   "nm": "Handover note: project status + pending items + decisions pending",
+   "ft": "Zalo note trong project group + PMS note",
+   "nt": "AM viết trước khi off · tối đa 10 bullet points · chỉ điều quan trọng"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Backup AM đã notify team và KH (nếu cần)",
+   "ft": "Zalo group nội bộ + email KH nếu vắng > 3 ngày",
+   "nt": "KH chỉ cần biết nếu vắng dài · short absence KH không cần biết"
+  },
+  {
+   "tp": "Log",
+   "nm": "Backup activation log + decisions made",
+   "ft": "PMS note · ghi lại mọi quyết định quan trọng trong thời gian backup",
+   "nt": "AM review khi quay lại để có full context"
+  }
+ ],
+ "done": [
+  "backup_am_id đã set trên PMS từ D+1",
+  "AM đã viết handover note trước khi off",
+  "Backup AM đã notify team",
+  " Mọi quyết định quan trọng trong thời gian backup đã được log vào PMS"
+ ],
+ "sla": [
+  "Define tại D+1 (bắt buộc)",
+  "Handover note phải viết trước 8pm ngày hôm trước",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Backup AM không đủ context để quyết định",
+   "esc": [
+    "Handover note phải đủ chi tiết: KH mood hiện tại · pending decisions · ai đang chờ gì · deadline nào quan trọng nhất"
+   ]
+  },
+  {
+   "nm": "AM vắng đột ngột (bệnh/emergency)",
+   "esc": [
+    "Account Director tự động là backup cuối cùng",
+    "PMS: nếu AM không active > 4h giờ làm việc → alert Account Director"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Project Module",
+   "ds": "backup_am_id · backup_planner_id fields · handover_notes",
+   "sy": "pms"
+  },
+  {
+   "nm": "Notification",
+   "ds": "Alert Account Director nếu AM không active > 4h giờ làm việc",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Backup activated → dự án tiếp tục không bị gián đoạn"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Emergency không có backup → Account Director takes over"
+  }
+ ]
+}
+===== og_routine =====
+{
+ "t": "Routine Optimization",
+ "r": "Media / Content / Design tự quyết",
+ "w": [
+  "Các tác vụ nhỏ trong ngưỡng cho phép · Không cần báo AM · Ghi log vào PMS",
+  "Media Buyer / Content / Design tự thực hiện · AM không cần duyệt",
+  "Daily/ongoing theo signal từ data",
+  "<em>Ads Manager · PMS: ghi log action đã thực hiện</em>",
+  "Tránh bottleneck tại AM cho những việc nhỏ · Tăng tốc độ optimization",
+  "Signal-based: không chờ 7 ngày · Tắt ngay khi CTR <0.5% sau 500 impressions"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Metrics real-time từ Ads Manager",
+   "ft": "Meta/Google/TikTok Ads Manager",
+   "nt": "CTR · CPL · Frequency · Budget pacing"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Optimization đã thực hiện",
+   "ft": "Ads Manager + PMS log",
+   "nt": "Ghi rõ: action gì · tại sao · kết quả kỳ vọng"
+  }
+ ],
+ "done": [
+  "Action đã thực hiện trong ngưỡng được phép",
+  "Log đã ghi vào PMS",
+  "AM sẽ thấy trong daily summary"
+ ],
+ "sla": [
+  "Theo signal từ data",
+  "Routine actions: thực hiện ngay trong ngày",
+  "Nếu không chắc có nằm trong ngưỡng: hỏi AM trước"
+ ],
+ "risks": [
+  {
+   "nm": "Thực hiện action vượt ngưỡng mà không báo AM",
+   "esc": [
+    "AM phát hiện → nhắc nhở · ghi nhận",
+    "Tái diễn → escalate đến Account Director"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Ads Report Module",
+   "ds": "Log optimization actions",
+   "sy": "pms"
+  },
+  {
+   "nm": "KPI Module",
+   "ds": "Track signal-based thresholds",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Routine action done → ghi log PMS"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Vượt ngưỡng → báo AM trước khi làm"
+  }
+ ]
+}
+===== og_threshold =====
+{
+ "t": "Signal-based Decision Rules",
+ "r": "Set lúc Kick-off nội bộ D+1/D+2 · theo từng platform",
+ "w": [
+  "Bộ quy tắc quyết định dựa trên data signal · Không đợi 7 ngày learning phase",
+  "Media Buyer áp dụng · AM acknowledge · set lúc Kick-off nội bộ theo từng platform",
+  "Ongoing · áp dụng từ 24h sau launch",
+  "<em>Ads Manager metrics</em>",
+  "Client không chịu đốt tiền 7 ngày đợi learning phase · Cần quyết định nhanh hơn dựa trên signal",
+  "CHECK 24h: chỉ fix lỗi kỹ thuật · CHECK 48h: first optimization · WINDOW 72h-5 ngày: main optimization"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Campaign metrics sau 24h/48h/72h",
+   "ft": "Ads Manager · realtime",
+   "nt": "CTR · CPL · Impressions · Frequency · Delivery"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Quyết định",
+   "nm": "Tắt/Scale/Test/Giữ nguyên",
+   "ft": "Ads Manager action · PMS log",
+   "nt": "Ghi rõ lý do cho mọi action"
+  }
+ ],
+ "done": [
+  "Decision rules đã được set và team nắm rõ",
+  "Actions trong ngưỡng không cần báo AM",
+  "Actions vượt ngưỡng phải báo AM trước"
+ ],
+ "sla": [
+  "24h đầu: chỉ fix lỗi kỹ thuật",
+  "48h: tắt creative CTR <0.5% sau 500 impressions",
+  "72h-5 ngày: main optimization window · scale nếu CPL ≤ target"
+ ],
+ "risks": [
+  {
+   "nm": "Tắt campaign quá sớm khi data chưa đủ",
+   "esc": [
+    "Minimum sample: 500 impressions hoặc 10 conversions",
+    "Không tắt trong 24h đầu trừ lỗi kỹ thuật"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "KPI Module",
+   "ds": "Track signal-based thresholds theo từng project",
+   "sy": "pms"
+  },
+  {
+   "nm": "Project Module",
+   "ds": "routineThresholds field: set lúc kick-off",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Trong ngưỡng → tự làm · ghi log"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Ngoài ngưỡng → báo AM"
+  }
+ ]
+}
+===== og_ab_test =====
+{
+ "t": "A/B Testing Framework",
+ "r": "Phụ trách: Media Buyer thực hiện · AM approve",
+ "w": [
+  "Test có cấu trúc để tìm ra creative/audience/copy tốt nhất · Chỉ test 1 variable mỗi lần",
+  "Media Buyer setup + đọc kết quả · AM phải approve test trước khi chạy · AM declare winner",
+  "Ongoing · khi có hypothesis cần verify",
+  "<em>Ads Manager: duplicate ad set</em> · PMS: log test + learnings · GG Sheets: Insights Library",
+  "Data-driven optimization · Insights Library giúp không test lại những gì đã biết",
+  "Define hypothesis → AM approve → Setup test → Run 2-7 ngày → Read results → Declare winner (AM duyệt) → Document learnings"
+ ],
+ "inp": [
+  {
+   "tp": "Thông tin",
+   "nm": "Hypothesis cần test",
+   "ft": "Media Buyer đề xuất · AM approve trước khi chạy",
+   "nt": "VD: \"Creative với người thật sẽ có CTR cao hơn graphic design 20%\""
+  },
+  {
+   "tp": "Config",
+   "nm": "Budget test tối thiểu",
+   "ft": "2-3x CPL target/ngày/ad set",
+   "nt": "VD: CPL target 100k → tối thiểu 200-300k/ngày/ad set"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Test results: winner vs loser",
+   "ft": "Ads Manager report · PMS log",
+   "nt": "Chênh lệch ≥ 20% + ≥ 50 clicks hoặc ≥ 10 conversions → declare winner"
+  },
+  {
+   "tp": "Tài liệu",
+   "nm": "Insight đã lưu vào Insights Library",
+   "ft": "PMS Insights Library / GG Sheet dùng chung",
+   "nt": "Format: ngày · project · variable · kết quả · áp dụng cho dự án nào khác?"
+  }
+ ],
+ "done": [
+  "Test chỉ thay đổi 1 variable duy nhất",
+  "AM đã approve test trước khi chạy",
+  "Đủ sample: ≥ 50 clicks hoặc ≥ 10 conversions",
+  "AM đã duyệt kết quả trước khi declare winner",
+  "Winner: scale + giữ lại · Loser: tắt toàn bộ",
+  "Insight đã lưu vào Insights Library"
+ ],
+ "sla": [
+  "Khi có hypothesis cần test",
+  "Test tối thiểu 2 ngày · tối đa 7 ngày",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Test quá nhiều variables cùng lúc",
+   "esc": [
+    "Media Buyer phải test 1 variable duy nhất",
+    "AM không approve test nếu đổi >1 variable"
+   ]
+  },
+  {
+   "nm": "Kết quả không đủ statistical significance",
+   "esc": [
+    "Chờ thêm data (tối đa 7 ngày)",
+    "Nếu vẫn không đủ: extend budget hoặc accept inconclusive"
+   ]
+  },
+  {
+   "nm": "Team không dùng Insights Library",
+   "esc": [
+    "AM nhắc nhở hàng tuần",
+    "Review Insights Library đầu mỗi dự án mới"
+   ]
+  },
+  {
+   "nm": "PIXEL / DATA LEARNINGS cần lưu đúng chỗ",
+   "esc": [
+    "Custom Audience: lưu trong Ad Account",
+    "Lookalike: tạo từ tệp KH chất lượng cao",
+    "Conversion API: cài nếu KH có website",
+    "Offline conversion: upload file lead chất lượng để train thuật toán"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Ads Report Module",
+   "ds": "Lưu A/B test results · link Insights Library",
+   "sy": "pms"
+  },
+  {
+   "nm": "Project Module",
+   "ds": "Track A/B test history theo project",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Winner rõ → Scale winner · tắt loser"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Inconclusive → extend thêm hoặc redesign test"
+  }
+ ]
+}
+===== og_budget_pacing =====
+{
+ "t": "Budget Pacing",
+ "r": "Phụ trách: Media Buyer track · AM quyết định",
+ "w": [
+  "Theo dõi tốc độ chi tiêu ngân sách để không hết sớm/còn nhiều cuối tháng",
+  "Media Buyer track hàng ngày · báo AM weekly · AM quyết định điều chỉnh",
+  "Daily check · Weekly report cho AM · Monthly review",
+  "<em>Ads Manager: daily spend</em> · PMS: budget tracking · GG Sheets: pacing sheet",
+  "Ngân sách là tiền của KH · Phải chi đúng pace · KHÔNG tự tăng budget khi chưa có KH đồng ý",
+  "Daily cap = Monthly budget / 30 × 1.1 · Check % đã dùng mỗi tuần · Báo AM nếu lệch >20%"
+ ],
+ "inp": [
+  {
+   "tp": "Config",
+   "nm": "Monthly budget đã set từ HĐ",
+   "ft": "PMS — Budget Module · monthlyBudget",
+   "nt": "Đây là budget KH đã đồng ý · không được vượt khi chưa approve"
+  },
+  {
+   "tp": "Dữ liệu",
+   "nm": "Actual spend hàng ngày từ Ads Manager",
+   "ft": "Ads Manager daily spend report",
+   "nt": "Mỗi platform báo cáo riêng · tổng hợp lại"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Báo cáo",
+   "nm": "Weekly pacing report",
+   "ft": "PMS · GG Sheets · báo cáo weekly",
+   "nt": "% budget đã dùng · projected end-of-month · on-track hay không"
+  },
+  {
+   "tp": "Quyết định",
+   "nm": "Scale/Slow down/Giữ nguyên",
+   "ft": "Ads Manager action · AM approve",
+   "nt": "Mọi thay đổi budget đều cần KH approve"
+  }
+ ],
+ "done": [
+  "Daily cap đã set đúng: monthly/30 × 1.1",
+  "Weekly pacing report đã gửi AM",
+  "Không để budget hết trước ngày 25 mà không báo AM trước"
+ ],
+ "sla": [
+  "Ongoing daily",
+  "Media báo AM khi còn 20% budget (ngày ~20-22)",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Budget hết trước cuối tháng",
+   "esc": [
+    "Báo AM ngay khi còn 20%",
+    "AM contact KH để xin tăng hoặc điều chỉnh pace",
+    "KHÔNG tự giảm delivery mà không báo AM"
+   ]
+  },
+  {
+   "nm": "Cuối tháng còn nhiều budget",
+   "esc": [
+    "KPI đạt → đề xuất AM: scale để vit hết budget",
+    "KPI chưa đạt → scale mạnh hơn với winning creative",
+    "KH không cho scale → roll over hoặc hoàn · phải hỏi KH trước"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Budget Module",
+   "ds": "Track actual spend vs planned · daily pacing",
+   "sy": "pms"
+  },
+  {
+   "nm": "Notification",
+   "ds": "Alert AM khi budget còn 20% · alert nếu pace quá nhanh/chậm",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "On track → tiếp tục theo pace"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Over/Under pace → báo AM · AM quyết định + KH approve nếu cần"
+  }
+ ]
+}

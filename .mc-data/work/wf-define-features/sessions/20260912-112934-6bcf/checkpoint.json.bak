@@ -1,0 +1,107 @@
+{
+  "$schema": "define-features-checkpoint-v1",
+  "checkpoint_id": "CP-DEFINE-FEAT-20260912-001",
+  "skill_id": "DEFINE-FEAT-20260912-001",
+  "timestamp": "2026-09-12T04:31:02.553Z",
+  "session_number": 1,
+  "trigger": {
+    "reason": "phase_complete",
+    "context_used_pct": 25,
+    "phase_completed": "phase-0-context",
+    "system_completed": null,
+    "error_details": null
+  },
+  "scope": {
+    "type": "all",
+    "target": "all"
+  },
+  "position": {
+    "current_phase": "phase-0-context",
+    "current_phase_name": "Context Loading",
+    "current_step": null,
+    "current_system": null,
+    "current_module": null,
+    "next_phase": "phase0.5-workload-gate",
+    "next_action": "workload gate user decision (block)"
+  },
+  "progress": {
+    "phases_completed": [
+      "phase-0-context"
+    ],
+    "current_phase": {
+      "id": "P0_5",
+      "name": "Workload Gate",
+      "status": "in_progress",
+      "progress_pct": 50
+    },
+    "pending_phases": [
+      "phase1-scope-mapping",
+      "phase2-create-specs",
+      "phase3-cross-validation",
+      "phase4-stakeholder-review",
+      "phase5-registry-update"
+    ],
+    "files_completed": [],
+    "file_in_progress": null
+  },
+  "feat_id_state": {
+    "total_assigned": 0,
+    "assigned_ids": [],
+    "pending_ids": []
+  },
+  "coverage_state": {
+    "total_req_ids": 59,
+    "mapped_req_ids": [],
+    "unmapped_req_ids": [],
+    "coverage_pct": 0
+  },
+  "systems_state": {
+    "total": 6,
+    "completed": [],
+    "in_progress": null,
+    "pending": [
+      "SYS-CORE-BACKEND",
+      "SYS-BCERP-WEB",
+      "SYS-INTEGRATION-GW",
+      "SYS-MOBILE-INTERNAL",
+      "SYS-PORTAL-WEB",
+      "SYS-MOBILE-PORTAL"
+    ]
+  },
+  "files_state": {
+    "completed": [],
+    "in_progress": null,
+    "pending": []
+  },
+  "validation_state": {
+    "phase_3_iterations": 0,
+    "phase_3_errors_remaining": 0,
+    "phase_4_iterations": 0,
+    "phase_4_findings_pending": 0,
+    "phase_4_result": null
+  },
+  "next_action": {
+    "description": "Chờ user quyết workload gate (block 190 phút) + confirm DI-001/004/006",
+    "phase": "phase0.5-workload-gate",
+    "step": "0.5.4",
+    "system": null,
+    "module": null,
+    "file": null,
+    "context_needed": []
+  },
+  "resume_instructions": {
+    "command": "/wf-define-features --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-define-features/define-features-status.json",
+      ".mc-data/work/wf-define-features/define-features-plan.md",
+      ".mc-data/docs/_meta/req-registry.json"
+    ],
+    "context_recovery": [
+      "Doc define-features-status.json de lay current state",
+      "Doc define-features-plan.md de lay feat-id map va file list",
+      "Doc reg-registry.json de lay requirements[]",
+      "Tiep tuc tu next_action.step trong checkpoint"
+    ]
+  },
+  "notes": null
+}

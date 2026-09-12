@@ -1,0 +1,24 @@
+{
+  "lane_key": "core-backend--CAPACITY-TIMESHEET",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-CAPACITY-TIMESHEET",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-CAPTS-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/capacity-timesheet/duyet-timesheet-va-capacity-phoi-hop-ops.md",
+      "req_ids": ["REQ-HR-009"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-CAPTS-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/capacity-timesheet/capacity-va-timesheet.md",
+      "req_ids": ["REQ-OPS-007"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T14:23:47Z",
+    "words_written": 8441
+  }
+}

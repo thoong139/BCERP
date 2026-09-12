@@ -1,0 +1,118 @@
+{
+  "$schema": "brainstorm-status-v1",
+  "version": "1.1",
+  "project": "BCERP",
+  "status": "completed",
+  "verdict": "pass",
+  "current_phase": "completed",
+  "current_session": 1,
+  "timestamps": {
+    "started_at": "2026-09-11T23:06:00+07:00",
+    "last_updated": "2026-09-11T17:32:05.632Z",
+    "completed_at": "2026-09-11T17:32:05.632Z"
+  },
+  "phases": {
+    "phase_1": {
+      "name": "Thu Thập Thông Tin Cơ Bản",
+      "status": "done",
+      "started_at": "2026-09-11T23:06:00+07:00",
+      "completed_at": "2026-09-11T16:14:06.108Z"
+    },
+    "phase_2": {
+      "name": "BA Khai Thác & Phòng Ban",
+      "status": "done",
+      "started_at": "2026-09-11T16:14:06.108Z",
+      "completed_at": "2026-09-11T16:28:14.009Z"
+    },
+    "phase_3": {
+      "name": "Brainstorm & Phân Tích Chính Sách",
+      "status": "done",
+      "started_at": "2026-09-11T16:28:14.009Z",
+      "completed_at": "2026-09-11T17:07:41.319Z"
+    },
+    "phase_4": {
+      "name": "Soạn & Ghi Tài Liệu",
+      "status": "done",
+      "started_at": "2026-09-11T17:07:41.319Z",
+      "completed_at": "2026-09-11T17:28:40.062Z"
+    },
+    "phase_5": {
+      "name": "Khởi Tạo Cấu Trúc Dự Án",
+      "status": "done",
+      "started_at": "2026-09-11T17:28:40.062Z",
+      "completed_at": "2026-09-11T17:30:53.597Z"
+    },
+    "phase_6": {
+      "name": "Sinh Digest Artifact",
+      "status": "done",
+      "started_at": "2026-09-11T17:30:53.597Z",
+      "completed_at": "2026-09-11T17:32:05.632Z"
+    }
+  },
+  "artifacts": {
+    "brainstorm_status": {
+      "path": ".mc-data/work/wf-brainstorm/brainstorm-status.json",
+      "created": true
+    },
+    "brainstorm_notes": {
+      "path": ".mc-data/work/wf-brainstorm/brainstorm-notes.md",
+      "created": true
+    },
+    "complexity_assessment": {
+      "path": ".mc-data/work/wf-brainstorm/complexity-assessment.md",
+      "created": true
+    },
+    "crosscheck_report": {
+      "path": ".mc-data/work/wf-brainstorm/crosscheck-report.md",
+      "created": true
+    },
+    "project_intent_digest": {
+      "path": ".mc-data/work/wf-brainstorm/project-intent-digest.json",
+      "created": true
+    },
+    "project_digest": {
+      "path": ".mc-data/docs/_meta/project-digest.json",
+      "created": true
+    },
+    "legacy_decisions": {
+      "path": ".mc-data/work/wf-brainstorm/legacy-decisions.json",
+      "created": false
+    },
+    "req_registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "created": true
+    },
+    "p0_01": {
+      "path": ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+      "created": true
+    },
+    "p0_02": {
+      "path": ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+      "created": true
+    },
+    "phase_summary": {
+      "path": ".mc-data/work/wf-brainstorm/phase-summary.md",
+      "created": true
+    },
+    "policy_analysis": {
+      "path": ".mc-data/work/wf-brainstorm/policy-analysis.md",
+      "created": true
+    }
+  },
+  "output_files": [
+    ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+    ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+    ".mc-data/docs/phase0-brainstorm/policies/ (20 files)",
+    ".mc-data/docs/_meta/req-registry.json",
+    ".mc-data/docs/_meta/project-digest.json",
+    ".mc-data/work/wf-brainstorm/project-intent-digest.json",
+    ".mc-data/work/wf-brainstorm/phase-summary.md"
+  ],
+  "error_log": [
+    {
+      "timestamp": "2026-09-11T23:04:00+07:00",
+      "code": "ENV-001",
+      "message": "jq khong kha dung trong Git Bash — dung Write tool thay the cho viec tao JSON; kiem tra python/node cho cac buoc append sau"
+    }
+  ]
+}

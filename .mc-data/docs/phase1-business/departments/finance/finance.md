@@ -1,0 +1,613 @@
+# DEPT-FINANCE — Phòng Tài chính - Kế toán
+
+> **Phòng ban:** Tài chính - Kế toán (FIN) — vai `FIN_L1` (Kế toán viên), `FIN_L2` (Kế toán trưởng); phối hợp `BOD_CFO_CTO` (duyệt vượt ngưỡng) và `BOD_CEO` (compensating control cho kiêm nhiệm CFO kiêm CTO).
+> **Ngày cập nhật:** 12/09/2026 · **Trạng thái:** Đang phân tích — Phần A. Quy ước phase: GĐ1 (MVP) / GĐ2 (Phase2) / GĐ3 (Phase3).
+>
+> READS: `P0-01-brainstorm.md`, `P0-02-systems-users.md`, `P1-01-project-overview.md`; policies/: kiem-soat-vi-tkqc-giao-dich-tien, doi-soat-cong-no-doanh-thu-da-tien-te, han-muc-chi-giai-ngan-sod, aml-kyc-giam-sat-giao-dich, quan-ly-cap-phat-tkqc-financial-hard-stop, audit-log-bao-luu-backup-dr, bang-gia-chiet-khau-gross-margin, hoa-hong-sales-quota
+> USED BY: `departments/_index.md`, `_meta/req-registry.json`, `phase2-features/`
+
+---
+
+## Phần A — Phân Tích BA (Stakeholders & User Needs)
+
+### A0. Ma Trận Requirement × System
+
+> DEPT-FINANCE phục vụ 5 hệ thống: `SYS-CORE-BACKEND`, `SYS-BCERP-WEB`, `SYS-INTEGRATION-GW`, `SYS-PORTAL-WEB`, `SYS-MOBILE-INTERNAL`.
+> **Phân bổ touchpoint (không gộp chung):** sổ kế toán/rule engine/enforcement → Core; đối soát, xử lý lệnh, chứng từ → Web; kéo dữ liệu 7 nền tảng + connector kế toán → Integration Gateway (degraded mode gắn nhãn `manual`); duyệt khi di chuyển + push cảnh báo → Mobile Internal; khách đọc ví → Portal read-only (GĐ3). Touchpoint khác biệt được khai báo riêng trong từng REQ.
+
+| REQ-ID | Title | Systems liên quan | Primary | Lý do tách/gộp |
+|--------|-------|-------------------|---------|----------------|
+| REQ-FIN-001 | Sổ phụ ví TKQC & lệnh giao dịch tiền (tiền giữ hộ) | Core, Web, Mobile | Core | Ledger nguồn sự thật + lệnh bắt buộc qua hệ thống |
+| REQ-FIN-002 | Cảnh báo số dư đủ chi ≥3 ngày + SLA đỏ 2h | Core, Web, Mobile | Core | Tính ADS + alert ở Core; push Mobile |
+| REQ-FIN-003 | Dual approval điều chỉnh số dư / đổi tỷ giá / hoàn tiền | Core, Web, Mobile | Core | Engine chặn thiếu chữ ký; duyệt Web hoặc Mobile |
+| REQ-FIN-004 | Đối trừ 3 số, đa tiền tệ, chốt & khóa kỳ | Core, Integration Gateway, Web | Core | INTEGRATION-GW chỉ cấp dữ liệu; logic đối trừ ở Core |
+| REQ-FIN-005 | API 7 nền tảng + degraded mode `manual` | Integration Gateway, Core, Web | Integration Gateway | Adapter/import là đầu vào sống của đối soát |
+| REQ-FIN-006 | Financial Hard Stop "đã khớp tiền" FIN_L1 | Core, Web, Mobile | Core | Chặn cứng trong code; xác nhận trên Web (MFA); Mobile chỉ alert |
+| REQ-FIN-007 | Công nợ AR/AP + aging + nhắc nợ | Core, Web | Core | Dùng chung ledger REQ-001; nguồn clawback |
+| REQ-FIN-008 | Duyệt chi/giải ngân: ngưỡng, SoD, delegate | Core, Web, Mobile | Core | Duyệt là use case trọng tâm Mobile; SoD engine ở Core |
+| REQ-FIN-009 | KYC pháp nhân trước cấp phát TKQC | Core, Web | Core | Gate đọc trạng thái KYC khi cấp phát TK (phối hợp OPS) |
+| REQ-FIN-010 | AML monitoring T1–T6 + hoàn tiền đúng nguồn | Core, Web, Mobile | Core | Rule engine ngưỡng cấu hình; điều tra Web; alert đỏ Mobile |
+| REQ-FIN-011 | Hóa đơn điện tử TT78/2021 + NĐ123/2020 | Core, Web | Core | Xuất XML từ chứng từ đã khóa kỳ; kết nối thuế dùng chung REQ-013 |
+| REQ-FIN-012 | Lưu trữ chứng từ & audit log ≥10 năm (WORM) | Core, Web | Core | Nền móng GĐ1 — mọi module tiền phụ thuộc |
+| REQ-FIN-013 | Tích hợp phần mềm kế toán VAS hiện hữu | Integration Gateway, Core, Web | Integration Gateway | Adapter bên ngoài (kết nối, không thay thế) |
+| REQ-FIN-014 | Phí nền tảng & nghĩa vụ thuế | Core, Integration Gateway, Web | Core | Dữ liệu phí từ statement/API (REQ-005) |
+| REQ-FIN-015 | Dashboard & báo cáo tài chính nội bộ | Core, Web, Mobile | Web | Web là kênh xem chính; Mobile dashboard rút gọn |
+| REQ-FIN-016 | BI/BOD dashboard & P&L realtime | Core, Web, Mobile | Core | Star schema + metric catalog; GĐ3 nên tách REQ-015 |
+| REQ-FIN-017 | Dữ liệu ví read-only cho Client Portal | Portal, Core | Portal | Biên tin cậy đối ngoại, tenant isolation, read-only |
+
+### A1. Giới Thiệu Phòng Ban
+
+**Phòng ban này làm gì:** Phòng FIN là "người gác cổng dòng tiền" của BC Agency: đối soát lệnh nạp/rút TKQC trên 7 nền tảng, xác nhận "đã khớp tiền" mở Financial Hard Stop, kiểm soát tiền giữ hộ của khách (không phải doanh thu), quản lý công nợ AR/AP, phê duyệt chi & giải ngân, chốt số liệu đối soát, bảo đảm tuân thủ HĐĐT và lưu trữ chứng từ theo Luật Kế toán 2015.
+
+| Vai trò | Số lượng | Công việc hàng ngày | Cần hệ thống hỗ trợ gì |
+|---------|----------|--------------------|-----------------------|
+| `FIN_L1` Kế toán viên | ≥1 [CẦN CHỐT SỐ — biên chế] | Đối trừ 3 số, xác nhận "đã khớp tiền", kiểm tra chứng từ, import statement | Sổ phụ ví, màn đối soát, ticket discrepancy, xác nhận khớp tiền có MFA |
+| `FIN_L2` Kế toán trưởng | 1 | Duyệt chi/giải ngân theo ngưỡng, chốt + khóa kỳ, dual approval, báo cáo nội bộ | Hàng chờ duyệt theo SLA, chốt/khóa kỳ, aging + discrepancy |
+| `BOD_CFO_CTO` | 1 | Duyệt vượt ngưỡng, hạn mức tín dụng TKQC, mở kỳ; kiêm CTO Super Admin | Duyệt Mobile, dashboard dòng tiền, audit log; CEO duyệt thay khi CFO là người đề xuất |
+| `OPS_AM`/`OPS_ADS` (phối hợp) | — | Đề xuất nạp, xử lý alert số dư/die | Lệnh nạp qua hệ thống, push cảnh báo (chi tiết thuộc DEPT-OPS) |
+| `CLIENT_USER` (GĐ3, phối hợp) | — | Xem số dư ví, chi tiêu daily tenant mình | Portal read-only, watermark, disclaimer độ trễ (REQ-FIN-017) |
+
+### A2. Tổng Hợp Nhu Cầu
+
+17 REQ — **HIGH·GĐ1:** REQ-FIN-005 (API+degraded), 006 (Hard Stop), 009 (KYC), 012 (lưu trữ ≥10 năm). **HIGH·GĐ2:** REQ-FIN-001 (sổ phụ ví+lệnh), 002 (cảnh báo số dư), 003 (dual approval), 004 (đối trừ 3 số+đa tiền tệ+khóa kỳ), 007 (AR/AP aging), 008 (duyệt chi/SoD/delegate), 010 (AML T1–T6), 011 (HĐĐT). **MEDIUM·GĐ2:** REQ-FIN-013 (VAS), 014 (phí & thuế), 015 (dashboard nội bộ). **MEDIUM·GĐ3:** REQ-FIN-016 (BI/BOD P&L), 017 (Portal ví read-only). Chi tiết ưu tiên/hệ thống xem A0; nội dung xem A3.
+
+### A3. Chi Tiết Từng Nhu Cầu
+
+#### REQ-FIN-001 — Sổ phụ ví TKQC & lệnh giao dịch tiền (tiền giữ hộ)
+
+**HIGH · GĐ2 (khung tối thiểu phục vụ Hard Stop có từ GĐ1) · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** Mỗi khách có sổ phụ ví riêng (nạp, chi tiêu, phí, điều chỉnh, số dư khả dụng); mọi top-up/refund/điều chỉnh phải tạo lệnh trên BCERP — kế toán từ chối đối chiếu lệnh miệng qua Zalo/điện thoại/email.
+
+- Tiền nạp ghi tăng **tiền giữ hộ (nợ phải trả)** — cấm tự tính thành doanh thu; doanh thu chỉ trên phí dịch vụ/markup; không gộp chung, không bù trừ chéo ví.
+- Lệnh chứa khách, TKQC, số tiền, tiền tệ, tỷ giá snapshot, căn cứ; theo dõi trạng thái; chặn ghi nhận ngoài lệnh ở tầng ứng dụng.
+- SoD 4 vai dòng tiền: đề xuất (OPS_AM/ADS) ≠ khớp tiền (FIN_L1) ≠ duyệt chi (FIN_L2) ≠ ghi sổ.
+- Mobile: theo dõi lệnh + cảnh báo. Ngoại lệ: client-owned TK (khách tự nạp) chỉ đối soát; khẩn ngoài giờ vẫn tạo lệnh, approval không bỏ qua.
+
+#### REQ-FIN-002 — Cảnh báo số dư đủ chi ≥3 ngày + SLA đỏ
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** Biết trước ví nào sắp hết quỹ để chủ động xin khách nạp, tránh die campaign.
+
+- Average daily spend 7 ngày rolling per TK; 3 mức: Xanh (đủ chi ≥3 ngày), Vàng (<3), Đỏ (<1 hoặc dưới mức tối thiểu nền tảng).
+- SLA đỏ 2h làm việc: owner tạo lệnh top-up hoặc giảm ngân sách; escalation owner → TL → AM có timestamp; ngoài giờ escalate kênh on-call.
+- Mobile: push cảnh báo ≤5 phút từ lúc sync phát hiện; Web: dashboard trạng thái ví theo khách/nền tảng.
+
+#### REQ-FIN-003 — Dual approval điều chỉnh số dư / đổi tỷ giá / hoàn tiền
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** 3 nhóm giao dịch rủi ro cao nhất — điều chỉnh số dư thủ công, đổi tỷ giá thủ công, hoàn tiền — bắt buộc dual approval để chống gian lận nội bộ.
+
+- Người đề xuất ≠ người duyệt; ghi danh tính cả hai; chặn thực thi khi thiếu một chữ ký.
+- Đổi tỷ giá tay chỉ khi biên bản đối chiếu với khách có sai khác (kèm biên bản); mặc định dùng tỷ giá hệ thống chốt tại thời điểm tạo lệnh.
+- Mobile: FIN_L2/CFO duyệt khi di chuyển, MFA TOTP bắt buộc; mọi bước ghi audit log bất biến.
+
+#### REQ-FIN-004 — Đối trừ 3 số tự động, đa tiền tệ, chốt & khóa kỳ
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-INTEGRATION-GW, SYS-BCERP-WEB
+
+**Nhu cầu:** Thay đối soát ảnh chụp màn hình bằng đối trừ 3 vế tự động: khách nạp (sổ phụ) ↔ nạp thực vào nền tảng (statement/API) ↔ chi tiêu thực tế, theo TK/khách/nền tảng.
+
+- Dung sai đề xuất: đối nạp sai số tuyệt đối = 0/dòng (ngày); chi tiêu ≤0,5% hoặc ≤10 USD/TK/ngày; tích lũy ≤1% hoặc ≤20 USD/khách/tuần [CẦN CHỐT SỐ — chờ CFO xác nhận].
+- 4 trạng thái: Chưa đối soát / Đã đối soát / Chênh lệch / Đã điều chỉnh (có phiếu duyệt); vượt dung sai → ticket discrepancy, FIN_L1 giải trình FIN_L2 trước chốt, cấm tự cân số; nền tảng chưa API hạ đối soát xuống tuần qua import.
+- Đa tiền tệ: sổ gốc VND; snapshot tỷ giá (nguồn ngân hàng quy chuẩn) ghi ngay tại giao dịch, khóa sau ghi nhận, không truy lịch; lãi/lỗ FX ghi khoản riêng, tách khỏi giá vốn và GM dịch vụ; sai lệch timing/tỷ giá xử lý qua khoản FX riêng.
+- FIN_L2 chốt công nợ nền tảng tháng (đề xuất ngày 3 tháng kế tiếp [CẦN CHỐT SỐ]); chặn chốt khi còn ticket; sau chốt khóa kỳ — chặn sửa/xóa chứng từ ở tầng dữ liệu; mở kỳ chỉ CFO duyệt (lý do, phạm vi, thời hạn) + audit log.
+
+#### REQ-FIN-005 — Kéo số liệu nền tảng qua API + degraded mode `manual`
+
+**HIGH · GĐ1 · Hệ thống:** SYS-INTEGRATION-GW, SYS-CORE-BACKEND, SYS-BCERP-WEB
+
+**Nhu cầu:** Chấm dứt ảnh chụp màn hình: số dư/chi tiêu về hệ thống tự động, có nhãn nguồn rõ ràng để đối soát đáng tin.
+
+- Adapter 7 nền tảng (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) pull hourly qua batch/queue chống rate limit; lưu raw payload phục vụ đối chiếu.
+- Chưa có quyền API developer: import statement chuẩn (nền tảng, TKQC, ngày, loại, số tiền gốc, tiền tệ, phí, mã tham chiếu) + nhập tay có cấu trúc gắn nhãn `manual`; sai schema bị chặn; đối soát như luồng API; backfill khi được cấp API/Business Verification.
+- Web: màn import/nhập tay dành cho FIN_L1, ghi ai nhập + căn cứ gì.
+
+#### REQ-FIN-006 — Financial Hard Stop "đã khớp tiền" (FIN_L1)
+
+**HIGH · GĐ1 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** Trụ cột số 1 của FINANCE: không bao giờ cấp TKQC/bật chi tiêu khi tiền của khách chưa về và chưa khớp lệnh nạp.
+
+- TKQC chỉ được cấp phát khi FIN_L1 xác nhận **"Đã khớp tiền"** trên hệ thống (tiền về tài khoản BC, khớp số với lệnh nạp); ghi timestamp + căn cứ (sao kê/lệnh).
+- Hard Stop thực thi **trong code** (workflow engine): không nút override, không vai nào bypass — kể cả CEO; không chấp nhận "chờ duyệt"/"khách hứa chuyển"; yêu cầu mở khóa thủ công bị từ chối + audit log bất biến.
+- Thu hồi xác nhận sai → TK tự chuyển "Tạm dừng chi tiêu", khóa lệnh nạp mới, alert TL.
+- Touchpoint: FIN_L1 xác nhận trên Web (MFA TOTP); Mobile chỉ alert/xem — không xác nhận khớp tiền trên Mobile.
+
+#### REQ-FIN-007 — Công nợ AR/AP + aging + nhắc nợ
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB
+
+**Nhu cầu:** Theo dõi phải thu khách (AR) và phải trả nền tảng (AP) có hệ thống, thay Sheets.
+
+- Aging AR/AP bucket 0–30 / 31–60 / 61–90 / >90 ngày; nhắc tự động AR quá hạn; theo dõi hạn thanh toán AP nền tảng tránh gián đoạn TKQC.
+- Số dư AR là căn cứ clawback hoa hồng (nợ >90 ngày → clawback 100%) — phối hợp SALES/HR GĐ3 (hoa hồng tính theo thanh toán thực nhận đối chiếu sổ AR).
+
+#### REQ-FIN-008 — Duyệt chi/giải ngân: ma trận ngưỡng, SoD, delegate
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** Mọi khoản chi (nạp nền tảng, mua sắm, outsource, tạm ứng) qua luồng duyệt phân cấp theo giá trị, quy VND theo tỷ giá snapshot ngày duyệt.
+
+- Khung ngưỡng đề xuất: ≤5 triệu VND FIN_L2; >5–50 triệu FIN_L2; >50–200 triệu FIN_L2 + CFO (dual approval); >200 triệu hoặc hợp đồng năm CFO + CEO [CẦN CHỐT SỐ — mốc VND chờ phê duyệt chính sách hạn mức chi].
+- SoD engine: tạo chứng từ ≠ duyệt ≠ thực hiện chi (2 người thường, 3 người dual approval); người đối soát ≠ người duyệt điều chỉnh; block submit khi vai trùng + log vi phạm cho CFO rà định kỳ.
+- Chặn giải ngân khi thiếu chữ ký/sai ngưỡng, không "duyệt trước bổ sung sau"; chứng từ upload trước khi duyệt; chi outsource/tools bắt buộc gắn mã dự án/khách (phục vụ P&L), không gắn được phải chọn overhead kèm lý do.
+- Nạp nền tảng định kỳ: duyệt gộp kế hoạch tuần trước đầu tuần, cảnh báo + duyệt bổ sung khi sắp vượt hạn mức; chi khẩn FIN_L2 + CFO kênh khẩn, hậu kiểm 24h.
+- Delegate FIN_L2: chỉ CFO ủy quyền cho cá nhân cụ thể, hạn mức ≤ FIN_L2, tối đa 14 ngày, tự thu hồi, log nhãn "theo ủy quyền #id"; kiêm nhiệm CFO kiêm CTO → giao dịch vượt ngưỡng cao nhất do CEO duyệt.
+- Mobile: duyệt giải ngân là use case trọng tâm; nhắc duyệt SLA 24h/48h/72h; MFA bắt buộc.
+
+#### REQ-FIN-009 — KYC pháp nhân trước cấp phát TKQC
+
+**HIGH · GĐ1 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB
+
+**Nhu cầu:** Định danh pháp nhân khách là điều kiện tiên quyết trước khi cấp bất kỳ TKQC nào (phối hợp OPS/CRM — module Quản lý TKQC GĐ1).
+
+- Hồ sơ bắt buộc: GPKD (khách nước ngoài: giấy tờ tương đương + hợp pháp hóa lãnh sự khi cần), MST đối chiếu nguồn chính thức, giấy tờ người đại diện pháp luật, TK ngân hàng **trùng tên pháp nhân**, UBO từ 25% [CẦN CHỐT SỐ — ngưỡng khởi điểm, chờ tư vấn AML/luật sư].
+- Chặn cấp phát khi KYC ≠ Verified, thiếu/sai chặn kèm lý do ghi vào CRM; khách nước ngoài/khu vực rủi ro cao/flag Knockout K2-K4: EDD, ngưỡng AML siết 50%, review 12 tháng (chuẩn) / 6 tháng (rủi ro cao).
+- Ngoại lệ TK không trùng tên (pháp nhân cùng nhóm mẹ/con): văn bản chứng thực + BOD duyệt, cập nhật hồ sơ KYC.
+
+#### REQ-FIN-010 — AML monitoring T1–T6 + hoàn tiền về đúng nguồn
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** Giám sát tầng giao dịch suốt vòng đời khách trên 2.600+ TK đa kênh quốc tế — chống rửa tiền qua ví TKQC.
+
+- Rule engine 6 quy tắc, ngưỡng cấu hình được không sửa code: T1 nạp ≥3× bình quân 30 ngày (vàng); T2 tách nhỏ ≥3 lệnh/24h tổng ≥200 triệu VND (đỏ); T3 nguồn vùng FATF rủi ro cao (đỏ); T4 hoàn tiền đổi beneficiary (đỏ — chặn mặc định); T5 vòng tiền nạp–hoàn 72h không có chi tiêu tương ứng (vàng); T6 hoàn ≥50% giá trị nạp trong kỳ (vàng) [CẦN CHỐT SỐ — ngưỡng khởi điểm, chờ tư vấn AML/luật sư].
+- Hoàn tiền bắt buộc dẫn chiếu giao dịch nạp gốc, chỉ trả về đúng TK nguồn nạp trùng tên pháp nhân KYC; cấm hoàn cho bên thứ ba.
+- Giao dịch nghi vấn bị khóa mềm (hold) đến khi có quyết định; điều tra 24h — người đề xuất/nhập không tự điều tra; đỏ escalate BOD 24h; quyết định ghi lý do bằng văn bản, lưu vĩnh viễn.
+- Mobile: push alert vàng/đỏ cho FIN/BOD.
+
+#### REQ-FIN-011 — Hóa đơn điện tử (TT78/2021 + NĐ123/2020)
+
+**HIGH · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB
+
+**Nhu cầu:** Doanh thu (phí dịch vụ/markup) xuất HĐĐT đúng quy định, tách bạch khỏi tiền giữ hộ.
+
+- Xuất HĐĐT chuẩn XML, kết nối mã cơ quan thuế; dữ liệu nguồn là chứng từ đã đối soát/khóa kỳ, gắn hợp đồng và thanh toán thực nhận.
+- Lưu trữ HĐĐT đúng quy định; điều chỉnh/hủy hóa đơn qua nghiệp vụ chuẩn có log.
+
+#### REQ-FIN-012 — Lưu trữ chứng từ & audit log tiền ≥10 năm (WORM)
+
+**HIGH · GĐ1 (nền móng — từ giao dịch tiền đầu tiên) · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB
+
+**Nhu cầu:** Bằng chứng kiểm toán cho mọi sự kiện tiền/hợp đồng, phục vụ thanh tra và Luật Kế toán 2015.
+
+- Audit log bất biến append-only + hash-chain: mọi giao dịch tiền ghi old→new value + reason code bắt buộc; kể cả Super Admin không sửa/xóa; việc xem log cũng bị log; job kiểm tra toàn vẹn hằng ngày.
+- Chứng từ đối soát + hợp đồng lưu ≥10 năm trên WORM storage; sửa dữ liệu chỉ qua giao dịch reversal có reason code — không hard-delete.
+- Web: tra cứu audit/chứng từ theo khách/TKQC/giao dịch; truy xuất ngoài báo cáo chuẩn cần duyệt BOD_CEO.
+
+#### REQ-FIN-013 — Tích hợp phần mềm kế toán VAS hiện hữu
+
+**MEDIUM · GĐ2 · Hệ thống:** SYS-INTEGRATION-GW, SYS-CORE-BACKEND, SYS-BCERP-WEB
+
+**Nhu cầu:** BCERP **tích hợp, không thay thế** phần mềm kế toán hiện hữu: đồng bộ bút toán, chứng từ, HĐĐT để sổ VAS khớp BCERP.
+
+- Adapter qua Integration Gateway; đối chiếu sổ VAS định kỳ, chênh lệch phải giải trình.
+- Tên phần mềm + cơ chế kết nối (API hay import/export) chưa xác định [CẦN CHỐT SỐ — cần tên cụ thể + khả năng xuất dữ liệu để thiết kế connector].
+
+#### REQ-FIN-014 — Phí nền tảng & nghĩa vụ thuế
+
+**MEDIUM · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-INTEGRATION-GW, SYS-BCERP-WEB
+
+**Nhu cầu:** Phí nền tảng/phí nạp và thuế liên quan phải nhận diện đúng giao dịch gốc để giá vốn và GM không bị bóp méo.
+
+- Ghi nhận phí nền tảng từ statement/API theo giao dịch gốc; tách khỏi doanh thu dịch vụ khi tính GM; quy VND dùng chung snapshot tỷ giá REQ-FIN-004.
+- Theo dõi thuế phí dịch vụ (VAT) và thuế hợp đồng với nhà thầu nước ngoài nếu phát sinh khi thanh toán nền tảng quốc tế [CẦN CHỐT SỐ — xác nhận với tư vấn thuế].
+
+#### REQ-FIN-015 — Dashboard & báo cáo tài chính nội bộ
+
+**MEDIUM · GĐ2 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** FIN_L2/CFO theo dõi sức khỏe dòng tiền hằng ngày không cần tổng hợp tay.
+
+- Nội dung: số dư ví theo khách/nền tảng + ngày chi dự kiến; trạng thái đối soát; discrepancy tồn; aging AR/AP; hàng chờ duyệt quá SLA; hạn mức tuần nạp.
+- Freshness indicator "cập nhật lúc HH:MM"; chi tiêu QC tươi ≤1h; cảnh báo ≤5 phút; Mobile: dashboard rút gọn cho quản lý.
+
+#### REQ-FIN-016 — BI/BOD dashboard & P&L realtime (phối hợp BOD)
+
+**MEDIUM · GĐ3 · Hệ thống:** SYS-CORE-BACKEND, SYS-BCERP-WEB, SYS-MOBILE-INTERNAL
+
+**Nhu cầu:** P&L realtime theo dự án/khách từ star schema, chấm dứt "mỗi người một bảng tính".
+
+- Conformed dimensions (Khách, Dự án, TKQC, Nền tảng); tiền giữ hộ hiển thị tách bạch khỏi doanh thu; đổi định nghĩa metric phải CFO duyệt + lịch sử hiệu lực; không nhập tay kết quả.
+- Mobile: dashboard BOD + alert center cảnh báo rủi ro dòng tiền.
+
+#### REQ-FIN-017 — Dữ liệu ví read-only cho Client Portal
+
+**MEDIUM · GĐ3 · Hệ thống:** SYS-PORTAL-WEB, SYS-CORE-BACKEND
+
+**Nhu cầu:** Trụ cột minh bạch dữ liệu: khách tự xem số dư ví, chi tiêu daily mà không cần hỏi AM — nhưng chỉ thấy của mình.
+
+- Cung cấp qua **view tổng hợp đã lọc theo tenant** (Portal không chạm DB nội bộ); tenant isolation 2 lớp (RLS DB + filter API).
+- Khách thấy: số dư ví, chi tiêu daily, trạng thái đối soát ở mức dành cho khách; KHÔNG thấy giá vốn, chiết khấu, P&L, dữ liệu tenant khác.
+- Read-only tuyệt đối — Portal không ghi dữ liệu tài chính; watermark + disclaimer độ trễ; hiển thị trên cả Portal Web và Mobile BC Portal (dùng chung view).
+
+### A4. Dữ Liệu Phòng Ban Cần Quản Lý
+
+| STT | Loại dữ liệu | Thông tin cần lưu | Ghi chú quan trọng |
+|-----|-------------|------------------|--------------------|
+| 1 | Sổ phụ ví & giao dịch tiền | Khách, TKQC, nền tảng, loại giao dịch, số tiền, tiền tệ, snapshot tỷ giá, trạng thái đối soát | Append-only; tiền nạp = nợ phải trả |
+| 2 | Lệnh nạp/rút/điều chỉnh | Trạng thái, người đề xuất/khớp/duyệt, căn cứ | SoD 4 vai ghi danh tính từng bước |
+| 3 | Statement/API nền tảng | Raw payload, nhãn `api`/`manual`, mã tham chiếu | Nhập tay phải gắn nhãn `manual` |
+| 4 | Công nợ AR/AP | Hóa đơn, kỳ hạn, bucket aging, lịch sử nhắc nợ | Nguồn clawback hoa hồng |
+| 5 | Chứng từ chi & phiếu duyệt | Yêu cầu chi, ngưỡng, chữ ký, phiếu ủy quyền, mã dự án/khách | Không gắn được dự án → overhead + lý do |
+| 6 | Hồ sơ KYC/EDD & AML | GPKD, MST, UBO, cảnh báo T1–T6, biên bản điều tra, quyết định | Lưu ≥5 năm (khởi điểm) truy xuất theo khách/TKQC |
+| 7 | Hóa đơn điện tử | Số HĐ, XML, mã cơ quan thuế, trạng thái | TT78/2021 + NĐ123/2020 |
+| 8 | Kỳ kế toán & phiếu mở kỳ | Kỳ, người chốt, lý do/phạm vi/thời hạn mở kỳ | Mở kỳ chỉ CFO duyệt |
+| 9 | Tỷ giá snapshot | Tỷ giá, nguồn, thời điểm chốt | Khóa sau ghi nhận |
+
+### A5. Báo Cáo & Thống Kê Cần Có
+
+| STT | Tên báo cáo | Nội dung | Tần suất | Người xem |
+|-----|------------|----------|----------|-----------|
+| 1 | Số dư ví theo khách/nền tảng | Số dư, ngày chi dự kiến, mức xanh/vàng/đỏ | Hằng ngày | FIN_L1, FIN_L2 |
+| 2 | Đối soát & discrepancy | 4 trạng thái, ticket tồn, dung sai | Ngày/tuần | FIN_L1, FIN_L2 |
+| 3 | Aging AR/AP | 4 bucket, nợ >90 ngày ảnh hưởng clawback | Tuần/tháng | FIN_L2, CFO |
+| 4 | Hàng chờ duyệt & SLA | Yêu cầu chi quá 24/48/72h, hạn mức tuần | Hằng ngày | FIN_L2, CFO |
+| 5 | Cảnh báo AML | Số lượng vàng/đỏ, SLA xử lý, tỷ lệ escalation | Tháng | CFO, BOD |
+| 6 | Retention & audit log | Chứng từ/log sắp hết hạn, test toàn vẹn hash-chain | Quý | CFO, CTO |
+| 7 | P&L theo dự án/khách (BI) | Doanh thu dịch vụ − chi phí, tách tiền giữ hộ | Realtime | BOD |
+
+### A6. Điều Phòng Ban KHÔNG Muốn
+
+- Không muốn tiền giữ hộ bị cộng vào doanh thu/KPI doanh số — làm méo P&L và hoa hồng.
+- Không muốn lệnh miệng (Zalo/điện thoại/email riêng) có giá trị đối chiếu — mọi giao dịch qua lệnh hệ thống.
+- Không muốn bất kỳ vai nào, kể cả CEO, có nút override Financial Hard Stop.
+- Không muốn kỳ đã khóa mở lại thiếu phiếu mở kỳ do CFO duyệt kèm lý do.
+- Không muốn thay thế phần mềm kế toán VAS — chỉ kết nối và đối chiếu.
+- Không muốn dữ liệu ví của khách này lộ cho tenant khác; Portal read-only tuyệt đối phần tài chính.
+- Không muốn mất dữ liệu lịch sử khi chuyển từ Sheets/Excel — import có kiểm soát, không duy trì song song sau go-live.
+
+### A7. Đánh Giá Của Team Expert
+
+*Do finance-expert/paid-media-expert điền khi review Phần A — chưa thực hiện tại thời điểm viết.*
+
+| Hạng mục | Kết quả | Ghi chú |
+|----------|---------|---------|
+| Mức độ đầy đủ / khả thi / trùng lặp | Chờ review | Đặc biệt REQ-FIN-005 phụ thuộc tiến trình Business Verification API 7 nền tảng |
+
+**Điểm phối hợp liên phòng đã xác định:** (1) REQ-FIN-006/009 — gate Hard Stop + KYC nằm trong vòng đời cấp phát TKQC do OPS vận hành, FIN nắm quyền xác nhận; (2) REQ-FIN-007 — số AR là nguồn sự thật hoa hồng thực nhận của SALES (GĐ3); (3) REQ-FIN-017 — ranh giới dữ liệu Portal phối hợp customer-expert/legal-expert.
+
+---
+
+## Phần B — Quy Trình Nghiệp Vụ & Business Rules (Finance Expert — Call 1/2)
+
+> **Người phân tích:** finance-expert (persona CFO/Kế toán trưởng). **Phạm vi call-1:** B.1–B.3 (nhóm primary finance — REQ-FIN-001..008, 013, 014, 015/016). **Call-2 (compliance-expert) sẽ append B.4–B.6:** AML/KYC (REQ-FIN-009/010), audit log & lưu trữ ≥10 năm WORM (REQ-FIN-012), HĐĐT TT78/2021 + khía cạnh compliance của tích hợp VAS + PDPA dữ liệu tài chính (REQ-FIN-011, REQ-FIN-017) — kèm mở rộng ma trận system ở cuối. Mỗi business rule khai báo: **Actor** (ai làm) · **Hệ thống** (nơi thực thi) · **Điều kiện** · **Exception handling**. Viết tắt: CORE = SYS-CORE-BACKEND, WEB = SYS-BCERP-WEB, GW = SYS-INTEGRATION-GW, MOBILE = SYS-MOBILE-INTERNAL, PORTAL = SYS-PORTAL-WEB.
+
+### B.1 Ví TKQC & Giao Dịch Tiền (REQ-FIN-001, 002, 003)
+
+#### BR-FIN-101 — Sổ phụ ví per-khách & nguyên tắc tiền giữ hộ (REQ-FIN-001)
+
+- **Actor:** CORE ghi sổ tự động từ lệnh; FIN_L1 vận hành sổ phụ; FIN_L2/CFO rà soát định kỳ.
+- **Hệ thống:** CORE là nguồn sự thật duy nhất của ledger ví; WEB hiển thị sổ phụ theo khách; MOBILE xem số dư/lệnh; PORTAL (GĐ3) khách đọc số dư qua view tổng hợp đã lọc tenant.
+- **Điều kiện:** mỗi khách một sổ phụ ví riêng (nạp, chi tiêu, phí, điều chỉnh, số dư khả dụng) — không gộp chung, không bù trừ chéo ví, không cho số dư âm nếu chưa có lệnh điều chỉnh được duyệt. **Bất di bất dịch:** tiền khách nạp là **tiền giữ hộ — nợ phải trả (liability)**, KHÔNG tự động tính thành doanh thu; doanh thu chỉ ghi nhận trên phí dịch vụ/markup theo hợp đồng. CORE cấm cấu hình tự động hạch toán nạp → doanh thu; mọi báo cáo tách bạch tiền giữ hộ khỏi P&L dịch vụ. Ledger append-only: sửa số dư chỉ qua giao dịch điều chỉnh/reversal có reason code — chặn UPDATE/DELETE ở tầng dữ liệu.
+- **Exception:** TK client-owned (khách tự nạp trực tiếp nền tảng) không phát sinh lệnh nạp của BC — chỉ ghi nhận đối soát; TK Internal-Sandbox không gắn khách, không thuộc ví khách.
+
+#### BR-FIN-102 — Mọi giao dịch tiền qua lệnh hệ thống, cấm lệnh miệng (REQ-FIN-001)
+
+- **Actor:** OPS_AM/OPS_ADS đề xuất lệnh; FIN_L1 khớp tiền; FIN_L2 duyệt chi; FIN_L1 ghi sổ.
+- **Hệ thống:** WEB tạo/duyệt lệnh; CORE thực thi lệnh và chặn ghi nhận số tiền ngoài lệnh ở tầng ứng dụng; MOBILE theo dõi trạng thái lệnh.
+- **Điều kiện:** mọi top-up/refund/điều chỉnh phải tạo lệnh trên BCERP chứa đủ: khách, TKQC, số tiền, tiền tệ, snapshot tỷ giá, căn cứ; lệnh theo dõi trạng thái đến khi hoàn tất. Lệnh miệng qua Zalo/điện thoại/email riêng không có giá trị đối chiếu — kế toán từ chối.
+- **Exception:** khẩn ngoài giờ vẫn phải tạo lệnh trên hệ thống trước khi xử lý — approval không được bỏ qua; refund từ platform (ví dụ die account còn dư): FIN_L1 khớp tiền hoàn về theo giao dịch gốc, không hoàn cho khách trước khi có đề xuất AM + duyệt FIN_L2.
+
+#### BR-FIN-103 — Vòng lệnh nạp chuẩn 5 bước (REQ-FIN-001, kết nối REQ-FIN-006)
+
+- **Actor:** khách chuyển khoản; FIN_L1 đối chiếu và ghi nhận; CORE tự động hóa snapshot + số dư.
+- **Hệ thống:** WEB màn đối chiếu sao kê ↔ lệnh nạp; CORE thực thi ghi nhận; MOBILE hiển thị trạng thái.
+- **Điều kiện (mỗi bước ghi danh tính + timestamp):** (1) khách chuyển khoản vào TK ngân hàng BC theo thông tin lệnh nạp đã tạo; (2) FIN_L1 đối chiếu sao kê ngân hàng ↔ lệnh nạp — số tiền khớp, người chuyển trùng tên pháp nhân KYC, mã tham chiếu đúng; (3) khớp → ghi nhận vào ví khách (tiền giữ hộ tăng) — CORE chặn ghi nhận khi chưa có lệnh hoặc số lệch; (4) CORE tạo snapshot tỷ giá tại thời điểm ghi nhận (nguồn ngân hàng quy chuẩn), khóa sau ghi nhận; (5) số dư khả dụng cập nhật, lệnh chuyển "Đã khớp tiền" — mở điều kiện Financial Hard Stop cấp phát TKQC (BR-FIN-302).
+- **Exception:** tiền về không khớp lệnh nào → treo trạng thái "chờ đối chiếu", FIN_L1 phối hợp AM xác định khách, cấm ghi vào ví "gần đúng"; sai khác biên bản đối chiếu với khách → xử lý qua BR-FIN-105 (điều chỉnh dual approval), không sửa lệnh gốc.
+
+#### BR-FIN-104 — Cảnh báo đủ chi ≥3 ngày + SLA đỏ 2h (REQ-FIN-002)
+
+- **Actor:** CORE tính tự động; owner (OPS_ADS/AM) hành động theo SLA; FIN_L1/FIN_L2 theo dõi để chuẩn bị dòng tiền nạp nền tảng.
+- **Hệ thống:** CORE tính ADS 7 ngày rolling per TK + phân 3 mức: Xanh (đủ chi ≥3 ngày), Vàng (<3 ngày), Đỏ (<1 ngày hoặc dưới mức tối thiểu nền tảng); WEB dashboard ví theo khách/nền tảng; MOBILE push cảnh báo ≤5 phút từ lúc sync phát hiện; GW cấp dữ liệu chi tiêu tươi ≤1h.
+- **Điều kiện:** alert đỏ kích hoạt SLA 2h làm việc — owner phải tạo lệnh top-up hoặc giảm ngân sách trên hệ thống; escalation có timestamp: owner (0–2h) → TL (quá 2h) → AM (quá 4h, chủ động liên hệ khách yêu cầu nạp); ngoài giờ escalate kênh on-call.
+- **Exception (góc FIN):** ví đỏ mà khách chậm nạp → FIN_L1 đánh dấu rủi ro gián đoạn chi tiêu; nếu khách đang nằm trong kế hoạch nạp nền tảng tuần, FIN_L2 tạm giữ phần giải ngân tương ứng đến khi tiền khách về — không chi tiền BC trước khi có tiền khách (nguyên tắc tiền giữ hộ).
+
+#### BR-FIN-105 — Dual approval cho 3 giao dịch rủi ro cao (REQ-FIN-003)
+
+- **Phạm vi:** (1) điều chỉnh số dư thủ công; (2) đổi tỷ giá thủ công; (3) hoàn tiền cho khách.
+- **Actor:** FIN_L1 tạo lệnh; FIN_L2 duyệt (bắt buộc người đề xuất ≠ người duyệt); vượt ngưỡng → CFO duyệt thêm — refund/điều chỉnh >10 triệu VND thuộc thẩm quyền CFO [CẦN CHỐT SỐ — chờ phê duyệt chính sách hạn mức chi].
+- **Hệ thống:** CORE chặn thực thi khi thiếu một trong hai chữ ký; WEB là kênh tạo/duyệt chính; MOBILE cho FIN_L2/CFO duyệt khi di chuyển với MFA TOTP bắt buộc; mọi bước ghi audit log bất biến (ai, khi nào, giá trị cũ→mới, reason code).
+- **Điều kiện:** đổi tỷ giá tay chỉ khi biên bản đối chiếu với khách ghi nhận sai khác (bắt buộc đính kèm biên bản); mặc định dùng snapshot tỷ giá hệ thống tại thời điểm tạo lệnh. Hoàn tiền bắt buộc dẫn chiếu giao dịch nạp gốc, chỉ trả về đúng TK nguồn nạp trùng tên pháp nhân KYC — cấm hoàn cho bên thứ ba (biên AML chi tiết ở call-2).
+- **Exception:** refund khẩn (TKQC bị khóa, lỗi nạp trùng) — CFO duyệt nhanh qua kênh khẩn trong hệ thống; chứng từ hợp thức hóa + hậu kiểm trong 24h.
+
+#### BR-FIN-106 — SoD 4 vai dòng tiền (REQ-FIN-001/003/008)
+
+- **Rule:** một người không được giữ ≥2 vai trong cùng một chuỗi giao dịch: **người tạo/đề xuất ≠ người duyệt ≠ người thực hiện chi ≠ người đối soát**; tối thiểu 2 người cho khoản trong hạn mức, 3 người cho khoản dual approval.
+- **Hệ thống:** CORE vận hành SoD engine — chặn submit/gán duyệt khi vai trùng; log mọi nỗ lực vi phạm (ai, khi nào, giao dịch nào) append-only cho CFO rà định kỳ.
+- **Compensating control:** CFO kiêm CTO (Super Admin) — giao dịch vượt ngưỡng cao nhất do CEO duyệt thay; Super Admin không sửa được dữ liệu giao dịch tiền và không xóa được audit log.
+
+#### BR-FIN-107 — Chốt kỳ liên quan ví (REQ-FIN-004)
+
+- **Actor:** FIN_L2 chốt; CFO duyệt mở kỳ. **Hệ thống:** WEB màn chốt; CORE khóa dữ liệu.
+- **Điều kiện:** chốt số dư ví + trạng thái đối soát vào ngày 3 tháng kế tiếp [CẦN CHỐT SỐ]; chặn chốt khi còn ticket discrepancy. Quy trình đầy đủ tại BR-FIN-204.
+
+### B.2 Đối Soát 3 Số & Đa Tiền Tệ (REQ-FIN-004)
+
+#### BR-FIN-201 — Đối trừ 3 vế hàng ngày (REQ-FIN-004)
+
+- **Actor:** CORE chạy đối trừ tự động theo lịch; FIN_L1 xử lý kết quả; FIN_L2 rà tuần.
+- **Hệ thống:** GW kéo số nền tảng (API/statement) làm đầu vào vế 2–3; CORE thực hiện khớp và gán trạng thái; WEB màn đối soát + ticket.
+- **Điều kiện:** 3 vế bắt buộc khớp theo TKQC/khách/nền tảng: (1) khách nạp theo sổ phụ ví BCERP; (2) nạp thực tế vào nền tảng (statement/API); (3) chi tiêu thực tế báo cáo bởi nền tảng. Chu kỳ + dung sai: nạp = ngày, sai số tuyệt đối = 0/dòng; chi tiêu = ngày, ≤0,5% hoặc ≤10 USD/TK/ngày (lấy mức thấp hơn); tích lũy chi tiêu + số dư ví = tuần, ≤1% hoặc ≤20 USD/khách/tuần [CẦN CHỐT SỐ — dung sai chờ CFO xác nhận]. 4 trạng thái chuẩn: Chưa đối soát / Đã đối soát / Chênh lệch / Đã điều chỉnh (có phiếu duyệt).
+- **Exception:** nền tảng chưa có API → đối soát ngày hạ xuống tuần qua import (BR-FIN-301); sai lệch timing/tỷ giá giữa BC và nền tảng xử lý qua khoản FX riêng, không tính vi phạm dung sai.
+
+#### BR-FIN-202 — Xử lý chênh lệch (discrepancy) (REQ-FIN-004)
+
+- **Actor:** FIN_L1 điều tra gốc rễ + giải trình; FIN_L2 duyệt điều chỉnh.
+- **Hệ thống:** WEB tạo ticket discrepancy đủ (TKQC, nền tảng, khách, hai con số, nguồn, timestamp); CORE chặn chốt kỳ khi còn ticket chưa giải trình; mọi điều chỉnh có chứng từ + dual approval + audit log bất biến.
+- **Điều kiện:** trong dung sai → đánh dấu "Đã đối soát (dung sai)", hạch toán vào tài khoản sai lệch đối soát, FIN_L2 rà theo tuần. Vượt dung sai → ticket; FIN_L1 phải giải trình FIN_L2 trước chốt kỳ đối soát đó (T+1); **cấm tự cân số** cho hai vế khớp.
+- **Exception:** chênh lệch do lỗi hệ thống/nhập liệu → xử lý bằng reversal có reason code, không sửa dòng gốc; ticket quá hạn giải trình tự escalate FIN_L2 + báo cáo CFO.
+
+#### BR-FIN-203 — Đa tiền tệ & snapshot tỷ giá (REQ-FIN-004)
+
+- **Actor:** CORE tự động; FIN_L2/CFO rà khoản FX.
+- **Hệ thống:** CORE lưu snapshot tỷ giá per-giao-dịch và chặn UPDATE truy lịch; WEB hiển thị song song tiền gốc + quy VND; quy VND cho duyệt chi dùng snapshot tỷ giá ngày duyệt.
+- **Điều kiện:** sổ gốc VND; mọi giao dịch ngoại tệ quy đổi theo snapshot tỷ giá ghi ngay tại thời điểm giao dịch (nguồn ngân hàng quy chuẩn), khóa sau ghi nhận; lãi/lỗ FX ghi **khoản riêng**, tách hoàn toàn khỏi giá vốn và GM dịch vụ — hiệu ứng tỷ giá không được làm méo P&L dịch vụ.
+- **Exception:** chỉ BR-FIN-105 được đổi tỷ giá tay (dual approval + biên bản); sai khác tỷ giá phát hiện sau ghi nhận xử lý qua khoản FX riêng, không sửa snapshot gốc.
+
+#### BR-FIN-204 — Chốt số liệu & khóa kỳ (period lock) (REQ-FIN-004)
+
+- **Actor:** FIN_L2 chốt; CFO duyệt mở khóa kỳ.
+- **Hệ thống:** CORE thực thi khóa cứng ở tầng dữ liệu (chặn UPDATE/DELETE chứng từ trong kỳ đã khóa) + audit log; WEB màn chốt và phiếu mở kỳ.
+- **Điều kiện:** FIN_L2 chốt công nợ nền tảng tháng vào ngày 3 tháng kế tiếp [CẦN CHỐT SỐ]; hệ thống chặn chốt khi còn ticket discrepancy chưa giải trình. Sau chốt: khóa kỳ — mọi chứng từ trong kỳ chặn sửa/xóa. Mở khóa chỉ CFO duyệt bằng phiếu mở kỳ ghi rõ lý do, phạm vi, thời hạn + audit log bất biến; sau khi sửa xong bắt buộc chốt lại.
+- **Exception:** điều chỉnh ảnh hưởng P&L tháng đã chốt — CFO duyệt trong 48h; mở kỳ xử lý theo từng phiếu, không mở khóa hàng loạt.
+
+#### BR-FIN-205 — Dữ liệu đầu vào đối soát: nhãn nguồn `api`/`manual` (REQ-FIN-004, dùng chung REQ-FIN-005)
+
+- **Actor:** FIN_L1 import/nhập tay trên WEB (ghi ai nhập + căn cứ); GW lưu raw payload; CORE đối soát.
+- **Hệ thống:** GW gắn nhãn nguồn; CORE đối soát dữ liệu manual như luồng API; WEB schema import chuẩn (nền tảng, TKQC, ngày, loại giao dịch, số tiền gốc, tiền tệ, phí, mã tham chiếu).
+- **Điều kiện:** mọi số liệu đưa vào đối soát phải có nhãn `api` hoặc `manual`; nhập tay có cấu trúc — sai schema bị chặn; khi API nền tảng sống lại/được cấp quyền, GW backfill và đối soát lại các kỳ đã nhập tay.
+- **Exception:** import fail schema → báo lỗi từng dòng, FIN_L1 sửa và nạp lại; không có cơ chế nhập tự do dạng text.
+
+### B.3 Công Nợ, Giải Ngân, Financial Hard Stop & Duyệt GM (REQ-FIN-005, 006, 007, 008, 013, 014, 015/016)
+
+#### BR-FIN-301 — Kéo số liệu nền tảng qua API + degraded mode `manual` (REQ-FIN-005)
+
+- **Actor:** GW vận hành tự động; FIN_L1 xử lý import khi degraded.
+- **Hệ thống:** GW chạy adapter 7 nền tảng (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) pull hourly qua batch/queue chống rate limit, lưu raw payload phục vụ đối chiếu; WEB hiển thị trạng thái sync + màn import dành cho FIN_L1; CORE nhận dữ liệu vào fact tables.
+- **Điều kiện:** chưa có quyền API developer (chờ Business Verification) → import statement chuẩn + nhập tay có cấu trúc gắn nhãn `manual` theo BR-FIN-205; khi được cấp API → backfill tự động.
+- **Exception:** job sync fail → retry/backoff tự động + alert; nền tảng không có API statement: đối soát hạ tuần, bù khớp tích lũy khi có API; WEB không cho nhập số đối soát ngoài 2 kênh chuẩn (import/manual).
+
+#### BR-FIN-302 — Financial Hard Stop "đã khớp tiền" (REQ-FIN-006)
+
+- **Actor:** FIN_L1 xác nhận; hệ thống chặn cứng; **không vai nào override — kể cả CEO/Super Admin**.
+- **Hệ thống:** enforcement **trong code** — CORE workflow engine chỉ cho phép action "Cấp phát TKQC" khi trạng thái khớp tiền của lệnh nạp tương ứng = "Đã khớp tiền"; không có nút override, không route bypass; mọi yêu cầu mở khóa thủ công bị từ chối + ghi audit log bất biến. Xác nhận chỉ thực hiện trên **WEB với MFA TOTP** — MOBILE chỉ alert/xem, không cho phép xác nhận khớp tiền.
+- **Điều kiện:** "Đã khớp tiền" = tiền đã về tài khoản BC **và** khớp số với lệnh nạp; mỗi xác nhận bắt buộc gắn evidence (sao kê ngân hàng/lệnh nạp) + timestamp. Không chấp nhận "chờ duyệt"/"khách hứa chuyển"/"đang chuyển" — các lý do này không có giá trị mở khóa.
+- **Exception (thu hồi):** xác nhận bị phát hiện sai → FIN_L1 thu hồi → CORE tự chuyển TK về "Tạm dừng chi tiêu", khóa lệnh nạp mới, bắn alert TL; mọi chuyển trạng thái vòng đời ghi audit log bất biến.
+
+#### BR-FIN-303 — Công nợ AR/AP + aging + nhắc nợ (REQ-FIN-007)
+
+- **Actor:** CORE tự động tính aging + gửi nhắc; FIN_L1 theo dõi; FIN_L2 xử lý nợ quá hạn.
+- **Hệ thống:** CORE dùng chung ledger REQ-FIN-001 làm nguồn; WEB màn aging + lịch sử nhắc nợ.
+- **Điều kiện:** aging AR (khách) và AP (nền tảng) theo bucket 0–30 / 31–60 / 61–90 / >90 ngày; nhắc tự động AR quá hạn theo lịch cấu hình; theo dõi hạn thanh toán AP nền tảng để tránh gián đoạn TKQC. Số dư AR là nguồn sự thật clawback hoa hồng: nợ >90 ngày → clawback 100% (phối hợp SALES/HR, GĐ3).
+- **Exception:** khách có hợp đồng riêng về chu kỳ thanh toán — theo hợp đồng, không thấp hơn chuẩn tối thiểu (đối soát tuần, chốt tháng); công nợ tranh chấp → tách ticket riêng khỏi aging bình thường đến khi giải quyết.
+
+#### BR-FIN-304 — Duyệt chi/giải ngân: ngưỡng, SoD, delegate (REQ-FIN-008)
+
+- **Ma trận ngưỡng** (quy VND theo tỷ giá snapshot ngày duyệt) [CẦN CHỐT SỐ — mốc VND chờ phê duyệt chính sách hạn mức chi]: ≤5 triệu → FIN_L2 duyệt; >5–50 triệu → FIN_L2; >50–200 triệu → FIN_L2 + CFO (dual approval); >200 triệu hoặc hợp đồng năm → CFO + CEO. CFO là người đề xuất → CEO duyệt thay (compensating control kiêm nhiệm CFO/CTO).
+- **Actor/Hệ thống:** người đề nghị tạo chứng từ trên WEB; CORE SoD engine ép người tạo ≠ người duyệt ≠ người thực hiện chi, block submit khi vai trùng + log vi phạm; MOBILE là kênh duyệt giải ngân trọng tâm — MFA bắt buộc, nhắc duyệt SLA 24/48/72h.
+- **Điều kiện:** chứng từ (báo giá, hợp đồng, quote SaaS) upload trước khi duyệt — không "duyệt trước bổ sung sau"; chi outsource/tools bắt buộc gắn mã dự án/khách phục vụ P&L, không gắn được phải chọn overhead kèm lý do. Nạp nền tảng định kỳ: duyệt gộp kế hoạch tuần trước đầu tuần, FIN_L1 thực hiện giao dịch con không duyệt lại; sắp vượt hạn mức tuần → cảnh báo + duyệt bổ sung (FIN_L2 ≤50 triệu / CFO >50 triệu).
+- **Exception:** chi khẩn (nền tảng sắp khóa TKQC, khủng hoảng cần outsource ngay) — FIN_L2 + CFO duyệt qua kênh khẩn trong hệ thống, hậu kiểm 24h; chi định kỳ đã cam kết (SaaS năm, retainer) duyệt 1 lần đầu năm, tự giải ngân theo lịch. **Delegate:** chỉ CFO ủy quyền cho cá nhân cụ thể, hạn mức ≤ FIN_L2, tối đa 14 ngày, tự thu hồi khi hết hạn, log gắn nhãn "theo ủy quyền #id".
+
+#### BR-FIN-305 — Tích hợp phần mềm kế toán VAS hiện hữu (REQ-FIN-013)
+
+- **Nguyên tắc:** BCERP **tích hợp, không thay thế** phần mềm kế toán VAS — BCERP là nguồn dữ liệu nghiệp vụ (chứng từ đối soát, lệnh chi, bút toán đề xuất); sổ kế toán pháp lý nằm trên phần mềm VAS.
+- **Actor/Hệ thống:** GW vận hành connector (API hoặc import/export — cơ chế chưa xác định [CẦN CHỐT SỐ — cần tên phần mềm + khả năng xuất dữ liệu]); CORE xuất bút toán chuẩn từ chứng từ đã duyệt; WEB màn đối chiếu sổ VAS ↔ BCERP.
+- **Điều kiện:** chỉ xuất dữ liệu từ chứng từ đã duyệt/khóa kỳ — không xuất bản nháp; đối chiếu định kỳ hàng tháng, chênh lệch phải có giải trình FIN_L2.
+- **Exception:** nếu VAS chỉ hỗ trợ import file — GW xuất file chuẩn schema + log lượt xuất; connector fail → hàng chờ retry + alert, không ghi sổ tay đè lên luồng chuẩn.
+
+#### BR-FIN-306 — Phí nền tảng & nghĩa vụ thuế nhà thầu nước ngoài (REQ-FIN-014)
+
+- **Actor:** CORE hạch toán tự động từ dữ liệu statement/API; FIN_L1 kiểm tra; FIN_L2 rà trước chốt kỳ.
+- **Hệ thống:** CORE hạch toán phí vào giá vốn media đúng TKQC/giao dịch gốc; WEB hiển thị tách bạch phí — doanh thu dịch vụ; GW cấp dữ liệu phí từ statement (REQ-FIN-005).
+- **Điều kiện:** phí nền tảng/phí nạp ghi nhận **theo giao dịch gốc**, tách khỏi doanh thu dịch vụ khi tính GM; quy VND dùng chung snapshot tỷ giá BR-FIN-203. VAT phí dịch vụ và thuế hợp đồng nhà thầu nước ngoài (FCT) khi thanh toán nền tảng quốc tế — ghi nhận theo xác nhận của tư vấn thuế [CẦN CHỐT SỐ].
+- **Exception:** nền tảng trừ phí thẳng vào số dư ví → đối soát coi như một dòng chi tiêu, không ghi thành doanh thu âm; phí không map được giao dịch gốc → ticket discrepancy theo BR-FIN-202.
+
+#### BR-FIN-307 — Dashboard FIN nội bộ & BI/BOD P&L (REQ-FIN-015/016)
+
+- **Actor/Người xem:** FIN_L1/FIN_L2 (dashboard vận hành hằng ngày); CFO/BOD (P&L theo dự án/khách).
+- **Hệ thống:** WEB là kênh xem chính — dashboard gồm: số dư ví theo khách/nền tảng + ngày chi dự kiến, trạng thái đối soát, discrepancy tồn, aging AR/AP, hàng chờ duyệt quá SLA, hạn mức tuần nạp; MOBILE dashboard rút gọn cho quản lý; CORE tổng hợp, GĐ3 mở rộng star schema + conformed dimensions (Khách, Dự án, TKQC, Nền tảng).
+- **Điều kiện:** tiền giữ hộ hiển thị tách bạch khỏi doanh thu ở mọi dashboard; freshness "cập nhật lúc HH:MM"; chi tiêu QC tươi ≤1h; cảnh báo ≤5 phút. GĐ3: đổi định nghĩa metric phải CFO duyệt + lịch sử hiệu lực; không nhập tay kết quả BI.
+- **Exception:** dữ liệu nguồn `manual` — dashboard hiển thị nhãn nguồn + disclaimer độ trễ; Portal khách không xem các dashboard này (biên tin cậy nội bộ, xem REQ-FIN-017).
+
+#### BR-FIN-308 — Duyệt GM theo nhóm dịch vụ (phối hợp SALES — theo policy bảng giá/chiết khấu)
+
+- **Actor:** Accountant (FIN_L1) lập Quotation theo định mức tính giá chuẩn; hệ thống tính GM; GDKD/BOD duyệt ngoại lệ.
+- **Hệ thống:** WEB chặn gửi quotation khi GM chưa duyệt hoặc dưới ngưỡng; CORE tính GM = (Doanh thu bán − Giá vốn theo định mức)/Doanh thu bán; audit log toàn bộ version + người duyệt + lý do.
+- **Điều kiện:** GM phải ≥ ngưỡng nhóm dịch vụ — Agency account ≥15%, Ads ops ≥20%, SEO ≥35%, Web/Thiết kế ≥30% [CẦN CHỐT SỐ — ngưỡng khởi tạo chờ user xác nhận]; dưới ngưỡng → GDKD duyệt (đến 20%) hoặc BOD (>20%) trước khi gửi khách; chi phí media pass-through tính giá vốn 0 GM nhưng bắt buộc tính đủ phí dịch vụ.
+- **Exception:** deal pilot 1 tháng được GM dưới ngưỡng một kỳ (tối đa 60 ngày, GDKD duyệt); biến động tỷ giá/phí nền tảng >5% trong hiệu lực báo giá → phát hành version điều chỉnh, không tính vòng sửa. GM gắn chặt nguyên tắc tiền giữ hộ: doanh thu chỉ tính phí dịch vụ/markup, không tính tiền nạp của khách.
+
+### Ma Trận Business-Rules × System (Call 1 — B.1–B.3)
+
+> Đọc theo cột: nơi rule được **thực thi chính** (không hàm ý web=mobile — mỗi kênh có touchpoint riêng theo A0). Phần B.4–B.6 (call-2) sẽ bổ sung các dòng của REQ-FIN-009/010/011/012/017.
+
+| Business Rule | SYS-CORE-BACKEND | SYS-BCERP-WEB | SYS-INTEGRATION-GW | SYS-MOBILE-INTERNAL | SYS-PORTAL-WEB | Ghi chú |
+|---|---|---|---|---|---|---|
+| BR-FIN-101 Sổ phụ ví / tiền giữ hộ | Ledger nguồn sự thật, append-only | Sổ phụ per-khách | — | Xem số dư/lệnh | Số dư read-only qua view tenant (GĐ3) | Cấm auto-hạch toán nạp → doanh thu |
+| BR-FIN-102 Lệnh qua hệ thống | Chặn ghi nhận ngoài lệnh | Tạo/duyệt lệnh | — | Theo dõi lệnh | — | Lệnh miệng không giá trị |
+| BR-FIN-103 Vòng lệnh nạp | Snapshot tỷ giá, cập nhật dư | Đối chiếu sao kê (FIN_L1) | — | Xem trạng thái | — | Mở điều kiện Hard Stop |
+| BR-FIN-104 Cảnh báo ≥3 ngày + SLA đỏ 2h | Tính ADS + 3 mức + timer escalation | Dashboard ví | Dữ liệu chi tiêu ≤1h | Push ≤5 phút | — | Escalation owner→TL→AM |
+| BR-FIN-105 Dual approval 3 giao dịch | Chặn thiếu chữ ký | Tạo/duyệt (kênh chính) | — | Duyệt MFA TOTP | — | Vượt ngưỡng → CFO; hoàn đúng TK nguồn |
+| BR-FIN-106 SoD 4 vai | SoD engine + log vi phạm | Gán vai khi submit | — | — | — | Super Admin không sửa tiền |
+| BR-FIN-107 Chốt kỳ ví | Khóa dữ liệu kỳ | Màn chốt | — | Nhận thông báo | — | Ngày 3 [CẦN CHỐT SỐ] |
+| BR-FIN-201 Đối trừ 3 số | Logic khớp + 4 trạng thái + dung sai | Màn đối soát + ticket | Đầu vào vế 2–3 | — | — | Hàng ngày |
+| BR-FIN-202 Discrepancy | Chặn chốt khi còn ticket | Ticket + giải trình | Raw payload đối chiếu | — | — | Cấm tự cân số |
+| BR-FIN-203 Đa tiền tệ | Snapshot khóa + khoản FX riêng | Hiển thị gốc + VND | Nguồn tỷ giá quy chuẩn | — | — | FX tách khỏi GM |
+| BR-FIN-204 Chốt/khóa kỳ | Lock tầng dữ liệu + phiếu mở kỳ | Màn chốt | — | — | — | Mở kỳ chỉ CFO |
+| BR-FIN-205 Nhãn api/manual | Đối soát như luồng API | Import/nhập tay (FIN_L1) | Gắn nhãn + schema validation | — | — | Backfill khi API sống |
+| BR-FIN-301 Adapter 7 nền tảng | Job queue/retry/fact tables | Trạng thái sync + import | Pull hourly + raw payload | Alert sync fail | — | GĐ1 |
+| BR-FIN-302 Financial Hard Stop | Chặn trong code, không override | Xác nhận khớp tiền MFA | — | Chỉ alert — KHÔNG xác nhận | — | Evidence bắt buộc; GĐ1 |
+| BR-FIN-303 AR/AP aging | Tính bucket + nhắc tự động | Màn aging | — | — | — | Nguồn clawback |
+| BR-FIN-304 Duyệt chi theo ngưỡng | Ma trận ngưỡng + SoD block | Tạo chứng từ + duyệt | — | Duyệt MFA + nhắc SLA | — | Delegate ≤14 ngày |
+| BR-FIN-305 VAS connector | Xuất bút toán từ chứng từ duyệt | Đối chiếu sổ | Connector API/file [CẦN CHỐT SỐ] | — | — | Không thay thế VAS |
+| BR-FIN-306 Phí nền tảng & thuế | Hạch toán giá vốn theo giao dịch gốc | Hiển thị tách bạch | Dữ liệu phí từ statement | — | — | FCT [CẦN CHỐT SỐ] |
+| BR-FIN-307 Dashboard FIN + BI | Star schema, metric catalog | Kênh xem chính | — | Dashboard rút gọn | — | Tiền giữ hộ tách doanh thu |
+| BR-FIN-308 Duyệt GM | Tính GM tự động | Chặn gửi khi chưa duyệt | — | — | — | Phối hợp SALES |
+
+> **Phạm vi call-1 kết thúc tại đây.** Call-2 (compliance-expert) sẽ append B.4 — AML/KYC (REQ-FIN-009/010); B.5 — Audit log & lưu trữ chứng từ ≥10 năm WORM (REQ-FIN-012); B.6 — HĐĐT TT78/2021/NĐ123/2020, khía cạnh compliance tích hợp VAS và PDPA dữ liệu tài chính (REQ-FIN-011, REQ-FIN-017), kèm mở rộng Ma trận Business-Rules × System.
+
+---
+
+## Phần B (tiếp) — B.4–B.6: Tuân Thủ, AML/KYC, Lưu Trữ & Bảo Vệ Dữ Liệu Tài Chính (Compliance Expert — Call 2/2)
+
+> **Người phân tích:** compliance-expert (persona Trưởng Kiểm toán nội bộ — FIN_L1/L2 là tuyến 1, Compliance tuyến 2, Internal Audit tuyến 3 của Three Lines of Defense). **Phạm vi call-2:** B.4 — AML/KYC & giám sát giao dịch (REQ-FIN-009/010); B.5 — audit log, lưu trữ chứng từ, backup/DR, change management (REQ-FIN-012, liên quan REQ-FIN-003); B.6 — HĐĐT, thuế & bảo vệ dữ liệu tài chính (REQ-FIN-011, REQ-FIN-017). Numbering tiếp nối call-1: BR-FIN-4xx (B.4), 5xx (B.5), 6xx (B.6). Viết tắt: CORE = SYS-CORE-BACKEND, WEB = SYS-BCERP-WEB, GW = SYS-INTEGRATION-GW, MOBILE = SYS-MOBILE-INTERNAL, PORTAL = SYS-PORTAL-WEB. Căn cứ: policies `aml-kyc-giam-sat-giao-dich.md`, `audit-log-bao-luu-backup-dr.md`, `bao-ve-du-lieu-ca-nhan.md`, P0-01 §5.1.
+
+### B.4 AML/KYC & Giám Sát Giao Dịch (REQ-FIN-009, REQ-FIN-010)
+
+> Rủi ro gốc của mô hình trung gian 2.600+ TKQC đa kênh quốc tế là **rửa tiền qua ví TKQC**: tiền nguồn không rõ nạp vào TKQC, tiêu hao dưới dạng chi phí quảng cáo hoặc hoàn về tài khoản khác dưới vỏ bọc dịch vụ hợp pháp. Knockout K1–K5 chỉ lọc rủi ro ở tầng lead; nhóm rule này bổ sung rào cản định danh trước cấp phát và giám sát tầng giao dịch suốt vòng đời khách.
+
+#### BR-FIN-401 — KYC pháp nhân là gate bắt buộc trước cấp phát TKQC (REQ-FIN-009)
+
+- **Actor:** OPS/AM thu thập hồ sơ khách; FIN_L2 xác minh và gán trạng thái KYC; BOD duyệt ngoại lệ và EDD.
+- **Hệ thống:** CORE lưu hồ sơ KYC + gate đọc trạng thái KYC tại bước cấp phát TKQC (phối hợp module Quản lý TKQC/CRM); WEB màn nhập/đính kèm/quản lý hồ sơ + nhắc review định kỳ tự động.
+- **Điều kiện:** hồ sơ bắt buộc đủ 5 thành phần trước khi xét **Verified**: (1) GPKD/giấy tờ tương đương còn hiệu lực — khách nước ngoài hợp pháp hóa lãnh sự khi cần; (2) MST đối chiếu nguồn chính thức; (3) giấy tờ người đại diện pháp luật; (4) TK ngân hàng nạp/hoàn **trùng tên pháp nhân**; (5) khai báo UBO từ 25% sở hữu thụ hưởng `[CẦN CHỐT SỐ — ngưỡng khởi điểm, chờ luật sư/tư vấn AML xác nhận]`. Chỉ khi KYC = Verified mới cấp phát; thiếu/sai → CORE chặn, ghi lý do vào CRM. Review định kỳ 12 tháng (chuẩn) / 6 tháng (EDD).
+- **EDD bắt buộc khi:** khách nước ngoài; quốc gia/vùng rủi ro cao (danh sách FATF hoặc BOD cập nhật); lead flag Knockout K2/K4 → hồ sơ sâu hơn + phê duyệt BOD, ngưỡng AML siết 50% (BR-FIN-403), review 6 tháng.
+- **Exception:** TK không trùng tên chỉ chấp nhận khi là pháp nhân cùng nhóm mẹ/con có văn bản chứng thực + BOD duyệt + cập nhật hồ sơ KYC; khách tập đoàn nhiều pháp nhân → danh sách pháp nhân được phép liệt kê trắng trong hợp đồng + EDD; kết quả Knockout **không thay thế KYC và không miễn giám sát giao dịch**.
+
+#### BR-FIN-402 — Hoàn tiền chỉ về đúng tài khoản nguồn nạp (REQ-FIN-010, ghép BR-FIN-105)
+
+- **Actor:** FIN_L1 tạo lệnh hoàn dẫn chiếu giao dịch nạp gốc; FIN_L2 duyệt; CFO duyệt hoàn/điều chỉnh >10 triệu VND `[CẦN CHỐT SỐ — chờ chính sách hạn mức chi]`.
+- **Hệ thống:** CORE tự khớp tên chủ TK nhận với tên pháp nhân đã KYC — lệch → chuyển rà thủ công; CORE **chặn mặc định** mọi lệnh hoàn đổi beneficiary + bắn cảnh báo T4 (đỏ); WEB hiển thị giao dịch nạp gốc khi tạo lệnh hoàn; MOBILE xem trạng thái.
+- **Điều kiện:** hoàn tiền bắt buộc dẫn chiếu giao dịch nạp gốc, chỉ trả về đúng TK ngân hàng/ví nguồn nạp trùng tên pháp nhân KYC; cấm hoàn cho bên thứ ba hoặc tài khoản khác tên.
+- **Exception:** yêu cầu đổi beneficiary bị **từ chối mặc định** — chỉ BOD xem xét lại bằng văn bản (3 ngày làm việc), kết quả lưu vĩnh viễn vào hồ sơ AML; refund từ nền tảng (TKQC die còn dư) xử lý theo BR-FIN-102, hoàn khách vẫn qua luồng duyệt này.
+
+#### BR-FIN-403 — Rule engine giám sát giao dịch T1–T6 (REQ-FIN-010)
+
+| # | Quy tắc | Ngưỡng khởi điểm | Mức |
+|---|---------|------------------|-----|
+| T1 | Nạp gấp nhiều lần bình thường | đơn nạp ≥3× bình quân 30 ngày gần nhất | Vàng |
+| T2 | Tách nhỏ (structuring) | ≥3 lệnh nạp/24h, tổng ≥200 triệu VND hoặc tương đương | Đỏ |
+| T3 | Nguồn từ quốc gia rủi ro cao | FATF list hoặc do BOD cập nhật | Đỏ |
+| T4 | Hoàn tiền đổi beneficiary | bất kỳ trường hợp nào | Đỏ — chặn mặc định |
+| T5 | Vòng tiền nhanh | nạp rồi yêu cầu hoàn trong 72h, không có chi tiêu tương ứng | Vàng |
+| T6 | Hoàn vượt tỷ lệ | hoàn ≥50% giá trị nạp trong kỳ đối soát | Vàng |
+
+- **Ngưỡng toàn bộ `[CẦN CHỐT SỐ — chờ tư vấn AML/luật sư]`; cấu hình được trên hệ thống không sửa code.**
+- **Actor:** CORE chấm điểm tự động trên mọi lệnh nạp/hoàn/điều chỉnh; FIN_L2 xử lý theo BR-FIN-404.
+- **Hệ thống:** CORE rule engine chạy trên dữ liệu ledger REQ-FIN-001 + đối soát REQ-FIN-004; GW đồng bộ danh sách quốc gia rủi ro FATF định kỳ vào rule engine; WEB danh sách cảnh báo theo mức + chi tiết giao dịch vi phạm; MOBILE push alert vàng/đỏ cho FIN/BOD.
+- **Điều kiện:** mỗi cảnh báo gắn khách/TKQC/giao dịch + ngưỡng vi phạm; khách diện EDD → ngưỡng T1–T6 tự siết 50% theo cấu hình.
+- **Exception:** **cấm tắt monitoring cho bất kỳ khách nào** — kể cả VIP/khách lâu năm tại khu vực rủi ro cao (chỉ BOD duyệt hợp đồng, không miễn monitoring).
+
+#### BR-FIN-404 — Quy trình xử lý cảnh báo: đóng băng → điều tra → BOD → quyết định (REQ-FIN-010)
+
+- **Actor:** FIN_L2 điều tra; BOD quyết định mức đỏ và là lớp oversight độc lập (compensating control SoD — không lập vai Compliance riêng); **người đề xuất/nhập giao dịch không được tự điều tra** (tách bạch công vụ, khớp SoD BR-FIN-106).
+- **Hệ thống:** CORE **khóa mềm (hold)** giao dịch nghi vấn đến khi có quyết định — cấm xử lý song song; WEB workflow điều tra ghi trạng thái, người xử lý, lý do bắt buộc khi đóng/duyệt/từ chối; MOBILE alert escalation.
+- **Điều kiện (SLA):** điều tra 24 giờ — xác minh hợp đồng, lịch sử nạp–chi tiêu, giấy tờ nguồn tiền; cảnh báo vàng: vô hại → đóng + ghi lý do, có nghi vấn → nâng đỏ; đỏ → escalate BOD trong 24 giờ tiếp theo; quyết định duyệt/từ chối **ghi lý do bằng văn bản, lưu vĩnh viễn**.
+- **Exception:** nghi vấn rửa tiền được xác thực → thực hiện nghĩa vụ báo cáo cơ quan chức năng theo quy định pháp luật, phối hợp luật sư/tư vấn AML; hồ sơ điều tra phục vụ cơ quan chức năng truy xuất theo khách/TKQC/giao dịch/cảnh báo (BR-FIN-405).
+
+#### BR-FIN-405 — Báo cáo AML định kỳ & lưu hồ sơ KYC/AML (REQ-FIN-009, REQ-FIN-010)
+
+- **Actor:** FIN_L2 tổng hợp báo cáo; CFO/BOD xem định kỳ.
+- **Hệ thống:** WEB báo cáo tháng (báo cáo #5 mục A5): số lượng cảnh báo vàng/đỏ, SLA xử lý, tỷ lệ đóng/escalation; CORE lưu hồ sơ KYC/EDD, cảnh báo, biên bản điều tra, quyết định tập trung — truy xuất theo khách/TKQC/giao dịch.
+- **Điều kiện:** retention hồ sơ KYC + giao dịch + cảnh báo + biên bản + quyết định: **≥5 năm** kể từ kết thúc quan hệ khách hàng (khởi điểm theo thông lệ AML `[CẦN CHỐT SỐ — luật sư xác nhận]`); hệ thống nhắc review KYC định kỳ tự động.
+- **Exception:** hồ sơ thuộc phiên thanh tra/chương trình điều tra đang mở → giữ đến khi hồ sơ đóng, bất kể hết hạn retention.
+
+### B.5 Audit Log, Lưu Trữ Chứng Từ, Backup/DR & Change Management (REQ-FIN-012, liên quan REQ-FIN-003)
+
+> Đây là **nền móng GĐ1**: WORM storage và hash-chain không thể bổ sung sau khi hệ thống đã chạy dữ liệu tiền — kiến trúc phải có từ ngày đầu, từ giao dịch tiền đầu tiên.
+
+#### BR-FIN-501 — Audit log bất biến append-only + hash-chain (REQ-FIN-012)
+
+- **Actor:** CORE ghi tự động mọi sự kiện tiền/hợp đồng/phân quyền; CTO + BOD_CEO nhận alert toàn vẹn.
+- **Hệ thống:** CORE audit core — ứng dụng kết nối DB bằng account chỉ có quyền INSERT/SELECT trên bảng log (chặn UPDATE/DELETE ở tầng DB); **không tồn tại interface xóa/sửa log ở mọi tầng (UI, API, DB, script vận hành) — kể cả Super Admin** (khớp compensating control BR-FIN-106); WEB tra cứu log theo khách/TKQC/giao dịch.
+- **Điều kiện:** mỗi bản ghi: ai (user, role), khi nào (timestamp), làm gì, trên đối tượng nào; mọi thay đổi giá trị ghi **old→new value + reason code bắt buộc** — thiếu reason code thì giao dịch không được submit; **hash-chain**: mỗi bản ghi chứa hash bản ghi liền trước; job kiểm tra toàn vẹn **hằng ngày**, đứt chuỗi → alert ngay CTO + BOD_CEO.
+- **Exception:** sửa dữ liệu nghiệp vụ nhập sai — KHÔNG sửa bản ghi gốc, luôn ghi **giao dịch reversal** có reason code giữ dấu vết cũ→mới (khớp BR-FIN-202/BR-FIN-105).
+
+#### BR-FIN-502 — Meta-log: việc xem audit log cũng bị log (REQ-FIN-012)
+
+- **Actor:** mọi vai truy cập log (FIN, CTO, BOD); CORE ghi meta-log tự động.
+- **Hệ thống:** CORE meta-log ai xem, xem gì, khi nào — chống truy cập lén; WEB tra cứu có watermark người xem.
+- **Điều kiện:** meta-log cũng append-only và nằm trong phạm vi hash-chain; truy xuất/xuất audit log **ngoài báo cáo chuẩn cần duyệt BOD_CEO** (≤2 ngày làm việc).
+- **Exception:** không có — mọi vai đồng nhất chịu meta-log, kể cả Super Admin.
+
+#### BR-FIN-503 — Retention phân tầng + WORM storage (REQ-FIN-012)
+
+| Loại dữ liệu | Bảo lưu tối thiểu | Căn cứ |
+|---|---|---|
+| Audit log sự kiện tiền & hợp đồng | ≥10 năm | Luật Kế toán 2015 |
+| Chứng từ đối soát + hợp đồng | ≥10 năm | Luật Kế toán 2015 |
+| HĐĐT (XML + bản trình bày) | theo TT78/2021 + NĐ 123/2020 | `[CẦN CHỐT SỐ — chốt với tư vấn thuế]` |
+| Log hệ thống (đăng nhập, phân quyền, cấu hình, change) | ≥7 năm | Chính sách nội bộ |
+| Hồ sơ KYC/AML | ≥5 năm | Thông lệ AML (BR-FIN-405) |
+
+- **Hệ thống:** CORE định tuyến log/chứng từ tiền vào **WORM storage** — sau khi ghi, không đối tượng nào kể cả Super Admin ghi đè/xóa được trong thời hạn retention; WEB báo cáo retention định kỳ (log sắp hết hạn, dung lượng WORM — báo cáo #6 mục A5).
+- **Điều kiện:** hết hạn retention, việc xóa/archive phải CTO đề xuất + BOD_CEO duyệt theo quý; **chính việc xóa cũng được ghi log**.
+- **Exception:** yêu cầu pháp lý (thanh tra, kiểm toán) chỉ được **kéo dài** thời hạn giữ, không bao giờ rút ngắn dưới mức tối thiểu.
+
+#### BR-FIN-504 — Backup mã hóa, test phục hồi định kỳ, RTO/RPO (REQ-FIN-012)
+
+- **Actor:** SYS_ADMIN vận hành backup; CTO ký biên bản test restore, báo BOD_CEO.
+- **Hệ thống:** toàn bộ dữ liệu BCERP (CORE + GW) backup **hằng ngày, mã hóa AES-256, 2 nơi tách biệt** (1 onsite + 1 offsite khác vùng); replication **gần thời gian thực** cho luồng ghi giao dịch tiền — backup hằng ngày một mình không đạt RPO; alert backup thất bại trong 30 phút.
+- **Điều kiện:** **RTO ≤4 giờ, RPO ≤15 phút**; test phục hồi **mỗi quý** — restore tập dữ liệu thực lên môi trường test, đối chiếu hash, biên bản ký tên; **backup chưa từng test restore không tính là backup hợp lệ**; sự cố mất dữ liệu/drill thất bại → post-mortem trong 5 ngày làm việc.
+- **Exception:** drill DR đột xuất không báo trước tối đa 1 lần/năm để đo RTO thực tế, báo BOD trước khi chạy.
+
+#### BR-FIN-505 — Change management cho luồng tiền (REQ-FIN-012, liên quan REQ-FIN-003)
+
+- **Actor:** SYS_ADMIN đề xuất change request; CTO phê duyệt; chủ nghiệp (FIN lead) xác nhận thêm khi change ảnh hưởng luồng tiền/hợp đồng/phân quyền.
+- **Hệ thống:** CI-CD/change module **chặn deploy/thay đổi production khi không có change record được duyệt** — không đổi config nóng không phê duyệt; CORE ghi log bất biến toàn bộ vòng change (ai đề xuất, ai duyệt, nội dung, kết quả).
+- **Điều kiện:** đề xuất → duyệt → change window ngoài giờ cao điểm có thông báo trước → **rollback plan bắt buộc** (không có rollback khả thi thì tạo backup điểm thời gian ngay trước change) → post-review trong 3 ngày làm việc.
+- **Exception:** change khẩn P1 (ngừng dịch vụ, rò rỉ dữ liệu) — CTO thực hiện ngay bằng quyền khẩn, hậu phê duyệt, bổ sung hồ sơ ≤24 giờ; đổi cấu hình ngưỡng rule engine AML (T1–T6) tính là change ảnh hưởng luồng tiền — phải có change record + FIN lead xác nhận.
+
+### B.6 HĐĐT, Tuân Thủ Thuế & Bảo Vệ Dữ Liệu Tài Chính (REQ-FIN-011, REQ-FIN-017)
+
+#### BR-FIN-601 — HĐĐT theo TT 78/2021/TT-BTC + NĐ 123/2020 (REQ-FIN-011)
+
+- **Actor:** CORE phát hành tự động từ chứng từ đã khóa kỳ; FIN_L1 kiểm tra danh mục HĐ; FIN_L2 rà trước chốt kỳ.
+- **Hệ thống:** CORE sinh HĐĐT **chuẩn XML, mã cơ quan thuế**, kết nối gửi cơ quan thuế (dùng chung luồng kết nối REQ-FIN-013 với phần mềm kế toán VAS hiện hữu); WEB màn phát hành/tra cứu/điều chỉnh.
+- **Điều kiện:** dữ liệu nguồn bắt buộc là chứng từ **đã đối soát/khóa kỳ**, gắn hợp đồng và thanh toán thực nhận; thời điểm lập HĐ theo NĐ 123/2020 (hoàn thành cung cấp dịch vụ) — chi tiết từng loại dịch vụ chốt với tư vấn thuế `[CẦN CHỐT SỐ]`; HĐĐT lưu trữ theo quy định (bảng retention BR-FIN-503). **Ranh giới bắt buộc:** HĐĐT chỉ phát hành trên **doanh thu phí dịch vụ/markup** — tuyệt đối không xuất hóa đơn cho dòng tiền giữ hộ (khớp BR-FIN-101).
+- **Exception:** điều chỉnh/thay thế/hủy chỉ qua nghiệp vụ chuẩn (hóa đơn điều chỉnh, biên bản) có log bất biến — không xóa/sửa XML đã phát hành; cơ quan thuế từ chối mã → xử lý theo hướng dẫn, không phát hành lại đè lên hồ sơ cũ.
+
+#### BR-FIN-602 — Thuế nhà thầu nước ngoài khi thanh toán nền tảng quốc tế (liên quan REQ-FIN-014)
+
+- **Actor:** CORE hạch toán theo cấu hình thuế có phê duyệt; FIN_L2 rà trước chốt kỳ; tư vấn thuế xác định nghĩa vụ.
+- **Hệ thống:** CORE tách thuế FCT khỏi giá vốn media và doanh thu dịch vụ khi phát sinh; GW cấp dữ liệu thanh toán quốc tế từ statement/API (REQ-FIN-005).
+- **Điều kiện:** khi BC thanh toán cho nhà thầu nước ngoài không kinh doanh tại VN (một số nền tảng/quảng trường) — khấu trừ, kê khai và nộp thuế nhà thầu (FCT) theo luật thuế hiện hành `[CẦN CHỐT SỐ — xác nhận với tư vấn thuế: nền tảng nào chịu FCT, tỷ lệ, kỳ kê khai]`.
+- **Exception:** nền tảng có pháp nhân VN thu tiền bằng hóa đơn VN → không áp FCT, hạch toán theo hóa đơn đầu vào thường; kết luận từng nền tảng ghi trong cấu hình thuế có phê duyệt — không quyết miệng.
+
+#### BR-FIN-603 — Dữ liệu tài chính cá nhân/khách = phân loại Restricted + ma trận truy cập (REQ-FIN-017, PDPA)
+
+- **Phân loại:** số dư ví, lệnh nạp/hoàn, biên bản đối chiếu, hồ sơ KYC/UBO, dữ liệu khách trên Portal = mức **Restricted** (tương ứng C1/C2 trong policy bảo vệ dữ liệu cá nhân) — mã hóa khi lưu trữ và truyền; mọi truy cập ghi log bất biến.
+- **Actor/Hệ thống:** CORE RBAC + mã hóa; PORTAL chỉ cung cấp **view tổng hợp đã lọc tenant** (RLS DB + filter API 2 lớp — khớp REQ-FIN-017); MOBILE không hiển thị KYC/UBO.
+- **Điều kiện — ma trận ai được xem gì:** FIN_L1: ví/lệnh/đối soát khách được gán; FIN_L2: toàn bộ khách; CFO/BOD: tổng hợp + audit log; OPS: chỉ trạng thái TKQC, không thấy dòng tiền chi tiết; FIN_L2: full **chỉ phục vụ điều tra** (mỗi lần xem bị meta-log BR-FIN-502); khách (GĐ3): chỉ tenant của mình qua view lọc — không thấy giá vốn, chiết khấu, P&L, tenant khác; MOBILE: chỉ alert. Review ma trận **hằng quý**; offboard → thu hồi quyền trong 24 giờ.
+- **Exception:** truy cập ngoài ma trận phục vụ điều tra gian lận — phê duyệt BOD_CEO + meta-log, giới hạn theo thời hạn phiếu.
+
+#### BR-FIN-604 — Breach notification 72h cho dữ liệu tài chính/khách (NĐ 13/2023 + GDPR)
+
+- **Actor:** người phát hiện sự cố báo CISO/legal trong 4 giờ; Giám đốc phát hành thông báo; legal soạn theo mẫu.
+- **Hệ thống:** CORE incident intake form + **timer đếm ngược 72h** + mẫu thông báo A06 (Bộ Công an); theo dõi cả nghĩa vụ theo DPA cho khách EU/US; PORTAL là điểm phát hiện sự cố phía khách.
+- **Điều kiện:** rò rỉ/mất dữ liệu cá nhân (bao gồm dữ liệu tài chính/khách) → thông báo A06 **trong 72 giờ** kể từ thời điểm biết theo NĐ 13/2023; thông báo chủ thể dữ liệu nếu rủi ro cao; khách EU/US → thông báo theo nghĩa vụ GDPR (72h với authority) quy định trong DPA đã ký.
+- **Exception:** sự cố do nền tảng Ads rò rỉ — BC phối hợp khiếu nại theo chuỗi DPA, trách nhiệm gốc thuộc nền tảng; BC vẫn giữ nghĩa vụ thông báo trong phạm vi dữ liệu BC kiểm soát.
+
+#### BR-FIN-605 — DSAR/DSR tracking + DPA controller/processor (REQ-FIN-017)
+
+- **Actor:** legal xác minh yêu cầu + bộ phận phụ trách dữ liệu thực thi; khách cuối gửi yêu cầu qua Portal/AM.
+- **Hệ thống:** CORE ticket DSR có SLA tracking (nhận → xác minh danh tính → xử lý → phản hồi → đóng) + log thời hạn chứng minh tuân thủ; PORTAL là điểm tiếp nhận yêu cầu; WEB báo cáo số DSR đã xử lý.
+- **Điều kiện:** hỗ trợ quyền truy cập, sao chép, sửa, rút đồng ý, xóa; phản hồi trong 1 tháng theo GDPR — nội bộ SLA 15 ngày làm việc trước hạn pháp lý; khách EU/US **bắt buộc ký DPA trước khi kích hoạt dịch vụ** — cờ "khách EU/US" trên hợp đồng, hệ thống chặn kích hoạt khi chưa có DPA signed; BC = processor: chỉ xử lý theo chỉ dẫn của khách (controller), không bán, không tái mục đích; yêu cầu xóa: BC xử lý phần BC kiểm soát + chuyển tiếp yêu cầu về khách đối với dữ liệu khách kiểm soát.
+- **Exception:** nghĩa vụ lưu trữ theo luật (chứng từ tiền/hợp đồng 10 năm — BR-FIN-503) **ưu tiên hơn yêu cầu xóa** của chủ thể dữ liệu: xóa phần không thuộc nghĩa vụ, ghi nhận lý do trong ticket; yêu cầu không xác minh được danh tính → từ chối xử lý + ghi lý do.
+
+### Ma Trận Business-Rules × System (Call 2 — B.4–B.6) — Bổ sung call-2
+
+> Bổ sung call-2 cho B.4–B.6, đặt dưới ma trận call-1. Đọc theo cột: nơi rule được **thực thi chính**.
+
+| Business Rule | SYS-CORE-BACKEND | SYS-BCERP-WEB | SYS-INTEGRATION-GW | SYS-MOBILE-INTERNAL | SYS-PORTAL-WEB | Ghi chú |
+|---|---|---|---|---|---|---|
+| BR-FIN-401 KYC gate | Gate KYC khi cấp phát TK | Nhập/quản lý hồ sơ KYC | — | — | — | Chỉ Verified mới cấp phát; GĐ1 |
+| BR-FIN-402 Hoàn đúng nguồn | Khớp tên + chặn đổi beneficiary | Lệnh hoàn dẫn chiếu nạp gốc | — | Xem trạng thái | — | T4 đỏ chặn mặc định |
+| BR-FIN-403 Rule engine T1–T6 | Rule engine ngưỡng cấu hình | Danh sách cảnh báo theo mức | Đồng bộ FATF list | Push alert vàng/đỏ | — | EDD siết 50%; cấm tắt monitoring |
+| BR-FIN-404 Hold→điều tra→BOD | Khóa mềm giao dịch nghi vấn | Workflow điều tra + lý do bắt buộc | — | Alert escalation | — | SLA 24h + 24h BOD |
+| BR-FIN-405 Báo cáo AML + hồ sơ | Lưu hồ sơ truy xuất theo khách/TKQC | Báo cáo tháng theo mức/SLA | — | — | — | Retention ≥5 năm |
+| BR-FIN-501 Audit log bất biến | INSERT/SELECT only + hash-chain + job toàn vẹn hằng ngày | Tra cứu log theo đối tượng | — | — | — | Super Admin không sửa/xóa được; GĐ1 |
+| BR-FIN-502 Meta-log | Meta-log append-only trong hash-chain | Tra cứu có watermark | — | — | — | Xuất ngoài chuẩn duyệt BOD_CEO |
+| BR-FIN-503 Retention + WORM | Định tuyến WORM theo tầng retention | Báo cáo retention định kỳ | — | — | — | Tiền/HĐ ≥10 năm; hệ thống ≥7 năm |
+| BR-FIN-504 Backup/DR | Replication gần realtime (RPO ≤15 phút) | — | Backup dữ liệu GW | — | — | RTO ≤4h; test restore hằng quý |
+| BR-FIN-505 Change management | Log vòng change bất biến | — | — | — | — | Chặn deploy thiếu change record |
+| BR-FIN-601 HĐĐT TT78/NĐ123 | Sinh XML + kết nối cơ quan thuế | Phát hành/tra cứu/điều chỉnh | Kết nối chung VAS (REQ-FIN-013) | — | — | Chỉ doanh thu — không tiền giữ hộ |
+| BR-FIN-602 FCT | Hạch toán thuế tách giá vốn | Hiển thị nghĩa vụ FCT | Dữ liệu thanh toán quốc tế | — | — | [CẦN CHỐT SỐ] tư vấn thuế |
+| BR-FIN-603 Restricted + ma trận | RBAC + mã hóa + meta-log | Theo ma trận truy cập | — | Không hiển thị KYC/UBO | View lọc tenant, read-only | Review ma trận hằng quý |
+| BR-FIN-604 Breach 72h | Incident intake + timer 72h | Form + mẫu thông báo A06 | — | — | Điểm phát hiện sự cố Portal | NĐ 13/2023 + GDPR/DPA |
+| BR-FIN-605 DSAR/DPA | Ticket DSR SLA + cờ DPA chặn kích hoạt | Báo cáo DSR | — | — | Tiếp nhận yêu cầu khách | Nghĩa vụ lưu trữ ưu tiên hơn xóa |
+
+> **Phạm vi call-2 kết thúc tại đây — Phần B hoàn chỉnh B.1–B.6.** Nhóm `[CẦN CHỐT SỐ]` còn lại thuộc compliance: ngưỡng UBO, ngưỡng T1–T6, thời hạn retention KYC/AML, chi tiết FCT, thời điểm lập HĐĐT từng loại dịch vụ — chốt với tư vấn AML/luật sư/tư vấn thuế trước khi phê duyệt thiết kế.

@@ -1,0 +1,89 @@
+{
+  "$schema": "project-intent-digest-v1",
+  "project_name": "BCERP",
+  "project_type": "new",
+  "project_goal": "Xây dựng hệ thống ERP nội bộ ĐẦY ĐỦ (không MVP, không đặt mốc go-live cứng) cho BC Agency: số hóa Lifecycle V6.0 từ lead tới deliverable, quản lý 2.600+ TKQC đa nền tảng với đối soát API tự động, Client Portal minh bạch multi-tenant, Financial Hard Stop kiểm soát tiền giữ hộ, P&L dự án realtime, capacity & KPI 3 trụ cột — theo 5 triết lý thiết kế TÍN / TÂM / TRÍ / NHÂN / Dự án kép",
+  "business_model": "Digital marketing agency trung gian: cung cấp agency ad accounts (Meta, Google, TikTok, Bing, X, Pinterest, Yandex) hạn mức cao cho doanh nghiệp + dịch vụ marketing trọn gói (Facebook/TikTok marketing, TikTok Shop, Google Ads, SEO, web/design). Doanh thu từ phí dịch vụ/markup; tiền nạp QC của khách là tiền giữ hộ (nợ phải trả), KHÔNG phải doanh thu",
+  "industry": "Digital marketing agency (Agency/Creative/Media + AdTech/Paid Media)",
+  "company_size": "31–50 nhân sự; 1.000+ khách hàng toàn cầu; 2.600+ TKQC active; đối tác chính thức Google/TikTok/Yandex",
+  "platform": "Web + Mobile",
+  "interface_type": "web+mobile",
+  "active_departments": ["DEPT-BOD", "DEPT-HR", "DEPT-FINANCE", "DEPT-SALES", "DEPT-OPS"],
+  "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-INTEGRATION-GW", "SYS-MOBILE-INTERNAL", "SYS-PORTAL-WEB", "SYS-MOBILE-PORTAL"],
+  "modules": [
+    "RBAC & Audit Log",
+    "Settings & Integration Gateway",
+    "HR Core (hồ sơ L1-L5, HĐLĐ, chấm công, Cost Rate Card)",
+    "CRM & Lead Pipeline V6.0 (anti-duplicate, AUTO SCORING K1-K12, Hard Gate)",
+    "Quotation & Deal Desk (định mức giá, duyệt GM)",
+    "Quản lý TKQC — Ad Account Command Center",
+    "Wallet & Đối soát TKQC (Financial Hard Stop khớp tiền)",
+    "Công nợ AR/AP & Giải ngân phê duyệt (SoD)",
+    "Handoff & Onboarding Bridge (Gate 2, SLA 4h)",
+    "Proposal & Planning Workspace (Brand Safety, đếm vòng sửa)",
+    "Campaign & Deliverable Management",
+    "Capacity & Timesheet (nhãn billable bắt buộc)",
+    "SLA & Notification Engine",
+    "Ticket & CSKH",
+    "Commission & Quota L1-L5",
+    "KPI & Performance (3 trụ cột)",
+    "Client Portal (multi-tenant, đa ngôn ngữ/múi giờ)",
+    "Data Integration Hub & Analytics — BI/BOD Dashboard (P&L realtime, metric catalog)",
+    "TikTok Shop Monitoring (tách bạch GMV khỏi P&L agency)"
+  ],
+  "actors": [
+    "BOD_CEO (CEO Bùi Thị An)",
+    "BOD_CFO_CTO (CFO kiêm CTO Hoàng Nam — Super Admin, concentration of risk cần compensating control)",
+    "HR_L1 NVHR, HR_L2 TPHR",
+    "FIN_L1 Kế toán viên (xác nhận khớp tiền), FIN_L2 Kế toán trưởng (duyệt chi, khóa kỳ)",
+    "SALES_L1 Intern → SALES_L5 GDKD (5 cấp bậc)",
+    "OPS_PLAN Strategic Planner (L5 kiêm quyền TP), OPS_AM, OPS_CONT, OPS_DES, OPS_EDIT, OPS_ADS",
+    "SYS_ADMIN (Quản trị hệ thống)",
+    "CLIENT_USER / CLIENT_ADMIN (khách hàng qua Portal, multi-tenant)"
+  ],
+  "pain_points": [
+    "Đối soát & quản lý TKQC thủ công/phân tán — kéo chi tiêu bằng ảnh chụp màn hình, không theo dõi tập trung hạn mức/trạng thái/số dư 2.600+ TK",
+    "Thiếu minh bạch với khách hàng — khách không tự xem được số dư ví TKQC, chi tiêu, tiến độ nghiệm thu",
+    "Quá tải & KPI nhân sự cảm tính — không đo capacity, KPI cảm tính, nguy cơ burnout",
+    "P&L dự án không realtime & handoff Sales→Vận hành đứt gãy — Hard Gate (khớp tiền, Go/No-Go) chưa được hệ thống kiểm soát"
+  ],
+  "scope_in": [
+    "Toàn bộ 19 phân hệ (P0-01 §3.1) trên 3 mặt bằng: ERP nội bộ Web, Client Portal Web+Mobile multi-tenant, Mobile nội bộ",
+    "Phát triển theo 3 giai đoạn phụ thuộc (P0-02 §1.3): GĐ1 nền móng (RBAC/Audit log/Settings/TKQC registry/CRM/Wallet hard stop) → GĐ2 vận hành → GĐ3 mở rộng (Portal đầy đủ/BI/TikTok Shop/Commission)",
+    "Tích hợp: 7 API nền tảng QC (Meta/Google/TikTok trước), phần mềm kế toán riêng, nguồn lead (Landing/Zalo/Fanpage)",
+    "20 chính sách nghiệp vụ (policies/) — 20/20 mức Bắt buộc"
+  ],
+  "scope_out": [],
+  "assumptions": [
+    "Chủ dự án chọn phát triển đầy đủ hệ thống, không cắt MVP — thứ tự GĐ1/2/3 là phụ thuộc kỹ thuật, không phải phạm vi cắt giảm",
+    "Chưa có quyền API developer nền tảng → ERP có module Settings tự cấu hình credentials + degraded mode nhập tay gắn nhãn manual + backfill khi được cấp",
+    "Tiền nạp TKQC hạch toán là tiền giữ hộ — xác nhận cùng finance-expert, cần kế toán xác nhận bút toán cụ thể khi triển khai",
+    "Phân tích pháp lý (P0-01 §5.1) là khởi điểm — cần luật sư VN + auditor độc lập xác nhận trước khi trở thành bắt buộc thiết kế",
+    "Các con số định lượng trong policies (GM tối thiểu, % hoa hồng, ngưỡng chi, định mức giờ) là mức khởi tạo — user xác nhận tại Section 6 của từng policy"
+  ],
+  "open_questions": [
+    "Tên phần mềm kế toán đang dùng + cơ chế kết nối (API hay import/export)? [Cần làm rõ]",
+    "PMS được nhắc trong quy trình V6.0 — đang dùng công cụ nào, BCERP thay thế hoàn toàn hay cần migration dữ liệu? [Cần làm rõ]",
+    "Ngưỡng phê duyệt chi cụ thể theo VND cho ma trận FIN_L1 → FIN_L2 → CFO/CEO? (policy đã đề xuất mức: ≤5tr / >5–50tr / >50–200tr / >200tr — chờ user xác nhận)",
+    "Định mức nền: giờ/tuần L1–L5, Cost Rate Card, khung SLA theo Tier — policies đã đề xuất (40h/tuần, vàng 90%/đỏ 100%) — chờ user xác nhận",
+    "Mô hình thanh toán Client Portal: thẻ trực tiếp (PCI-DSS SAQ-A hosted payment) hay chỉ chuyển khoản?",
+    "Tiến trình Business Verification API 7 nền tảng — ảnh hưởng lịch GĐ2/GĐ3 đối soát tự động",
+    "Chuẩn Deploy Phase Giai đoạn 3 của Lifecycle V6.0 — tài liệu 01 dừng ở tiêu đề; policy stage-gate đã đề xuất criteria (launch checklist, deliverable plan, reporting frequency) — chờ chủ dự án hoàn thiện"
+  ],
+  "handoff_notes": [
+    "Đọc P0-01 (P0-01-brainstorm.md) + P0-02 (P0-02-systems-users.md) + 20 policy files trong phase0-brainstorm/policies/ trước khi phân tích",
+    "priority cao nhất cho Phase 1 analyze: 4 pain points ↔ 4 nhóm giải pháp MVP-start (TKQC+đối soát API, Pipeline Hard Gate+P&L, Capacity+KPI, Client Portal)",
+    "Registry đã seed 6 systems + 5 departments — /wf-analyze-requirements Phase 8 enrich module_ids[] và fan-out requirements theo dept×system",
+    "Phân bổ domain expert gợi ý cho Phase 1: paid-media (trung tâm), finance, sales, marketing, customer, hr, data, legal, compliance, ecommerce — đã có brainstorm-notes.md (10 expert outputs) tại work/wf-brainstorm/",
+    "Lưu ý CORE-004: mọi tính năng mới phải bám req-registry.json — chưa seed requirements/modules, Phase 1 là nơi seed chính thức"
+  ],
+  "next_skill": "/wf-analyze-requirements",
+  "source_files": [
+    ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md",
+    ".mc-data/docs/phase0-brainstorm/P0-02-systems-users.md",
+    ".mc-data/work/wf-brainstorm/brainstorm-notes.md",
+    ".mc-data/work/wf-brainstorm/policy-analysis.md",
+    ".mc-data/work/wf-brainstorm/complexity-assessment.md",
+    ".mc-data/work/wf-brainstorm/crosscheck-report.md"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "lane_key": "core-backend--SETTINGS-GW",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-SETTINGS-GW",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-STGW-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md",
+      "req_ids": ["REQ-BOD-008"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-STGW-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/settings-gw/api-7-nen-tang-degraded-mode-manual.md",
+      "req_ids": ["REQ-FIN-005"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T21:05:00+07:00",
+    "words_written": 6143
+  }
+}

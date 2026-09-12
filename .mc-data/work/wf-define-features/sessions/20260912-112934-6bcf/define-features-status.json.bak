@@ -1,0 +1,223 @@
+{
+  "$schema": "define-features-status-v1",
+  "version": "1.0",
+  "skill_id": "DEFINE-FEAT-20260912-001",
+  "project": "BCERP",
+  "scope": "all",
+  "target": "all",
+  "status": "in_progress",
+  "progress_pct": 15,
+  "current_session": 1,
+  "timestamps": {
+    "started_at": "2026-09-12T04:29:34.562Z",
+    "last_updated": "2026-09-12T05:15:29.409Z",
+    "completed_at": null
+  },
+  "phases": {
+    "phase_0": {
+      "name": "Context Loading",
+      "status": "completed",
+      "started_at": "2026-09-12T04:29:34.562Z",
+      "completed_at": "2026-09-12T04:31:02.553Z",
+      "error": null
+    },
+    "phase_1": {
+      "name": "Scope & Feature Mapping",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "scope_parsed": null,
+      "feat_ids_assigned": 0,
+      "output_file": "define-features-plan.md",
+      "error": null
+    },
+    "phase_2": {
+      "name": "Create Feature Specs",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "agent": "business-analyst",
+      "systems_total": 0,
+      "systems_completed": 0,
+      "files_total": 0,
+      "files_completed": 0,
+      "current_system": null,
+      "current_module": null,
+      "error": null
+    },
+    "phase_3": {
+      "name": "Cross-Validation (Auto-Correction Loop)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "checks_total": 6,
+      "checks_passed": 0,
+      "errors_found": 0,
+      "errors_fixed": 0,
+      "errors_remaining": 0,
+      "errors_escalated": 0,
+      "validation_details": {
+        "3.1_req_id_coverage": "pending",
+        "3.2_feat_id_unique": "pending",
+        "3.3_no_orphan_features": "pending",
+        "3.4_all_sections_complete": "pending",
+        "3.5_business_rules_reflected": "pending",
+        "3.6_permission_matrix_consistent": "pending"
+      },
+      "error": null
+    },
+    "phase_4": {
+      "name": "Stakeholder Review (Auto-Correction Loop)",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "agents": [
+        "business-analyst",
+        "product-expert"
+      ],
+      "execution": "parallel",
+      "iterations_run": 0,
+      "max_iterations": 3,
+      "output_file": "phase2-features/stakeholder-review.md",
+      "findings": {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "resolved": 0,
+        "deferred": 0,
+        "pending": 0
+      },
+      "overall_result": "pending",
+      "error": null
+    },
+    "phase_5": {
+      "name": "Update Registry",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "features_registered": 0,
+      "registry_updated": false,
+      "output_file": "define-features-report.md",
+      "error": null
+    },
+    "phase_0_5": {
+      "name": "Workload Gate",
+      "status": "completed",
+      "started_at": "2026-09-12T04:31:02.553Z",
+      "completed_at": "2026-09-12T04:47:38.828Z",
+      "gate_result": "block",
+      "gate_override": "CDG-A02 — user xac nhan override, tiep tuc full scope 19 modules (uoc 190 phut)",
+      "error": null
+    }
+  },
+  "file_progress": {
+    "total_files": 0,
+    "completed_files": 0,
+    "files": {}
+  },
+  "feat_id_map": {
+    "total_feat_ids": 0,
+    "assigned": [],
+    "scheme": "FEAT-[SYS]-[MOD]-NNN"
+  },
+  "coverage": {
+    "total_req_ids": 0,
+    "mapped_req_ids": [],
+    "unmapped_req_ids": [],
+    "coverage_pct": 0
+  },
+  "checkpoint": {
+    "id": null,
+    "timestamp": null,
+    "context_used_pct": 0,
+    "current_phase": null,
+    "current_system": null,
+    "current_module": null,
+    "next_action": null,
+    "trigger_reason": null
+  },
+  "context_sources": {
+    "req_registry": {
+      "path": ".mc-data/docs/_meta/req-registry.json",
+      "found": true,
+      "requirements_count": 59,
+      "systems_count": 6,
+      "modules_count": 19
+    },
+    "dept_docs": {
+      "path": ".mc-data/docs/phase1-business/departments/",
+      "found": true,
+      "count": 5
+    },
+    "business_workflow": {
+      "path": ".mc-data/docs/phase1-business/P1-02-business-workflow.md",
+      "found": true
+    },
+    "deferred_issues": {
+      "path": ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+      "found": true
+    },
+    "phase1_handoff": {
+      "path": ".mc-data/work/wf-analyze-requirements/phase1-handoff.json",
+      "found": true
+    }
+  },
+  "artifacts": {
+    "feature_briefs": {
+      "path": ".mc-data/work/wf-define-features/feature-briefs.json",
+      "created": false,
+      "last_updated": null
+    }
+  },
+  "runtime_metrics": {
+    "runtime": {
+      "last_run_started_at": null,
+      "last_run_completed_at": null,
+      "total_seconds": 0,
+      "phase_seconds": {}
+    },
+    "hooks": {
+      "post_write_invocations": 0,
+      "incremental_contract_checks": 0,
+      "full_contract_checks": 0,
+      "sync_updates": 0,
+      "last_changed_file": null,
+      "last_changed_phase": null
+    },
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "artifacts": []
+    },
+    "validation": {
+      "iterations_total": 0,
+      "retries_total": 0,
+      "warnings_total": 0,
+      "errors_total": 0,
+      "last_scope": null
+    },
+    "parallelism": {
+      "agents_spawned": 0,
+      "parallel_groups_executed": 0
+    },
+    "source": {
+      "hook_metrics_file": ".mc-data/logs/hook-metrics.jsonl",
+      "last_metrics_sync_at": null
+    }
+  },
+  "error_log": [],
+  "metrics": {
+    "total_feature_files": 0,
+    "total_lines_written": 0,
+    "sessions_used": 1,
+    "checkpoints_saved": 0,
+    "agents_spawned": 0
+  },
+  "flags": {
+    "legacy_mode": false,
+    "large_project": true
+  }
+}

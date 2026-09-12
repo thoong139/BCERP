@@ -1,0 +1,828 @@
+===== og_emergency =====
+{
+ "t": "Emergency Optimizing",
+ "r": "Trigger: bất kỳ ai phát hiện → tag AM ngay",
+ "w": [
+  "Xử lý khủng hoảng performance · KPI <70% · KH báo về · Lỗi nghiêm trọng",
+  "Ai phát hiện tag AM ngay · AM duyệt action trong 2h · Team thực thi",
+  "Ngay khi phát hiện trigger",
+  "<em>Zalo/Tele: tag AM ngay</em> · PMS: tạo Emergency task · Họp online khẩn",
+  "Ngăn chặn thiệt hại · Khôi phục performance · Duy trì niềm tin của KH",
+  "Phát hiện → Tag AM ngay → AM tạo Emergency task → Họp khẩn → Phân tích nguyên nhân → Triển khai phương án mới"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "KPI thực tế <70% target hoặc KH báo về",
+   "ft": "Ads Manager · Zalo từ KH · PMS KPI tracking",
+   "nt": "Bất kỳ ai phát hiện phải báo ngay"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Phương án tối ưu mới đã triển khai",
+   "ft": "Ads Manager · PMS Emergency task record",
+   "nt": "AM verify kết quả sau 24h đầu"
+  },
+  {
+   "tp": "Quyết định",
+   "nm": "Thay đổi budget/targeting (nếu cần KH duyệt)",
+   "ft": "Zalo confirm từ KH · PMS record",
+   "nt": "BẮT BUỘC KH duyệt trước khi thay đổi budget/targeting"
+  }
+ ],
+ "done": [
+  "AM đã duyệt action trong 2h",
+  "Phương án mới đã được triển khai",
+  "KH đã được thông báo (nếu liên quan đến budget/targeting)",
+  "PMS Emergency task đã log đầy đủ"
+ ],
+ "sla": [
+  "Khi phát hiện trigger",
+  "Tag AM trong 15 phút · AM quyết định action trong 2h",
+  "Không gia hạn · đây là EMERGENCY"
+ ],
+ "risks": [
+  {
+   "nm": "AM không phản hồi trong 2h",
+   "esc": [
+    "Escalate lên Account Director ngay",
+    "AD duyệt action thay AM"
+   ]
+  },
+  {
+   "nm": "KH yêu cầu giải thích ngay lập tức",
+   "esc": [
+    "AM acknowledge ngay qua Zalo: \"Chúng tôi đã phát hiện và đang xử lý\"",
+    "Không cần đợi có giải pháp hoàn chỉnh mới báo KH"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "isEmergency=true · emergencyReason · tag toàn bộ team",
+   "sy": "pms"
+  },
+  {
+   "nm": "Notification",
+   "ds": "Alert cấp độ URGENT cho AM và Account Director",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--red-200)",
+   "t": "Trigger → Tag AM ngay trong 15 phút"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Budget/targeting change → BẮT BUỘC KH duyệt"
+  }
+ ]
+}
+===== og_notify_am =====
+{
+ "t": "Thông báo AM",
+ "r": "Ai phát hiện tag AM ngay",
+ "w": [
+  "Bất kỳ ai trong team phát hiện vấn đề khẩn → tag AM ngay trong Zalo/Tele",
+  "Người phát hiện (Media/Content/Design/Planner) tag AM",
+  "Ngay lập tức khi phát hiện",
+  "<em>Zalo/Tele group dự án: tag @AM</em>",
+  "AM phải biết ngay để duyệt action trong SLA 2h",
+  "Tag @AM + mô tả ngắn vấn đề + số liệu + đề xuất nếu có"
+ ],
+ "inp": [
+  {
+   "tp": "Thông tin",
+   "nm": "Vấn đề cụ thể cần AM biết",
+   "ft": "Zalo/Tele message · kèm screenshot nếu có",
+   "nt": "KPI nào kém · kém bao nhiêu · từ khi nào"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "AM đã nhận và acknowledge",
+   "ft": "Zalo reply · PMS Emergency task được tạo",
+   "nt": "AM phải reply trong 15 phút"
+  }
+ ],
+ "done": [
+  "AM đã reply acknowledge",
+  "Emergency task đã được tạo trên PMS",
+  "Team biết AM đã nắm tình hình"
+ ],
+ "sla": [
+  "Ngay khi phát hiện",
+  "Người phát hiện: tag ngay · AM: acknowledge trong 15 phút",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "AM không phản hồi trong 30 phút",
+   "esc": [
+    "Escalate lên Account Director",
+    "AD duyệt action thay AM"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Notification",
+   "ds": "Push notification URGENT lên PMS cho AM",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "AM acknowledge → AM duyệt action"
+  }
+ ]
+}
+===== og_am_action =====
+{
+ "t": "AM Duyệt Emergency Action",
+ "r": "Phụ trách: Account Manager — trong 2h",
+ "w": [
+  "AM review tình huống và duyệt action plan · Quyết định tắt/điều chỉnh/giữ nguyên",
+  "Account Manager quyết định · Planner support phân tích nếu cần",
+  "Trong vòng 2h kể từ khi nhận thông báo",
+  "<em>PMS: tạo Emergency task</em> · Zalo: điều phối team",
+  "AM là người duy nhất được phép tắt toàn bộ campaign · Media chỉ được tắt ad set đơn lẻ (routine)",
+  "Review data → Xác định nguyên nhân → Quyết định action → Assign cho team → Track trong 24h"
+ ],
+ "inp": [
+  {
+   "tp": "Thông tin",
+   "nm": "Báo cáo vấn đề từ team",
+   "ft": "Zalo · PMS Emergency task",
+   "nt": "KPI thực tế · nguyên nhân phân tích sơ bộ"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Decision đã được duyệt và assign",
+   "ft": "PMS Emergency task · Zalo group",
+   "nt": "Rõ: ai làm gì · deadline khi nào"
+  },
+  {
+   "tp": "Quyết định",
+   "nm": "Có cần họp team khẩn không",
+   "ft": "Calendar/Zalo",
+   "nt": "Nếu cần: schedule ngay trong 30 phút"
+  }
+ ],
+ "done": [
+  "Action plan đã được AM approve",
+  "Đã assign rõ người thực thi",
+  "Timeline rõ ràng: làm gì · khi nào xong",
+  "PMS Emergency task đã update đầy đủ"
+ ],
+ "sla": [
+  "Sau khi nhận thông báo từ team",
+  "AM duyệt action trong 2h",
+  "Không gia hạn"
+ ],
+ "risks": [
+  {
+   "nm": "Tình huống quá phức tạp AM không đủ thông tin",
+   "esc": [
+    "AM tổ chức họp khẩn ngay",
+    "Mời Planner + Media Lead tham gia phân tích"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "isEmergency=true · AM approve action",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Action approved → Team thực thi ngay"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Cần thêm analysis → Họp team khẩn"
+  }
+ ]
+}
+===== og_team_meet =====
+{
+ "t": "Họp Team Khẩn",
+ "r": "AM chủ trì · 30 phút tối đa",
+ "w": [
+  "Họp online khẩn để phân tích nguyên nhân và phân công giải pháp cụ thể",
+  "Account Manager chủ trì · Planner + Media Lead + Content Lead · 30 phút tối đa",
+  "Ngay sau khi AM quyết định cần họp · Không kéo dài quá 30 phút",
+  "<em>Zoom/Meet: họp ngay</em> · PMS: ghi biên bản action items",
+  "Đồng bộ team · Phân tích root cause · Phân công rõ ràng · Không lãng phí thời gian",
+  "Tóm tắt vấn đề 5p → Root cause analysis 10p → Phương án và phân công 15p → Done"
+ ],
+ "inp": [
+  {
+   "tp": "Thông tin",
+   "nm": "Emergency task từ PMS + data metrics",
+   "ft": "PMS · Ads Manager screenshot",
+   "nt": "AM chuẩn bị trước cuộc họp"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action Items",
+   "nm": "Danh sách việc cần làm + người thực thi + deadline",
+   "ft": "PMS Emergency task comments",
+   "nt": "Mỗi action phải có: AI (who) · DL (deadline) · Expected result"
+  }
+ ],
+ "done": [
+  "Root cause đã được xác định",
+  "Action items đã phân công rõ ràng",
+  "Tất cả hiểu và đồng thuận",
+  "PMS đã update action items"
+ ],
+ "sla": [
+  "Sau khi AM quyết định cần họp",
+  "Họp trong 30 phút tối đa",
+  "Không kéo dài"
+ ],
+ "risks": [
+  {
+   "nm": "Không xác định được root cause trong 30p",
+   "esc": [
+    "AM phân công 1-2 người research thêm",
+    "Schedule follow-up call trong 2h"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Event Module",
+   "ds": "Tạo emergency meeting event",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Action items rõ → Team triển khai tối ưu"
+  }
+ ]
+}
+===== og_implement =====
+{
+ "t": "Triển khai Tối ưu",
+ "r": "Phụ trách: Team thực thi · Media/Content/Design",
+ "w": [
+  "Thực thi phương án tối ưu đã được AM approve · Content mới / Creative mới / Chiến lược mới",
+  "Media Buyer / Content / Design thực thi · AM monitor",
+  "Ngay sau khi AM approve action plan",
+  "<em>Ads Manager · Figma · GG Docs</em> · PMS: update task status",
+  "Khôi phục performance càng nhanh càng tốt",
+  "Media: tắt campaign cũ → lên campaign mới với creative/targeting mới → Monitor 24h đầu"
+ ],
+ "inp": [
+  {
+   "tp": "Quyết định",
+   "nm": "Action plan đã được AM approve",
+   "ft": "PMS Emergency task · Zalo",
+   "nt": "Rõ: làm gì · ai làm · deadline"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Campaign/Content mới đã active",
+   "ft": "Ads Manager · MXH · PMS update",
+   "nt": "AM monitor kết quả sau 24h đầu"
+  }
+ ],
+ "done": [
+  "Action đã thực hiện đúng theo plan",
+  "PMS task đã update status",
+  "AM đã nhận thông báo khi done",
+  "Monitoring 24h đầu đang active"
+ ],
+ "sla": [
+  "Sau khi AM approve",
+  "Thực thi trong 2h · báo AM khi done",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Phương án mới vẫn không cải thiện sau 24h",
+   "esc": [
+    "Báo AM ngay",
+    "AM quyết định thử phương án khác hoặc họp khẩn lần 2"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Task Module",
+   "ds": "Update Emergency task status",
+   "sy": "pms"
+  },
+  {
+   "nm": "KPI Module",
+   "ds": "Track kết quả sau khi triển khai",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Kết quả cải thiện → Back to normal"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Vẫn không tốt sau 24h → Review lại"
+  }
+ ]
+}
+===== og_kh_approve =====
+{
+ "t": "KH Duyệt Thay đổi Budget/Targeting",
+ "r": "Phụ trách: Account Manager — BẮT BUỘC",
+ "w": [
+  "Mọi thay đổi budget và targeting đều PHẢI được KH approve · Kể cả emergency",
+  "Account Manager liên hệ KH · KH quyết định",
+  "Khi cần thay đổi budget hoặc targeting trong emergency",
+  "<em>Zalo/Điện thoại: liên hệ KH ngay</em>",
+  "Ngân sách là tiền của KH · Agency không có quyền thay đổi khi chưa được approve",
+  "AM contact KH ngay (call trực tiếp nếu urgent) → trình bày tình huống + đề xuất → KH approve/reject"
+ ],
+ "inp": [
+  {
+   "tp": "Thông tin",
+   "nm": "Đề xuất thay đổi từ team",
+   "ft": "PMS · Zalo",
+   "nt": "Rõ: thay đổi gì · lý do · kết quả kỳ vọng"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Quyết định",
+   "nm": "KH approve hoặc reject",
+   "ft": "Zalo/call confirm · PMS record",
+   "nt": "Ghi lại thời gian · nội dung confirm của KH"
+  }
+ ],
+ "done": [
+  "KH đã được inform đầy đủ về tình huống",
+  "KH đã đưa ra quyết định rõ ràng",
+  "Quyết định đã được ghi vào PMS"
+ ],
+ "sla": [
+  "Khi cần thay đổi budget/targeting",
+  "AM contact ngay · KH phản hồi theo SLA đã set trong Communication Rules",
+  "Nếu KH không phản hồi trong SLA → nhắc · Rule 4 (im lặng = đồng ý) áp dụng"
+ ],
+ "risks": [
+  {
+   "nm": "KH không đồng ý thay đổi trong khi performance kém",
+   "esc": [
+    "AM giải thích rõ hơn · đề xuất phương án thay thế không cần đổi budget/targeting",
+    "Ghi nhận: KH không đồng ý → Agency đã đề xuất nhưng bị từ chối"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Project Module",
+   "ds": "Ghi nhận KH approval cho budget/targeting change",
+   "sy": "pms"
+  },
+  {
+   "nm": "Audit Log",
+   "ds": "Track mọi thay đổi budget với KH approval",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "KH approve → triển khai ngay"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "KH reject → tìm phương án khác không cần đổi budget"
+  }
+ ]
+}
+===== og_pull_data =====
+{
+ "t": "Pull Data",
+ "r": "Phụ trách: Media / Content tổng hợp · AI Agent (tương lai)",
+ "w": [
+  "Kéo dữ liệu từ tất cả platform về hệ thống theo tần suất báo cáo đã set",
+  "Media Buyer pull ads data · Content pull content performance · AI Agent tự động (giai đoạn 2)",
+  "Daily: sáng sớm trước 8h · Weekly: thứ 2 sáng · Monthly: ngày 1-3 tháng sau",
+  "<em>Ads Manager export CSV</em> · Manus AI (Meta) · Zapier/n8n tự động · GG Sheets master template",
+  "Báo cáo chính xác dựa trên data thật · Không có data = không có insight",
+  "Ưu tiên nguồn: thực tế KH > platform export > GA4/Pixel > tool trung gian"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Raw data từ Ads Manager",
+   "ft": "Meta/Google/TikTok/Shopee export CSV",
+   "nt": "Date range chuẩn: Daily=hôm qua · Weekly=T2→CN · Monthly=ngày 1→cuối tháng"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Data đã tổng hợp trong GG Sheets master template",
+   "ft": "GG Sheets · PMS Ads Report",
+   "nt": "Chờ compile và QC trước khi thành báo cáo"
+  }
+ ],
+ "done": [
+  "Data đã pull đủ từ tất cả platform đang chạy",
+  "Date range đúng chuẩn",
+  "Data đã import vào GG Sheets master template",
+  "Ghi chú rõ nếu có lệch số liệu giữa các nguồn"
+ ],
+ "sla": [
+  "Theo lịch báo cáo (Daily/Weekly/Monthly)",
+  "Pull data trước deadline gửi báo cáo ít nhất 4h",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Số liệu platform lệch nhau (rất thường gặp)",
+   "esc": [
+    "Ưu tiên: thực tế KH > platform > GA4 > tool",
+    "Ghi chú rõ trong báo cáo: \"Số liệu theo X vì Y\"",
+    "Attribution window khác nhau là lý do phổ biến nhất"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Ads Report Module",
+   "ds": "Import data · track theo platform · period",
+   "sy": "pms"
+  },
+  {
+   "nm": "KPI Module",
+   "ds": "Update actual values từ data pull",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Data sẵn sàng → Tổng hợp báo cáo"
+  }
+ ]
+}
+===== og_compile =====
+{
+ "t": "Tổng hợp Báo cáo",
+ "r": "Phụ trách: Media + Content compile · AM thêm insight",
+ "w": [
+  "Gom dữ liệu từ nhiều nguồn · tổng hợp theo format báo cáo (Daily/Weekly/Monthly)",
+  "Media Buyer compile ads data · Content compile content performance · AM thêm insight và nhận xét",
+  "Sau khi pull data xong",
+  "<em>GG Sheets master template · GG Slides (Monthly)</em>",
+  "Format khác nhau: Daily=ngắn gọn · Weekly=có trend · Monthly=phân tích sâu + plan tháng tới",
+  "Compile theo template chuẩn → AM review → thêm insight theo framework Why/What/Next"
+ ],
+ "inp": [
+  {
+   "tp": "Dữ liệu",
+   "nm": "Raw data đã pull từ tất cả platform",
+   "ft": "GG Sheets master template",
+   "nt": "Ads data + Content performance + Organic + Competitor (nếu có)"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Báo cáo đã compile đủ sections",
+   "ft": "GG Sheets (Daily/Weekly) · GG Slides (Monthly)",
+   "nt": "Chờ AM QC trước khi gửi KH"
+  }
+ ],
+ "done": [
+  "Đủ data từ tất cả platform/kênh",
+  "Số liệu đã double-check",
+  "Format đúng theo loại báo cáo (Daily/Weekly/Monthly)",
+  "Lead funnel đã cập nhật (nếu LEAD_GEN và KH share data)"
+ ],
+ "sla": [
+  "Sau khi pull data",
+  "Compile xong trong 2h",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Lead quality data KH chưa điền",
+   "esc": [
+    "Ghi rõ trong báo cáo: \"Lead funnel chờ KH cập nhật\"",
+    "Nhắc KH điền vào template shared Google Sheet"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Report Module",
+   "ds": "Generate báo cáo từ template",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Báo cáo compile xong → AM QC"
+  }
+ ]
+}
+===== og_am_qc =====
+{
+ "t": "AM QC Báo cáo",
+ "r": "Phụ trách: Account Manager — BẮT BUỘC trước khi gửi",
+ "w": [
+  "AM review toàn bộ báo cáo trước khi gửi KH · Không được gửi khi chưa qua AM QC",
+  "Account Manager BẮT BUỘC · Planner duyệt format (Monthly)",
+  "Sau khi compile xong",
+  "<em>PMS review flow</em> · GG Sheets/Slides: review trực tiếp",
+  "AM hiểu KH nhất · Đảm bảo số liệu chính xác + insight có giá trị + format chuyên nghiệp",
+  "Kiểm tra số liệu → Kiểm tra insight theo framework → Kiểm tra format → APPROVED → gửi KH"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Báo cáo đã compile",
+   "ft": "GG Sheets/Slides",
+   "nt": "Đã qua self-QC của Media/Content"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Báo cáo đã AM QC và approve",
+   "ft": "PDF (Monthly) · GG Sheets (Weekly/Daily)",
+   "nt": "Sẵn sàng gửi KH"
+  },
+  {
+   "tp": "Nội dung",
+   "nm": "AM nhận xét và insight đã thêm",
+   "ft": "Section Insight trong báo cáo",
+   "nt": "Framework: Why / What worked / What didn't / Next action"
+  }
+ ],
+ "done": [
+  "Số liệu đã kiểm tra: đúng platform · đúng date range · không sai sót",
+  "Insight đã có: Why · Top 3 worked · Top 3 didn't · Next actions",
+  "Format professional · đúng template",
+  "AM đã add personal notes/nhận xét nếu cần"
+ ],
+ "sla": [
+  "Sau khi compile",
+  "AM QC trong 1h (Daily) · 2h (Weekly) · 4h (Monthly)",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "AM phát hiện số liệu sai sau khi đã gửi KH",
+   "esc": [
+    "AM báo KH ngay: \"Chúng tôi phát hiện lỗi · đang sửa lại\"",
+    "Sửa và gửi lại trong 4h · Xin lỗi ngắn gọn"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Approval Module",
+   "ds": "AM approve báo cáo trước khi gửi",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Approved → Gửi KH qua 3 kênh"
+  },
+  {
+   "c": "var(--red-200)",
+   "t": "Sai sót → sửa trước khi gửi"
+  }
+ ]
+}
+===== og_send_report =====
+{
+ "t": "Gửi Báo cáo cho KH",
+ "r": "Phụ trách: Account Manager",
+ "w": [
+  "Gửi báo cáo qua cả 3 kênh theo Communication Rule 6",
+  "Account Manager gửi · Có thể delegate cho Content/CS sau khi AM đã approve",
+  "Theo lịch trong Communication Rules: Daily=sáng sớm · Weekly=thứ 2 · Monthly=ngày 1-5 tháng sau",
+  "<em>Zalo: PDF/ảnh tóm tắt</em> · Email: báo cáo đầy đủ · Portal: upload để lưu trữ",
+  "KH nhận báo cáo đúng hạn = dấu hiệu Agency chuyên nghiệp",
+  "Gửi Zalo + Email cùng lúc → Upload Portal → Ghi nhận thời gian gửi trên PMS"
+ ],
+ "inp": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Báo cáo đã AM approve",
+   "ft": "PDF · GG Sheets/Slides · PMS",
+   "nt": "Đã pass AM QC"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "Báo cáo đã gửi qua 3 kênh",
+   "ft": "Zalo + Email + Portal",
+   "nt": "Ghi nhận timestamp gửi trên PMS"
+  },
+  {
+   "tp": "Action",
+   "nm": "Chờ feedback từ KH",
+   "ft": "48h sau khi gửi",
+   "nt": "Theo dõi xem KH có phản hồi không"
+  }
+ ],
+ "done": [
+  "Zalo đã gửi với tóm tắt key numbers",
+  "Email đã gửi với báo cáo đầy đủ kèm file PDF",
+  "Portal đã upload",
+  "PMS đã log timestamp gửi"
+ ],
+ "sla": [
+  "Sau khi AM approve báo cáo",
+  "Gửi đúng lịch theo Communication Rules · Không được trễ",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Trễ báo cáo so với lịch đã cam kết",
+   "esc": [
+    "AM báo KH trước (proactive) nếu biết sẽ trễ",
+    "Giải thích ngắn gọn · gửi sớm nhất có thể"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Report Module",
+   "ds": "Log sent timestamp · track delivery status",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Gửi xong → Chờ feedback KH 24-48h"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "KH phản hồi → Xử lý theo loại feedback"
+  }
+ ]
+}
+===== og_fb_data =====
+{
+ "t": "KH Feedback: Sai Số liệu",
+ "r": "Xử lý: Account Manager",
+ "w": [
+  "KH phát hiện số liệu không khớp · AM phải kiểm tra và sửa ngay",
+  "Account Manager kiểm tra và sửa · Inform KH",
+  "Ngay khi KH báo",
+  "<em>Ads Manager để verify</em> · GG Sheets: sửa số liệu · Email+Zalo: gửi lại",
+  "Tín nhiệm của Agency phụ thuộc vào độ chính xác của số liệu",
+  "AM acknowledge ngay → Kiểm tra lại source → Sửa → Gửi lại trong 4h → Giải thích ngắn gọn"
+ ],
+ "inp": [
+  {
+   "tp": "Feedback",
+   "nm": "KH báo số liệu sai qua Zalo/Email",
+   "ft": "Zalo · Email",
+   "nt": "KH chỉ rõ số liệu nào sai · sai như thế nào"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Tài liệu",
+   "nm": "Báo cáo đã sửa và gửi lại",
+   "ft": "Email + Zalo · PDF mới",
+   "nt": "Kèm giải thích ngắn gọn tại sao sai"
+  },
+  {
+   "tp": "PMS Record",
+   "nm": "Log lỗi để tránh tái diễn",
+   "ft": "PMS · note",
+   "nt": "Root cause: pull sai date range · attribution window · tool lỗi"
+  }
+ ],
+ "done": [
+  "Số liệu đã verify từ source",
+  "Báo cáo đã sửa đúng",
+  "KH đã nhận báo cáo mới trong 4h",
+  "Lỗi đã được log để tránh tái diễn"
+ ],
+ "sla": [
+  "Khi KH báo lỗi",
+  "AM acknowledge trong 30 phút · Sửa và gửi lại trong 4h",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Không tìm ra lý do sai",
+   "esc": [
+    "Ghi nhận cả 2 số · giải thích attribution window khác nhau",
+    "Thống nhất với KH dùng nguồn nào làm chuẩn cho tương lai"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Report Module",
+   "ds": "Log correction · update report version",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Sửa xong trong 4h → Gửi lại KH"
+  }
+ ]
+}
+===== og_fb_explain =====
+{
+ "t": "KH Hỏi Giải thích Kết quả",
+ "r": "Xử lý: Account Manager",
+ "w": [
+  "KH muốn hiểu tại sao số liệu như vậy · AM giải thích qua chat/call · KHÔNG họp thêm",
+  "Account Manager giải thích · Planner support nếu cần phân tích sâu",
+  "Ngay khi KH hỏi",
+  "<em>Zalo/call: giải thích nhanh</em> · GG Slides: nếu cần deck mới",
+  "Giải thích rõ ràng = KH hiểu và tin tưởng hơn · Không họp thêm ngoài lịch",
+  "Acknowledge → Giải thích ngắn gọn không dùng jargon kỹ thuật → Đề xuất discuss sâu hơn trong monthly meeting nếu cần"
+ ],
+ "inp": [
+  {
+   "tp": "Feedback",
+   "nm": "Câu hỏi từ KH về kết quả báo cáo",
+   "ft": "Zalo · Email",
+   "nt": "KH muốn hiểu tại sao · không phải sai số liệu"
+  }
+ ],
+ "out": [
+  {
+   "tp": "Action",
+   "nm": "AM đã giải thích đầy đủ qua Zalo/call",
+   "ft": "Zalo message · call · PMS note",
+   "nt": "KH hiểu và satisfied"
+  }
+ ],
+ "done": [
+  "AM đã giải thích trong ngày",
+  "Giải thích không dùng jargon kỹ thuật",
+  "KH đã confirm hiểu · không cần discuss thêm"
+ ],
+ "sla": [
+  "Khi KH hỏi",
+  "AM trả lời trong 2h",
+  "Không"
+ ],
+ "risks": [
+  {
+   "nm": "Câu hỏi quá phức tạp cần analysis sâu",
+   "esc": [
+    "AM acknowledge ngay",
+    "Schedule 30p call ngay hôm đó hoặc hôm sau",
+    "Không đưa vào monthly meeting nếu KH cần biết ngay"
+   ]
+  }
+ ],
+ "mods": [
+  {
+   "nm": "Comment Module",
+   "ds": "Log Q&A với KH để tham khảo sau",
+   "sy": "pms"
+  }
+ ],
+ "ft": [
+  {
+   "c": "var(--grn-200)",
+   "t": "Giải thích xong → KH satisfied"
+  },
+  {
+   "c": "var(--amb-200)",
+   "t": "Phức tạp → Schedule quick call"
+  }
+ ]
+}

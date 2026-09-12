@@ -1,0 +1,146 @@
+# SLA Khách Hàng — BCERP (BC Agency)
+
+> **Loại tài liệu:** Phase 0 — Business Policy
+> **Lĩnh vực:** Khách hàng / Vận hành
+> **Ngày soạn:** 11/09/2026
+> **Agent soạn thảo:** customer-expert
+> **Trạng thái:** Draft → Đã xác nhận
+>
+> READS: `P0-01-brainstorm.md` (Section 5.2 — trạng thái chính sách), `phan-loai-khach-hang-tier.md` (nguồn sự thật Tier A–E)
+> USED BY: `phase2-features/` (business rules), `phase3-architecture/` (rule engine design), `client-portal-minh-bach-bao-mat.md` (state machine ticket), `kpi-hieu-suat.md` (KPI AM/CS)
+
+---
+
+## 1. Phạm Vi Áp Dụng
+
+- **Áp dụng cho:** mọi ticket/yêu cầu dịch vụ của khách đã ký hợp đồng, ghi nhận qua Client Portal hoặc kênh chính thức khác (email POC, ticket hệ thống); toàn bộ AM, CS, CS TL (Team Leader), OPS_PLAN tham gia xử lý. Phạm vi dịch vụ: vận hành TKQC đa nền tảng (Meta, Google, TikTok, Bing, X, Pinterest, Yandex), marketing, SEO, thiết kế web/đồ họa.
+- **Không áp dụng cho:** lead/khách chưa ký hợp đồng (theo Pipeline V6.0); yêu cầu ngoài scope hợp đồng (chuyển change request); sự cố nội bộ không tác động khách.
+- **Effective từ:** *(chờ user xác nhận)*
+
+---
+
+## 2. Nội Dung Chính Sách
+
+### 2.1. Ma trận SLA Tier × Ưu tiên
+
+Tier khách dùng nguyên trạng tier CS chuyển từ Sales (`phan-loai-khach-hang-tier.md`). **Lưu ý quy ước nghịch trực giác: A = thấp nhất, E = cao nhất — SLA nhanh nhất thuộc Tier E.** Mức ưu tiên: **Critical** (TKQC bị khóa/dừng chiếu, ví cạn chạm hard stop, mất quyền truy cập, gián đoạn doanh thu khách); **High** (hiệu suất campaign bất thường, lỗi tracking/conversion); **Medium** (yêu cầu thay đổi, báo cáo, nghiệm thu); **Low** (tư vấn, câu hỏi chung).
+
+Ma trận tính bằng **giờ làm việc** (riêng Critical tính 24/7 — xem 2.2):
+
+| Tier | Critical (FR / Res) | High (FR / Res) | Medium (FR / Res) | Low (FR / Res) |
+|------|--------------------|-----------------|-------------------|----------------|
+| E | 15 phút / 4 giờ | 30 phút / 8 giờ | 2 giờ / 1 ngày LV | 4 giờ / 2 ngày LV |
+| D | 30 phút / 6 giờ | 1 giờ / 12 giờ | 3 giờ / 1,5 ngày LV | 8 giờ / 3 ngày LV |
+| C | 1 giờ / 8 giờ | 2 giờ / 1 ngày LV | 4 giờ / 2 ngày LV | 8 giờ / 4 ngày LV |
+| B | 2 giờ / 12 giờ | 4 giờ / 1,5 ngày LV | 8 giờ / 3 ngày LV | 1 ngày LV / 5 ngày LV |
+| A | 4 giờ / 1 ngày LV | 8 giờ / 2 ngày LV | 1 ngày LV / 4 ngày LV | 2 ngày LV / 7 ngày LV |
+
+FR = First Response; Res = Resolution; 1 ngày làm việc (LV) = 8 giờ làm việc.
+
+### 2.2. Định nghĩa SLA clock
+
+- **Múi giờ chuẩn:** GMT+7 là mốc tính duy nhất của hệ thống; portal hiển thị song song giờ địa phương khách. Khách khai báo lịch làm việc riêng trên portal thì clock High/Medium/Low theo lịch khai báo; mặc định theo giờ BC.
+- **Giờ làm việc BC:** Thứ 2–Thứ 6, 9:00–18:00 (nghỉ trưa 12:00–13:00) = 8 giờ LV/ngày; Thứ 7, CN và lễ Việt Nam không tính.
+- **Critical chạy 24/7 mọi ngày** (sự cố TKQC không chờ giờ hành chính) — đội vận hành xếp lịch trực follow-the-sun theo múi giờ khách đa quốc gia.
+- **Tạm dừng đồng hồ (pause) khi chờ khách:** ticket chuyển Pending → pause tự động; khách trả lời → resume. Nhắc nhở: Critical sau 4h và 12h; các mức khác sau 24h và 48h LV. Sau nhắc thứ 2 mà tiếp tục 24h (Critical) / 24h LV (còn lại) không phản hồi → auto-Closed "khách không phản hồi" (không tính breach), được reopen trong 7 ngày.
+- **Chờ bên thứ 3** (platform QC, đối tác): chuyển trạng thái "Blocked-3rd-party" — pause với bằng chứng (case ID platform); tối đa 5 ngày LV, quá hạn tự escalate lên AM.
+
+### 2.3. Định nghĩa đo được (chuẩn hóa)
+
+- **First Response:** timestamp phản hồi đầu tiên có nội dung xử lý của nhân viên BC kể từ lúc ticket được tạo. Auto-reply/xác nhận tự động không tính.
+- **Resolution:** timestamp ticket chuyển Resolved kèm mô tả giải pháp. Với sự cố phụ thuộc nền tảng: tính "đạt" khi trong target đã (i) escalate platform, (ii) có case ID, (iii) thiết lập chu kỳ cập nhật mỗi 8 giờ — thời gian chờ platform không tính vào breach của BC.
+- **Compliance %:** số ticket đạt / tổng ticket đóng trong kỳ, tính riêng FR và Resolution, theo từng cặp tier × priority.
+
+### 2.4. Pre-alert 80% và breach 100%
+
+- Tại **80% thời lượng**: cảnh báo vàng cho assignee + AM; từ 80% đến 100% assignee phải có hành động/cập nhật.
+- Tại **100% (breach)**: trong **5 phút đầu** hệ thống báo đỏ tới AM phụ trách + CS TL, đồng thời đẩy lên dashboard OPS_PLAN.
+- AM **chủ động thông báo khách trong 30 phút** kể từ breach theo template chuẩn: lý do, phương án khắc phục, ETA mới. Việc không thông báo là vi phạm riêng, độc lập với breach kỹ thuật.
+
+### 2.5. Post-mortem breach lặp lại
+
+Ngưỡng "lặp lại": ≥3 breach cùng khách trong 30 ngày, hoặc ≥2 breach cùng root cause trong 90 ngày. Bắt buộc post-mortem trong 5 ngày LV: root cause, hành động khắc phục, owner, deadline; CS TL review, OPS_PLAN phê duyệt. Khách Tier D/E có breach ảnh hưởng doanh thu: bổ sung buổi review với khách do AM chủ trì.
+
+### 2.6. Báo cáo định kỳ
+
+| Kênh | Đối tượng | Nội dung | Chốt |
+|------|-----------|----------|------|
+| Daily digest | AM, CS TL | Ticket sắp breach trong 24h tới + breach hôm qua | 9:00 hàng ngày |
+| Weekly | CS TL, OPS_PLAN | Compliance tuần, overdue, breach lặp lại | 10:00 Thứ 2 |
+| Monthly | BOD | % compliance FR/Res theo tier×priority, số breach, MTTR, top root cause, khách rủi ro churn | Ngày 5 tháng kế tiếp |
+
+**Tần suất báo cáo gửi khách (Daily/Weekly/Monthly) chốt khi Negotiation** và ghi vào hợp đồng/profile khách — hệ thống phải cấu hình được theo từng khách; mặc định: Monthly cho mọi tier, Weekly cho Tier D/E.
+
+### 2.7. Thẩm quyền override
+
+| Hành động | Thẩm quyền | Giới hạn |
+|-----------|-----------|----------|
+| Gia hạn Resolution lần 1 (≤50% target, trước khi breach) | CS TL | 1 lần/ticket |
+| Override FR mọi mức ưu tiên; gia hạn lần 2 | OPS_PLAN | Có lý do |
+| Miễn SLA theo đợt (platform incident toàn cục, force majeure) | BOD (OPS_PLAN đề xuất) | Theo đợt, có thông báo nội bộ |
+
+Mọi override bắt buộc nhập lý do; hệ thống ghi audit log bất biến (ai, khi nào, giá trị cũ/mới, lý do).
+
+---
+
+## 3. Ngoại Lệ & Trường Hợp Đặc Biệt
+
+- Sự cố nền tảng toàn cục (Meta/Google/TikTok outage): miễn Resolution cho ticket thuộc đợt sự cố, vẫn giữ FR; gắn nhãn platform incident để không làm bẩn số compliance.
+- Khách có SLA cam kết riêng trong hợp đồng cao hơn ma trận: áp số hợp đồng, hệ thống ghi đè cấu hình ở profile khách.
+- Bảo trì hệ thống có báo trước ≥48h: clock pause toàn hệ thống trong cửa sổ bảo trì.
+- Ticket phát sinh change request (ngoài scope): tách ticket mới ngoài SLA vận hành.
+- Khách bị platform suspend do vi phạm phía khách: xử lý theo `hop-dong-loi-nda-brand-safety.md`, không chạy SLA Resolution.
+
+---
+
+## 4. Quy Trình Phê Duyệt
+
+| Tình huống | Người phê duyệt | Thời hạn |
+|-----------|----------------|---------|
+| Gia hạn Resolution lần 1 | CS TL | 15 phút trong giờ trực |
+| Override FR / gia hạn lần 2 | OPS_PLAN | 30 phút |
+| Miễn SLA theo đợt | BOD (đề xuất OPS_PLAN) | 4 giờ |
+| Phê duyệt post-mortem | OPS_PLAN | 5 ngày LV |
+| Hiệu chỉnh ma trận SLA / định nghĩa đo | OPS_PLAN trình BOD | Chu kỳ quý |
+
+---
+
+## 5. Yêu Cầu Hệ Thống Phải Thực Thi
+
+| Yêu cầu | Loại | Module liên quan | Ưu tiên |
+|---------|------|-----------------|---------|
+| SLA engine áp động ma trận tier×priority vào từng ticket theo profile khách | Business Rule | Ticketing/SLA | MUST |
+| SLA clock: GMT+7, giờ làm việc, Critical 24/7, pause/resume theo Pending và Blocked-3rd-party | Business Rule | Ticketing/SLA | MUST |
+| Pre-alert vàng 80% (assignee+AM) và báo đỏ 100% ≤5 phút tới AM + CS TL | Notification | SLA/Notification | MUST |
+| Audit log bất biến mọi override theo cấp TL→OPS_PLAN→BOD (ai, khi, lý do, cũ/mới) | Audit Trail | Ticketing | MUST |
+| Báo cáo monthly lên BOD tự động chốt ngày 5 + dashboard compliance realtime | Reporting | Dashboard BOD/CX | MUST |
+| Đếm breach lặp lại và trigger post-mortem workflow theo ngưỡng mục 2.5 | Business Rule | CX | SHOULD |
+| Daily/Weekly digest tự động cho AM/CS TL/OPS_PLAN | Reporting | Notification | SHOULD |
+| Cấu hình tần suất báo cáo khách (Daily/Weekly/Monthly) per customer chốt từ Negotiation | Configuration | CRM/Portal | SHOULD |
+| Hiển thị đồng hồ SLA + giờ địa phương khách trên Client Portal | UI | Client Portal | SHOULD |
+| Tính MTTR và compliance % tách FR/Res theo tier×priority | Reporting | BI | SHOULD |
+
+**Cross-policy dependencies:** `phan-loai-khach-hang-tier.md` (nguồn tier A–E — bắt buộc cùng release); `client-portal-minh-bach-bao-mat.md` (state machine ticket và reopen dùng chung); `kpi-hieu-suat.md` (SLA compliance là KPI AM/CS TL); `audit-log-bao-luu-backup-dr.md` (tính bất biến của log override); `rbac-phan-loai-du-lieu-credentials.md` (quyền override theo role).
+
+---
+
+## 6. Xác Nhận
+
+| Nội dung | Xác nhận | Điều chỉnh cần thiết |
+|---------|---------|---------------------|
+| Phạm vi áp dụng | Đúng / Cần sửa | |
+| Nội dung chính sách | Đúng / Cần sửa | |
+| Ngoại lệ | Đúng / Cần sửa | |
+| Quy trình phê duyệt | Đúng / Cần sửa | |
+| Yêu cầu hệ thống | Đúng / Cần sửa | |
+
+**Người xác nhận:** [Tên] — [Vai trò]
+**Ngày:** [Ngày/Tháng/Năm]
+
+---
+
+## Lịch Sử Phiên Bản
+
+| Phiên bản | Ngày | Người cập nhật | Thay đổi |
+|-----------|------|----------------|---------|
+| 1.0 | 11/09/2026 | customer-expert | Khởi tạo |

@@ -1,0 +1,53 @@
+{
+  "$schema": "session-state-v1",
+  "session_id": "20260912-112934-6bcf",
+  "skill_name": "wf-define-features",
+  "created_at": "2026-09-12T04:29:34.562Z",
+  "updated_at": "2026-09-12T04:47:38.828Z",
+  "status": "in_progress",
+  "profile_used": "large-project",
+  "next_action": "phase1-scope-mapping",
+  "flags": {
+    "legacy_mode": false,
+    "large_project": true,
+    "stub_files": [],
+    "has_screens": false
+  },
+  "phases": {
+    "P0": {
+      "status": "completed",
+      "started_at": "2026-09-12T04:29:34.562Z",
+      "completed_at": "2026-09-12T04:31:02.553Z"
+    },
+    "P0_5": {
+      "status": "completed",
+      "started_at": "2026-09-12T04:31:02.553Z",
+      "completed_at": "2026-09-12T04:47:38.828Z"
+    }
+  },
+  "cdg_decisions": [
+    {
+      "id": "CDG-A02",
+      "timestamp": "2026-09-12T04:47:38.828Z",
+      "decision": "override block gate — full scope all 19 modules",
+      "confirmed_by": "user (AskUserQuestion)",
+      "workload_minutes": 190
+    }
+  ],
+  "digests_produced": [],
+  "lanes_completed": [],
+  "errors": [],
+  "workload_estimate": {
+    "active_modules": 19,
+    "partitions": 4,
+    "max_per_partition": 5,
+    "est_minutes_per_item": 5,
+    "ratio_factor": 2,
+    "estimated_minutes": 190,
+    "threshold_minutes": 45,
+    "ratio": 4.22,
+    "method": "node-fallback (no python)"
+  },
+  "gate_result": "block",
+  "user_decision": "plan_b_continue_full_scope"
+}

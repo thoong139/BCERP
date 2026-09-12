@@ -1,0 +1,113 @@
+{
+  "$schema": "analyze-checkpoint-v1",
+  "checkpoint_id": "CHK-ANALYZE-20260912-001",
+  "analyze_id": "ANALYZE-20260912-001",
+  "timestamp": "2026-09-12T01:05:00+07:00",
+  "session_number": 1,
+  "trigger": {
+    "reason": "phase_complete",
+    "context_used_pct": 70,
+    "phase_completed": "phase8c",
+    "error_details": null
+  },
+  "position": {
+    "current_phase": "done",
+    "current_phase_name": "Hoàn tất",
+    "current_step": "final",
+    "current_expert": null,
+    "next_phase": "/wf-define-features",
+    "next_action": "Chay /wf-define-features"
+  },
+  "progress": {
+    "phases_completed": [
+      "phase0",
+      "phase0.5",
+      "phase1",
+      "phase2",
+      "phase3",
+      "phase4",
+      "phase6",
+      "phase6b",
+      "phase6c",
+      "phase6d",
+      "phase8",
+      "phase8b",
+      "phase8c"
+    ],
+    "experts_completed": [],
+    "files_created": [
+      "P1-01-project-overview.md",
+      "analyze-plan.md",
+      "execution-plan.md",
+      "workload-report.md",
+      "session-state.json",
+      "analyze-status.json"
+    ],
+    "req_ids_generated": 59
+  },
+  "context_summary": {
+    "project_name": "BCERP",
+    "scope": "all",
+    "domain": "digital-marketing-agency-erp",
+    "total_experts_planned": 7,
+    "total_departments": 5
+  },
+  "partial_state": {
+    "current_expert_output": null,
+    "pending_experts": [
+      "bod-B",
+      "hr-B",
+      "finance-B1",
+      "finance-B2",
+      "sales-B",
+      "operations-B1",
+      "operations-B2"
+    ],
+    "pending_conflicts": [],
+    "intermediate_data": {
+      "lpm": true,
+      "max_parallel": 3,
+      "heavyweight_depts": [
+        "DEPT-FINANCE",
+        "DEPT-OPS"
+      ]
+    },
+    "business_workflow": {
+      "p1_02_created": false,
+      "output_file": null
+    },
+    "stakeholder_overviews": {
+      "so_01_created": false,
+      "so_02_created": false,
+      "so_03_created": false,
+      "index_updated": false
+    },
+    "conflict_resolution": {
+      "auto_resolved_ids": [],
+      "expert_resolved_ids": [],
+      "deferred_ids": [],
+      "pending_ids": []
+    },
+    "registry_update": {
+      "sections_completed": [
+        "systems",
+        "departments"
+      ],
+      "sections_pending": [
+        "modules",
+        "requirements",
+        "interface_type"
+      ]
+    }
+  },
+  "resume_instructions": {
+    "load_files": [
+      ".mc-data/work/wf-analyze-requirements/analyze-status.json",
+      ".mc-data/docs/_meta/req-registry.json",
+      ".mc-data/docs/phase0-brainstorm/P0-01-brainstorm.md"
+    ],
+    "resume_from_phase": "phase3-ba-parta",
+    "resume_from_expert": null,
+    "user_message": "Resume: chay lai BA Phan A batch [bod,hr,finance] roi [sales,operations], sau do expert Phan B 3 batch."
+  }
+}

@@ -1,0 +1,422 @@
+{
+  "$schema": "phase1-handoff-v1",
+  "project": "BCERP",
+  "generated_at": "2026-09-11T19:58:23.912Z",
+  "project_intent_digest": ".mc-data/docs/_meta/project-digest.json",
+  "req_clusters": [
+    {
+      "module": "MOD-RBAC-AUDIT",
+      "name": "RBAC & Audit Log",
+      "system": "SYS-CORE-BACKEND",
+      "phase": "MVP",
+      "req_ids": [
+        "REQ-BOD-002",
+        "REQ-BOD-005",
+        "REQ-BOD-007",
+        "REQ-BOD-009",
+        "REQ-BOD-011",
+        "REQ-HR-010",
+        "REQ-FIN-012"
+      ]
+    },
+    {
+      "module": "MOD-SETTINGS-GW",
+      "name": "Settings & Integration Gateway",
+      "system": "SYS-INTEGRATION-GW",
+      "phase": "MVP",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-FIN-005"
+      ]
+    },
+    {
+      "module": "MOD-HR-CORE",
+      "name": "HR Core",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "req_ids": [
+        "REQ-HR-001",
+        "REQ-HR-002",
+        "REQ-HR-003",
+        "REQ-HR-004",
+        "REQ-HR-005",
+        "REQ-HR-006"
+      ]
+    },
+    {
+      "module": "MOD-CRM-PIPELINE",
+      "name": "CRM & Lead Pipeline V6.0",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "req_ids": [
+        "REQ-SALES-001",
+        "REQ-SALES-002",
+        "REQ-SALES-003",
+        "REQ-SALES-004",
+        "REQ-SALES-005"
+      ]
+    },
+    {
+      "module": "MOD-QUOTATION-DEALDESK",
+      "name": "Quotation & Deal Desk",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "req_ids": [
+        "REQ-SALES-006",
+        "REQ-SALES-007"
+      ]
+    },
+    {
+      "module": "MOD-ADACCOUNT-CC",
+      "name": "Quản lý TKQC — Ad Account Command Center",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "req_ids": [
+        "REQ-FIN-009",
+        "REQ-OPS-001",
+        "REQ-OPS-002"
+      ]
+    },
+    {
+      "module": "MOD-WALLET-RECON",
+      "name": "Wallet & Đối soát TKQC",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-FIN-001",
+        "REQ-FIN-002",
+        "REQ-FIN-003",
+        "REQ-FIN-004",
+        "REQ-FIN-006",
+        "REQ-FIN-010",
+        "REQ-OPS-003"
+      ]
+    },
+    {
+      "module": "MOD-ARAP-PAYMENT",
+      "name": "Công nợ AR/AP & Giải ngân",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-BOD-001",
+        "REQ-BOD-010",
+        "REQ-FIN-007",
+        "REQ-FIN-008",
+        "REQ-FIN-011",
+        "REQ-FIN-013",
+        "REQ-FIN-014"
+      ]
+    },
+    {
+      "module": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff & Onboarding Bridge",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-SALES-008",
+        "REQ-OPS-004"
+      ]
+    },
+    {
+      "module": "MOD-PROPOSAL-PLANNING",
+      "name": "Proposal & Planning Workspace",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-OPS-005"
+      ]
+    },
+    {
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign & Deliverable Management",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-OPS-006",
+        "REQ-OPS-012"
+      ]
+    },
+    {
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "name": "Capacity & Timesheet",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-HR-009",
+        "REQ-OPS-007"
+      ]
+    },
+    {
+      "module": "MOD-SLA-NOTIF",
+      "name": "SLA & Notification Engine",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-OPS-008"
+      ]
+    },
+    {
+      "module": "MOD-TICKET-CSKH",
+      "name": "Ticket & CSKH",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "req_ids": [
+        "REQ-OPS-009"
+      ]
+    },
+    {
+      "module": "MOD-COMMISSION-QUOTA",
+      "name": "Commission & Quota",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase3",
+      "req_ids": [
+        "REQ-SALES-009"
+      ]
+    },
+    {
+      "module": "MOD-KPI-PERFORMANCE",
+      "name": "KPI & Performance",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase3",
+      "req_ids": [
+        "REQ-HR-007",
+        "REQ-HR-008"
+      ]
+    },
+    {
+      "module": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal",
+      "system": "SYS-PORTAL-WEB",
+      "phase": "Phase3",
+      "req_ids": [
+        "REQ-FIN-017",
+        "REQ-OPS-010"
+      ]
+    },
+    {
+      "module": "MOD-DATAHUB-BI",
+      "name": "Data Integration Hub & Analytics — BI/BOD Dashboard",
+      "system": "SYS-CORE-BACKEND",
+      "phase": "Phase3",
+      "req_ids": [
+        "REQ-BOD-003",
+        "REQ-BOD-004",
+        "REQ-BOD-006",
+        "REQ-FIN-015",
+        "REQ-FIN-016"
+      ]
+    },
+    {
+      "module": "MOD-TIKTOK-SHOP",
+      "name": "TikTok Shop Monitoring",
+      "system": "SYS-INTEGRATION-GW",
+      "phase": "Phase3",
+      "req_ids": [
+        "REQ-OPS-011"
+      ]
+    }
+  ],
+  "actors": [
+    "BOD_CEO",
+    "BOD_CFO_CTO",
+    "SYS_ADMIN",
+    "HR_L1",
+    "HR_L2",
+    "FIN_L1",
+    "FIN_L2",
+    "FIN_COMPL",
+    "SALES_L1",
+    "SALES_L2",
+    "SALES_L3",
+    "SALES_L4",
+    "SALES_L5",
+    "OPS_PLAN",
+    "OPS_AM",
+    "OPS_CONT",
+    "OPS_DES",
+    "OPS_EDIT",
+    "OPS_ADS",
+    "OPS_CX"
+  ],
+  "business_rule_keywords": [
+    "Financial Hard Stop",
+    "tiền giữ hộ",
+    "đã khớp tiền",
+    "SoD 4 vai",
+    "dual approval",
+    "audit log bất biến",
+    "hash-chain",
+    "tier A–E",
+    "Gate 1/Gate 2",
+    "SLA 4h",
+    "clawback",
+    "Brand Safety 7 tiêu chí",
+    "degraded mode manual",
+    "billable tại nguồn",
+    "cost rate version",
+    "tenant isolation"
+  ],
+  "cross_department_dependencies": [
+    {
+      "req_ids": [
+        "REQ-FIN-006",
+        "REQ-OPS-002"
+      ],
+      "description": "Financial Hard Stop — FIN (nguồn xác nhận khớp tiền) vs OPS (điểm chặn cấp phát TKQC)",
+      "resolution": "Đã ghi AI Decision Record — FIN/HR là nguồn sự thật, OPS/BOD là điểm tiêu thụ (xem stakeholder-review.md Phần E)"
+    },
+    {
+      "req_ids": [
+        "REQ-FIN-002",
+        "REQ-OPS-003"
+      ],
+      "description": "Cảnh báo số dư ví — FIN (sổ sách) vs OPS (vận hành nạp)",
+      "resolution": "Đã ghi AI Decision Record — FIN/HR là nguồn sự thật, OPS/BOD là điểm tiêu thụ (xem stakeholder-review.md Phần E)"
+    },
+    {
+      "req_ids": [
+        "REQ-HR-009",
+        "REQ-OPS-007"
+      ],
+      "description": "Timesheet approval/capacity — HR (chính sách+duyệt) vs OPS (ghi nhận)",
+      "resolution": "Đã ghi AI Decision Record — FIN/HR là nguồn sự thật, OPS/BOD là điểm tiêu thụ (xem stakeholder-review.md Phần E)"
+    },
+    {
+      "req_ids": [
+        "REQ-BOD-003",
+        "REQ-FIN-016"
+      ],
+      "description": "P&L realtime — BOD (dashboard) vs FIN (số liệu nguồn)",
+      "resolution": "Đã ghi AI Decision Record — FIN/HR là nguồn sự thật, OPS/BOD là điểm tiêu thụ (xem stakeholder-review.md Phần E)"
+    }
+  ],
+  "departments": [
+    {
+      "department": "DEPT-BOD",
+      "req_ids": [
+        "REQ-BOD-001",
+        "REQ-BOD-002",
+        "REQ-BOD-003",
+        "REQ-BOD-004",
+        "REQ-BOD-005",
+        "REQ-BOD-006",
+        "REQ-BOD-007",
+        "REQ-BOD-008",
+        "REQ-BOD-009",
+        "REQ-BOD-010",
+        "REQ-BOD-011"
+      ],
+      "actors": [
+        "BOD_CEO",
+        "BOD_CFO_CTO",
+        "SYS_ADMIN"
+      ],
+      "summary": "Phê duyệt vượt ngưỡng 5/50/200tr + escalation; compensating control kiêm nhiệm CFO/CTO; P&L realtime + BI oversight; audit log bất biến; alert center; quarterly access review; quản trị Integration Gateway/credentials vai CTO; RBAC nền tảng cross-cutting (REQ-BOD-011).",
+      "source_file": ".mc-data/docs/phase1-business/departments/bod/bod.md"
+    },
+    {
+      "department": "DEPT-HR",
+      "req_ids": [
+        "REQ-HR-001",
+        "REQ-HR-002",
+        "REQ-HR-003",
+        "REQ-HR-004",
+        "REQ-HR-005",
+        "REQ-HR-006",
+        "REQ-HR-007",
+        "REQ-HR-008",
+        "REQ-HR-009",
+        "REQ-HR-010"
+      ],
+      "actors": [
+        "HR_L1",
+        "HR_L2"
+      ],
+      "summary": "Hồ sơ L1–L5 + mã vai SSOT; HĐLĐ cảnh báo 90/60/30; chấm công 40h/trần 48h; nghỉ phép 12 ngày duyệt phân cấp; ESS; Cost Rate Card version (HR_L2 + FIN_L2 → BOD); KPI 3 trụ cột + PIP + calibration; duyệt timesheet (cấm tự duyệt, giờ chưa duyệt không vào P&L); PII nhân sự Restricted.",
+      "source_file": ".mc-data/docs/phase1-business/departments/hr/hr.md"
+    },
+    {
+      "department": "DEPT-FINANCE",
+      "req_ids": [
+        "REQ-FIN-001",
+        "REQ-FIN-002",
+        "REQ-FIN-003",
+        "REQ-FIN-004",
+        "REQ-FIN-005",
+        "REQ-FIN-006",
+        "REQ-FIN-007",
+        "REQ-FIN-008",
+        "REQ-FIN-009",
+        "REQ-FIN-010",
+        "REQ-FIN-011",
+        "REQ-FIN-012",
+        "REQ-FIN-013",
+        "REQ-FIN-014",
+        "REQ-FIN-015",
+        "REQ-FIN-016",
+        "REQ-FIN-017"
+      ],
+      "actors": [
+        "FIN_L1",
+        "FIN_L2",
+        "BOD_CFO_CTO",
+        "FIN_COMPL"
+      ],
+      "summary": "Ví tiền giữ hộ per-khách + lệnh hệ thống; đối trừ 3 số đa tiền tệ (sổ VND, snapshot tỷ giá); Financial Hard Stop \"đã khớp tiền\" chặn cấp TKQC không override; AR/AP + giải ngân SoD 4 vai; AML/KYC (KYC gate, hoàn đúng nguồn, T1–T6); HĐĐT TT78/NĐ123; audit WORM ≥10 năm; Portal ví read-only.",
+      "source_file": ".mc-data/docs/phase1-business/departments/finance/finance.md"
+    },
+    {
+      "department": "DEPT-SALES",
+      "req_ids": [
+        "REQ-SALES-001",
+        "REQ-SALES-002",
+        "REQ-SALES-003",
+        "REQ-SALES-004",
+        "REQ-SALES-005",
+        "REQ-SALES-006",
+        "REQ-SALES-007",
+        "REQ-SALES-008",
+        "REQ-SALES-009"
+      ],
+      "actors": [
+        "SALES_L1",
+        "SALES_L2",
+        "SALES_L3",
+        "SALES_L4",
+        "SALES_L5"
+      ],
+      "summary": "Pipeline V6.0 hard gate \"không ghi nhận = không tồn tại\"; anti-duplicate 4 kênh; AUTO SCORING K1–K12 (K1–K5 knockout) + tier A–E; Gate 1 (SLA 1 ngày) / Gate 2 (nạp trước 100%, SLA 4h); Deal Desk chiết khấu phân cấp + GM engine; hợp đồng/NDA/Brand Safety + e-sign; handoff ký 3 bên; hoa hồng theo thực nhận + clawback >90 ngày.",
+      "source_file": ".mc-data/docs/phase1-business/departments/sales/sales.md"
+    },
+    {
+      "department": "DEPT-OPS",
+      "req_ids": [
+        "REQ-OPS-001",
+        "REQ-OPS-002",
+        "REQ-OPS-003",
+        "REQ-OPS-004",
+        "REQ-OPS-005",
+        "REQ-OPS-006",
+        "REQ-OPS-007",
+        "REQ-OPS-008",
+        "REQ-OPS-009",
+        "REQ-OPS-010",
+        "REQ-OPS-011",
+        "REQ-OPS-012"
+      ],
+      "actors": [
+        "OPS_PLAN",
+        "OPS_AM",
+        "OPS_CONT",
+        "OPS_DES",
+        "OPS_EDIT",
+        "OPS_ADS",
+        "OPS_CX"
+      ],
+      "summary": "Ad Account Command Center 2.600+ TK (vòng đời, naming/UTM, die account, thu hồi 24h); Hard Stop góc ops (không bypass); handoff Day 1/7/14/30; stage-gate V6.0 + Brand Safety 7/7; WBS + duyệt creative đa vai + change log bất biến; capacity vàng 90%/đỏ 100%; SLA ma trận tier×priority GMT+7; ticket + CSAT; Portal ops (cấp TK Day 14); TikTok Shop tách bạch GMV.",
+      "source_file": ".mc-data/docs/phase1-business/departments/operations/operations.md"
+    }
+  ],
+  "deferred_issues_file": ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+  "stakeholder_review_file": ".mc-data/docs/phase1-business/stakeholder-review.md"
+}

@@ -1,0 +1,175 @@
+{
+  "lane_key": "operations",
+  "lane_type": "department",
+  "items": [
+    {
+      "req_id": "REQ-OPS-001",
+      "title": "Ad Account Command Center — registry & vòng đời TKQC",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-INTEGRATION-GW", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Registry trung tâm 2.600+ TKQC/7 nền tảng theo vòng đời 5 trạng thái (Khởi tạo→Khớp tiền→Cấp phát→Vận hành→Thu hồi/Đóng); naming/UTM bắt buộc chặn sửa tay; ownership 1 owner + 1 backup không chia sẻ login; die tracking với evidence bất biến + TK dự phòng; thu hồi access 24h theo sự kiện HR; degraded mode manual có nhãn khi chưa có API."
+    },
+    {
+      "req_id": "REQ-OPS-002",
+      "title": "Financial Hard Stop chặn cấp phát TKQC",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Hard Stop: chỉ cấp phát/bật chi tiêu khi FIN_L1 xác nhận 'Đã khớp tiền'; chặn cứng tầng API + UI, không nút override, không trạng thái chờ duyệt, không vai nào bypass kể cả Giám đốc/Super Admin; chủ ý không có bản mobile/portal để không tạo kênh bypass."
+    },
+    {
+      "req_id": "REQ-OPS-003",
+      "title": "Ví TKQC góc ops — cảnh báo số dư & escalation",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL", "SYS-PORTAL-WEB", "SYS-MOBILE-PORTAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "ADS 7 ngày rolling, cảnh báo 3 mức per TK/platform (Xanh ≥3 ngày / Vàng <3 / Đỏ <1 ngày); SLA đỏ 2h + escalation owner→TL→AM có timestamp; mọi top-up/refund/điều chỉnh chỉ qua lệnh hệ thống; dual approval cho nhóm rủi ro cao; SoD 4 vai dòng tiền; khách xem lịch sử điều chỉnh ví read-only mask 'điều chỉnh đối soát'."
+    },
+    {
+      "req_id": "REQ-OPS-004",
+      "title": "Handoff & Onboarding Bridge",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Tiếp nhận Handoff Package 5 nhóm checklist (hợp đồng & phạm vi; tài sản QC & tracking; mục tiêu & baseline KPI; vận hành; điều kiện khởi động), chặn Gate 2 nếu <100%; ký 3 bên SM + hệ thống sinh dự án + AM xác nhận SLA 4h; milestone onboarding Day 1/7/14/30 với tiêu chí pass/fail và cảnh báo trượt mốc."
+    },
+    {
+      "req_id": "REQ-OPS-005",
+      "title": "Proposal & Planning Workspace (stage-gate V6.0)",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Stage-gate V6.0 machine-checkable: Brand Safety 7/7 pass bắt buộc, weighted ≥3,5 (borderline 3,0–3,49 vào hàng đợi thẩm định 4h); proposal theo Tier với đếm và chặn vòng sửa; GM duyệt trước khi gửi; audit log mọi chuyển stage và override.",
+      "business_rules": [
+        "BR-OPS-6.1 Stage-gate machine-checkable: phân loại done criteria hệ thống tự kiểm vs thuần phán đoán; hard block tầng API + audit log",
+        "BR-OPS-6.2 Brand Safety 7 tiêu chí chặn cứng — 1 fail dừng ngay không ngoại lệ; quyền từ chối vận hành (legal xác nhận + TP OPS duyệt 24h)",
+        "BR-OPS-6.3 Template + định mức proposal theo tier, nguồn sự thật phan-loai-khach-hang-tier.md: B/C 15–25 trang Planner ≤4 vòng; D/E 8–12 trang AM ≤2 vòng — FLAG mâu thuẫn với stage-gate-lifecycle-v6.md §2.1 cho Phase 6d",
+        "BR-OPS-6.4 Đếm vòng review D/E ≤2, B/C ≤4; vượt hạn chặn vòng mới, escalate — gia hạn chỉ GM duyệt 1 lần",
+        "BR-OPS-6.5 GM e-approval trước khi gửi khách, SLA 1 ngày LV; Rehearsal trước Pitching; borderline 3,0–3,49 thẩm định 4h"
+      ]
+    },
+    {
+      "req_id": "REQ-OPS-006",
+      "title": "Campaign & Deliverable Management",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL", "SYS-PORTAL-WEB", "SYS-MOBILE-PORTAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "WBS + lịch nội dung qua capacity check bắt buộc; duyệt creative đa vai cấm tự duyệt; campaign change log bất biến với lý do bắt buộc; phân bậc duyệt ngân sách buyer/TL/AM theo hạn mức ngày; khách xem tiến độ nghiệm thu theo milestone trên portal.",
+      "business_rules": [
+        "BR-OPS-7.1 WBS sinh từ approved proposal (deliverable map WBS node, dependency finish-to-start); project type bắt buộc: Dự án Khách hàng / Dự án Nội bộ",
+        "BR-OPS-7.2 Editorial calendar với pipeline trạng thái bài (Ý tưởng → Đã xuất bản), cảnh báo trượt deadline TL + AM",
+        "BR-OPS-7.3 Duyệt creative đa vai OPS_CONT → OPS_DES/OPS_EDIT → OPS_PLAN/AM; cấm tự duyệt; SLA từng bước [CẦN CHỐT SỐ]; vượt vòng sửa escalate TL",
+        "BR-OPS-7.4 Campaign change log bất biến: mọi thay đổi ngân sách/bid/target/audience bắt buộc reason + giá trị cũ/mới; bậc duyệt buyer (trong hạn mức) → TL → AM",
+        "BR-OPS-7.5 Nghiệm thu theo WBS/milestone, khách confirm trên PORTAL/M-PORTAL; Gate Day 14 là điều kiện nghiệm thu onboarding",
+        "BR-OPS-7.6 Vận hành song song 2 project type cùng engine; validation cấm tráo nhãn giờ; lệch nhãn phải TL duyệt có log"
+      ]
+    },
+    {
+      "req_id": "REQ-OPS-007",
+      "title": "Capacity & Timesheet",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Nhãn Client Billable / Internal Non-billable bắt buộc tại nguồn, cấm sửa sau ghi; utilization 70%/90%/100% với dừng gán tự động và chặn cứng ≥100% (khẩn cấp tối đa 110% ≤5 ngày LV); capacity check gắn mọi gán task và Gate 2 (SLA 4h → TL → HR_L2); thẩm quyền định mức thuộc HR_L2 → BOD.",
+      "business_rules": [
+        "BR-OPS-8.1 Nhãn billable/internal bắt buộc tại thời điểm ghi; cấm sửa nhãn sau ghi — correction + audit log (TL xác nhận 24h); validation cặp project type × nhãn",
+        "BR-OPS-8.2 Định mức theo policy: 40h chuẩn/48h trần mọi Level; billable mục tiêu L1 ≥80% → L5 20–30%; chốt tuần TL duyệt 48h, cấm tự duyệt; giờ chưa duyệt không vào P&L",
+        "BR-OPS-8.3 Capacity check mọi gán + Gate 2 (SLA 4h → TL → HR_L2); <70% cảnh báo, >90% vàng TL duyệt gán, ≥100% đỏ chặn cứng; khẩn cấp 110% ≤5 ngày LV có log",
+        "BR-OPS-8.4 Ranh giới HR: định mức giờ + billable mục tiêu HR_L2 đề xuất → BOD duyệt; OT vượt trần HR_L2; OPS ghi + TL duyệt lần 1; FIN chỉ nhận giờ đã duyệt vào P&L"
+      ]
+    },
+    {
+      "req_id": "REQ-OPS-008",
+      "title": "SLA & Notification Engine",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL", "SYS-PORTAL-WEB", "SYS-MOBILE-PORTAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Ma trận tier × priority (Tier E nhanh nhất), mốc GMT+7 giờ làm việc BC, pause khi Pending/Blocked-3rd-party; pre-alert 80%, breach 100% báo AM + CS TL ≤5 phút, AM báo khách trong 30 phút; escalation + override theo cấp CS TL → CX Head → BOD; post-mortem breach lặp; trực Critical 24/7.",
+      "business_rules": [
+        "BR-OPS-9.1 Ma trận tier×priority đầy đủ theo sla-khach-hang.md §2.1 (A thấp nhất — E cao nhất; Critical 24/7); FR = phản hồi có nội dung xử lý; HĐ cao hơn ghi đè profile",
+        "BR-OPS-9.2 SLA clock GMT+7 anchor duy nhất, giờ làm việc BC T2–T6 9:00–18:00; pause Pending (nhắc 2 lần → auto-Closed không tính breach) và Blocked-3rd-party (case ID, tối đa 5 ngày LV); lịch làm việc riêng khách trên portal",
+        "BR-OPS-9.3 Pre-alert 80% (assignee + AM), breach ≤5 phút báo AM + CS TL + dashboard CX Head, AM báo khách 30 phút; override CS TL (lần 1 ≤50%) → CX Head → BOD bắt buộc audit log; post-mortem ≥3 breach/30 ngày hoặc ≥2 cùng root cause/90 ngày"
+      ]
+    },
+    {
+      "req_id": "REQ-OPS-009",
+      "title": "Ticket & CSKH",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL", "SYS-PORTAL-WEB", "SYS-MOBILE-PORTAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ2",
+      "summary": "Queue hợp nhất đa kênh chống trùng lặp, ngoài scope tự tách change request; state machine New→Open→Pending→Resolved→Closed, reopen 7 ngày; CSAT tự động sau Closed, detractor ≤2 liên hệ lại trong 48h; khiếu nại nghiêm trọng leo thang BOD 24h; trigger escalation bắt buộc theo trạng thái.",
+      "business_rules": [
+        "BR-OPS-9.4 Queue hợp nhất portal/email/Zalo + dedupe; state machine New→Open→Pending→Resolved→Closed, reopen 7 ngày giữ ngữ cảnh; trigger escalation bắt buộc chuỗi assignee → AM → CS TL → CX Head → BOD, mỗi chặng 30 phút trong giờ trực",
+        "BR-OPS-9.5 CSAT tự động sau Closed (nhắc tối đa 1 lần sau 48h); detractor ≤2 gọi lại trong 48h LV gắn ticket gốc; khiếu nại nghiêm trọng (Tier D/E, mất tiền, đối soát, đạo đức) BOD 24h; CSAT tier <4,0 hai tháng liên tiếp → review dịch vụ CX Head"
+      ]
+    },
+    {
+      "req_id": "REQ-OPS-010",
+      "title": "Client Portal góc nhìn ops — cấp tài khoản & monitor",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL", "SYS-PORTAL-WEB", "SYS-MOBILE-PORTAL"],
+      "primary_system": "SYS-PORTAL-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ3",
+      "summary": "AM cấp/kích hoạt portal theo milestone Day 1/7/14/30 với GATE Day 14 (khách tự xem số dư + chi tiêu + ticket, ≥1 login/tuần từ ≥2 user); tenant isolation row-level + portal gateway tách zone; khách thấy ví read-only/chi tiêu daily/tiến độ/ticket, không thấy giá vốn/chiết khấu/P&L; disclaimer độ trễ bắt buộc; CLIENT_ADMIN tự quản user."
+    },
+    {
+      "req_id": "REQ-OPS-011",
+      "title": "TikTok Shop Monitoring",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "OAuth per-client + access log bất biến, thu hồi 24h khi hết HĐ; mask PII mặc định, dữ liệu đầy đủ chỉ phiên TTL; tách bạch tuyệt đối GMV khỏi P&L agency (doanh thu BC chỉ từ phí dịch vụ + phí ads thu hộ); lifecycle 3 Gate với checklist thẩm định chủ shop + giấy phép ngành hàng; KHÔNG làm OMS/WMS — chỉ monitoring."
+    },
+    {
+      "req_id": "REQ-OPS-012",
+      "title": "A/B Testing & chiến lược campaign theo mục tiêu khách",
+      "dept": "DEPT-OPS",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ2→GĐ3",
+      "summary": "Đăng ký thử nghiệm A/B gắn campaign (giả thuyết, mục tiêu theo conversion/traffic/awareness, variant, KPI, thời lượng, ngân sách) do Planner duyệt; truy vết kết quả theo variant từ dữ liệu nền tảng, chống giao thoa audience; learning log theo khách/ngành; không cam kết KPI cứng ngoài hợp đồng.",
+      "business_rules": [
+        "BR-OPS-10.1 Đăng ký thí nghiệm bắt buộc trước khi chạy: giả thuyết + primary metric duy nhất + sample size [CẦN CHỐT SỐ]; không đăng ký không được chi ngân sách; Planner duyệt",
+        "BR-OPS-10.2 Chống chồng chéo: 1 thí nghiệm active/segment audience; trùng segment chặn, bắt buộc exclusion hoặc chờ; platform khác cùng tệp mục tiêu do OPS_PLAN đánh giá",
+        "BR-OPS-10.3 Kết luận win/lose/no signal bắt buộc evidence trên change log bất biến (KPI theo variant + sample); không khai thắng cảm tính; không cam kết KPI cứng ngoài hợp đồng",
+        "BR-OPS-10.4 Learning log theo khách/ngành → review quý OPS_PLAN → cập nhật playbook/template chiến lược có log"
+      ]
+    }
+  ],
+  "metadata": {
+    "agent_type": "paid-media-expert",
+    "profile": "LPM",
+    "call": "1/2",
+    "sections": "B.1-B.5",
+    "call2": {
+      "agent_type": "marketing-expert",
+      "sections": "B.6-B.10",
+      "completed_at": "2026-09-12T02:07:01+07:00"
+    },
+    "pending_call_2": false,
+    "completed_at": "2026-09-12T01:53:25+07:00"
+  }
+}

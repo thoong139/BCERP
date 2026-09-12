@@ -1,0 +1,113 @@
+{
+  "$schema": "define-features-checkpoint-v1",
+  "checkpoint_id": "CP-DEFINE-FEAT-20260912-001",
+  "skill_id": "DEFINE-FEAT-20260912-001",
+  "timestamp": "2026-09-12T18:30:00.000Z",
+  "session_number": 1,
+  "trigger": {
+    "reason": "phase_complete",
+    "context_used_pct": 25,
+    "phase_completed": "phase0.5-workload-gate",
+    "system_completed": null,
+    "error_details": null
+  },
+  "scope": {
+    "type": "all",
+    "target": "all"
+  },
+  "position": {
+    "current_phase": "phase1-scope-mapping",
+    "current_phase_name": "Scope Mapping (REQ → FEAT, 19 modules)",
+    "current_step": null,
+    "current_system": null,
+    "current_module": null,
+    "next_phase": "phase2-create-specs",
+    "next_action": "chạy phase1-scope-mapping: map 59 REQ → FEAT theo 19 modules (Plan B full scope, CDG-A02)"
+  },
+  "progress": {
+    "phases_completed": [
+      "phase-0-context",
+      "phase0.5-workload-gate"
+    ],
+    "current_phase": {
+      "id": "P1",
+      "name": "Scope Mapping",
+      "status": "pending",
+      "progress_pct": 0
+    },
+    "pending_phases": [
+      "phase2-create-specs",
+      "phase3-cross-validation",
+      "phase4-stakeholder-review",
+      "phase5-registry-update"
+    ],
+    "files_completed": [],
+    "file_in_progress": null
+  },
+  "feat_id_state": {
+    "total_assigned": 0,
+    "assigned_ids": [],
+    "pending_ids": []
+  },
+  "coverage_state": {
+    "total_req_ids": 59,
+    "mapped_req_ids": [],
+    "unmapped_req_ids": [],
+    "coverage_pct": 0
+  },
+  "systems_state": {
+    "total": 6,
+    "completed": [],
+    "in_progress": null,
+    "pending": [
+      "SYS-CORE-BACKEND",
+      "SYS-BCERP-WEB",
+      "SYS-INTEGRATION-GW",
+      "SYS-MOBILE-INTERNAL",
+      "SYS-PORTAL-WEB",
+      "SYS-MOBILE-PORTAL"
+    ]
+  },
+  "files_state": {
+    "completed": [],
+    "in_progress": null,
+    "pending": []
+  },
+  "validation_state": {
+    "phase_3_iterations": 0,
+    "phase_3_errors_remaining": 0,
+    "phase_4_iterations": 0,
+    "phase_4_findings_pending": 0,
+    "phase_4_result": null
+  },
+  "next_action": {
+    "description": "Phase 1 scope-mapping. TRƯỚC KHI FAN-OUT: trình stakeholder DI-001/DI-004/DI-005 + DI-008 (6 KXN P0 từ documents/quy-trinh-lam-viec/) — quyết định kinh doanh tránh spec xong sửa ngược",
+    "phase": "phase1-scope-mapping",
+    "step": "1.1",
+    "system": null,
+    "module": null,
+    "file": null,
+    "context_needed": [
+      "deferred-issues.md DI-008",
+      "documents/quy-trinh-lam-viec/10_..._Khoan_Can_Xac_nhan.md §4"
+    ]
+  },
+  "resume_instructions": {
+    "command": "/wf-define-features --resume",
+    "files_to_read": [
+      ".mc-data/work/wf-define-features/define-features-status.json",
+      ".mc-data/work/wf-define-features/define-features-plan.md",
+      ".mc-data/docs/_meta/req-registry.json",
+      ".mc-data/work/wf-analyze-requirements/deferred-issues.md",
+      "documents/quy-trinh-lam-viec/README.md"
+    ],
+    "context_recovery": [
+      "Doc define-features-status.json de lay current state",
+      "Doc define-features-plan.md de lay feat-id map va file list",
+      "Doc reg-registry.json de lay requirements[]",
+      "Tiep tuc tu next_action.step trong checkpoint",
+      "Doc deferred-issues.md DI-008 + quy-trinh-lam-viec/10 §4 de lay 6 KXN P0 can stakeholder chot truoc khi tao specs"
+    ]
+  },
+  "notes": "Sync 12/09 (phiên rà soát): P0.5 đã xong (gate BLOCK 4.22x, user override CDG-A02 Plan B full 19 modules ~190 phut) — checkpoint cũ còn dừng ở giữa P0.5. Bộ gốc documents/quy-trinh-lam-viec/ (11 file) đã được thêm vào context_sources."
+}

@@ -1,0 +1,24 @@
+{
+  "lane_key": "core-backend--QUOTATION-DEALDESK",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-QUOTATION-DEALDESK",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-QDD-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/quotation-dealdesk/quotation-va-deal-desk-dinh-muc-chiet-khau-phan-cap-duyet-gm.md",
+      "req_ids": ["REQ-SALES-006"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-QDD-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/quotation-dealdesk/hop-dong-loi-nda-va-brand-safety-e-sign.md",
+      "req_ids": ["REQ-SALES-007"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T21:35:00+07:00",
+    "words_written": 6551
+  }
+}

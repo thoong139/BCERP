@@ -48,7 +48,7 @@ Nếu chất lượng và tốc độ xung đột → chất lượng thắng. T
 - `.claude/doc-framework/` — 40 document templates + 20 schema files (Phase 0-6).
 - `.claude/scripts/` — 160+ audit + validation scripts; chạy qua PowerShell wrapper trên Windows.
 - `docs/` — Hướng dẫn, reference, audit notes.
-- `.mc-data/` — Runtime artifacts (gitignored). `.claude/` là read-only trong runtime.
+- `.mc-data/` — Dữ liệu làm việc MCV3 (docs, registry, sessions, digests) — **được track + push GitHub** (chính sách 2026-09-12; trừ state per-machine: checkpoint.json, locks, caches — xem `.gitignore`). `.claude/` là read-only trong runtime.
 
 ## Phân Lớp Thay Đổi
 
@@ -78,7 +78,7 @@ Nếu thay đổi không có automated test, nêu rõ rằng verify chỉ dừng
 
 - Trả lời người dùng bằng tiếng Việt có dấu.
 - Tài liệu và comment viết tiếng Việt. Tên file, biến, hàm dùng English hoặc tiếng Việt không dấu.
-- `.mc-data/` và `docs/audit/work/` là artefact runtime — mặc định không commit.
+- `.mc-data/` là dữ liệu làm việc MCV3 — **commit + push lên GitHub** để đảm bảo đồng bộ (chính sách 2026-09-12; state per-machine trong `.gitignore` vẫn bị loại). `docs/audit/work/` vẫn là artefact runtime — không commit.
 - Dùng path tương đối theo repo root, tránh hardcode đường dẫn máy cục bộ.
 - Bắt đầu task bằng cách đọc `CLAUDE.md` và chỉ nạp thêm tài liệu đúng với phạm vi task.
 

@@ -1,0 +1,1347 @@
+{
+  "$schema": "req-registry-v4",
+  "$description": "Master Registry — single source of truth cho tất cả IDs, dependencies, implementation order. AI không được tạo ID mới ngoài file này.",
+  "project": "BCERP",
+  "last_updated": "2026-09-12",
+  "id_format": {
+    "REQ": "REQ-[DEPT]-[NNN]",
+    "MOD": "MOD-[SYS]-[MOD]",
+    "FEAT": "FEAT-[SYS]-[MOD]-[NNN]",
+    "UI_MAIN": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]",
+    "UI_TAB": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-T[N]",
+    "UI_DIALOG": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-D[N]",
+    "UI_SHEET": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-S[N]",
+    "UI_MODE": "UI-[SYS]-[MOD]-[SCREEN]-[NNN]-M[N]",
+    "API": "API-[SYS]-[MOD]-V1-[NNN]",
+    "DB": "DB-[SYS]-[MOD]-[NNN]",
+    "SEC": "SEC-[NNN]",
+    "DEP": "DEP-[ENV]-[NNN]"
+  },
+  "id_format_description": {
+    "SCREEN": "Tên màn hình viết hoa không dấu, VD: LIST, DETAIL, FORM, DASHBOARD",
+    "UI_MAIN": "Màn hình chính (page)",
+    "UI_TAB": "Tab trong màn hình",
+    "UI_DIALOG": "Dialog/Popup/Modal",
+    "UI_SHEET": "Sheet/Drawer/Sidepanel",
+    "UI_MODE": "View mode (Kanban/List/Calendar)"
+  },
+  "counters": {
+    "REQ": 59,
+    "MOD": 0,
+    "FEAT": 0,
+    "UI": 0,
+    "API": 0,
+    "DB": 0,
+    "SEC": 0,
+    "DEP": 0
+  },
+  "systems": [
+    {
+      "id": "SYS-BCERP-WEB",
+      "name": "BCERP Web nội bộ",
+      "description": "Web app ERP nội bộ cho toàn bộ 5 phòng ban — 19 phân hệ từ CRM pipeline tới BI dashboard",
+      "user_roles": [
+        "BOD_CEO",
+        "BOD_CFO_CTO",
+        "HR_L1",
+        "HR_L2",
+        "FIN_L1",
+        "FIN_L2",
+        "SALES_L1",
+        "SALES_L2",
+        "SALES_L3",
+        "SALES_L4",
+        "SALES_L5",
+        "OPS_PLAN",
+        "OPS_AM",
+        "OPS_CONT",
+        "OPS_DES",
+        "OPS_EDIT",
+        "OPS_ADS",
+        "SYS_ADMIN",
+        "OPS_CX",
+        "FIN_COMPL"
+      ],
+      "touchpoints": [
+        "web"
+      ],
+      "related_departments": [
+        "DEPT-BOD",
+        "DEPT-HR",
+        "DEPT-FINANCE",
+        "DEPT-SALES",
+        "DEPT-OPS"
+      ],
+      "phase": "MVP",
+      "depends_on": [
+        "SYS-CORE-BACKEND"
+      ],
+      "module_ids": [
+        "MOD-HR-CORE",
+        "MOD-CRM-PIPELINE",
+        "MOD-QUOTATION-DEALDESK",
+        "MOD-ADACCOUNT-CC",
+        "MOD-WALLET-RECON",
+        "MOD-ARAP-PAYMENT",
+        "MOD-HANDOFF-ONBOARD",
+        "MOD-PROPOSAL-PLANNING",
+        "MOD-CAMPAIGN-DELIVERABLE",
+        "MOD-CAPACITY-TIMESHEET",
+        "MOD-SLA-NOTIF",
+        "MOD-TICKET-CSKH",
+        "MOD-COMMISSION-QUOTA",
+        "MOD-KPI-PERFORMANCE"
+      ]
+    },
+    {
+      "id": "SYS-CORE-BACKEND",
+      "name": "BCERP Core Backend",
+      "description": "API + DB + Job Queue nguồn sự thật chung cho ERP nội bộ, Client Portal và tích hợp 7 nền tảng QC; chứa Audit Log Service và Integration Gateway",
+      "user_roles": [
+        "SYS_ADMIN",
+        "BOD_CFO_CTO"
+      ],
+      "touchpoints": [
+        "api"
+      ],
+      "related_departments": [
+        "DEPT-BOD",
+        "DEPT-HR",
+        "DEPT-FINANCE",
+        "DEPT-SALES",
+        "DEPT-OPS"
+      ],
+      "phase": "MVP",
+      "depends_on": [],
+      "module_ids": [
+        "MOD-RBAC-AUDIT",
+        "MOD-DATAHUB-BI"
+      ]
+    },
+    {
+      "id": "SYS-INTEGRATION-GW",
+      "name": "API Integration Gateway",
+      "description": "Adapter 7 nền tảng quảng cáo (Meta/Google/TikTok/Bing/X/Pinterest/Yandex) + TikTok Business + webhooks lead; credentials vault + sync scheduler + degraded mode",
+      "user_roles": [
+        "SYS_ADMIN",
+        "BOD_CFO_CTO"
+      ],
+      "touchpoints": [
+        "api"
+      ],
+      "related_departments": [
+        "DEPT-BOD",
+        "DEPT-FINANCE",
+        "DEPT-OPS"
+      ],
+      "phase": "MVP",
+      "depends_on": [
+        "SYS-CORE-BACKEND"
+      ],
+      "module_ids": [
+        "MOD-SETTINGS-GW",
+        "MOD-TIKTOK-SHOP"
+      ]
+    },
+    {
+      "id": "SYS-PORTAL-WEB",
+      "name": "Client Portal Web",
+      "description": "Portal đối ngoại multi-tenant cho khách hàng: số dư ví TKQC, chi tiêu daily, tiến độ nghiệm thu, ticket — read-only phần tài chính",
+      "user_roles": [
+        "CLIENT_USER",
+        "CLIENT_ADMIN"
+      ],
+      "touchpoints": [
+        "web"
+      ],
+      "related_departments": [
+        "DEPT-OPS",
+        "DEPT-FINANCE"
+      ],
+      "phase": "Phase3",
+      "depends_on": [
+        "SYS-CORE-BACKEND"
+      ],
+      "module_ids": [
+        "MOD-CLIENT-PORTAL"
+      ]
+    },
+    {
+      "id": "SYS-MOBILE-INTERNAL",
+      "name": "Mobile App — BCERP Internal",
+      "description": "Mobile variant nội bộ (cross-platform, chung codebase với BC Portal): phê duyệt di động, cảnh báo push, timesheet, dashboard BOD",
+      "user_roles": [
+        "BOD_CEO",
+        "BOD_CFO_CTO",
+        "FIN_L1",
+        "FIN_L2",
+        "SALES_L2",
+        "SALES_L3",
+        "SALES_L4",
+        "SALES_L5",
+        "OPS_AM",
+        "OPS_ADS"
+      ],
+      "touchpoints": [
+        "mobile"
+      ],
+      "related_departments": [
+        "DEPT-BOD",
+        "DEPT-FINANCE",
+        "DEPT-SALES",
+        "DEPT-OPS"
+      ],
+      "phase": "Phase2",
+      "depends_on": [
+        "SYS-CORE-BACKEND"
+      ],
+      "module_ids": []
+    },
+    {
+      "id": "SYS-MOBILE-PORTAL",
+      "name": "Mobile App — BC Portal",
+      "description": "Mobile variant khách hàng (cross-platform, public store): xem số dư ví, chi tiêu, ticket, push cảnh báo — tenant-isolated",
+      "user_roles": [
+        "CLIENT_USER",
+        "CLIENT_ADMIN"
+      ],
+      "touchpoints": [
+        "mobile"
+      ],
+      "related_departments": [
+        "DEPT-OPS"
+      ],
+      "phase": "Phase3",
+      "depends_on": [
+        "SYS-CORE-BACKEND",
+        "SYS-PORTAL-WEB"
+      ],
+      "module_ids": []
+    }
+  ],
+  "modules": [
+    {
+      "id": "MOD-RBAC-AUDIT",
+      "name": "RBAC & Audit Log",
+      "system": "SYS-CORE-BACKEND",
+      "phase": "MVP",
+      "description": "Phân quyền theo vai+Level, SSO Keycloak 2 realms, MFA, audit log bất biến append-only hash-chain",
+      "req_ids": [
+        "REQ-BOD-002",
+        "REQ-BOD-005",
+        "REQ-BOD-007",
+        "REQ-BOD-009",
+        "REQ-BOD-011",
+        "REQ-HR-010",
+        "REQ-FIN-012"
+      ]
+    },
+    {
+      "id": "MOD-SETTINGS-GW",
+      "name": "Settings & Integration Gateway",
+      "system": "SYS-INTEGRATION-GW",
+      "phase": "MVP",
+      "description": "Credentials vault, sync scheduler, API 7 nền tảng QC, degraded mode manual",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-FIN-005"
+      ]
+    },
+    {
+      "id": "MOD-HR-CORE",
+      "name": "HR Core",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "description": "Hồ sơ L1–L5, mã vai, HĐLĐ, chấm công, nghỉ phép, Cost Rate Card version hóa",
+      "req_ids": [
+        "REQ-HR-001",
+        "REQ-HR-002",
+        "REQ-HR-003",
+        "REQ-HR-004",
+        "REQ-HR-005",
+        "REQ-HR-006"
+      ]
+    },
+    {
+      "id": "MOD-CRM-PIPELINE",
+      "name": "CRM & Lead Pipeline V6.0",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "description": "Anti-duplicate đa kênh, AUTO SCORING K1–K12, Tier A–E, Gate 1/Gate 2",
+      "req_ids": [
+        "REQ-SALES-001",
+        "REQ-SALES-002",
+        "REQ-SALES-003",
+        "REQ-SALES-004",
+        "REQ-SALES-005"
+      ]
+    },
+    {
+      "id": "MOD-QUOTATION-DEALDESK",
+      "name": "Quotation & Deal Desk",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "description": "Định mức tính giá, duyệt GM, ma trận chiết khấu phân cấp, version control",
+      "req_ids": [
+        "REQ-SALES-006",
+        "REQ-SALES-007"
+      ]
+    },
+    {
+      "id": "MOD-ADACCOUNT-CC",
+      "name": "Quản lý TKQC — Ad Account Command Center",
+      "system": "SYS-BCERP-WEB",
+      "phase": "MVP",
+      "description": "Registry 2.600+ TK: vòng đời, số dư, spend limit, owner, die account, KYC gate",
+      "req_ids": [
+        "REQ-FIN-009",
+        "REQ-OPS-001",
+        "REQ-OPS-002"
+      ]
+    },
+    {
+      "id": "MOD-WALLET-RECON",
+      "name": "Wallet & Đối soát TKQC",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Sổ phụ ví tiền giữ hộ, lệnh nạp/rút, đối trừ 3 số, đa tiền tệ, AML monitoring, Financial Hard Stop",
+      "req_ids": [
+        "REQ-FIN-001",
+        "REQ-FIN-002",
+        "REQ-FIN-003",
+        "REQ-FIN-004",
+        "REQ-FIN-006",
+        "REQ-FIN-010",
+        "REQ-OPS-003"
+      ]
+    },
+    {
+      "id": "MOD-ARAP-PAYMENT",
+      "name": "Công nợ AR/AP & Giải ngân",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Aging, nhắc nợ, duyệt chi theo ngưỡng SoD, HĐĐT, tích hợp VAS, phí/thuế nền tảng",
+      "req_ids": [
+        "REQ-BOD-001",
+        "REQ-BOD-010",
+        "REQ-FIN-007",
+        "REQ-FIN-008",
+        "REQ-FIN-011",
+        "REQ-FIN-013",
+        "REQ-FIN-014"
+      ]
+    },
+    {
+      "id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff & Onboarding Bridge",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Handoff Package 5 nhóm checklist, ký 3 bên, SLA 4h, milestone Day 1/7/14/30",
+      "req_ids": [
+        "REQ-SALES-008",
+        "REQ-OPS-004"
+      ]
+    },
+    {
+      "id": "MOD-PROPOSAL-PLANNING",
+      "name": "Proposal & Planning Workspace",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Stage-gate Lifecycle V6.0, Brand Safety 7 tiêu chí, template theo tier, đếm vòng review",
+      "req_ids": [
+        "REQ-OPS-005"
+      ]
+    },
+    {
+      "id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign & Deliverable Management",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "WBS, editorial calendar, duyệt creative đa vai, change log bất biến, A/B testing",
+      "req_ids": [
+        "REQ-OPS-006",
+        "REQ-OPS-012"
+      ]
+    },
+    {
+      "id": "MOD-CAPACITY-TIMESHEET",
+      "name": "Capacity & Timesheet",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Định mức giờ L1–L5, nhãn billable tại nguồn, chặn gán vượt 100%, duyệt TL",
+      "req_ids": [
+        "REQ-HR-009",
+        "REQ-OPS-007"
+      ]
+    },
+    {
+      "id": "MOD-SLA-NOTIF",
+      "name": "SLA & Notification Engine",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Ma trận tier×priority, SLA clock GMT+7, pre-alert 80%, escalation tự động, alert center",
+      "req_ids": [
+        "REQ-OPS-008"
+      ]
+    },
+    {
+      "id": "MOD-TICKET-CSKH",
+      "name": "Ticket & CSKH",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase2",
+      "description": "Queue hợp nhất portal/email/Zalo, CSAT, detractor 48h, escalation BOD",
+      "req_ids": [
+        "REQ-OPS-009"
+      ]
+    },
+    {
+      "id": "MOD-COMMISSION-QUOTA",
+      "name": "Commission & Quota",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase3",
+      "description": "Hoa hồng theo thanh toán thực nhận + clawback, quota pipeline coverage ≥3x",
+      "req_ids": [
+        "REQ-SALES-009"
+      ]
+    },
+    {
+      "id": "MOD-KPI-PERFORMANCE",
+      "name": "KPI & Performance",
+      "system": "SYS-BCERP-WEB",
+      "phase": "Phase3",
+      "description": "3 trụ cột tự tổng hợp (timesheet+task SLA+target), PIP 30-60-90, calibration",
+      "req_ids": [
+        "REQ-HR-007",
+        "REQ-HR-008"
+      ]
+    },
+    {
+      "id": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal",
+      "system": "SYS-PORTAL-WEB",
+      "phase": "Phase3",
+      "description": "Multi-tenant: ví read-only, chi tiêu daily, tiến độ, ticket; 2FA/OTP, đa ngôn ngữ/múi giờ",
+      "req_ids": [
+        "REQ-FIN-017",
+        "REQ-OPS-010"
+      ]
+    },
+    {
+      "id": "MOD-DATAHUB-BI",
+      "name": "Data Integration Hub & Analytics — BI/BOD Dashboard",
+      "system": "SYS-CORE-BACKEND",
+      "phase": "Phase3",
+      "description": "Star schema, P&L realtime, metric catalog, freshness SLA, alert center BOD",
+      "req_ids": [
+        "REQ-BOD-003",
+        "REQ-BOD-004",
+        "REQ-BOD-006",
+        "REQ-FIN-015",
+        "REQ-FIN-016"
+      ]
+    },
+    {
+      "id": "MOD-TIKTOK-SHOP",
+      "name": "TikTok Shop Monitoring",
+      "system": "SYS-INTEGRATION-GW",
+      "phase": "Phase3",
+      "description": "OAuth per-client, GMV/đơn/settlement/shop health, tách bạch GMV khỏi P&L agency",
+      "req_ids": [
+        "REQ-OPS-011"
+      ]
+    }
+  ],
+  "departments": [
+    {
+      "id": "DEPT-BOD",
+      "name": "Ban Điều Hành (BOD)",
+      "prefix": "BOD",
+      "folder": "phase1-business/departments/bod/"
+    },
+    {
+      "id": "DEPT-HR",
+      "name": "Phòng Hành chính Nhân sự (HR)",
+      "prefix": "HR",
+      "folder": "phase1-business/departments/hr/"
+    },
+    {
+      "id": "DEPT-FINANCE",
+      "name": "Phòng Tài chính - Kế toán",
+      "prefix": "FIN",
+      "folder": "phase1-business/departments/finance/"
+    },
+    {
+      "id": "DEPT-SALES",
+      "name": "Phòng Kinh Doanh (Sales)",
+      "prefix": "SALES",
+      "folder": "phase1-business/departments/sales/"
+    },
+    {
+      "id": "DEPT-OPS",
+      "name": "Phòng Vận Hành Dự Án & Marketing Nội Bộ (OPS)",
+      "prefix": "OPS",
+      "folder": "phase1-business/departments/operations/"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ-BOD-001",
+      "dept": "DEPT-BOD",
+      "title": "Phê duyệt vượt ngưỡng & escalation",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-BOD-002",
+      "dept": "DEPT-BOD",
+      "title": "Compensating control kiêm nhiệm CFO kiêm CTO",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-BOD-003",
+      "dept": "DEPT-BOD",
+      "title": "P&L toàn công ty realtime",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-DATAHUB-BI"
+    },
+    {
+      "id": "REQ-BOD-004",
+      "dept": "DEPT-BOD",
+      "title": "BI dashboard điều hành",
+      "priority": "HIGH",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-DATAHUB-BI"
+    },
+    {
+      "id": "REQ-BOD-005",
+      "dept": "DEPT-BOD",
+      "title": "Giám sát & truy xuất audit log",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-BOD-006",
+      "dept": "DEPT-BOD",
+      "title": "Alert center & cảnh báo rủi ro vận hành",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-DATAHUB-BI"
+    },
+    {
+      "id": "REQ-BOD-007",
+      "dept": "DEPT-BOD",
+      "title": "Quarterly access review & phân quyền",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-BOD-008",
+      "dept": "DEPT-BOD",
+      "title": "Quản trị Integration Gateway & credentials vault (vai CTO)",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-SETTINGS-GW"
+    },
+    {
+      "id": "REQ-BOD-009",
+      "dept": "DEPT-BOD",
+      "title": "Phê duyệt chính sách, tham số quản trị & tier",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-BOD-010",
+      "dept": "DEPT-BOD",
+      "title": "Phê duyệt tài chính độc quyền của CFO",
+      "priority": "MEDIUM",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-BOD-011",
+      "dept": "DEPT-BOD",
+      "title": "Nền tảng RBAC & SSO/MFA tập trung (cross-cutting)",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-HR-001",
+      "dept": "DEPT-HR",
+      "title": "Hồ sơ nhân sự trung tâm L1–L5 + mã vai",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-HR-CORE"
+    },
+    {
+      "id": "REQ-HR-002",
+      "dept": "DEPT-HR",
+      "title": "HĐLĐ & cảnh báo hết hạn 90/60/30 ngày",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-HR-CORE"
+    },
+    {
+      "id": "REQ-HR-003",
+      "dept": "DEPT-HR",
+      "title": "Chấm công & overtime",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_module": "MOD-HR-CORE"
+    },
+    {
+      "id": "REQ-HR-004",
+      "dept": "DEPT-HR",
+      "title": "Nghỉ phép: số dư tự động & duyệt phân cấp",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_module": "MOD-HR-CORE"
+    },
+    {
+      "id": "REQ-HR-005",
+      "dept": "DEPT-HR",
+      "title": "Self-service nhân viên (ESS)",
+      "priority": "MEDIUM",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_module": "MOD-HR-CORE"
+    },
+    {
+      "id": "REQ-HR-006",
+      "dept": "DEPT-HR",
+      "title": "Cost Rate Card version hóa, thẩm định finance",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-HR-CORE"
+    },
+    {
+      "id": "REQ-HR-007",
+      "dept": "DEPT-HR",
+      "title": "KPI 3 trụ cột tự tổng hợp + calibration",
+      "priority": "HIGH",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-KPI-PERFORMANCE"
+    },
+    {
+      "id": "REQ-HR-008",
+      "dept": "DEPT-HR",
+      "title": "PIP 30-60-90",
+      "priority": "MEDIUM",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_module": "MOD-KPI-PERFORMANCE"
+    },
+    {
+      "id": "REQ-HR-009",
+      "dept": "DEPT-HR",
+      "title": "Duyệt timesheet & capacity (phối hợp OPS)",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-CAPACITY-TIMESHEET"
+    },
+    {
+      "id": "REQ-HR-010",
+      "dept": "DEPT-HR",
+      "title": "Bảo vệ PII nhân sự (lương Confidential/Restricted)",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-FIN-001",
+      "dept": "DEPT-FINANCE",
+      "title": "Sổ phụ ví TKQC & lệnh giao dịch tiền (tiền giữ hộ)",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-FIN-002",
+      "dept": "DEPT-FINANCE",
+      "title": "Cảnh báo số dư đủ chi ≥3 ngày + SLA đỏ 2h",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-FIN-003",
+      "dept": "DEPT-FINANCE",
+      "title": "Dual approval điều chỉnh số dư / đổi tỷ giá / hoàn tiền",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-FIN-004",
+      "dept": "DEPT-FINANCE",
+      "title": "Đối trừ 3 số tự động, đa tiền tệ, chốt & khóa kỳ",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-FIN-005",
+      "dept": "DEPT-FINANCE",
+      "title": "API 7 nền tảng + degraded mode manual",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-SETTINGS-GW"
+    },
+    {
+      "id": "REQ-FIN-006",
+      "dept": "DEPT-FINANCE",
+      "title": "Financial Hard Stop \"đã khớp tiền\" FIN_L1",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-FIN-007",
+      "dept": "DEPT-FINANCE",
+      "title": "Công nợ AR/AP + aging + nhắc nợ",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-FIN-008",
+      "dept": "DEPT-FINANCE",
+      "title": "Duyệt chi/giải ngân: ngưỡng, SoD, delegate",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-FIN-009",
+      "dept": "DEPT-FINANCE",
+      "title": "KYC pháp nhân trước cấp phát TKQC",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ADACCOUNT-CC"
+    },
+    {
+      "id": "REQ-FIN-010",
+      "dept": "DEPT-FINANCE",
+      "title": "AML monitoring T1–T6 + hoàn tiền đúng nguồn",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-FIN-011",
+      "dept": "DEPT-FINANCE",
+      "title": "Hóa đơn điện tử TT78/2021 + NĐ123/2020",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-FIN-012",
+      "dept": "DEPT-FINANCE",
+      "title": "Lưu trữ chứng từ & audit log tiền ≥10 năm (WORM)",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-RBAC-AUDIT"
+    },
+    {
+      "id": "REQ-FIN-013",
+      "dept": "DEPT-FINANCE",
+      "title": "Tích hợp phần mềm kế toán VAS hiện hữu",
+      "priority": "MEDIUM",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-FIN-014",
+      "dept": "DEPT-FINANCE",
+      "title": "Phí nền tảng & nghĩa vụ thuế",
+      "priority": "MEDIUM",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ARAP-PAYMENT"
+    },
+    {
+      "id": "REQ-FIN-015",
+      "dept": "DEPT-FINANCE",
+      "title": "Dashboard & báo cáo tài chính nội bộ",
+      "priority": "MEDIUM",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-DATAHUB-BI"
+    },
+    {
+      "id": "REQ-FIN-016",
+      "dept": "DEPT-FINANCE",
+      "title": "BI/BOD dashboard & P&L realtime",
+      "priority": "MEDIUM",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-DATAHUB-BI"
+    },
+    {
+      "id": "REQ-FIN-017",
+      "dept": "DEPT-FINANCE",
+      "title": "Dữ liệu ví read-only cho Client Portal",
+      "priority": "MEDIUM",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-PORTAL-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "primary_module": "MOD-CLIENT-PORTAL"
+    },
+    {
+      "id": "REQ-SALES-001",
+      "dept": "DEPT-SALES",
+      "title": "Thu nhận lead đa kênh & chống trùng lặp (anti-duplicate)",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-CRM-PIPELINE"
+    },
+    {
+      "id": "REQ-SALES-002",
+      "dept": "DEPT-SALES",
+      "title": "Pipeline V6.0 — hard gate \"không ghi nhận = không tồn tại\" & phân bổ lead",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-CRM-PIPELINE"
+    },
+    {
+      "id": "REQ-SALES-003",
+      "dept": "DEPT-SALES",
+      "title": "AUTO SCORING K1–K12 & Tier A–E",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-CRM-PIPELINE"
+    },
+    {
+      "id": "REQ-SALES-004",
+      "dept": "DEPT-SALES",
+      "title": "Gate 1 & Gate 2 — Go/No-Go và ký Handoff",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-CRM-PIPELINE"
+    },
+    {
+      "id": "REQ-SALES-005",
+      "dept": "DEPT-SALES",
+      "title": "Chuyển tier Sales → CS & rà soát quý tier",
+      "priority": "MEDIUM",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-CRM-PIPELINE"
+    },
+    {
+      "id": "REQ-SALES-006",
+      "dept": "DEPT-SALES",
+      "title": "Quotation & Deal Desk — định mức, chiết khấu phân cấp, duyệt GM",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-QUOTATION-DEALDESK"
+    },
+    {
+      "id": "REQ-SALES-007",
+      "dept": "DEPT-SALES",
+      "title": "Hợp đồng/LOI/NDA & Brand Safety + e-sign",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-QUOTATION-DEALDESK"
+    },
+    {
+      "id": "REQ-SALES-008",
+      "dept": "DEPT-SALES",
+      "title": "Handoff & Onboarding Bridge",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-HANDOFF-ONBOARD"
+    },
+    {
+      "id": "REQ-SALES-009",
+      "dept": "DEPT-SALES",
+      "title": "Commission & Quota — hoa hồng theo thực nhận, clawback, coverage ≥3×",
+      "priority": "MEDIUM",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-COMMISSION-QUOTA"
+    },
+    {
+      "id": "REQ-OPS-001",
+      "dept": "DEPT-OPS",
+      "title": "Ad Account Command Center — registry & vòng đời TKQC",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-ADACCOUNT-CC"
+    },
+    {
+      "id": "REQ-OPS-002",
+      "dept": "DEPT-OPS",
+      "title": "Financial Hard Stop chặn cấp phát TKQC",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "primary_module": "MOD-ADACCOUNT-CC"
+    },
+    {
+      "id": "REQ-OPS-003",
+      "dept": "DEPT-OPS",
+      "title": "Ví TKQC góc ops — cảnh báo số dư & escalation",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_module": "MOD-WALLET-RECON"
+    },
+    {
+      "id": "REQ-OPS-004",
+      "dept": "DEPT-OPS",
+      "title": "Handoff & Onboarding Bridge",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-HANDOFF-ONBOARD"
+    },
+    {
+      "id": "REQ-OPS-005",
+      "dept": "DEPT-OPS",
+      "title": "Proposal & Planning Workspace (stage-gate V6.0)",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-PROPOSAL-PLANNING"
+    },
+    {
+      "id": "REQ-OPS-006",
+      "dept": "DEPT-OPS",
+      "title": "Campaign & Deliverable Management",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_module": "MOD-CAMPAIGN-DELIVERABLE"
+    },
+    {
+      "id": "REQ-OPS-007",
+      "dept": "DEPT-OPS",
+      "title": "Capacity & Timesheet",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-CAPACITY-TIMESHEET"
+    },
+    {
+      "id": "REQ-OPS-008",
+      "dept": "DEPT-OPS",
+      "title": "SLA & Notification Engine",
+      "priority": "HIGH",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_module": "MOD-SLA-NOTIF"
+    },
+    {
+      "id": "REQ-OPS-009",
+      "dept": "DEPT-OPS",
+      "title": "Ticket & CSKH",
+      "priority": "MEDIUM",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_module": "MOD-TICKET-CSKH"
+    },
+    {
+      "id": "REQ-OPS-010",
+      "dept": "DEPT-OPS",
+      "title": "Client Portal góc nhìn ops — cấp tài khoản & monitor",
+      "priority": "HIGH",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ],
+      "primary_module": "MOD-CLIENT-PORTAL"
+    },
+    {
+      "id": "REQ-OPS-011",
+      "dept": "DEPT-OPS",
+      "title": "TikTok Shop Monitoring",
+      "priority": "MEDIUM",
+      "phase": "Phase3",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-TIKTOK-SHOP"
+    },
+    {
+      "id": "REQ-OPS-012",
+      "dept": "DEPT-OPS",
+      "title": "A/B Testing & chiến lược campaign theo mục tiêu khách",
+      "priority": "MEDIUM",
+      "phase": "Phase2",
+      "status": "DRAFT",
+      "systems": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "primary_module": "MOD-CAMPAIGN-DELIVERABLE"
+    }
+  ],
+  "features": [],
+  "screen_groups": [],
+  "interface_type": "web+mobile",
+  "design_status": "pending",
+  "ux_design_status": "pending",
+  "impl_status": {},
+  "implementation_order": {
+    "_comment": "Thứ tự implement — AI đọc mảng này để biết làm gì trước. Chưa có FEAT — sẽ được populate bởi /wf-plan-modules sau khi features được định nghĩa.",
+    "order": []
+  },
+  "status_values": {
+    "REQ": [
+      "DRAFT",
+      "APPROVED",
+      "IMPLEMENTED",
+      "DEPRECATED"
+    ],
+    "FEAT": [
+      "PENDING",
+      "IN_PROGRESS",
+      "DONE",
+      "BLOCKED"
+    ],
+    "UI": [
+      "PENDING",
+      "IN_PROGRESS",
+      "DONE",
+      "BLOCKED"
+    ],
+    "priority": [
+      "HIGH",
+      "MEDIUM",
+      "LOW"
+    ],
+    "phase": [
+      "MVP",
+      "Phase2",
+      "Phase3"
+    ]
+  }
+}

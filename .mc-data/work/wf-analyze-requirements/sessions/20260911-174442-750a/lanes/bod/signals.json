@@ -1,0 +1,126 @@
+{
+  "lane_key": "bod",
+  "lane_type": "department",
+  "items": [
+    {
+      "req_id": "REQ-BOD-001",
+      "title": "Phê duyệt vượt ngưỡng & escalation",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Ma trận phê duyệt theo ngưỡng 5/50/200 triệu với dual approval, escalation SLA, duyệt mobile MFA (mở chứng từ trước khi duyệt >=200tr) và luồng chi khẩn 4h/hậu kiểm 24h."
+    },
+    {
+      "req_id": "REQ-BOD-002",
+      "title": "Compensating control kiêm nhiệm CFO kiêm CTO",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Chặn hard giao dịch tiền do CFO/CTO khởi tạo khi chưa có CEO duyệt (mobile duyệt khẩn <=4h), quarterly review CEO ký ngày 1-10 đầu quý, audit log bất biến cho mọi hành vi Super Admin."
+    },
+    {
+      "req_id": "REQ-BOD-003",
+      "title": "P&L toàn công ty realtime",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "P&L tính lại <=15 phút trên star schema từ GW/timesheet/ví/kế toán, tách tuyệt đối tiền giữ hộ TKQC khỏi doanh thu, chỉ báo freshness trên cả web và mobile read-only."
+    },
+    {
+      "req_id": "REQ-BOD-004",
+      "title": "BI dashboard điều hành",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "Phase3",
+      "summary": "BI workspace đa KPI một nguồn sự thật theo Metric Catalog, block publish khi quality test fail, mobile bản KPI rút gọn với cảnh báo đỏ khi stale nghiêm trọng."
+    },
+    {
+      "req_id": "REQ-BOD-005",
+      "title": "Giám sát & truy xuất audit log",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Tra cứu log append-only + hash-chain trên web với meta-log (xem log cũng bị log), xuất log phải CEO duyệt, mobile cấm tra cứu log Mật/Restricted."
+    },
+    {
+      "req_id": "REQ-BOD-006",
+      "title": "Alert center & cảnh báo rủi ro vận hành",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-MOBILE-INTERNAL",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Alert đa kênh: push mobile <=5 phút cho cảnh báo khẩn, web là trung tâm tổng hợp/xử lý, acknowledge bắt buộc kèm reason, gộp alert theo nguồn khi connector outage."
+    },
+    {
+      "req_id": "REQ-BOD-007",
+      "title": "Quarterly access review & phân quyền",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-INTEGRATION-GW", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Review user x role x level x credentials trong 10 ngày đầu quý do CEO ký, tự vô hiệu quyền không review 2 quý, offboarding thu hồi + rotate credentials <=24h."
+    },
+    {
+      "req_id": "REQ-BOD-008",
+      "title": "Quản trị Integration Gateway & credentials vault (vai CTO)",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-INTEGRATION-GW", "SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-INTEGRATION-GW",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "CTO quản trị vault credentials 7 nền tảng chỉ trên web console MFA (rotate >=90 ngày, không plaintext, log mọi gọi API), mobile cấm toàn bộ thao tác vault để giảm bề mặt tấn công."
+    },
+    {
+      "req_id": "REQ-BOD-009",
+      "title": "Phê duyệt chính sách, tham số quản trị & tier",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Chính sách/tham số/tier duyệt theo version và ngày hiệu lực (effective-dated, không hồi tố): CEO duyệt chính sách/định mức/tier, CFO duyệt định nghĩa metric và ngưỡng freshness."
+    },
+    {
+      "req_id": "REQ-BOD-010",
+      "title": "Phê duyệt tài chính độc quyền của CFO",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "MVP",
+      "summary": "Hạn mức tín dụng TKQC, mở lại kỳ đã khóa, backfill M2 là lệnh độc quyền của CFO trên web với log và lý do bắt buộc; sự cố M3 CFO cùng CEO quyết trong 4h."
+    },
+    {
+      "req_id": "REQ-BOD-011",
+      "title": "Nền tảng RBAC & SSO/MFA tập trung (cross-cutting)",
+      "dept": "DEPT-BOD",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-PORTAL-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "MVP",
+      "summary": "Bổ sung Phase 6d (SO3-01): RBAC engine vai x Level x 4-tier dữ liệu (C1/C2/C3/T1-T4) hỗ trợ 1 người nhiều vai và tách xung đột duyệt (SoD theo luồng), SSO Keycloak 2 realms (nội bộ + portal khách), MFA TOTP nội bộ / OTP portal, lifecycle tài khoản nội bộ (offboarding thu hồi <=24h); enforcement tập trung ở CORE là dependency của TẤT CẢ phân hệ — REQ-BOD-007 (access review), REQ-FIN-012 (audit log), REQ-HR-010 (PII), REQ-FIN-006 (MFA Hard Stop) giữ scope riêng và tham chiếu REQ-BOD-011 làm nền tảng."
+    }
+  ],
+  "metadata": {
+    "agent_type": "business-analyst",
+    "profile": "LPM",
+    "part_b_words": 2723,
+    "completed_at": "2026-09-12T01:45:00+07:00",
+    "phase6d": {
+      "appended": ["REQ-BOD-011"],
+      "completed_at": "2026-09-12T02:51:45+07:00"
+    }
+  }
+}

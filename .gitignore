@@ -33,7 +33,10 @@ logs/
 *.tmp
 *.temp
 .cache/
-.mc-data/
+# MCV3 working data (chính sách 2026-09-12 theo yêu cầu user): .mc-data/ được TRACK và
+# push GitHub — "đảm bảo toàn bộ dữ liệu làm việc MCV3 đồng bộ GitHub". State per-machine
+# vẫn ignore (checkpoint.json mọi độ sâu, locks, caches, implement/scan sessions) —
+# xem section ".mc-data/ RUNTIME STATE" và các section wf-* bên dưới.
 .mc-data-eval/
 .mc-data-eval-real/
 docs/audit/work/
@@ -54,12 +57,9 @@ secrets/
 .mc-data/work/wf-scan-target/sessions/*/.lock
 
 # wf-implement-feature v4.0 (Sprint 1 — design intent for multi-dev safety)
-# NOTE: Toàn bộ .mc-data/ đã ignore ở line 36 (project policy: runtime data is per-project,
-# not cross-team sync). Các rules dưới đây mô tả intent: nếu chính sách đổi để un-ignore
-# .mc-data/, thì sessions/, current.txt, .locks/, .cache/ vẫn KHÔNG sync (per-machine state),
-# và .history/implementations-index.jsonl SHOULD sync (audit trail multi-dev).
-# Hiện tại: tất cả working state đều ignore qua parent rule — `git status` sẽ không thấy
-# các files này. .history/ vẫn được tạo và sử dụng local nhưng không sync.
+# Chính sách ĐÃ ĐỔI (2026-09-12): .mc-data/ được un-ignore và track lên GitHub.
+# Quy tắc gốc giữ nguyên: sessions/, current.txt, .locks/, .cache/ KHÔNG sync
+# (per-machine state); .history/implementations-index.jsonl SHOULD sync (audit trail).
 .mc-data/work/wf-implement-feature/*/sessions/
 .mc-data/work/wf-implement-feature/*/current.txt
 .mc-data/work/wf-implement-feature/*/archived/
@@ -98,10 +98,12 @@ Thumbs.db
 desktop.ini
 
 # ============================================================
-# .mc-data/ RUNTIME STATE (folder gốc track có chọn lọc)
+# .mc-data/ RUNTIME STATE (folder gốc được track — chỉ ignore state per-machine)
 # ============================================================
-# Runtime checkpoints per-machine — KHÔNG ảnh hưởng checkpoint.json template trong .claude/skills/
-.mc-data/work/*/checkpoint.json
+# Runtime checkpoints per-machine (mọi độ sâu, kể cả trong sessions/) — KHÔNG ảnh hưởng
+# checkpoint.json template trong .claude/skills/
+.mc-data/work/**/checkpoint.json
+.mc-data/work/**/checkpoint.json.tmp
 # CI cache lock (per-machine)
 .mc-data/work/_meta/*.lock
 # Hook-generated sync state (giữ .gitkeep đã track)

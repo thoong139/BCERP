@@ -1,0 +1,30 @@
+{
+  "lane_key": "core-backend--ADACCOUNT-CC",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-ADACCOUNT-CC",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-ADACC-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/adaccount-cc/kyc-phap-nhan-truoc-cap-phat-tkqc.md",
+      "req_ids": ["REQ-FIN-009"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-ADACC-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "req_ids": ["REQ-OPS-001"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-ADACC-003",
+      "file": ".mc-data/docs/phase2-features/core-backend/adaccount-cc/financial-hard-stop-chan-cap-phat-tkqc.md",
+      "req_ids": ["REQ-OPS-002"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T14:07:35Z",
+    "words_written": 9030
+  }
+}

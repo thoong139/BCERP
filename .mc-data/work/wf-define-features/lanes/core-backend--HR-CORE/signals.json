@@ -1,0 +1,48 @@
+{
+  "lane_key": "core-backend--HR-CORE",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-HR-CORE",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-HRCORE-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/hr-core/ho-so-nhan-su-trung-tam-l1-l5-ma-vai.md",
+      "req_ids": ["REQ-HR-001"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-HRCORE-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/hr-core/hdld-va-canh-bao-het-han-90-60-30-ngay.md",
+      "req_ids": ["REQ-HR-002"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-HRCORE-003",
+      "file": ".mc-data/docs/phase2-features/core-backend/hr-core/cham-cong-va-overtime.md",
+      "req_ids": ["REQ-HR-003"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-HRCORE-004",
+      "file": ".mc-data/docs/phase2-features/core-backend/hr-core/nghi-phep-so-du-tu-dong-va-duyet-phan-cap.md",
+      "req_ids": ["REQ-HR-004"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-HRCORE-005",
+      "file": ".mc-data/docs/phase2-features/core-backend/hr-core/self-service-nhan-vien-ess.md",
+      "req_ids": ["REQ-HR-005"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-HRCORE-006",
+      "file": ".mc-data/docs/phase2-features/core-backend/hr-core/cost-rate-card-version-hoa-tham-dinh-finance.md",
+      "req_ids": ["REQ-HR-006"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T13:32:12Z",
+    "words_written": 16416
+  }
+}

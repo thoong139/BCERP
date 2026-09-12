@@ -1,0 +1,112 @@
+{
+  "lane_key": "hr",
+  "lane_type": "department",
+  "items": [
+    {
+      "req_id": "REQ-HR-001",
+      "title": "Hồ sơ nhân sự trung tâm L1–L5 + mã vai",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Vòng đời nhân sự: onboarding (hồ sơ → mã vai/Level → lệnh RBAC theo mã vai → cost rate version đầu tiên), thay đổi Level/vai theo SCD2 hiệu lực từ ngày–đến ngày, offboarding thu hồi tài khoản ERP trong 24h + thu hồi TKQC 24h phối hợp OPS; freelancer ngoài biên chế không tạo hồ sơ."
+    },
+    {
+      "req_id": "REQ-HR-002",
+      "title": "HĐLĐ & cảnh báo hết hạn 90/60/30 ngày",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Lưu HĐLĐ + file scan mã hóa (C1); job quét hằng ngày nhắc 90/60/30 ngày cho HR_L2 + TL; quá hạn chưa tái ký → cảnh báo đỏ + escalate BOD; tái ký tạo bản ghi nối tiếp giữ lịch sử; HĐ không xác định thời hạn tắt nhắc."
+    },
+    {
+      "req_id": "REQ-HR-003",
+      "title": "Chấm công & overtime",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-BCERP-WEB", "SYS-CORE-BACKEND"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Ghi công hằng ngày 40h/tuần T2–T6; điều chỉnh công qua người khác duyệt + audit log; OT duyệt trước (retro 24h), CORE chặn cứng khi chuẩn + OT > 48h/tuần và trần 200h/năm, OT vượt trần chỉ HR_L2 duyệt; tổng hợp tháng bàn giao payroll/BHXH cho FIN."
+    },
+    {
+      "req_id": "REQ-HR-004",
+      "title": "Nghỉ phép: số dư tự động & duyệt phân cấp",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-BCERP-WEB", "SYS-CORE-BACKEND"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Tích lũy 12 ngày/năm (1 ngày/tháng); chặn duyệt vượt số dư ở tầng validation; route phân cấp: ≤5 ngày TL duyệt 24h, >5 ngày hoặc không lương HR_L2 duyệt 48h; nghỉ đã duyệt tự trừ số dư và tự giảm capacity tuần; nghỉ ốm ≥3 ngày kèm giấy khám."
+    },
+    {
+      "req_id": "REQ-HR-005",
+      "title": "Self-service nhân viên (ESS)",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-BCERP-WEB", "SYS-CORE-BACKEND"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ1",
+      "summary": "Trang 'Của tôi': hồ sơ (C1 masked), xin nghỉ, điều chỉnh công, timesheet và dữ liệu gốc KPI của mình; thay đổi trường nhạy cảm/ảnh hưởng payroll phải HR_L2 duyệt 24h trước khi hiệu lực; enforce row-level ở CORE + audit log; mobile ngoài scope hiện tại."
+    },
+    {
+      "req_id": "REQ-HR-006",
+      "title": "Cost Rate Card version hóa, thẩm định finance",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Workflow 3 chặn: HR_L2 soạn → FIN_L2 thẩm định đối chiếu payroll (ngưỡng ±10% [CẦN CHỐT SỐ]) → BOD duyệt phát hành version; version đã phát hành bất biến; P&L chọn version theo ngày ghi giờ, thiếu version phủ → fallback + cờ dữ liệu; Restricted: chỉ HR_L2 + BOD xem cost cá nhân."
+    },
+    {
+      "req_id": "REQ-HR-007",
+      "title": "KPI 3 trụ cột tự tổng hợp + calibration",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ3",
+      "summary": "Tự tổng hợp On-time/Output Volume/SLA-Target, cấm nhập điểm tay; trọng số theo Level hiện hành tại thời điểm đóng kỳ (đọc SCD2); review quý minh bạch dữ liệu gốc, thắc mắc 3 ngày; calibration HR_L2 bắt buộc trước khi trình BOD (L4–L5, top/bottom); cờ quá tải >100% ≥2 tuần miễn phạt On-time; thử việc 70/30 không PIP."
+    },
+    {
+      "req_id": "REQ-HR-008",
+      "title": "PIP 30-60-90",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-BCERP-WEB", "SYS-CORE-BACKEND"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "CORE gợi ý mở PIP (quý <60/100; 2 quý dưới kỳ vọng; vi phạm SLA nghiêm trọng); Manager đề xuất + HR_L2 duyệt trong 5 ngày làm việc; milestone 30/60/90, coaching ≥2 tuần/lần; không đạt mốc 90 → BOD quyết định điều chuyển/hạ Level/chấm dứt HĐLĐ; hồ sơ Restricted; nghỉ dài tạm dừng tính lại mốc."
+    },
+    {
+      "req_id": "REQ-HR-009",
+      "title": "Duyệt timesheet & capacity (phối hợp OPS)",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Ranh giới: OPS ghi giờ + gán capacity, HR sở hữu quy tắc duyệt/định mức/escalation/OT; chốt tuần 12:00 T2, TL duyệt 48h cấm tự duyệt (timesheet TL do Manager L4 duyệt); chỉ giờ approved nhân Cost Rate Card vào P&L; correction qua TL + audit log; escalation 4h TL → 8h HR_L2; định mức/billable mục tiêu HR_L2 đề xuất → BOD duyệt chu kỳ năm."
+    },
+    {
+      "req_id": "REQ-HR-010",
+      "title": "Bảo vệ PII nhân sự (lương Confidential/Restricted)",
+      "dept": "DEPT-HR",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Phân loại C1/C2/C3; C1 mã hóa lưu + truyền, cấm xuất raw; ma trận quyền: chỉ HR_L2 + BOD xem lương/cost cá nhân, HR_L1 không xem lương, manager chỉ tổng cost nhóm, SYS_ADMIN không xem giá trị; audit log bất biến mọi lượt xem/sửa; review truy cập C1 theo quý; retention 10 năm lương/chứng từ, 12 tháng hồ sơ ứng tuyển; breach thông báo A06 72h (NĐ 13/2023)."
+    }
+  ],
+  "metadata": {
+    "agent_type": "hr-expert",
+    "profile": "LPM",
+    "part_b_words": 2905,
+    "completed_at": "2026-09-12T01:39:05+07:00"
+  }
+}

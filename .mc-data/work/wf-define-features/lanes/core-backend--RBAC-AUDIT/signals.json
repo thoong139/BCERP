@@ -1,0 +1,54 @@
+{
+  "lane_key": "core-backend--RBAC-AUDIT",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-RBAC-AUDIT",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-RBAC-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+      "req_ids": ["REQ-BOD-002"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-RBAC-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/giam-sat-va-truy-xuat-audit-log.md",
+      "req_ids": ["REQ-BOD-005"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-RBAC-003",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/quarterly-access-review-va-phan-quyen.md",
+      "req_ids": ["REQ-BOD-007"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-RBAC-004",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/phe-duyet-chinh-sach-tham-so-quan-tri-va-tier.md",
+      "req_ids": ["REQ-BOD-009"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-RBAC-005",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "req_ids": ["REQ-BOD-011"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-RBAC-006",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/bao-ve-pii-nhan-su-luong-confidential-restricted.md",
+      "req_ids": ["REQ-HR-010"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-RBAC-007",
+      "file": ".mc-data/docs/phase2-features/core-backend/rbac-audit/luu-tru-chung-tu-va-audit-log-tien-10-nam-worm.md",
+      "req_ids": ["REQ-FIN-012"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T20:30:00+07:00",
+    "words_written": 20910
+  }
+}

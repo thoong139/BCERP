@@ -1,0 +1,16 @@
+const fs = require('fs');
+const path = require('path');
+const dir = 'E:/BC-Working/documents/quy-trinh-lam-viec';
+const mdFiles = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
+const corpus = mdFiles.map(f => fs.readFileSync(path.join(dir, f), 'utf8')).join('');
+const c = corpus.toLowerCase();
+const keys = ['og_content','og_design','og_video','og_am_review','og_ads','og_partner','og_handoff_form','og_content_calendar','og_campaign_lifecycle','og_lead_quality','og_account_health','og_am_backup','og_routine','og_threshold','og_ab_test','og_budget_pacing','og_emergency','og_notify_am','og_am_action','og_team_meet','og_implement','og_kh_approve','og_pull_data','og_compile','og_am_qc','og_send_report','og_fb_data','og_fb_explain','og_qbr','og_client_health','og_creative_library','og_capacity','og_competitive','og_ongoing_exit','og_monthly_closing','og_insight','og_silence','og_internal_retro','internal_retro'];
+const miss = keys.filter(k => !c.includes(k));
+console.log('og/internal keys covered:', (keys.length - miss.length) + '/' + keys.length, miss.length ? 'MISSING: ' + miss.join(',') : '');
+const fence = '```';
+const re = new RegExp(fence + 'mermaid([\s\S]*?)' + fence, 'g');
+let mermaid = 0, bad = 0, m;
+while ((m = re.exec(corpus))) { mermaid++; if (!/flowchart|sequenceDiagram|graph/.test(m[1])) bad++; }
+console.log('mermaid blocks:', mermaid, '| malformed:', bad);
+const used = new Set([...corpus.matchAll(/KXN-(\d+b?)\b/g)].map(x => x[1]));
+console.log('KXN used now:', [...used].sort().join(','));

@@ -1,0 +1,109 @@
+{
+  "lane_key": "sales",
+  "lane_type": "department",
+  "items": [
+    {
+      "req_id": "REQ-SALES-001",
+      "title": "Thu nhận lead đa kênh & chống trùng lặp (anti-duplicate)",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Webhook 4 nguồn (landing/Zalo OA/Fanpage/Messenger) + nhập tay referral/cold; anti-duplicate so khớp SĐT/email/domain/MST theo trọng số, flag kèm bằng chứng không chặn mù; tranh chấp nguồn: ghi trước có bằng chứng → hòa SM 24h → khiếu nại GDKD 3 ngày; retry queue không mất lead; lead cũ ≤180 ngày chấm lại đúng 1 lần. BR-SALES-101..103 (B.1)."
+    },
+    {
+      "req_id": "REQ-SALES-002",
+      "title": "Pipeline V6.0 — hard gate \"không ghi nhận = không tồn tại\" & phân bổ lead",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Stage machine 10 stage, hard block thiếu done criteria ở cả UI và API; Initial Brief SLA 2h 3 trường bắt buộc + escalate; meeting notes bắt buộc trước QUALIFIED; phân bổ lead auto theo nguồn hoặc SM gán 4h [CẦN CHỐT SỐ]; WON 24h tự sinh dự án; mobile chỉ xem không di chuyển stage. BR-SALES-201..203 (B.2)."
+    },
+    {
+      "req_id": "REQ-SALES-003",
+      "title": "AUTO SCORING K1–K12 & Tier A–E",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Chấm 2 lần: autoScore tại Initial Brief, qualifiedTier sau Full Brief, khóa sau Gate 1; K1–K5 knockout (K1 SP thiếu giấy phép, K2 từ chối điều khoản trách nhiệm, K3 ngành cấm, K4 không nạp 100% NSQC; K5 [CẦN CHỐT SỐ]), K6–K12 flag; CQ trọng số 30/25/20/15/10; tier nghịch trực giác A<1.5 AUTO LOST → E≥3.5 bypass; thiếu ≥2/5 CQ chặn chấm; phát hiện stage-gate §2.1 đảo proposal B/C vs D/E — cần hiệu chỉnh. BR-SALES-301..303 (B.3)."
+    },
+    {
+      "req_id": "REQ-SALES-004",
+      "title": "Gate 1 & Gate 2 — Go/No-Go và ký Handoff",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-MOBILE-INTERNAL",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Gate 1: entry machine-checkable (Full Brief + NDA + qualifiedTier + notes), SM ký Go/No-Go SLA 1 ngày, khóa qualifiedTier, mobile là kênh ký chính từ P2 với MFA step-up, SM ≠ chủ deal; Gate 2: package 5 nhóm 100% + SM ký + AM xác nhận SLA 4h + điều kiện nạp 100% NSQC chờ kích hoạt; AM từ chối → trả SM, credit tạm dừng; override knockout chỉ deal chiến lược GDKD duyệt. BR-SALES-401/402 (B.4)."
+    },
+    {
+      "req_id": "REQ-SALES-005",
+      "title": "Chuyển tier Sales → CS & rà soát quý tier",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ1",
+      "summary": "WON chuyển tier nguyên trạng cho CS; đề xuất chuyển tier theo doanh thu thực tế + số TKQC active + churn risk, CS đề xuất → SM + CS TL đồng thuận → GDKD duyệt SLA 3 ngày; rà quý win rate theo tier + độ lệch CQ; tham số ngưỡng/trọng số version hóa effective-dated, GDKD trình BOD. BR-SALES-501..503 (B.5)."
+    },
+    {
+      "req_id": "REQ-SALES-006",
+      "title": "Quotation & Deal Desk — định mức, chiết khấu phân cấp, duyệt GM",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Accountant lập theo định mức version hiện hành; GM engine theo nhóm dịch vụ (agency ≥15%, ads ≥20%, SEO ≥35%, web/design ≥30%); ma trận chiết khấu NVKD ≤5% → TPKD >5–15% (SLA 8h) → GDKD >15–20% (1 ngày) → BOD >20% (2 ngày); bản gửi khách khóa vĩnh viễn, vòng sửa D/E ≤2 B/C ≤4; hiệu lực 30/60 ngày hết hạn → re-quote; duyệt GM 2 ngày phải gửi KH; giá vốn Mật, cấm chiết khấu ẩn. BR-SALES-601..604 (B.6)."
+    },
+    {
+      "req_id": "REQ-SALES-007",
+      "title": "Hợp đồng/LOI/NDA & Brand Safety + e-sign",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "HIGH",
+      "phase": "GĐ1",
+      "summary": "Luồng Template → Draft v0.x → Legal → duyệt ma trận giá trị [CẦN CHỐT SỐ] → Final v2.0 → Signed lock; block Full Brief khi chưa NDA mutual; Brand Safety 7 tiêu chí checklist gắn EVALUATION, fail 1/7 dừng, nút từ chối vận hành; chờ kích hoạt khi chưa nạp 100% NSQC; red-line diff check; e-sign Luật GDTĐT 2023 + NĐ 91/2022, audit trail IP/thời gian, retention ≥10 năm, alert 30/60/90 ngày. BR-SALES-701..705 (B.7)."
+    },
+    {
+      "req_id": "REQ-SALES-008",
+      "title": "Handoff & Onboarding Bridge",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-BCERP-WEB",
+      "priority": "HIGH",
+      "phase": "GĐ2",
+      "summary": "Handoff Package 5 nhóm checklist chặn Gate 2 nếu <100% (mục thiếu hiện responsible + due date); ký 3 bên Sales/SM/AM, AM xác nhận SLA 4h, fail → trả SM + credit tạm dừng; milestone Day 1/7/14/30, portal trạng thái đọc từ CORE; ranh giới: Sales bàn giao theo package, OPS thực thi, thiếu sót Day 1–30 quay về SM; WON tự sinh dự án + capacity check, trống = 0 cảnh báo GDKD + OPS_PLAN. BR-SALES-801..803 (B.8)."
+    },
+    {
+      "req_id": "REQ-SALES-009",
+      "title": "Commission & Quota — hoa hồng theo thực nhận, clawback, coverage ≥3×",
+      "dept": "DEPT-SALES",
+      "systems": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "SYS-MOBILE-INTERNAL"],
+      "primary_system": "SYS-CORE-BACKEND",
+      "priority": "MEDIUM",
+      "phase": "GĐ3",
+      "summary": "Credit theo thanh toán thực nhận đối chiếu AR (không theo ngày ký), chỉ deal ghi nhận trước Gate 2 + qualifiedTier hợp lệ + quotation duyệt GM; thang L1–L5 [CẦN CHỐT SỐ — khởi tạo 2,5%→6,5%] + attainment ×1,2/×1,0/×0,9/×0,8; clawback hoàn theo tỷ lệ, nợ >90 ngày 100% trừ kỳ kế tiếp; split chủ deal 70/30, SM/TPKD ≤20%, tổng ≤100%, chặn bổ sung sau Gate 2; tranh chấp credit theo kết quả phân xử REQ-001; coverage ≥3× on-track, <2× đỏ; quota L1–L5 [CẦN CHỐT SỐ — 600tr→5 tỷ/phòng]. BR-SALES-901..904 (B.9)."
+    }
+  ],
+  "metadata": {
+    "agent_type": "sales-expert",
+    "profile": "LPM",
+    "part_b_words": 2300,
+    "part_b_words_note": "ước tính tiếng Việt (từ ghép = 1 từ); wc -w thô 3511 kể cả bảng Ma trận Business-Rules × System",
+    "business_rules": ["BR-SALES-000", "BR-SALES-101", "BR-SALES-102", "BR-SALES-103", "BR-SALES-201", "BR-SALES-202", "BR-SALES-203", "BR-SALES-301", "BR-SALES-302", "BR-SALES-303", "BR-SALES-401", "BR-SALES-402", "BR-SALES-501", "BR-SALES-502", "BR-SALES-503", "BR-SALES-601", "BR-SALES-602", "BR-SALES-603", "BR-SALES-604", "BR-SALES-701", "BR-SALES-702", "BR-SALES-703", "BR-SALES-704", "BR-SALES-705", "BR-SALES-801", "BR-SALES-802", "BR-SALES-803", "BR-SALES-901", "BR-SALES-902", "BR-SALES-903", "BR-SALES-904"],
+    "review_findings": ["stage-gate-lifecycle-v6.md §2.1 dòng PROPOSAL đảo số trang/người soạn giữa tier B/C và D/E so với policy phan-loai-khach-hang-tier.md (nguồn sự thật) — đề xuất hiệu chỉnh", "K5 knockout chưa có neo định nghĩa — cần policy Lead Scoring & Qualification", "quy tắc phân bổ lead/SLA gán và ma trận giá trị hợp đồng chưa có chính sách ban hành [CẦN CHỐT SỐ]"],
+    "completed_at": "2026-09-12T01:58:00+07:00",
+    "phase6d": {
+      "k5_default_proposed": true,
+      "completed_at": "2026-09-12T02:51:45+07:00"
+    }
+  }
+}

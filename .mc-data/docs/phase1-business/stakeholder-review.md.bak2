@@ -1,0 +1,394 @@
+# Stakeholder Review — Phase 1 Business
+
+> Tổng hợp 3 góc đánh giá: Cross-Department Review (SO-01), Consistency Check (SO-02), Gap Analysis (SO-03).
+> Mục tiêu: Đảm bảo nhất quán, phát hiện thiếu sót, xác nhận đầy đủ trước Phase 2.
+>
+> READS: `P1-01-project-overview.md`, `P1-02-business-workflow.md`, `departments/[dept]/[dept].md`, `departments/_index.md`
+> USED BY: `phase2-features/[sys]/[mod]/[feat].md`, `.mc-data/work/wf-analyze-requirements/deferred-issues.md`
+
+> **Thông tin review:** Người thực hiện — business-analyst (Phase 6c `/wf-analyze-requirements`). Ngày — 12/09/2026.
+> **Thang severity:** Critical = chặn Phase 2 (`/wf-define-features` không chạy được nếu không resolve) · High = phải xử lý trước khi spec phân hệ liên quan · Medium = xử lý trước khi thiết kế module liên quan · Low = dọn dẹp tài liệu.
+> **Phạm vi đối chiếu:** 58 REQ (BOD 10 · HR 10 · FIN 17 · SALES 9 · OPS 12), 252 BR, 19 phân hệ P0-01 §3.1 / P1-01 §4, NFR P0-02 §3, `_meta/req-registry.json`.
+
+---
+
+## Phần A: Dashboard & Trạng Thái
+
+### A.1. Trạng Thái Tài Liệu Đầu Vào
+
+| Tài liệu | File | Trạng thái | Ghi chú |
+|-----------|------|-----------|---------|
+| Tổng quan dự án | `P1-01-project-overview.md` | ✅ Xong | Lệch phase Hard Stop tại §4 — SO2-02 |
+| Quy trình kinh doanh | `P1-02-business-workflow.md` | ✅ Xong | Header còn ghi "Đang đánh giá" → đổi thành "Hoàn thành" sau khi findings được xử lý |
+| BOD — Phần A + B | `departments/bod/bod.md` | ✅ Xong | A7 (đánh giá team expert) chờ |
+| HR — Phần A + B | `departments/hr/hr.md` | ✅ Xong | A7 chờ |
+| FIN — Phần A + B | `departments/finance/finance.md` | ✅ Xong | A7 chờ |
+| OPS — Phần A + B | `departments/operations/operations.md` | ✅ Xong | A7 chờ; 2 flag Phase 6d (SO2-03, SO3-04) |
+| SALES — Phần A + B | `departments/sales/sales.md` | ✅ Xong | A7 chờ |
+| Index phòng ban | `departments/_index.md` | ❌ Không tồn tại | SO3-08 |
+
+**Sẵn sàng review:** ✅ Sẵn sàng (đã review xong; xác nhận Phase 1 hoàn thành chờ sau khi xử lý findings — mục A.4).
+
+### A.2. Trạng Thái Review
+
+| Review | Người thực hiện | Trạng thái | Số vấn đề tìm thấy |
+|--------|----------------|-----------|-------------------|
+| SO-01 Rà soát xuyên phòng ban | business-analyst | ✅ Hoàn thành | 10 |
+| SO-02 Kiểm tra nhất quán | business-analyst | ✅ Hoàn thành | 8 |
+| SO-03 Phân tích thiếu sót | business-analyst | ✅ Hoàn thành | 10 |
+
+**Tổng: 28 findings — Critical 1 · High 5 · Medium 17 · Low 5.**
+
+### A.3. Tổng Hợp Vấn Đề & Hành Động
+
+| # | ID | Vấn đề | Mức độ | Hành động | File cần sửa |
+|---|----|--------|--------|-----------|-------------|
+| 1 | SO2-01 | Registry: 58 REQ chưa đăng ký + enum phase tự mâu thuẫn | **Critical** | Chuẩn hóa enum phase, đăng ký 58 REQ | `_meta/req-registry.json` |
+| 2 | SO2-02 | Hard Stop: P1-01 §4 xếp GĐ2, §3 + FIN/OPS nói GĐ1 | **High** | Sửa bảng 19 phân hệ §4 | `P1-01` |
+| 3 | SO2-03 | Định mức proposal theo tier mâu thuẫn OPS A vs OPS B vs SALES | **High** | Chốt nguồn sự thật, sửa tài liệu còn lại (Phase 6d) | `operations.md`, policy stage-gate |
+| 4 | SO3-01 | Phân hệ 1 RBAC & Audit Log không có REQ sở hữu | **High** | Tạo REQ nền tảng cross-cutting | `bod.md` (+registry) |
+| 5 | SO3-02 | Vai CX Head / Compliance / Manager L4 không có trong role model | **High** | Định nghĩa vai + người kiêm nhiệm | `operations.md`, `finance.md`, registry |
+| 6 | SO3-03 | K5 knockout chưa định nghĩa — engine scoring GĐ1 spec không xong | **High** | Chốt policy Lead Scoring | `sales.md` |
+| 7 | SO1-01 | Hard Stop: FIN-006 khai báo Mobile, OPS-002 loại M-INT | Medium | Thống nhất "M-INT = alert-only" ở 2 REQ | `finance.md`, `operations.md` |
+| 8 | SO1-02 | REQ-FIN-002 vs REQ-OPS-003 trùng engine cảnh báo ví | Medium | Chỉ định REQ leader (OPS-003) | `finance.md` |
+| 9 | SO1-03 | REQ-HR-009 vs REQ-OPS-007 ranh giới tốt; còn điểm chờ chung | Low | Gộp vào SO3-09 nhóm D | — |
+| 10 | SO1-04 | P&L: REQ-BOD-003 / REQ-FIN-016 / REQ-BOD-004 chồng scope | Medium | Khai báo ownership dữ liệu vs trải nghiệm | `bod.md`, `finance.md` |
+| 11 | SO1-05 | Portal: tenant isolation + mask được định nghĩa 2 nơi | Medium | Chọn 1 nguồn (FIN-017), OPS-010 tham chiếu | `operations.md`, `finance.md` |
+| 12 | SO1-06 | TikTok Shop settlement: FIN không nhận diện phía đối soát | Medium | Bổ sung ghi chú phối hợp tại FIN | `finance.md` |
+| 13 | SO1-07 | Handoff payroll HR→FIN chỉ có phía gửi | Medium | Bổ sung phía nhận | `finance.md` |
+| 14 | SO1-08 | RACI B5 quotation lệch giữa P1-02 và REQ-SALES-006; thuật ngữ "GM duyệt" | Medium | Chuẩn hóa chuỗi duyệt + thuật ngữ GDKD | `P1-02`, `operations.md` |
+| 15 | SO1-09 | REQ-OPS-012 A/B testing ngoài 19 phân hệ P0/P1-01 | Medium | Xác nhận scope addition chính thức | `P1-01` |
+| 16 | SO1-10 | SALES-009 giao HR "gắn KPI theo cấp" nhưng HR-007 không có KPI doanh số | Low | Làm rõ trụ cột KPI cho SALES | `hr.md`, `sales.md` |
+| 17 | SO2-04 | Dung sai đối soát: ±0,1% vs 0/0,5%/1% chưa phân định | Medium | Phân biệt KPI tổng vs dung sai nghiệp vụ | `P1-01`, `finance.md` |
+| 18 | SO2-05 | Ngưỡng 10 triệu hoàn tiền ngoài ma trận 5/50/200 | Medium | Gộp vào ma trận duy nhất | `finance.md`, `bod.md` |
+| 19 | SO2-06 | Mốc chốt không khớp: "23:59" (BOD) / T+1 (FIN) vs chốt tuần/kỳ | Medium | Sửa BR-BOD-003, mô tả chuỗi chốt 1 chỗ | `bod.md`, `finance.md` |
+| 20 | SO2-07 | Ký hiệu hệ thống không thống nhất (MOBILE/M-INT/thiếu SYS-) | Low | Lập bảng ký hiệu chuẩn | 5 dept docs + `_index.md` |
+| 21 | SO2-08 | Thuật ngữ "PMS" gây hiểu nhầm hệ thống cũ còn dùng | Low | Thay bằng "BCERP (CRM)" | `sales.md`, `operations.md` |
+| 22 | SO3-04 | Stage DEPLOY thiếu done criteria | Medium | Hoàn thiện launch checklist/deliverable plan (Phase 6d) | `operations.md`, policy stage-gate |
+| 23 | SO3-05 | Gate 2 (GĐ1) phụ thuộc Handoff checklist + capacity (GĐ2) | Medium | Khai báo giải pháp GĐ1 | `P1-01`, `sales.md`, `operations.md` |
+| 24 | SO3-06 | NFR (P95, uptime 99,9% portal, concurrent) không có chủ nghiệm thu | Medium | Đưa vào acceptance criteria Phase 2 | deferred-issues.md |
+| 25 | SO3-07 | Migration mở sổ từ Sheets không có chủ nhiệm | Medium | Ghi deferred issues + plan cutover | deferred-issues.md |
+| 26 | SO3-08 | `departments/_index.md` không tồn tại dù 6 docs tham chiếu | Medium | Tạo file index | `departments/_index.md` |
+| 27 | SO3-09 | ~25 điểm [CẦN CHỐT SỐ] — gom 6 nhóm, 4 điểm chặn GĐ1 | Medium | Chốt theo nhóm trước thiết kế từng phân hệ | các dept docs + policies |
+| 28 | SO3-10 | Tiện ích chung (xuất Excel/PDF, in, tìm kiếm) + i18n portal chưa có chủ | Low | Gom yêu cầu nền tảng Phase 2 | deferred-issues.md |
+
+### A.4. Xác Nhận Phase 1 Hoàn Thành
+
+```
+□ P1-01 Project Overview — đã xác nhận bởi Chủ dự án        (chờ: sửa SO2-02 trước)
+□ P1-02 Business Workflow — đã xác nhận bởi stakeholder      (chờ: sửa SO1-08, đổi trạng thái header)
+□ Tất cả departments/ — đã hoàn thành Phần A + Phần B        (✅; A7 đánh giá expert chờ)
+□ Phần B (SO-01) — hoàn thành, không còn vấn đề mở           (⚠ 1 Critical/5 High chưa resolve)
+□ Phần C (SO-02) — hoàn thành, đã sửa tất cả inconsistency   (chờ)
+□ Phần D (SO-03) — hoàn thành, không còn gap nghiêm trọng    (chờ: SO3-01/02/03)
+□ Tổng hợp vấn đề (mục A.3) — tất cả đã xử lý xong           (0/28)
+□ Tài liệu gốc đã được cập nhật theo kết quả review          (chưa)
+```
+
+**Điều kiện bắt buộc trước khi chạy `/wf-define-features`:** resolve SO2-01 (Critical). Khuyến nghị resolve luôn 5 High (SO2-02, SO2-03, SO3-01, SO3-02, SO3-03) vì cả 5 đều đụng GĐ1 — batch đầu vào của Phase 2. Các điểm mâu thuẫn policy (SO2-03, SO3-04) thuộc phạm vi Phase 6d đã được flag sẵn trong `operations.md`.
+
+---
+
+## Phần B: Rà Soát Xuyên Phòng Ban (SO-01 — Cross-Department Review)
+
+### B.1. Ma Trận Liên Hệ Giữa Các Phòng Ban
+
+12 điểm chuyển giao tại P1-02 §4 được đối chiếu 2 chiều giữa các dept docs. Kết quả: 9/12 khớp 2 phía (lệnh ví OPS→FIN, Hard Stop FIN→OPS, cảnh báo đỏ OPS→khách, portal FIN/OPS→khách, ticket khách→OPS, khiếu nại OPS→BOD, handoff SALES→OPS, offboard HR→OPS revoke TKQC, phản đối số liệu OPS↔FIN). 3 điểm lệch:
+
+| Điểm chuyển giao | Phía A | Phía B | Kết luận |
+|------------------|--------|--------|----------|
+| HR → FIN: tổng hợp công/OT đã duyệt cho payroll | ✅ HR B3 mô tả | ❌ finance.md không có phía nhận | SO1-07 |
+| OPS/FIN: đối soát settlement TikTok Shop | ✅ OPS-011 BR-OPS-4.5 (Gate 3, FIN_L1 tham gia) | ❌ finance.md không nhắc TikTok Shop | SO1-06 |
+| SALES/HR: hoa hồng ↔ KPI theo cấp | ✅ SALES-009 giao HR "gắn KPI theo cấp" | ❌ HR-007 không có trụ cột doanh số | SO1-10 |
+
+### B.2. Kiểm Tra Trùng Lặp Yêu Cầu
+
+| ID | Mức độ | Nhu cầu trùng | REQ A | REQ B | Đánh giá | Hành động |
+|----|--------|---------------|-------|-------|----------|-----------|
+| SO1-02 | Medium | Cảnh báo ví 3 mức + SLA đỏ 2h | REQ-FIN-002 (Core/Web/Mobile) | REQ-OPS-003 (6 hệ thống) | Trùng lặp 100% về số liệu (≥3 ngày, 2h, escalation 2h/4h, push ≤5 phút) — 2 REQ mô tả cùng 1 engine | Chỉ định REQ-OPS-003 làm leader (owner alert là OPS_ADS); REQ-FIN-002 rút còn góc FIN: dự báo dòng tiền nạp nền tảng + tạm giữ giải ngân (BR-FIN-104 exception) và tham chiếu OPS-003. Tránh Phase 2 dựng 2 bộ alert |
+| SO1-03 | Low | Duyệt timesheet & capacity | REQ-HR-009 | REQ-OPS-007 | Trùng lặp **có kiểm soát tốt nhất trong bộ docs**: cả 2 phía khai báo ranh giới giống nhau (OPS ghi/gán; HR sở hữu quy tắc duyệt/định mức/escalation; FIN nhận giờ approved). Không phát hiện lệch số | Giữ 2 REQ; điểm chờ chung "người duyệt timesheet của TL" xử lý tập trung tại SO3-09 nhóm D |
+| SO1-04 | Medium | P&L realtime theo dự án/khách | REQ-BOD-003 (MVP→Phase3) | REQ-FIN-016 (GĐ3) + REQ-BOD-004 | Số liệu khớp (freshness ≤15 phút, tách tiền giữ hộ, metric catalog CFO duyệt) nhưng 3 REQ cùng đụng star schema/P&L; BOD-003 khai báo "P&L cơ bản từ MVP" trong khi FIN-016 là GĐ3 | Khai báo ownership: FIN-016 chủ star schema + metric catalog (dữ liệu); BOD-003 chủ trải nghiệm dashboard BOD; BOD-004 chủ BI đa KPI. Ghi rõ ở A0 cả 2 docs; thống nhất P&L cơ bản MVP thuộc REQ nào |
+| SO1-05 | Medium | Ranh giới dữ liệu Client Portal | REQ-OPS-010 (BR-OPS-5.2/5.3) | REQ-FIN-017 (BR-FIN-603) | Hai nguồn cùng định nghĩa tenant isolation (RLS + filter API), mask giá vốn, watermark, read-only — semantics khớp, nhưng 2 nguồn sự thật cho 1 control bảo mật | Chọn REQ-FIN-017 làm nguồn định nghĩa biên dữ liệu portal; REQ-OPS-010 giữ lifecycle tài khoản (Day 1/7/14/30) và tham chiếu. RBAC portal nền móng thuộc SO3-01 |
+
+### B.3. Kiểm Tra Mâu Thuẫn Quy Trình
+
+| ID | Mức độ | Quy trình | Mâu thuẫn | Đề xuất giải quyết |
+|----|--------|-----------|-----------|--------------------|
+| SO1-01 | Medium | Financial Hard Stop (REQ-FIN-006 vs REQ-OPS-002) | Nghiệp vụ khớp 100% (chặn cứng 2 tầng, không bypass, thu hồi → pause, MFA chỉ trên WEB); mâu thuẫn nằm ở **ma trận khai báo hệ thống**: FIN-006 liệt kê Mobile ("chỉ alert/xem"), OPS-002 loại M-INT hoàn toàn, nhưng BR-OPS-2.2 lại cho M-INT nhận alert TL | Thống nhất quy ước chung: "M-INT chỉ nhận alert trạng thái, không có action nào trên Hard Stop" và khai báo M-INT giống nhau ở cả 2 REQ. Sửa A0 của REQ-OPS-002 cho khớp BR-OPS-2.2 |
+| SO1-08 | Medium | Duyệt quotation/GM (P1-02 Luồng 1 B5 vs REQ-SALES-006) | REQ-SALES-006: FIN lập theo định mức; TPKD/GDKD/BOD duyệt chiết khấu 8h/1 ngày/2 ngày; GDKD duyệt GM. P1-02 RACI B5 ghi "FIN R/A (CFO ngưỡng cao)" — không có CFO trong chuỗi duyệt của SALES docs. Kèm thuật ngữ "GM duyệt" ở BR-OPS-6.5 dễ đọc nhầm "General Manager" thay vì "GDKD duyệt Gross Margin" | Sửa RACI B5 P1-02: FIN = R (lập), duyệt = TPKD/GDKD/BOD theo ma trận chiết khấu; CFO chỉ xuất hiện ở duyệt chi (REQ-FIN-008). Đổi "GM duyệt" thành "GDKD duyệt GM" trong operations.md B.6.5 |
+| SO1-09 | Medium | Scope REQ-OPS-012 A/B Testing | OPS bổ sung REQ-OPS-012 (A/B testing + playbook) không trace được về 19 phân hệ P0-01 §3.1 / P1-01 §4 (phân hệ 11 Campaign chỉ nêu WBS, calendar, duyệt creative, change log) | Hai lựa chọn chốt ở Phase 6d: (a) bổ sung dòng phân hệ/con-module vào P1-01 §4 (khuyến nghị — REQ đã hoàn chỉnh Phần A+B), hoặc (b) khai báo REQ-OPS-012 là sub-feature của phân hệ 11. Không bỏ REQ vì đã có business rules |
+
+### B.4. Kiểm Tra Điểm Chuyển Giao
+
+| ID | Mức độ | Điểm chuyển giao thiếu | Chi tiết | Hành động |
+|----|--------|------------------------|----------|-----------|
+| SO1-06 | Medium | FIN nhận đối soát settlement TikTok Shop | BR-OPS-4.5 Gate 3 có FIN_L1 đối soát settlement vs đơn vs ads; REQ-OPS-011 ghi "phối hợp FIN_L1" nhưng finance.md (17 REQ + 6 nhóm BR) không có dòng nào về TikTok Shop — risk: Phase 2 spec đối soát FIN thiếu settlement stream | finance.md bổ sung ghi chú phối hợp tại REQ-FIN-004 (đối soát settlement TikTok Shop nhận dữ liệu từ REQ-OPS-011/GW; GMV tuyệt đối không vào doanh thu). Không cần REQ mới |
+| SO1-07 | Medium | FIN nhận tổng hợp công/OT cho payroll | HR B3 mô tả đủ phía gửi ("FIN nhận số tổng hợp có log, không nhận bảng công thô"); P1-02 Luồng 4 có cùng nội dung; finance.md không mô tả phía nhận ở REQ nào (FIN-014 chỉ là thuế/phí) | finance.md bổ sung vào REQ-FIN-015 (dashboard/báo cáo nội bộ) hoặc ghi chú phối hợp: nhận tổng hợp công+OT đã duyệt từ HR cho payroll/BHXH qua VAS connector |
+| SO1-10 | Low | HR nhận KPI doanh số từ SALES | REQ-SALES-009 yêu cầu HR "gắn KPI theo cấp"; HR-007 chỉ có 3 trụ cột (On-time, Output, SLA/Target) + 15% chấm tay — không nói attainment/quota có tính vào KPI nhân sự sales không | hr.md bổ sung 1 dòng: attainment doanh số của SALES xử lý thế nào trong KPI 3 trụ cột (thuộc chấm tay, hay trụ cột riêng, hay tách khỏi KPI nhân sự) |
+
+### B.5. Tổng Kết SO-01
+
+| Loại | Số lượng | Critical | High | Medium | Low |
+|------|----------|----------|------|--------|-----|
+| Trùng lặp REQ | 4 | 0 | 0 | 3 | 1 |
+| Mâu thuẫn quy trình/khai báo | 3 | 0 | 0 | 3 | 0 |
+| Thiếu phối hợp/chuyển giao 1 phía | 3 | 0 | 0 | 2 | 1 |
+| **Tổng** | **10** | **0** | **0** | **8** | **2** |
+
+**Kết luận:** Năm điểm phối hợp sống còn (Hard Stop, đối trừ 3 số, handoff 3 bên, offboard revoke, khiếu nại BOD) được cả 2 phía mô tả khớp nhau về nghiệp vụ — chất lượng phối hợp liên phòng tốt. Không có mâu thuẫn nào về nguyên tắc tiền/kiểm soát. Việc cần làm là dọn ownership (ai là REQ leader khi 2 dept cùng mô tả 1 engine) và vá 3 điểm chuyển giao thiếu một phía.
+
+---
+
+## Phần C: Kiểm Tra Tính Nhất Quán (SO-02 — Consistency Check)
+
+### C.1. Nhất Quán Về Thuật Ngữ
+
+**Đã kiểm và đạt:** "tiền giữ hộ" vs "doanh thu dịch vụ/markup" dùng nhất quán tuyệt đối ở cả 7 tài liệu (không một chỗ nào gọi tiền nạp khách là doanh thu); "Financial Hard Stop", "đối trừ 3 số", "TKQC", "nhãn api/manual", "Tier A–E nghịch trực giác (A tệ nhất — E tốt nhất, SLA E nhanh nhất)" thống nhất, đã bắt buộc chú giải UI + cấm hardcode nhãn tier (BR-SALES-303, BR-OPS-6.3).
+
+| ID | Mức độ | Vấn đề | Chi tiết | Hành động |
+|----|--------|--------|----------|-----------|
+| SO2-07 | Low | Ký hiệu hệ thống không thống nhất | sales.md dùng "MOBILE"; operations/finance dùng "M-INT"; finance.md B dùng "MOBILE" ở B.1; hr.md ma trận dùng "CORE-BACKEND, BCERP-WEB" thiếu tiền tố SYS-; P1-02 dùng CORE/WEB/GW/PORTAL/M-INT/M-PORTAL | Tạo bảng ký hiệu chuẩn (CORE · WEB · GW · PORTAL · M-INT · M-PORTAL) trong `departments/_index.md` (SO3-08) rồi sửa 5 dept docs về 1 bộ ký hiệu |
+| SO2-08 | Low | Thuật ngữ "PMS" | sales.md ("Không ghi nhận vào PMS = Không tồn tại") và operations.md BR-OPS-6.1 dùng "PMS" — trong khi PMS cũ là hệ thống **chưa xác định, sẽ bị thay** (P0-01 §3.2). Nguy cơ: người đọc hiểu BCERP phải tích hợp PMS cũ | Thay "PMS" bằng "BCERP (CRM module)" ở 2 dept docs; chỉ giữ cụm "PMS cũ" trong ngữ cảnh migration |
+
+### C.2. Nhất Quán Về Số Liệu & Quy Tắc
+
+**Đã kiểm và khớp xuyên suốt** (tìm trong cả 7 tài liệu, không thấy lệch): hạn mức 5/50/200 triệu (trừ SO2-05); đủ-chi ≥3 ngày + SLA đỏ 2h + escalation owner→TL 2h→AM 4h; chi tiêu tươi ≤1h; cảnh báo ≤5 phút; P&L ≤15 phút; chốt công nợ ngày 3; timesheet chốt 12:00 thứ Hai + TL duyệt 48h + escalate 72h; HĐLĐ 90/60/30; offboard thu hồi 24h; breach notification 72h; vault rotate ≥90 ngày; OT 48h/8h/200h; clawback nợ >90 ngày 100%; coverage ≥3×; CSAT <4,0 hai tháng; milestone Day 1/7/14/30 + GATE Day 14; AM xác nhận handoff 4h + capacity 24h; chiết khấu ≤5/5–15/15–20/>20% với SLA 8h/1 ngày/2 ngày; GM nhóm dịch vụ 15/20/35/30%.
+
+| ID | Mức độ | Quy tắc | Lệch | Hành động |
+|----|--------|---------|------|-----------|
+| SO2-04 | Medium | Dung sai đối soát | P1-01 §3 + BR-BOD-004.3 + BR-BOD-008.3 dùng **±0,1%**; REQ-FIN-004/BR-FIN-201 dùng dung sai nghiệp vụ **nạp 0/dòng · chi ≤0,5% hoặc 10 USD/TK/ngày · tích lũy ≤1% hoặc 20 USD/khách/tuần** [CẦN CHỐT SỐ]. Hai tập số khác mục đích (KPI chất lượng tổng vs dung sai từng dòng) nhưng chưa được phân định — một dung sai 0,5% từng dòng vượt KPI 0,1% nếu đọc cùng khái niệm | P1-01 §3 ghi rõ: "±0,1% = chất lượng dữ liệu tổng hợp sau điều chỉnh; dung sai nghiệp vụ theo REQ-FIN-004". CFO chốt dung sai nghiệp vụ và ghi vào BR-FIN-201 |
+| SO2-05 | Medium | Ngưỡng hoàn tiền/điều chỉnh | BR-FIN-105 + BR-FIN-402 dùng ngưỡng **>10 triệu VND → CFO** [CẦN CHỐT SỐ] — không tồn tại trong ma trận 5/50/200 (REQ-FIN-008, REQ-BOD-001, REQ-BOD-009). Hai bộ ngưỡng song song cho cùng loại giao dịch | Gộp band hoàn tiền/điều chỉnh vào ma trận hạn mức duy nhất (5/50/200) hoặc bổ sung band 10 triệu có lý do; xóa ngưỡng mồ côi trước khi BOD ban hành chính sách hạn mức |
+| SO2-06 | Medium | Mốc/chuỗi chốt | BR-BOD-003 ghi "timesheet chốt **23:59**" — trái với chốt tuần 12:00 thứ Hai (REQ-HR-009, BR-OPS-8.2) và nguyên tắc "giờ chưa duyệt không vào P&L"; BR-FIN-202 ghi "giải trình trước chốt kỳ đối soát đó **(T+1)**" trong khi chốt công nợ tháng là ngày 3 (BR-FIN-204) — chuỗi chốt ngày/tuần/tháng chưa được mô tả nhất quán | Sửa BR-BOD-003 thành "P&L nạp giờ đã duyệt theo chu kỳ chốt tuần"; mô tả chuỗi chốt (ngày → tuần → tháng ngày 3) một chỗ duy nhất (đề xuất BR-FIN-204) và tham chiếu từ các BR khác |
+
+### C.3. Nhất Quán Về Phạm Vi & Phase Mapping
+
+| ID | Mức độ | Vấn đề | Chi tiết | Hành động |
+|----|--------|--------|----------|-----------|
+| SO2-01 | **Critical** | `_meta/req-registry.json` chưa sẵn sàng làm nguồn ID cho Phase 2 | (a) `requirements: []`, `counters.REQ: 0` — trong khi 58 REQ-ID đã được 5 dept docs + P1-02 tham chiếu; quy tắc "AI không được tạo ID mới ngoài file này" khiến `/wf-define-features` không có REQ để trace FEAT. (b) Enum phase **tự mâu thuẫn trong cùng file**: `systems[].phase` dùng `MVP/Phase2/Phase3`, `status_values.phase` dùng `MVP/PHASE_2/FUTURE`; dept docs dùng GĐ1/GĐ2/GĐ3 | Trước khi chạy `/wf-define-features`: chọn 1 enum phase duy nhất, sửa cho khớp toàn bộ file; đăng ký 58 REQ từ ma trận A0 của 5 dept (kèm systems/phase/department); cập nhật counters. Đây là điều kiện chặn Phase 2 duy nhất |
+| SO2-02 | High | Phase Financial Hard Stop mâu thuẫn | P1-01 §3: "Financial Hard Stop vận hành — **Từ GĐ1**"; REQ-FIN-006 (GĐ1), REQ-OPS-002 (GĐ1), REQ-FIN-001 ("khung tối thiểu phục vụ Hard Stop có từ GĐ1"). Nhưng P1-01 §4 xếp Financial Hard Stop vào phân hệ 7 "Wallet & Đối soát TKQC — **GĐ2**" | Sửa P1-01 §4: tách "sổ phụ ví khung tối thiểu + Financial Hard Stop" sang GĐ1; giữ "đối soát đầy đủ + dual approval + chốt kỳ" ở GĐ2. Đi theo dept docs (cả FIN và OPS cùng nói GĐ1) |
+| SO2-03 | High | Định mức proposal theo tier mâu thuẫn 3 nơi | operations.md Phần A (REQ-OPS-005: B/C 8–12 trang, AM soạn, ≤2 vòng; D/E 15–25 trang, Planner soạn, ≤4 vòng) **ngược** operations.md Phần B (BR-OPS-6.3: B/C 15–25 trang, Planner, ≤4; D/E 8–12, AM, ≤2) và ngược sales.md (B.3.4, REQ-SALES-006: D/E ≤2, B/C ≤4). Gốc là mâu thuẫn 2 policy: `stage-gate-lifecycle-v6.md` §2.1 vs `phan-loai-khach-hang-tier.md` §2.2 — đã có flag và nguồn sự thật được chỉ định (tier policy) | Phase 6d: sửa operations.md Phần A (REQ-OPS-005) + `stage-gate-lifecycle-v6.md` §2.1 theo `phan-loai-khach-hang-tier.md`; gate engine đọc cấu hình tier từ một nguồn duy nhất. Chốt trước khi spec phân hệ 10 |
+
+**Nhu cầu ngoài phạm vi:** chỉ REQ-OPS-012 (SO1-09). Không phát hiện REQ nào khác vượt 19 phân hệ.
+
+### C.4–C.5. Vai Trò & Needs ↔ Workflow
+
+- **Vai:** 18 vai trong registry khớp với mô tả ở các dept docs (SALES L1–L5, FIN L1/L2, HR L1/L2, OPS 6 vai, BOD 2, SYS_ADMIN, CLIENT_USER/ADMIN). Hai vai xuất hiện trong business rules nhưng **không có trong role model** → SO3-02 (Phần D). Mức độ ghi nhận tại Phần D để tránh trùng lặp.
+- **Needs ↔ Workflow:** 58/58 REQ đều có workflow/business rules tương ứng trong Phần B của dept docs (kể cả REQ MEDIUM như FIN-013/014, BOD-010, SALES-005); mọi BR đều trace về REQ trong danh sách — không phát hiện BR mồ côi hay REQ thiếu workflow.
+
+### C.6. Tổng Kết SO-02
+
+| Loại | Số lượng | Critical | High | Medium | Low |
+|------|----------|----------|------|--------|-----|
+| Thuật ngữ/ký hiệu | 2 | 0 | 0 | 0 | 2 |
+| Số liệu/quy tắc | 3 | 0 | 0 | 3 | 0 |
+| Phase mapping/registry | 2 | 1 | 1 | 0 | 0 |
+| Scope | 1 | 0 | 0 | 0 | 0 (SO1-09 tính ở SO-01) |
+| **Tổng** | **8** | **1** | **1** | **3** | **2** (cộng 1 scope đã tính SO-01) |
+
+**Kết luận:** Chất lượng nhất quán số liệu rất cao — các con số trọng yếu (ngưỡng tiền, SLA, trần lao động, retention, milestone) khớp giữa 7 tài liệu. Rủi ro thật nằm ở lớp **metadata máy đọc** (registry — Critical) và **một điểm phase** (Hard Stop) cùng **một bộ định mức tier** (đã có sẵn phương án resolve).
+
+---
+
+## Phần D: Phân Tích Thiếu Sót (SO-03 — Gap Analysis)
+
+### D.1. Gap Về Phân Hệ — 19 phân hệ P0-01 §3.1 vs REQ đại diện
+
+| # | Phân hệ | REQ đại diện | Đánh giá |
+|---|---------|--------------|----------|
+| 1 | RBAC & Audit Log | BOD-007, FIN-012, HR-010, FIN-003/006 (MFA điểm chức năng) | ⚠ SO3-01 — tách mảnh, không REQ sở hữu |
+| 2 | Settings & Integration Gateway | BOD-008, FIN-005, BOD-009 (tham số) | ✅ Đủ |
+| 3 | HR Core | HR-001…006, HR-010 | ✅ Đủ |
+| 4 | CRM & Lead Pipeline V6.0 | SALES-001…005 | ✅ Đủ |
+| 5 | Quotation & Deal Desk | SALES-006 (+BR-FIN-308) | ✅ Đủ |
+| 6 | Ad Account Command Center | OPS-001 | ✅ Đủ |
+| 7 | Wallet & Đối soát TKQC | FIN-001…006, OPS-002/003 | ✅ Đủ (phase — SO2-02) |
+| 8 | Công nợ AR/AP & Giải ngân | FIN-007/008, BOD-001/010 | ✅ Đủ |
+| 9 | Handoff & Onboarding Bridge | SALES-008, OPS-004 | ✅ Đủ |
+| 10 | Proposal & Planning Workspace | OPS-005 | ✅ Đủ (tier — SO2-03) |
+| 11 | Campaign & Deliverable Management | OPS-006 (+OPS-012 ngoài P0 — SO1-09) | ✅ Đủ |
+| 12 | Capacity & Timesheet | OPS-007, HR-009/003 | ✅ Đủ |
+| 13 | SLA & Notification Engine | OPS-008 | ✅ Đủ |
+| 14 | Ticket & CSKH | OPS-009 | ✅ Đủ |
+| 15 | Commission & Quota | SALES-009 | ✅ Đủ |
+| 16 | KPI & Performance | HR-007/008 | ✅ Đủ |
+| 17 | Client Portal | OPS-010, FIN-017, OPS-009 | ✅ Đủ |
+| 18 | Data Integration Hub & BI/BOD | FIN-015/016, BOD-003/004 | ✅ Đủ |
+| 19 | TikTok Shop Monitoring | OPS-011 | ⚠ SO1-06 — thiếu phía FIN |
+
+| ID | Mức độ | Gap | Chi tiết | Hành động |
+|----|--------|-----|----------|-----------|
+| SO3-01 | High | Phân hệ 1 "RBAC & Audit Log" không có REQ sở hữu | Nền móng GĐ1 bị tách mảnh: chu kỳ access review ở BOD-007, audit log ở FIN-012, PII ở HR-010, MFA rải trong FIN-003/006/BR-OPS-5.2, SoD trong FIN-008/BR-FIN-106. Thiếu REQ cho: RBAC engine + mô hình vai×Level, SSO/Keycloak 2 realms, phân loại dữ liệu toàn cục (C1/C2/C3/T1–T4), lifecycle tài khoản nội bộ | Tạo 1 REQ nền tảng (đề xuất gán DEPT-BOD, hệ thống CORE, GĐ1) chứa RBAC engine + SSO/MFA baseline + data classification; FIN-012/BOD-005 giữ audit log; các REQ khác tham chiếu. Đăng ký vào registry cùng SO2-01 |
+| SO3-02 | High | Vai thiếu trong role model | (a) **CX Head** — xuất hiện trong chuỗi escalation 5 chặng và chủ trì review dịch vụ (BR-OPS-9.3/9.4/9.5) nhưng không có trong registry user_roles và không ai kiêm nhiệm được khai báo; (b) **Compliance** — BR-FIN-403/404 giao "FIN/Compliance/BOD" xử lý AML, vai chưa định nghĩa; (c) **Manager L4** — người duyệt timesheet của TL theo policy, nhưng OPS không có L4 chuyên trách (flag sẵn BR-OPS-8.2) | Bổ sung 3 vai (hoặc khai báo người kiêm nhiệm + compensating control) vào registry `user_roles` và mô tả ở dept docs. Bắt buộc trước khi spec RBAC (SO3-01) và SLA escalation — routing duyệt không thể cấu hình với vai không tồn tại |
+| SO3-03 | High | K5 knockout chưa định nghĩa | sales.md B.3.2: K1–K4 đã rõ, K5 `[CẦN CHỐT SỐ — phải chốt trong policy Lead Scoring & Qualification trước khi code engine]`. Scoring engine là phân hệ GĐ1 — feature "AUTO SCORING K1–K12" không thể spec đầy đủ khi 1/5 knockout còn trống | Chốt K5 trong policy Lead Scoring trước khi `/wf-define-features` spec REQ-SALES-003; engine thiết kế cấu hình được để K5 không hardcode |
+
+### D.2. Gap Về Quy Trình
+
+| ID | Mức độ | Gap | Chi tiết | Hành động |
+|----|--------|-----|----------|-----------|
+| SO3-04 | Medium | Stage DEPLOY thiếu done criteria | BR-OPS-6.1 flag sẵn: launch checklist, cấu trúc deliverable plan, reporting frequency còn là đề xuất — stage machine 10 stage của GĐ1 thiếu 1/10 tiêu chí | Phase 6d hoàn thiện criteria stage DEPLOY trong policy stage-gate; trước đó gate engine chỉ hard-check các mục đã chốt |
+| SO3-05 | Medium | Gate 2 (GĐ1) phụ thuộc thành phần GĐ2 | Gate 2 nằm trong pipeline GĐ1 (REQ-SALES-002/004), nhưng 2 entry criteria của nó thuộc GĐ2: Handoff Package 5 nhóm (REQ-SALES-008/OPS-004 — GĐ2) và capacity check (REQ-OPS-007 — GĐ2) | Khai báo ở P1-01/2 dept docs: GĐ1 chạy Gate 2 với checklist thủ công có kiểm soát (form + đếm tay có audit log) hoặc dời mục checklist/capacity về GĐ1. Không để Gate 2 GĐ1 "mở tự do" |
+| SO3-07 | Medium | Migration mở sổ không có chủ nhiệm | Import từ Sheets/Excel được nhắc rải rác (OPS-001 mở sổ TKQC, FIN-005 statement, HR-006 payroll, P1-01 §7) nhưng không REQ/chủ nhiệm nào cho: kế hoạch cutover, đối chiếu sau import, chuẩn dừng duy trì song song | Ghi vào `deferred-issues.md` + kế hoạch migration ở phase triển khai; mỗi import gắn REQ tương ứng với tiêu chí đối chiếu số |
+
+### D.3–D.5. Tính Năng Chung, Dữ Liệu, Tình Huống Ngoại Lệ
+
+**Đã có REQ cover (không gap):** đăng nhập/phân quyền (SO3-01 sẽ quy về 1 chỗ), audit log + xem log bị log (FIN-012/BOD-005), thông báo/nhắc (OPS-008, BOD-006), import hàng loạt (OPS-001, FIN-005), backup/DR + RTO/RPO + test restore (BR-FIN-504), watermark download (BR-OPS-5.3), đa kênh lead/ticket (SALES-001, OPS-009), degraded mode (FIN-005, OPS-001), xử lý nhập sai qua reversal (BR-FIN-501), chống gian lận (AML T1–T6, SoD, dual approval), breach 72h + DSAR/DPA (BR-FIN-604/605, HR-010).
+
+| ID | Mức độ | Gap | Hành động |
+|----|--------|-----|-----------|
+| SO3-10 | Low | Tiện ích chung chưa có chủ: xuất báo cáo Excel/PDF (chỉ HR có xuất thuế/BHXH theo mẫu), in ấn phiếu/chứng từ, tìm kiếm/lọc toàn cục; kèm theo: phạm vi i18n portal (REQ-OPS-010 nhắc "đa ngôn ngữ" nhưng chưa chốt ngôn ngữ/phạm vi dịch) | Gom thành yêu cầu nền tảng dùng chung (đề xuất thuộc SYS-BCERP-WEB + PORTAL) ở Phase 2; chốt i18n portal trong spec phân hệ 17 |
+
+### D.6. Gap Về NFR (P0-02 §3)
+
+| ID | Mức độ | Gap | Chi tiết | Hành động |
+|----|--------|-----|----------|-----------|
+| SO3-06 | Medium | NFR không có chủ nghiệm thu | Đã cover ở REQ: sync ≤60 phút/vòng (OPS-001/BR-FIN-301), alert ≤5 phút (BOD-006, FIN-002), RTO ≤4h/RPO ≤15 phút (BR-FIN-504), tenant isolation (FIN-017), retention WORM (BR-FIN-503). **Chưa có REQ/benchmark nào nhận:** API P95 <500ms, page load <3s (dashboard ≤5s), uptime 99,9% portal 7×24, concurrent portal 200–300, khả năng scale gấp đôi — các số chỉ nằm ở P1-01 §9/P0-02 | Đưa các NFR này vào acceptance criteria per-system khi `/wf-define-features` tách module (ghi vào `deferred-issues.md` để không thất lạc); nghiệm thu portal đo theo uptime 99,9% |
+
+### D.7. Gap Về Điểm Chờ Chốt Số ([CẦN CHỐT SỐ])
+
+| ID | Mức độ | Nội dung |
+|----|--------|----------|
+| SO3-09 | Medium | ~25 điểm `[CẦN CHỐT SỐ]` gom 6 nhóm. **Nhóm A — chặn spec GĐ1 (xử lý trước `/wf-define-features` cho GĐ1):** K5 knockout (SO3-03); done criteria DEPLOY (SO3-04); nguồn sự thật định mức tier (SO2-03); enum phase registry (SO2-01). **Nhóm B — hạn mức tài chính:** 5/50/200 triệu (REQ-FIN-008/BOD-001/009); ngưỡng 10 triệu hoàn tiền (SO2-05); ma trận giá trị HĐ (REQ-SALES-007); ngưỡng GM 15/20/35/30% (BR-FIN-308); quota + thang hoa hồng (REQ-SALES-009). **Nhóm C — AML/pháp lý:** UBO 25%, ngưỡng T1–T6, retention KYC ≥5 năm, FCT, thời điểm lập HĐĐT (BR-FIN-401/403/405/601/602) — chờ luật sư/tư vấn thuế. **Nhóm D — HR/timesheet:** cost/hour từng Level + ngưỡng ±10% rate–payroll (REQ-HR-006); cộng dồn phép (BR-HR B4); **người duyệt timesheet cấp TL** (BR-OPS-8.2 + REQ-HR-009 — nối SO3-02c). **Nhóm E — vận hành SLA:** SLA từng bước duyệt creative + vòng sửa creative + hạn mức buyer VND/ngày + ngày chờ nghiệm thu (BR-OPS-7.3/7.4/7.5); ca trực Critical 24/7 (BR-OPS-9.2); ngưỡng re-push alert đỏ (BR-BOD-006); quy tắc phân bổ lead (BR-SALES-203). **Nhóm F — tích hợp:** tên VAS + cơ chế connector (REQ-FIN-013); PMS cũ (P0-01 §3.2); phạm vi GMV hiển thị portal (REQ-OPS-011); ngưỡng fuzzy anti-duplicate + retry webhook (sales.md B.1); sample size/confidence A/B (BR-OPS-10.1); ngưỡng đủ-chi BOD chưa phê (REQ-BOD-006). Nhóm B–F chốt trước khi thiết kế phân hệ tương ứng, không chặn Phase 2 |
+
+### D.8. Tổng Kết SO-03
+
+| Loại gap | Findings | Số lượng | Critical | High | Medium | Low |
+|----------|----------|----------|----------|------|--------|-----|
+| Phân hệ/REQ sở hữu | SO3-01 | 1 | 0 | 1 | 0 | 0 |
+| Vai trò | SO3-02 | 1 | 0 | 1 | 0 | 0 |
+| Quy trình nghiệp vụ | SO3-03, SO3-04, SO3-05 | 3 | 0 | 1 | 2 | 0 |
+| Tính năng chung | SO3-10 | 1 | 0 | 0 | 0 | 1 |
+| NFR | SO3-06 | 1 | 0 | 0 | 1 | 0 |
+| Dữ liệu/migration | SO3-07 | 1 | 0 | 0 | 1 | 0 |
+| Điểm chốt số | SO3-09 | 1 | 0 | 0 | 1 | 0 |
+| Tài liệu index | SO3-08 | 1 | 0 | 0 | 1 | 0 |
+| **Tổng** | | **10** | **0** | **3** | **6** | **1** |
+
+**Hành động ưu tiên cao nhất:**
+1. **SO2-01** — chuẩn hóa `_meta/req-registry.json` (enum phase + đăng ký 58 REQ): điều kiện duy nhất mức Critical, làm ngay trước `/wf-define-features`.
+2. **SO2-02 + SO2-03 + SO3-03** — chốt phase Hard Stop, nguồn sự thật định mức tier, K5 knockout: ba quyết định nghiệp vụ quyết định spec GĐ1.
+3. **SO3-01 + SO3-02** — REQ nền tảng RBAC & Audit Log + bổ sung vai CX Head/Compliance/Manager L4: nền cho mọi routing duyệt và phân quyền ở Phase 2.
+
+---
+
+**Kết luận chung:** Phase 1 có nền tảng nghiệp vụ chắc — các nguyên tắc tiền (giữ hộ vs doanh thu, Hard Stop, SoD, audit bất biến) nhất quán tuyệt đối giữa 7 tài liệu và không có mâu thuẫn kiểm soát nào. Khối lượng xử lý trước Phase 2 tập trung ở lớp metadata (registry) và 5 điểm High; không phát hiện gap nào đòi hỏi phỏng vấn lại phòng ban hay viết lại luồng kinh doanh.
+
+---
+
+### Phụ lục Phase 6d — Ánh xạ vai ngoài role model (AI-recommended)
+
+> Resolve finding SO3-02 (High): 3 vai xuất hiện trong business rules nhưng chưa có trong role model 18 vai của registry. Nội dung dưới đây là quyết định AI-recommended — stakeholder có thể điều chỉnh sau. Ở bước này **không sửa registry**: các vai sẽ được thêm vào `_meta/req-registry.json` tại `systems[].user_roles` ở **Phase 8** (cùng batch đăng ký REQ theo SO2-01).
+>
+> **⚠️ CẬP NHẬT 12/09/2026 — QUYẾT ĐỊNH STAKEHOLDER (DI-006): KHÔNG duyệt `OPS_CX` và `FIN_COMPL`.** Hai vai đã bị gỡ khỏi registry và mọi actors list (registry quay lại 18 vai). Trách nhiệm gán lại về vai hiện có: CX Head → **OPS_PLAN**; Compliance → **FIN_L2** xử lý + **BOD** oversight độc lập. Chi tiết: Phần F.3.
+
+| Vai đề xuất | Định nghĩa | Thuộc phòng ban | Phạm vi trách nhiệm | Căn cứ nghiệp vụ |
+|---|---|---|---|---|
+| ~~`OPS_CX`~~ ❌ **TỪ CHỐI 12/09** | ~~CX Head / lead CSKH~~ | DEPT-OPS | *(vai không được duyệt — trách nhiệm chuyển về OPS_PLAN, xem F.3)* | ~~Xuất hiện trong BR-OPS-9.3/9.4/9.5~~ |
+| ~~`FIN_COMPL`~~ ❌ **TỪ CHỐI 12/09** | ~~Compliance officer~~ | DEPT-FINANCE | *(vai không được duyệt — trách nhiệm chuyển về FIN_L2 + BOD oversight, xem F.3)* | ~~BR-FIN-403/404~~ |
+| Delegate duyệt timesheet TL | Người duyệt timesheet của Team Leader | DEPT-OPS | Duyệt timesheet theo REQ-HR-009 / BR-OPS-8.2 | Manager L4 duyệt timesheet theo policy, nhưng OPS không có L4 chuyên trách `[CẦN CHỐT SỐ]` |
+
+**Quy ước delegate duyệt timesheet (SO3-02c):** OPS không có Manager L4 chuyên trách — quy ước "TL = OPS_PLAN (L5 kiêm TP) ủy quyền duyệt timesheet cho Team Leader cụ thể qua cấu hình delegate". Ủ quyền theo cá nhân cụ thể, có thời hạn, log nhãn "theo ủy quyền #id" — cùng cơ chế delegate của B0/REQ-BOD-001 `[CẦN CHỐT SỐ — chờ chốt người duyệt timesheet cấp TL, nối SO3-09 nhóm D]`.
+
+**Điều kiện sử dụng:** routing duyệt, SLA escalation và RBAC engine (REQ-BOD-011 — resolve SO3-01) không thể cấu hình với vai không tồn tại; 3 ánh xạ này cần được stakeholder xác nhận trước khi spec phân hệ 1 (RBAC & Audit Log) và phân hệ 14 (Ticket & CSKH).
+
+**Kết quả xác nhận (12/09/2026):** `OPS_CX`/`FIN_COMPL` **bị từ chối** — routing dùng OPS_PLAN và FIN_L2+BOD (xem banner đầu mục + Phần F.3); delegate duyệt timesheet vẫn `[CẦN CHỐT SỐ]` (SO3-09 nhóm D).
+
+## Phần E: AI Decision Records (BLOCKING-RESOLVED)
+
+> Các quyết định do expert agents đề xuất/áp dụng trong Phase 6d — run 20260911-174442-750a.
+> Stakeholder có thể điều chỉnh trong `/wf-define-features` Phase 0.
+
+### DR-001: Registry chưa sẵn sàng cho Phase 2 (SO2-01 — Critical/BLOCKING)
+- **Issue gốc:** SO2-01 — `req-registry.json` requirements[] trống (58→59 REQ chưa đăng ký) + enum phase tự mâu thuẫn (`Phase2/Phase3` vs `PHASE_2/FUTURE`)
+- **Expert(s) giải quyết:** business-analyst (main conversation, Phase 8 registry write)
+- **Giải pháp applied:** Phase 8 safe-write populate `requirements[]` (59 REQ từ lane signals), chuẩn hóa enum `status_values.phase` = `["MVP","Phase2","Phase3"]` (theo schema `_shared.md §Registry Schema`), update `counters.REQ = 59`
+- **Dept docs updated:** không cần (fix ở registry)
+- **Trạng thái:** BLOCKING-RESOLVED (AI-recommended — pending stakeholder confirmation)
+
+### DR-002: Mâu thuẫn định mức proposal theo tier (SO2-03 — High)
+- **Issue gốc:** stage-gate-lifecycle-v6.md §2.1 vs phan-loai-khach-hang-tier.md §2.2 (số trang/người soạn B/C vs D/E bị đảo)
+- **Expert(s) giải quyết:** marketing-expert (Phase 4 call-2)
+- **Giải pháp applied:** dùng phan-loai-khach-hang-tier.md làm nguồn sự thật (BR-OPS-6.3); policy stage-gate cần hiệu chỉnh — ghi DI-002 deferred-issues.md
+- **Dept docs updated:** operations.md (Phần B)
+- **Trạng thái:** EXPERT-RESOLVED (AI-recommended)
+
+### DR-003: RBAC & Audit Log thiếu REQ sở hữu (SO3-01 — High)
+- **Issue gốc:** phân hệ 1 P0 không có REQ đại diện; RBAC engine tách mảnh
+- **Expert(s) giải quyết:** business-analyst (Phase 6d EXPERT-RESOLVE)
+- **Giải pháp applied:** tạo REQ-BOD-011 "Nền tảng RBAC & SSO/MFA tập trung (cross-cutting)" — HIGH, MVP, primary SYS-CORE-BACKEND
+- **Dept docs updated:** bod.md (Phần A + ma trận A0) + lanes/bod/signals.json
+- **Trạng thái:** EXPERT-RESOLVED (AI-recommended)
+
+### DR-004: Vai ngoài role model (SO3-02 — High)
+- **Issue gốc:** CX Head, Compliance, Manager L4 xuất hiện trong workflow nhưng không có trong user_roles
+- **Expert(s) giải quyết:** business-analyst (Phase 6d EXPERT-RESOLVE)
+- **Giải pháp applied:** đề xuất vai `OPS_CX` (DEPT-OPS), `FIN_COMPL` (DEPT-FINANCE — tách theo SoD); Manager L4 → delegate từ OPS_PLAN qua cấu hình `[CẦN CHỐT SỐ]`; 2 vai mới đã thêm vào `SYS-BCERP-WEB.user_roles` ở Phase 8
+- **Dept docs updated:** stakeholder-review.md (Phụ lục Phase 6d)
+- **Trạng thái:** EXPERT-RESOLVED (AI-recommended)
+- **Cập nhật 12/09/2026:** stakeholder **TỪ CHỐI** 2 vai đề xuất — đã gỡ khỏi registry + actors (18 vai); trách nhiệm gán lại OPS_PLAN / FIN_L2+BOD trên toàn bộ policy, P1-02 và dept docs (xem Phần F.3). Trạng thái mới: **RESOLVED-BY-REJECTION (user decision)**
+
+### DR-005: K5 knockout chưa định nghĩa (SO3-03 — High)
+- **Issue gốc:** engine scoring K1–K12 GĐ1 chưa hoàn thiện (K5 trống)
+- **Expert(s) giải quyết:** business-analyst phối hợp góc sales-expert (Phase 6d)
+- **Giải pháp applied:** K5 mặc định = "Khách FATF high-risk / chế tài / không xác thực được UBO" (nối chuỗi AML/KYC) — giữ `[CẦN CHỐT SỐ — chờ policy Lead Scoring & Qualification]`
+- **Dept docs updated:** sales.md (B.3.2)
+- **Trạng thái:** EXPERT-RESOLVED (AI-recommended)
+
+### DR-006: Hard Stop mâu thuẫn phase trong P1-01 (SO2-02 — High)
+- **Issue gốc:** P1-01 §4 xếp Wallet & Đối soát GĐ2 trong khi REQ-FIN-006/REQ-OPS-002 xác định Hard Stop là GĐ1
+- **Expert(s) giải quyết:** business-analyst (main conversation, AUTO-RESOLVE)
+- **Giải pháp applied:** P1-01 §4 dòng 7 ghi chú "riêng Gate 'đã khớp tiền': GĐ1 — điều kiện cấp phát TKQC"
+- **Dept docs updated:** P1-01-project-overview.md
+- **Trạng thái:** AUTO-RESOLVED (áp dụng tự động)
+
+## Phần F: Audit Verify — 12/09/2026 (post-run cross-check)
+
+> Thực hiện bởi main-conversation audit (không thuộc run Phase 6d). Phạm vi: (1) verify thực tế từng DR/finding sau run; (2) đối chiếu output Phase 0-1 với tài liệu nguồn `documents/` của BC Agency; (3) kiểm cấu trúc theo `doc-framework/_contract.json`.
+> Kết quả kiểm cấu trúc: P0-01, P0-02, 20/20 policies, P1-01, P1-02, 5 dept docs — **PASS đầy đủ section/metadata theo contract**. Registry: 59 REQ ↔ `docs_reqs.txt` ↔ 19 modules khớp 2 chiều, không REQ mồ côi, không mismatch `primary_module`.
+
+### F.1. Trạng thái verify từng finding chính
+
+| Finding | Trạng thái ghi trong review | Verify thực tế (12/09/2026) |
+|---------|---------------------------|------------------------------|
+| SO2-01 (Critical) | BLOCKING-RESOLVED (DR-001) | ✅ **Đã resolve — verified**: registry có 59 REQ, `counters.REQ=59`, enum `status_values.phase` chuẩn `MVP/Phase2/Phase3` nhất quán toàn file |
+| SO2-02 (High) | AUTO-RESOLVED (DR-006) | ✅ **Đã resolve — verified**: P1-01 §4 dòng phân hệ 7 có ghi chú "riêng Gate 'đã khớp tiền' của Financial Hard Stop: GĐ1 — điều kiện cấp phát TKQC" |
+| SO3-01 (High) | EXPERT-RESOLVED (DR-003) | ✅ **Đã resolve — verified**: REQ-BOD-011 tồn tại trong registry (HIGH/MVP/MOD-RBAC-AUDIT), nằm trong `modules[MOD-RBAC-AUDIT].req_ids` |
+| SO3-02 (High) | EXPERT-RESOLVED (DR-004) | ✅ **Đã chốt 12/09/2026 (F.3)**: stakeholder TỪ CHỐI 2 vai đề xuất `OPS_CX`/`FIN_COMPL` (DI-006) — registry quay lại 18 vai; trách nhiệm gán lại OPS_PLAN (CX) và FIN_L2+BOD (Compliance) trên toàn bộ policy/P1-02/dept docs; delegate duyệt timesheet TL còn `[CẦN CHỐT SỐ]` (SO3-09 nhóm D) |
+| SO3-03 (High) | EXPERT-RESOLVED (DR-005) | ✅ **Đã apply default — verified**: K5 = FATF high-risk/UBO (sales.md B.3.2), còn nhãn `[CẦN CHỐT SỐ]` chờ policy Lead Scoring |
+| SO1-08 (Medium) | Chờ sửa | ✅ **Đã sửa trong audit này**: RACI B5 P1-02 — FIN = R (lập theo định mức GM), duyệt chiết khấu = TPKD/GDKD/BOD, bỏ "CFO ngưỡng cao" (CFO chỉ duyệt chi — REQ-FIN-008); operations.md B.6.5 đổi "GM duyệt" → "GDKD duyệt GM (Gross Margin)". Còn sót shorthand "GM duyệt" tại operations.md dòng khác (138/143/514/534/682) — chuẩn hóa nốt khi sửa SO2-03 |
+| SO3-08 (Medium) | Chờ tạo index | ✅ **Đã resolve trong audit này**: tạo `departments/_index.md` (59 REQ, phân bố ưu tiên 46/13, MVP 30, bảng ký hiệu hệ thống chuẩn mục 1.1 — giải luôn nửa đầu SO2-07) |
+
+### F.2. Phát hiện mới từ đối chiếu nguồn `documents/`
+
+**AUD-01 (High — cần chủ dự án chốt): Nguồn sự thật của SO2-03/DR-002/DI-002 mâu thuẫn tài liệu gốc của khách hàng.**
+Tài liệu nguồn `documents/01_Quy_trinh_MKT_Tong_the.md` §Giai đoạn 2 mục 3 ghi rõ: *"Tier B/C: AM tự soạn (8–12 trang)... Tier D/E: Planner chủ trì soạn (15–25 trang)..."* và *"Giới hạn số lần chỉnh sửa: Tier B/C ≤ 2 vòng; Tier D/E ≤ 4 vòng"*. Điều này **khớp** `stage-gate-lifecycle-v6.md` §2.1 và operations.md Phần A, nhưng **ngược hoàn toàn** với `phan-loai-khach-hang-tier.md` §2.2 (B/C = Planner 15–25 trang ≤4 vòng; D/E = AM 8–12 trang ≤2 vòng) — tức chính nguồn sự thật DR-002 chỉ định lại mâu thuẫn với quy trình gốc của công ty. **Tài liệu Phase 1 chưa được sửa theo DR-002** (may mắn): hiện operations.md Phần A/B vẫn còn 2 chiều trái ngược và flag mâu thuẫn còn nguyên. **Hành động bắt buộc trước khi thực thi DI-002:** chủ dự án chốt quy định đúng là chiều nào — nếu theo `documents/01` thì phải sửa `phan-loai-khach-hang-tier.md` §2.2 và BR-OPS-6.3 + sales.md B.3.4 (ngược hướng DI-002 hiện tại).
+
+**AUD-02 (Info):** `documents/01` bị cắt cụt tại dòng cuối — header "GIAI ĐOẠN 3: DEPLOY PHASE (ONBOARDING & CHUẨN BỊ TRIỂN KHAI)" không có nội dung theo sau. Trùng với gap đã track DI-003/SO3-04 (stage DEPLOY thiếu done criteria). **Cần khách hàng cung cấp phần còn thiếu của tài liệu gốc** trước khi hoàn thiện criteria stage DEPLOY.
+
+**AUD-03 (Info):** `documents/` đang chỉ có 2 file đánh số 01 và 05 — còn trống 02, 03, 04. Cần khách hàng xác nhận có bổ sung file nào trong bộ này không (ảnh hưởng phạm vi nguồn cho Phase 2+).
+
+**AUD-04 (Info):** `phase0-brainstorm/stakeholder-review.md` không tồn tại là **đúng thiết kế** — contract của wf-brainstorm ghi rõ "Manual only — Phase 0 KHÔNG tự tạo". Không phải finding thiếu hụt.
+
+### F.3. Quyết định stakeholder 12/09/2026 — DI-006: KHÔNG duyệt `OPS_CX`/`FIN_COMPL`
+
+**Quyết định:** chủ dự án không duyệt bổ sung 2 vai mới vào role model. Toàn bộ references đã được gán lại về vai hiện có trong `documents/05`:
+
+| Trách nhiệm cũ (vai bị từ chối) | Gán lại về | Căn cứ |
+|---|---|---|
+| CX Head — chuỗi escalation assignee→AM→CS TL→CX Head→BOD; override SLA lần 2; chủ trì review dịch vụ CSAT; phê duyệt post-mortem; điều phối khiếu nại nghiêm trọng; khóa TK khách có dấu hiệu xâm phạm | **OPS_PLAN** | `documents/05` Phần 1 §4: Strategic Planner kiêm nhiệm Quyền Trưởng phòng Vận hành — vai cao nhất của OPS, phù hợp vị trí chặng cuối trước BOD trong chuỗi escalation |
+| Compliance — điều tra AML cảnh báo vàng/đỏ, xác minh KYC, duyệt cấp phát sau EDD, tổng hợp báo cáo tuân thủ, truy cập audit log phục vụ điều tra | **FIN_L2** (xử lý) + **BOD** (oversight độc lập) | FIN_L2 = Kế toán trưởng (`documents/05`); BOD giữ chức năng oversight độc lập thay tuyến 2/3 — compensating control SoD: nguyên tắc "người đề xuất/nhập giao dịch không được tự điều tra" giữ nguyên hiệu lực |
+| (ngoài phạm vi từ chối) Delegate duyệt timesheet của TL | Giữ `[CẦN CHỐT SỐ]` — SO3-09 nhóm D | Quy ước ủy quyền qua cấu hình vẫn chờ chốt người duyệt |
+
+**File đã cập nhật theo quyết định này:** `req-registry.json` (`SYS-BCERP-WEB.user_roles` 20→18), `phase1-handoff.json` (3 bản: _meta/work/session), `dept-digests.json` + `department-digests.json` (3 bản), policies `sla-khach-hang.md` (12 chỗ), `client-portal-minh-bach-bao-mat.md` (7), `aml-kyc-giam-sat-giao-dich.md` (7), `P1-02-business-workflow.md` (6), `operations.md` (12), `finance.md` (8), `deferred-issues.md` (DI-006 → resolved), `workload-report.md` của session Phase 2.
+
+> **Lưu ý người đọc:** các nhãn "CX Head"/"Compliance" còn xuất hiện trong Phần A/D/E của file này là **bản ghi lịch sử của finding tại thời điểm review** — không phải trạng thái role model hiện tại. Trạng thái hiện tại: 18 vai theo `documents/05` + SYS_ADMIN.
+
+### F.4. Cập nhật 12/09/2026 (buổi sau) — Bộ tài liệu quy trình tái dựng `documents/quy-trinh-lam-viec/`
+
+Phát hiện nguồn mới: `documents/BC_Agency_Project_Lifecycle (1).html` — **Project Lifecycle v2.3** (72 entry: 33 stage + 39 sub-protocol ONGOING, chuẩn 5W1H/IO/Done/SLA/Risk/Module PMS). Chủ dự án đã phê duyệt và hoàn thành bộ tái dựng **`documents/quy-trinh-lam-viec/`** (11 file: tổng quan vòng đời, 5 tài liệu giai đoạn, cơ cấu tổ chức & phân công, RACI/Gate/SLA, phụ lục hằng số, tài liệu đánh giá).
+
+- **AUD-02:** đã bù ở mức nguồn — Deploy (D+0→D+5) tái dựng từ v2.3 (`quy-trinh-lam-viec/04`); chờ khách hàng xác nhận KXN-10 rồi mới đóng DI-003/SO3-04.
+- **AUD-03:** vẫn mở (giảm cấp thiết) — vòng đời đã phủ đủ nhờ v2.3.
+- **AUD-01:** đã tài liệu hóa thành KXN-1 + KXN-8 (file 10 §3.1/§3.6, ưu tiên P0); **phát hiện thêm** v2.3 dùng ngữ nghĩa tier NGƯỢC chiều V6.0 (A/B=cao vs A=tệ nhất) → mọi REQ/policy theo Tier A–E cần rà lại sau khi chốt. Vẫn **không thực thi DI-002**.
+- **Đề xuất:** stakeholder chốt 6 khoản P0 (KXN-1, 2, 5, 8, 10, 11) trước khi resume `/wf-define-features`; registry không sửa tay — nạp REQ mới qua `/wf-add-scope` hoặc resume skill.
+
+Chi tiết đầy đủ: `.mc-data/work/audit-documents-alignment-20260912.md` §7 + `documents/quy-trinh-lam-viec/10_Danh_gia_Doi_chieu_Nguon_va_Khoan_Can_Xac_nhan.md`.

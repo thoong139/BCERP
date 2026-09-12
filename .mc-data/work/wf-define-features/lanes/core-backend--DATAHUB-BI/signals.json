@@ -1,0 +1,42 @@
+{
+  "lane_key": "core-backend--DATAHUB-BI",
+  "lane_type": "feature",
+  "system": "SYS-CORE-BACKEND",
+  "module": "MOD-DATAHUB-BI",
+  "items": [
+    {
+      "feat_id": "FEAT-CORE-DHUB-001",
+      "file": ".mc-data/docs/phase2-features/core-backend/datahub-bi/p-va-l-toan-cong-ty-realtime.md",
+      "req_ids": ["REQ-BOD-003"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-DHUB-002",
+      "file": ".mc-data/docs/phase2-features/core-backend/datahub-bi/bi-dashboard-dieu-hanh.md",
+      "req_ids": ["REQ-BOD-004"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-DHUB-003",
+      "file": ".mc-data/docs/phase2-features/core-backend/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md",
+      "req_ids": ["REQ-BOD-006"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-DHUB-004",
+      "file": ".mc-data/docs/phase2-features/core-backend/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md",
+      "req_ids": ["REQ-FIN-015"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-CORE-DHUB-005",
+      "file": ".mc-data/docs/phase2-features/core-backend/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md",
+      "req_ids": ["REQ-FIN-016", "REQ-BOD-003"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T13:27:05Z",
+    "words_written": 14059
+  }
+}
