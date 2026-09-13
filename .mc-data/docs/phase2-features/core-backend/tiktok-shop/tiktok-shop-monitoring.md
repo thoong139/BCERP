@@ -20,7 +20,7 @@
 | ID tính năng | FEAT-CORE-TIKTOK-001 |
 | Module | MOD-TIKTOK-SHOP (SYS-CORE-BACKEND — BCERP Core Backend, headless API/domain service) |
 | Yêu cầu nghiệp vụ | REQ-OPS-011 (TikTok Shop Monitoring) |
-| Người dùng liên quan | OPS_AM, OPS_ADS, OPS_PLAN, OPS_CONT, OPS_DES, OPS_EDIT; FIN_L1 (đối soát Gate 1/3); SALES_L3 (SM — ký Gate 2); FIN_L2 (oversight); SYS_ADMIN (connector/degraded) |
+| Người dùng liên quan | OPS_AM, OPS_ADS, OPS_PLAN, OPS_CONT, OPS_DES, OPS_EDIT; FIN_L1 (đối soát Gate 1/3); SALES_L4 (TPKD/SM — ký Gate 2 — KXN-14); FIN_L2 (oversight); SYS_ADMIN (connector/degraded) |
 | Độ ưu tiên | Trung bình (MEDIUM · GĐ3) |
 | Giai đoạn | Giai đoạn 3 |
 | Phụ thuộc | Không có FEAT nội-module phải làm trước. Sync phụ thuộc connector OAuth per-client tại SYS-INTEGRATION-GW (counterpart cùng REQ); Gate 1 gắn onboarding (REQ-OPS-004), đối soát dùng chung luồng ví (REQ-FIN-004) |
@@ -50,7 +50,7 @@ Touchpoint của bản này là core backend: các vai nội bộ thao tác qua 
 | 3 | OPS_PLAN | Xem API dashboard trạng thái 3 Gate của toàn bộ shop (treo Gate nào, quá SLA bao lâu) | Điều phối nguồn lực, escalate theo SLA 8h LV |
 | 4 | OPS_CONT / OPS_DES / OPS_EDIT | Đọc báo cáo shop health + GMV theo ngành hàng của khách (view-only) | Làm content/creative bám đúng tình trạng shop |
 | 5 | FIN_L1 | Chạy đối soát định kỳ settlement vs đơn vs ads theo tần suất HĐ (mặc định hàng tháng), hệ thống flag chênh lệch vượt ngưỡng | Đối soát có bằng chứng, điều tra ≤3 ngày LV |
-| 6 | SALES_L3 (SM) | Ký duyệt Go-live Gate 2 — chỉ hợp lệ khi Gate 1 VERIFIED và baseline đã snapshot | Chịu trách nhiệm mốc go-live; baseline là mốc đo lường |
+| 6 | SALES_L4 (TPKD/SM — KXN-14) | Ký duyệt Go-live Gate 2 — chỉ hợp lệ khi Gate 1 VERIFIED và baseline đã snapshot | Chịu trách nhiệm mốc go-live; baseline là mốc đo lường |
 | 7 | SYS_ADMIN | Bật degraded "manual" khi mất API (DI-007), import đúng schema có nhãn + timestamp, trigger backfill khi có API | Nghiệp vụ không tắc khi chưa có quyền API |
 | 8 | CUSTOMER (Portal — phần tenant, khi HĐ cấu hình) | Xem báo cáo GMV/shop health của shop mình qua API portal read-only, mask PII, kèm độ trễ | Minh bạch kết quả, không thấy dữ liệu nội bộ BC hay khách khác |
 
@@ -69,7 +69,7 @@ Touchpoint của bản này là core backend: các vai nội bộ thao tác qua 
 | BR-005 | **Chặn mapping GMV vào doanh thu:** validation tầng API chặn mọi mapping GMV/settlement vào tài khoản doanh thu trên sổ; doanh thu BC chỉ từ phí dịch vụ + phí ads thu hộ (+ phí vận hành shop nếu HĐ quy định); HĐ chia share theo GMV chỉ ghi nhận **phần share sau khi settlement đối soát khớp**. Nguồn: BR-OPS-4.4; policy §2.2; P1-02 B7. | Hạch toán GMV vào doanh thu → từ chối + audit log; phần mềm kế toán VAS cấu hình khi triển khai theo hướng vendor-agnostic (DI-004 — kết nối ngoại vi tại MOD-SETTINGS-GW) |
 | BR-006 | **Mask PII mặc định:** SĐT (`090****123`), địa chỉ chỉ còn tỉnh/huyện, tên người mua cuối được mask ở tầng API; dữ liệu đầy đủ chỉ trong phiên TTL của GW cho nghiệp vụ bắt buộc (đối soát giao hàng), **không persist vào database**. Nguồn: BR-OPS-4.2; policy §2.1. | Trả PII thô ngoài phiên TTL → chặn; hết TTL → thu hồi truy cập giữa phiên |
 | BR-007 | **Tenant isolation giữa shops:** dữ liệu shop khách A không bao giờ xuất hiện trong báo cáo/API/export của khách B — Row-Level Security theo tenant + client code ở tầng API; test truy cập chéo hàng quý. Nguồn: BR-OPS-4.2; policy §2.1. | Truy vấn vượt tenant → từ chối + audit log; test quý fail → incident bảo mật |
-| BR-008 | **Lifecycle 3 Gate:** Gate 1 — checklist chủ shop (giấy ĐKKD/hộ kinh doanh, người đại diện pháp luật, chứng từ sở hữu shop, khớp người ký HĐ với chủ shop) + giấy phép ngành hàng theo chính sách TikTok Shop hiện hành; AM + FIN_L1 đối chiếu pháp lý; lưu ngày hết hạn + cảnh báo trước hạn. Gate 2 — SM (SALES_L3) ký, chỉ hợp lệ khi Gate 1 VERIFIED. Gate 3 — đối soát settlement vs đơn vs ads theo tần suất HĐ (mặc định hàng tháng); vượt ngưỡng → điều tra ≤3 ngày LV. Nguồn: BR-OPS-4.5; policy §2.3–2.4. | Ký Gate 2 khi Gate 1 chưa VERIFIED → từ chối; đối soát quá hạn → escalate |
+| BR-008 | **Lifecycle 3 Gate:** Gate 1 — checklist chủ shop (giấy ĐKKD/hộ kinh doanh, người đại diện pháp luật, chứng từ sở hữu shop, khớp người ký HĐ với chủ shop) + giấy phép ngành hàng theo chính sách TikTok Shop hiện hành; AM + FIN_L1 đối chiếu pháp lý; lưu ngày hết hạn + cảnh báo trước hạn. Gate 2 — SM (SALES_L4 TPKD — KXN-14) ký, chỉ hợp lệ khi Gate 1 VERIFIED. Gate 3 — đối soát settlement vs đơn vs ads theo tần suất HĐ (mặc định hàng tháng); vượt ngưỡng → điều tra ≤3 ngày LV. Nguồn: BR-OPS-4.5; policy §2.3–2.4. | Ký Gate 2 khi Gate 1 chưa VERIFIED → từ chối; đối soát quá hạn → escalate |
 | BR-009 | **Baseline KPI chốt lúc bàn giao:** snapshot GMV, ADS, tỷ lệ chuyển đổi, tình trạng shop ghi bất biến tại Gate 2, gắn chữ ký SM + timestamp; mọi so sánh quy về baseline; sửa chỉ qua change log bất biến. Nguồn: BR-OPS-4.5; policy §2.4–2.5. | Thiếu baseline → không go-live; sửa ngoài change log → incident + so audit hash |
 | BR-010 | **Cảnh báo SLA shop:** shop bị hạn chế/khóa, GMV/settlement lệch bất thường, giấy phép & OAuth sắp hết hạn, baseline lệch → CORE sinh cảnh báo (M-INT push OPS_ADS/OPS_AM); xử lý theo SLA ticket khách (tier×priority — REQ-OPS-008); không SLA riêng cho fulfillment. Nguồn: BR-OPS-4.6. | Cảnh báo không owner/SLA → escalate OPS_PLAN; tắt tay phải có reason trong audit log |
 | BR-011 | **KHÔNG làm OMS/WMS:** chỉ monitoring — không quản lý đơn/fulfillment/tồn kho; chỉ nhận fulfillment khi HĐ quy định rõ phạm vi + trách nhiệm + phí, SLA riêng đính kèm. Nguồn: BR-OPS-4.3; policy §2.5; P1-02 B7. | Thao tác đơn/fulfillment → API từ chối mã "ngoài phạm vi monitoring" |
@@ -80,9 +80,9 @@ Touchpoint của bản này là core backend: các vai nội bộ thao tác qua 
 
 ## 4. Phân Quyền
 
-> *Phân quyền thực thi ở tầng API core backend theo 18 vai registry. SM = SALES_L3 (theo `sales.md` — TNKD/SM). Không dùng OPS_CX/FIN_COMPL (DI-006 — vai bị từ chối).*
+> *Phân quyền thực thi ở tầng API core backend theo 18 vai registry. SM = SALES_L4 TPKD (KXN-14 — đồng bộ stakeholder review 12/09; nhãn cũ `sales.md` ghi TNKD/SM ở SALES_L3). Không dùng OPS_CX/FIN_COMPL (DI-006 — vai bị từ chối).*
 
-| Hành động | OPS_AM | OPS_ADS | OPS_PLAN | OPS_CONT/DES/EDIT | FIN_L1 | FIN_L2 | SALES_L3 (SM) | SYS_ADMIN |
+| Hành động | OPS_AM | OPS_ADS | OPS_PLAN | OPS_CONT/DES/EDIT | FIN_L1 | FIN_L2 | SALES_L4 (SM) | SYS_ADMIN |
 |-----------|--------|---------|----------|-------------------|--------|--------|---------------|-----------|
 | Xem dashboard GMV/shop health (khách phụ trách) | ✅ | ✅ | ✅ (toàn bộ) | ✅ (view-only) | ✅ | ✅ | ✅ | ✅ |
 | Đăng ký shop mới + khởi tạo checklist Gate 1 | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -136,8 +136,8 @@ Touchpoint của bản này là core backend: các vai nội bộ thao tác qua 
 |---------------------|-----------|----------------|-------------|---------------------|
 | `REGISTERED` | Hoàn tất Gate 1 | `VERIFIED` | OPS_AM + FIN_L1 (đối chiếu pháp lý) | Checklist chủ shop + giấy phép hợp lệ; lưu ngày hết hạn |
 | `REGISTERED` | Thẩm định fail / khách từ chối OAuth | `SUSPENDED` | OPS_AM | Lý do lưu hồ sơ; từ chối OAuth → nhãn "theo số liệu khách cung cấp" |
-| `VERIFIED` | Gate 2 Go-live | `GO_LIVE` | SALES_L3 (SM — ký) | Gate 1 VERIFIED; baseline snapshot bất biến gắn chữ ký |
-| `VERIFIED` | Gate 1 rút gọn (khách tự vận hành) | `MONITOR_ONLY` | OPS_AM + SALES_L3 xác nhận | Chỉ ownership + scope đọc; không cần Gate 2 full |
+| `VERIFIED` | Gate 2 Go-live | `GO_LIVE` | SALES_L4 (SM — ký) | Gate 1 VERIFIED; baseline snapshot bất biến gắn chữ ký |
+| `VERIFIED` | Gate 1 rút gọn (khách tự vận hành) | `MONITOR_ONLY` | OPS_AM + SALES_L4 xác nhận | Chỉ ownership + scope đọc; không cần Gate 2 full |
 | `GO_LIVE` | Gate 3 đối soát định kỳ | Vẫn `GO_LIVE` (kỳ mới) | FIN_L1 + OPS_AM | Theo tần suất HĐ (mặc định hàng tháng); vượt ngưỡng → điều tra ≤3 ngày LV |
 | `GO_LIVE` / `MONITOR_ONLY` | OAuth hết hạn / giấy phép cạn / shop bị khóa | `BLOCKED` | Hệ thống (tự động) + SYS_ADMIN | Cảnh báo SLA đã phát; dừng kéo dữ liệu mới |
 | `BLOCKED` | Khắc phục nguyên nhân | Trạng thái trước | SYS_ADMIN + OPS_AM | Gia hạn hợp lệ; đối chiếu gap trước khi nối lại |
@@ -176,7 +176,7 @@ Touchpoint của bản này là core backend: các vai nội bộ thao tác qua 
 | SC-001: Chặn mapping GMV vào doanh thu (BR-005) | Shop có dữ liệu GMV tháng | Attempt ghi GMV vào tài khoản doanh thu | API từ chối + mã lỗi riêng + audit log; chỉ fee/share theo HĐ (sau đối soát khớp) được ghi | [ ] |
 | SC-002: Mask PII + phiên TTL (BR-006) | Dữ liệu đơn chứa PII người mua cuối | Truy cập API thường, rồi mở phiên TTL | API thường chỉ trả mask; hết TTL bị thu hồi; DB không persist PII thô | [ ] |
 | SC-003: Thu hồi ủy quyền 24h (BR-002) | Hợp đồng khách hết hạn | Sự kiện HĐ fire | Revoked trong 24h, dừng kéo dữ liệu, task xác nhận văn bản; truy cập sau revoke bị chặn | [ ] |
-| SC-004: Gate 2 cần SM ký + baseline (BR-008/009) | Shop `VERIFIED` chưa có baseline | SALES_L3 thử ký go-live, rồi snapshot baseline và ký lại | Lần 1 từ chối; lần 2 thành công, baseline bất biến gắn chữ ký | [ ] |
+| SC-004: Gate 2 cần SM ký + baseline (BR-008/009) | Shop `VERIFIED` chưa có baseline | SALES_L4 thử ký go-live, rồi snapshot baseline và ký lại | Lần 1 từ chối; lần 2 thành công, baseline bất biến gắn chữ ký | [ ] |
 | SC-005: Degraded manual + backfill (BR-003 — DI-007) | Shop chạy degraded `manual` | API được cấp, backfill | Nhãn `api` + đối chiếu `manual` vs `api`; sai số vượt dung sai → tranh chấp chờ FIN_L1 | [ ] |
 | SC-006: Tenant isolation (BR-007) | Hai khách A/B cùng có shop monitoring | User tenant A truy vấn shop khách B | Từ chối + audit log bảo mật; test truy cập chéo quý: 0 rò rỉ | [ ] |
 | SC-007: Portal đúng tenant + disclaimer (BR-012) | Khách A được cấu hình GMV Portal | CUSTOMER A xem báo cáo Portal | Chỉ thấy shop tenant A, mask PII, kèm nguồn + timestamp + độ trễ; khách chưa cấu hình không thấy mục GMV | [ ] |
@@ -196,3 +196,4 @@ Touchpoint của bản này là core backend: các vai nội bộ thao tác qua 
 | Policy nghiệp vụ | `phase0-brainstorm/policies/tiktok-shop-du-lieu-gmv-tham-dinh.md` §2.1–2.5, §4–5 |
 | REQ nguồn & business rules | `phase1-business/departments/operations/operations.md` (A3 REQ-OPS-011, B.4 BR-OPS-4.1→4.6), `phase1-business/P1-02-business-workflow.md` (luồng 3 — B7) |
 | Feature liên quan | Counterparts cùng REQ: connector OAuth (GW), dashboard/checklist (WEB), cảnh báo mobile (M-INT); phối hợp REQ-FIN-004, REQ-OPS-008, REQ-OPS-004 |
+| Ghi chú P4: SM ánh xạ SALES_L4 theo KXN-14 (đồng bộ stakeholder review 12/09) | `phase1-business/stakeholder-review.md` (F.5 — Quyết định 12/09/2026) |

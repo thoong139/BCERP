@@ -1,0 +1,20 @@
+{
+  "lane_key": "mobile-portal--SLA-NOTIF",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-PORTAL",
+  "module": "MOD-SLA-NOTIF",
+  "items": [
+    {
+      "feat_id": "FEAT-MPO-SLANOT-001",
+      "file": ".mc-data/docs/phase2-features/mobile-portal/sla-notif/sla-va-notification-engine.md",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00+07:00",
+    "words_written": 4221
+  }
+}

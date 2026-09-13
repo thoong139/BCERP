@@ -1,0 +1,20 @@
+{
+  "lane_key": "mobile-portal--CAMPAIGN-DELIVERABLE",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-PORTAL",
+  "module": "MOD-CAMPAIGN-DELIVERABLE",
+  "items": [
+    {
+      "feat_id": "FEAT-MPO-CAMP-001",
+      "file": ".mc-data/docs/phase2-features/mobile-portal/campaign-deliverable/campaign-va-deliverable-management.md",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T03:27:12+07:00",
+    "words_written": 4889
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "lane_key": "integration-gw--ARAP-PAYMENT",
+  "lane_type": "feature",
+  "system": "SYS-INTEGRATION-GW",
+  "module": "MOD-ARAP-PAYMENT",
+  "items": [
+    {
+      "feat_id": "FEAT-GW-ARAP-001",
+      "file": ".mc-data/docs/phase2-features/integration-gw/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md",
+      "req_ids": [
+        "REQ-FIN-013"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-GW-ARAP-002",
+      "file": ".mc-data/docs/phase2-features/integration-gw/arap-payment/phi-nen-tang-va-nghia-vu-thue.md",
+      "req_ids": [
+        "REQ-FIN-014"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T18:06:02Z",
+    "words_written": 6000
+  }
+}

@@ -24,7 +24,7 @@
 | Độ ưu tiên | Cao |
 | Giai đoạn | Giai đoạn 2 |
 | Phụ thuộc | Không có FEAT chéo bắt buộc (cross-dependencies của lane rỗng); dữ liệu tham chiếu: tier profile khách, state machine ticket REQ-OPS-009, alert center REQ-BOD-006 |
-| Ghi chú Expert (A7) | Mục A7 trong `operations.md` đang "Chờ đánh giá" — chưa có điều chỉnh cụ thể cho REQ-OPS-008; spec theo Phần A + BR-OPS-9.1–9.3, kèm quyết định đã chốt DI-005 (on-call xoay vòng SLA 4h ngoài giờ) và DI-006 (không có vai OPS_CX — trách nhiệm CX/CS về OPS_PLAN) |
+| Ghi chú Expert (A7) | Mục A7 trong `operations.md` đang "Chờ đánh giá" — chưa có điều chỉnh cụ thể cho REQ-OPS-008; spec theo Phần A + BR-OPS-9.1–9.3, DI-005 (on-call xoay vòng SLA 4h ngoài giờ), DI-006 (không có vai OPS_CX — CX/CS về OPS_PLAN) |
 
 ---
 
@@ -46,10 +46,9 @@ Cung cấp trên BCERP Web nội bộ mặt bằng giám sát và thao tác đ�
 | 1 | OPS_AM | Xem dashboard compliance FR/Res theo tier × priority, lọc theo khách/nhóm/thời gian | Bảo vệ SLA, phát hiện sớm breach lặp |
 | 2 | OPS_AM | Nhận báo đỏ ≤5 phút khi chạm 100% SLA kèm template thông báo khách | Gửi thông báo trong 30 phút, tránh vi phạm riêng |
 | 3 | OPS_CONT / OPS_DES / OPS_EDIT / OPS_ADS | Nhận cảnh báo vàng 80% qua in-app/email và thấy clock tự PAUSED khi Pending hoặc Blocked-3rd-party (có case ID) | Chủ động xử lý trước breach, không bị tính breach oan |
-| 4 | OPS_PLAN | Theo dõi tổng quan breach, timeline escalation có timestamp; duyệt override/gia hạn với lý do bắt buộc | Điều phối chuỗi assignee → AM → CS TL → OPS_PLAN → BOD đúng SLA 30 phút/chặng |
-| 5 | OPS_PLAN | Cấu hình ma trận và tier profile ghi đè theo hợp đồng | Áp động đúng cam kết HĐ cao hơn ma trận |
-| 6 | BOD_CEO / BOD_CFO_CTO | Nhận breach đỏ vào alert center (REQ-BOD-006) kèm drill về nguồn | Giám sát rủi ro vận hành không phải hỏi từng AM |
-| 7 | CUSTOMER (counterpart Portal) | Nhận thông báo và xem đồng hồ SLA của tenant mình, song song giờ địa phương | Minh bạch tiến độ, không thấy dữ liệu tenant khác |
+| 4 | OPS_PLAN | Theo dõi tổng quan breach, timeline escalation có timestamp; duyệt override/gia hạn; cấu hình ma trận và tier profile ghi đè theo hợp đồng | Điều phối chuỗi assignee → AM → CS TL → OPS_PLAN → BOD đúng SLA 30 phút/chặng; áp động đúng cam kết HĐ |
+| 5 | BOD_CEO / BOD_CFO_CTO | Nhận breach đỏ vào alert center (REQ-BOD-006) kèm drill về nguồn | Giám sát rủi ro vận hành không phải hỏi từng AM |
+| 6 | CUSTOMER (counterpart Portal) | Nhận thông báo và xem đồng hồ SLA của tenant mình, song song giờ địa phương | Minh bạch tiến độ, không thấy dữ liệu tenant khác |
 
 ---
 
@@ -113,7 +112,7 @@ Mọi override/miễn SLA bắt buộc trường lý do và audit log bất bi�
 - **Hợp đồng cam kết khác ma trận:** tier profile ghi đè; WEB hiển thị song song giá trị ma trận chuẩn và giá trị áp dụng kèm nhãn nguồn (HĐ/ma trận/lịch khách) để tránh cấu hình mâu thuẫn.
 - **Ngoài giờ với Critical:** không bố trí desk 24/7 — cảnh báo Critical ngoài giờ định tuyến tới ca trực on-call xoay vòng, SLA 4h (DI-005); WEB hiển thị "ca trực hiện tại" để AM biết đầu mối.
 - **Nguy cơ ngập cảnh báo:** một đợt outage sinh đồng loạt breach → gộp alert theo nguồn, ưu tiên theo mức (nguyên tắc BR-BOD-006.2 liên thông); nhân viên vẫn thấy chi tiết từng ticket trong danh sách WEB.
-- **Cờ cảnh báo chưa chốt:** các cờ K6–K12 chưa có danh sách đầy đủ `[KXN-20]` → chỉ bật tự động cờ đã xác nhận trong nguồn; cờ mới thêm sau khi chốt, không cấu hình tay theo cảm tính.
+- **Cờ cảnh báo chưa chốt:** các cờ K6–K12 chưa có danh sách đầy đủ `[KXN-20]` → chỉ bật tự động cờ đã xác nhận trong nguồn; cờ mới chỉ thêm sau khi chốt.
 
 ---
 
@@ -156,7 +155,7 @@ Mọi override/miễn SLA bắt buộc trường lý do và audit log bất bi�
 
 ## 7. Tóm Tắt Entity (Quick Reference)
 
-Chi tiết DDL đầy đủ nằm tại `phase3-architecture/technical-specs/database-design.md`; bộ entity tối thiểu của tính năng: **SLA Policy Config** (`tier`, `priority`, `fr_target`, `res_target`, `is_247` — duy nhất theo cặp tier × priority), **Tier Profile** (`customer_id`, `sla_overrides`, `custom_work_calendar` — FK tới khách/tenant), **SLA Clock** (`ticket_id`, `state`, `elapsed_lv`, `paused_reason`, `case_id_platform` — FK tới ticket/task REQ-OPS-009), **SLA Alert** (`clock_id`, `level`, `channel`, `delivered_at`, `ack_by`), **Override/Waiver Log** (`type`, `old_target`, `new_target`, `reason`, `actor`, `at` — append-only bất biến), **Escalation Trace** (`stage`, `sent_at`, `handled_at`), **Post-Mortem Task** (`customer_id`, `breach_count`, `root_cause_group`, `due_date`). Bộ entity này là nguồn cho state machine mục 6 và rule BR-001→BR-012.
+Chi tiết DDL đầy đủ nằm tại `phase3-architecture/technical-specs/database-design.md`; bộ entity tối thiểu của tính năng: **SLA Policy Config** (`tier`, `priority`, `fr_target`, `res_target`, `is_247` — duy nhất theo cặp tier × priority), **Tier Profile** (`customer_id`, `sla_overrides`, `custom_work_calendar` — FK tới khách/tenant), **SLA Clock** (`ticket_id`, `state`, `elapsed_lv`, `paused_reason`, `case_id_platform` — FK tới ticket/task REQ-OPS-009), **SLA Alert** (`clock_id`, `level`, `channel`, `delivered_at`, `ack_by`), **Override/Waiver Log** (`type`, `old_target`, `new_target`, `reason`, `actor`, `at` — append-only bất biến), **Escalation Trace** (`stage`, `sent_at`, `handled_at`), **Post-Mortem Task** (`customer_id`, `breach_count`, `root_cause_group`, `due_date`). Bộ entity này là nguồn cho state machine mục 6 và các rule BR-001→BR-012.
 
 ---
 
@@ -173,7 +172,7 @@ Chi tiết DDL đầy đủ nằm tại `phase3-architecture/technical-specs/dat
 | SC-005: Tenant isolation | Hai tenant A, B có event SLA riêng | Khách tenant A mở portal | Chỉ thấy event của tenant A; gọi API event tenant B → 403 + audit | [ ] |
 | SC-006: Post-mortem tự sinh | Khách X đã có 3 breach trong 30 ngày | Breach thứ 3 ghi nhận | Task post-mortem tự sinh, due 5 ngày LV; CS TL review — OPS_PLAN phê duyệt | [ ] |
 
-> **Liên kết:** mỗi scenario map về REQ-OPS-008 (Mục 2 — dashboard compliance, pre-alert/breach, escalation, override; BR-003–BR-010).
+> **Liên kết:** mỗi scenario map về REQ-OPS-008 (Mục 2; BR-003–BR-010).
 
 ---
 

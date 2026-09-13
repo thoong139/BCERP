@@ -1,0 +1,24 @@
+{
+  "lane_key": "mobile-internal--ARAP-PAYMENT",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-ARAP-PAYMENT",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-ARAP-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/arap-payment/phe-duyet-vuot-nguong-va-escalation.md",
+      "req_ids": ["REQ-BOD-001"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-ARAP-002",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md",
+      "req_ids": ["REQ-FIN-008"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T01:38:01+07:00",
+    "words_written": 5878
+  }
+}

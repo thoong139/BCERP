@@ -51,7 +51,7 @@ Xây dựng điểm kiểm soát truy cập tập trung duy nhất của BCERP: 
 
 ## 2. Luồng Người Dùng (User Stories)
 
-Touchpoint là **headless API/domain service trên core backend**: authentication đi qua Keycloak, authorization đi qua RBAC engine ở service layer; không client nào (web/mobile/portal) được tin quyết quyền ở phía UI.
+Touchpoint là **headless API/domain service trên core backend**: authentication đi qua Keycloak, authorization đi qua RBAC engine ở service layer; không client nào (web/mobile/portal) được phân quyền ở phía UI.
 
 | # | Với tư cách là... | Tôi muốn... | Để... |
 |---|------------------|------------|-------|
@@ -140,8 +140,9 @@ Touchpoint là **headless API/domain service trên core backend**: authenticatio
 | `ACTIVE` | Sự kiện offboarding | `OFFBOARDING` | HR_L2 phát, hệ thống kích hoạt | Checklist thu hồi khởi tạo; yêu cầu thu hồi TKQC gửi OPS |
 | `OFFBOARDING` | Hoàn tất revoke + rotate | `DEACTIVATED` | SYS_ADMIN thực thi | ≤24h; checklist CTO xác nhận; log từng bước |
 | `ACTIVE` | Tạm ngưng | `SUSPENDED` | BOD_CEO duyệt | Lý do rõ (nghỉ không lương, điều tra); toàn phiên hiện hữu bị thu hồi |
+| `ACTIVE`/`SUSPENDED` | Khóa tự động khi nghi ngờ xâm phạm | `AUTO_DISABLED` | Hệ thống (risk engine), SYS_ADMIN nhận alert | Trigger bảo mật (đăng nhập/hoạt động bất thường, token lệch device); toàn phiên hiện hữu bị thu hồi ngay |
 
-**Quy tắc:** `DEACTIVATED` là trạng thái kết thúc — tái tuyển dùng tài khoản mới (dữ liệu cũ retention theo REQ-HR-010); `SUSPENDED` có thể quay lại `ACTIVE` sau phê duyệt. Mọi chuyển tiếp ghi audit log hash-chain.
+**Quy tắc:** `DEACTIVATED` là trạng thái kết thúc — tái tuyển dùng tài khoản mới (dữ liệu cũ retention theo REQ-HR-010); `SUSPENDED` có thể quay lại `ACTIVE` sau phê duyệt; `AUTO_DISABLED` chỉ mở khóa về `ACTIVE` bởi SYS_ADMIN sau khi review bảo mật kết luận không có xâm phạm, ghi lý do + audit log hash-chain. Mọi chuyển tiếp ghi audit log hash-chain.
 
 **Entity phụ:** Role Assignment: `PROPOSED → CEO_APPROVED → ACTIVE → REVOKED/AUTO_DISABLED` (chi tiết tại FEAT-CORE-RBAC-003).
 

@@ -1,0 +1,18 @@
+{
+  "lane_key": "bcerp-web--SLA-NOTIF",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-SLA-NOTIF",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-SLANOT-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/sla-notif/sla-va-notification-engine.md",
+      "req_ids": ["REQ-OPS-008"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T17:32:07Z",
+    "words_written": 2996
+  }
+}

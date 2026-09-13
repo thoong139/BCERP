@@ -9,7 +9,7 @@
 > READS: `_meta/req-registry.json`, `phase1-business/departments/operations/operations.md`, `phase0-brainstorm/policies/stage-gate-lifecycle-v6.md` (bản 1.2), `documents/quy-trinh-lam-viec/` v1.1 (file 01, 03, 04, 08, 09, 10)
 > USED BY: `phase3-architecture/P3-01-architecture.md`, `phase3-architecture/technical-specs/*.md`, `phase4-ux/bcerp-web/proposal-planning/*.md`, `phase5-implementation/tasks/bcerp-web/proposal-planning/feat-erp-propln-001-impl.md`
 
-> **Hướng dẫn ID:** FEAT-ID sinh từ REQ-ID theo quy tắc `REQ-[DEPT]-[NNN]` → `FEAT-[SYS]-[MOD]-[NNN]` (tra `req-registry.json`); riêng tính năng này là **FEAT-ERP-PROPLN-001** theo mapping lane của orchestrator (REQ-OPS-005 fan-out 3 systems).
+> **Hướng dẫn ID:** FEAT-ID sinh từ REQ-ID (`REQ-[DEPT]-[NNN]` → `FEAT-[SYS]-[MOD]-[NNN]`); riêng tính năng này là **FEAT-ERP-PROPLN-001** theo mapping lane (REQ-OPS-005 fan-out 3 systems).
 
 ---
 
@@ -30,11 +30,11 @@
 ## 1. Mô Tả Tính Năng
 
 **Mục đích:**
-Workspace web nội bộ (Next.js, responsive) để BPVH điều khiển chặng EVALUATION → WON → DEPLOY của stage-gate V6.0: xem trạng thái gate machine-state, soạn proposal đúng định mức tier, chạy vòng duyệt đa vai, quản lý WBS sau WON, duyệt creative, ghi change log, khai báo A/B test. Tính năng hiện thực hóa nguyên tắc *"Không ghi nhận vào PMS = Không tồn tại"* — mọi checklist, chữ ký, vòng sửa, quyết định gate chỉ có giá trị khi nằm trên hệ thống với done-criteria machine-checkable.
+Workspace web nội bộ (Next.js, responsive) để BPVH điều khiển chặng EVALUATION → WON → DEPLOY của stage-gate V6.0: xem trạng thái gate machine-state, soạn proposal đúng định mức tier, duyệt đa vai, quản lý WBS, change log, A/B test. Tính năng hiện thực hóa nguyên tắc *"Không ghi nhận vào PMS = Không tồn tại"* — mọi checklist, chữ ký, vòng sửa, quyết định gate chỉ có giá trị khi nằm trên hệ thống với done-criteria machine-checkable.
 
 **Phạm vi:**
-- Bao gồm: workspace stage-gate (checklist done-criteria tách "hệ thống tự kiểm" và "thuần phán đoán con người", đồng hồ SLA, escalate); soạn proposal từ template theo tier kèm validator đếm trang/vòng; checklist Brand Safety 7 tiêu chí + Weighted ≥3,5; WBS sau WON; pipeline duyệt creative đa vai; campaign change log bất biến; A/B test; timeline D+0 → D+5.
-- Không bao gồm: gate engine/e-approval backend (SYS-CORE-BACKEND); duyệt concept di động (SYS-MOBILE-INTERNAL); bề mặt khách nghiệm thu (PORTAL/M-PORTAL); quản lý TKQC và ví (REQ-OPS-001/002/003); capacity & timesheet chi tiết (REQ-OPS-007 — chỉ nhận kết quả capacity check); SLA ticket (REQ-OPS-008/009); tích hợp CMS/TMS "tương lai" `[KXN-9]`; các khoản ngoài lõi: hình thức gửi Client Survey `[KXN-15]`, dọn node retro trùng lặp `[KXN-16]`, quy trình HR `[KXN-18]`, mốc non-payment 15/30 ngày `[KXN-22]`.
+- Bao gồm: workspace stage-gate (checklist tách "hệ thống tự kiểm" và "thuần phán đoán con người", đồng hồ SLA, escalate); soạn proposal từ template theo tier kèm validator đếm trang/vòng; checklist Brand Safety 7 tiêu chí + Weighted ≥3,5; WBS sau WON; duyệt creative đa vai; change log bất biến; A/B test; timeline D+0 → D+5.
+- Không bao gồm: gate engine/e-approval backend (CORE); duyệt concept di động (M-INT); bề mặt khách nghiệm thu (PORTAL/M-PORTAL); TKQC và ví (REQ-OPS-001/002/003); capacity & timesheet chi tiết (REQ-OPS-007 — chỉ nhận kết quả check); SLA ticket (REQ-OPS-008/009); tích hợp CMS/TMS "tương lai" `[KXN-9]`; các khoản ngoài lõi: hình thức gửi Client Survey `[KXN-15]`, dọn node retro trùng lặp `[KXN-16]`, quy trình HR `[KXN-18]`, mốc non-payment 15/30 ngày `[KXN-22]`.
 
 ---
 

@@ -1,0 +1,48 @@
+{
+  "lane_key": "mobile-internal--WALLET-RECON",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-WALLET-RECON",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-WALLET-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/wallet-recon/so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md",
+      "req_ids": ["REQ-FIN-001"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-WALLET-002",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/wallet-recon/canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md",
+      "req_ids": ["REQ-FIN-002", "REQ-OPS-003"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-WALLET-003",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/wallet-recon/dual-approval-dieu-chinh-so-du-doi-ty-gia-hoan-tien.md",
+      "req_ids": ["REQ-FIN-003"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-WALLET-004",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/wallet-recon/financial-hard-stop-da-khop-tien-fin-l1.md",
+      "req_ids": ["REQ-FIN-006", "REQ-OPS-002"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-WALLET-005",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/wallet-recon/aml-monitoring-t1-t6-hoan-tien-dung-nguon.md",
+      "req_ids": ["REQ-FIN-010"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-WALLET-006",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "req_ids": ["REQ-OPS-003", "REQ-FIN-002"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T01:34:52+07:00",
+    "words_written": 22152
+  }
+}

@@ -22,7 +22,9 @@ Tính năng này là mặt làm việc chính trên web nội bộ để soạn 
 | ID tính năng | FEAT-ERP-QDD-002 |
 | Module | MOD-QUOTATION-DEALDESK (SYS-BCERP-WEB) |
 | Yêu cầu nghiệp vụ | REQ-SALES-007 |
-| Người dùng liên quan | SALES_L1 (Intern), SALES_L2 (NVKD), SALES_L3 (SM/TNKD), SALES_L4 (TPKD), SALES_L5 (GDKD — quy hoạch, tạm BOD kiêm nhiệm); phối hợp OPS_AM (nhận ràng buộc vận hành), FIN_L1 (xác nhận nạp NSQC), BOD_CEO (duyệt HĐ giá trị lớn), SYS_ADMIN (quản mẫu hệ thống) |
+| Người dùng liên quan | SALES_L1 (Intern), SALES_L2 (NVKD), SALES_L3 (TNKD), SALES_L4 (TPKD/SM — KXN-14), SALES_L5 (GDKD — quy hoạch, tạm BOD kiêm nhiệm); phối hợp OPS_AM (nhận ràng buộc vận hành), FIN_L1 (xác nhận nạp NSQC), BOD_CEO (duyệt HĐ giá trị lớn), SYS_ADMIN (quản mẫu hệ thống) |
+
+> **Chú thích phân biệt (P4 — KXN-14):** `SALES_L3` là vai TNKD (trưởng nhóm kinh doanh) theo `sales.md`; chức danh **SM** ánh xạ **SALES_L4 (TPKD)** — người ký/duyệt các mốc gate theo KXN-14, không còn gắn với SALES_L3.
 | Độ ưu tiên | Cao |
 | Giai đoạn | Giai đoạn 1 (MVP — mẫu chuẩn, chặn NDA, nạp trước NSQC, version lock); e-sign tích hợp hoàn chỉnh + checklist Brand Safety gắn EVALUATION + archive alert hoàn thiện theo lộ trình REQ-SALES-007 |
 | Phụ thuộc | FEAT-ERP-QDD-001 (quotation APPROVED là đầu vào soạn hợp đồng); không có cross-dependency ngoài lane |
@@ -61,7 +63,7 @@ Các user story diễn ra trên web nội bộ responsive; trạng thái hiển 
 | 1 | SALES_L2 (NVKD) | Soạn NDA mutual từ mẫu chuẩn gắn với khách hàng và gửi ký | Có NDA mutual signed trước khi nhận Full Brief 8 sections |
 | 2 | SALES_L2 (NVKD) | Soạn LOI/hợp đồng từ mẫu IN/OUT of scope, tham chiếu quotation đã duyệt GM | Cam kết pháp lý khớp đúng giá và `serviceType` đã báo giá |
 | 3 | SALES_L2 (NVKD) | Điền checklist Brand Safety 7 tiêu chí pass/fail từng mục khi deal ở stage EVALUATION | Chặn sớm rủi ro pháp lý/nền tảng trước khi sang PROPOSAL và trước khi ký |
-| 4 | SALES_L3 (SM) | Xem kết quả checklist Brand Safety và dấu hiệu bypass tại deal nhóm mình | Đảm bảo không deal nào lọt sang PROPOSAL khi fail tiêu chí |
+| 4 | SALES_L3 (TNKD) | Xem kết quả checklist Brand Safety và dấu hiệu bypass tại deal nhóm mình | Đảm bảo không deal nào lọt sang PROPOSAL khi fail tiêu chí |
 | 5 | SALES_L2 (NVKD) | Bấm "Từ chối vận hành" ghi rõ tiêu chí vi phạm và tự động notify legal + OPS_AM | Có quyết định chính thức (legal xác nhận + TP Vận hành trong 24h) thay vì xử lý miệng |
 | 6 | SALES_L5 (GDKD) | Duyệt hợp đồng theo ma trận giá trị và xem cảnh báo red-line diff so với template | Không để điều khoản bảo vệ BC bị xóa/sửa mà không qua thẩm định |
 | 7 | BOD_CEO | Duyệt hợp đồng giá trị lớn theo ma trận, quyết định gắn văn bản trên hệ thống | Cam kết giá trị cao có chữ ký cấp cao nhất và audit trail |
@@ -216,3 +218,4 @@ Chi tiết kĩ thuật (data model, API, integration) nằm tại các file chuy
 | Bản counterpart SYS-CORE-BACKEND (workflow engine, version lock, retention) | `phase2-features/core-backend/quotation-dealdesk/` (cùng fan-out REQ-SALES-007) |
 | Bản counterpart SYS-MOBILE-INTERNAL (duyệt HĐ giá trị lớn Phase2) | `phase2-features/mobile-internal/quotation-dealdesk/` (cùng fan-out REQ-SALES-007) |
 | Nguồn domain CMS (Contract serviceType bất biến, quan hệ AdAccount/PMS) | `documents/02_Quy_trinh_Cho_thue_TKQC.md` (CMS Domain Model v1, §1/§3.3/§4) |
+| Ghi chú P4: SM ánh xạ SALES_L4 theo KXN-14 (đồng bộ stakeholder review 12/09) | `phase1-business/stakeholder-review.md` (F.5 — Quyết định 12/09/2026) |

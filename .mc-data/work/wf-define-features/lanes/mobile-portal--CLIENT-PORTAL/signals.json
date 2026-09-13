@@ -1,0 +1,18 @@
+{
+  "lane_key": "mobile-portal--CLIENT-PORTAL",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-PORTAL",
+  "module": "MOD-CLIENT-PORTAL",
+  "items": [
+    {
+      "feat_id": "FEAT-MPO-CPORT-001",
+      "file": ".mc-data/docs/phase2-features/mobile-portal/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "req_ids": ["REQ-OPS-010", "REQ-FIN-017"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T03:54:53+07:00",
+    "words_written": 4298
+  }
+}

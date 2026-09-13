@@ -1,0 +1,24 @@
+{
+  "lane_key": "portal-web--CLIENT-PORTAL",
+  "lane_type": "feature",
+  "system": "SYS-PORTAL-WEB",
+  "module": "MOD-CLIENT-PORTAL",
+  "items": [
+    {
+      "feat_id": "FEAT-PORTAL-CPORT-001",
+      "file": ".mc-data/docs/phase2-features/portal-web/client-portal/du-lieu-vi-read-only-cho-client-portal.md",
+      "req_ids": ["REQ-FIN-017", "REQ-OPS-010"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-PORTAL-CPORT-002",
+      "file": ".mc-data/docs/phase2-features/portal-web/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "req_ids": ["REQ-OPS-010", "REQ-FIN-017"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T02:52:50+07:00",
+    "words_written": 5531
+  }
+}

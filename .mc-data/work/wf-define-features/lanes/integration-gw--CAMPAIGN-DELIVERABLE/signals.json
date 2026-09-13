@@ -1,0 +1,24 @@
+{
+  "lane_key": "integration-gw--CAMPAIGN-DELIVERABLE",
+  "lane_type": "feature",
+  "system": "SYS-INTEGRATION-GW",
+  "module": "MOD-CAMPAIGN-DELIVERABLE",
+  "items": [
+    {
+      "feat_id": "FEAT-GW-CAMP-001",
+      "file": ".mc-data/docs/phase2-features/integration-gw/campaign-deliverable/campaign-va-deliverable-management.md",
+      "req_ids": ["REQ-OPS-006"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-GW-CAMP-002",
+      "file": ".mc-data/docs/phase2-features/integration-gw/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md",
+      "req_ids": ["REQ-OPS-012"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T00:00:00+07:00",
+    "words_written": 8606
+  }
+}

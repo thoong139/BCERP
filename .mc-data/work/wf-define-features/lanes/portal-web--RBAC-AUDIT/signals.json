@@ -1,0 +1,18 @@
+{
+  "lane_key": "portal-web--RBAC-AUDIT",
+  "lane_type": "feature",
+  "system": "SYS-PORTAL-WEB",
+  "module": "MOD-RBAC-AUDIT",
+  "items": [
+    {
+      "feat_id": "FEAT-PORTAL-RBAC-001",
+      "file": ".mc-data/docs/phase2-features/portal-web/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "req_ids": ["REQ-BOD-011"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T19:46:53Z",
+    "words_written": 2949
+  }
+}

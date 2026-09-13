@@ -1,0 +1,18 @@
+{
+  "lane_key": "portal-web--TICKET-CSKH",
+  "lane_type": "feature",
+  "system": "SYS-PORTAL-WEB",
+  "module": "MOD-TICKET-CSKH",
+  "items": [
+    {
+      "feat_id": "FEAT-PORTAL-CSKH-001",
+      "file": ".mc-data/docs/phase2-features/portal-web/ticket-cskh/ticket-va-cskh.md",
+      "req_ids": ["REQ-OPS-009"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T20:05:00+07:00",
+    "words_written": 3658
+  }
+}

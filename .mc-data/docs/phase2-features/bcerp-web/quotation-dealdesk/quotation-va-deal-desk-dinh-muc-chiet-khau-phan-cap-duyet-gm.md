@@ -22,7 +22,9 @@ Tính năng này là mặt làm việc chính trên web nội bộ để lập b
 | ID tính năng | FEAT-ERP-QDD-001 |
 | Module | MOD-QUOTATION-DEALDESK (SYS-BCERP-WEB) |
 | Yêu cầu nghiệp vụ | REQ-SALES-006 |
-| Người dùng liên quan | SALES_L1 (Intern), SALES_L2 (NVKD), SALES_L3 (SM/TNKD), SALES_L4 (TPKD), SALES_L5 (GDKD — vị trí quy hoạch, tạm BOD kiêm nhiệm); phối hợp FIN_L1 (lập theo định mức), BOD_CEO (duyệt chiết khấu >20%) |
+| Người dùng liên quan | SALES_L1 (Intern), SALES_L2 (NVKD), SALES_L3 (TNKD), SALES_L4 (TPKD/SM — KXN-14), SALES_L5 (GDKD — vị trí quy hoạch, tạm BOD kiêm nhiệm); phối hợp FIN_L1 (lập theo định mức), BOD_CEO (duyệt chiết khấu >20%) |
+
+> **Chú thích phân biệt (P4 — KXN-14):** `SALES_L3` là vai TNKD (trưởng nhóm kinh doanh) theo `sales.md`; chức danh **SM** ánh xạ **SALES_L4 (TPKD)** — người ký/duyệt các mốc gate theo KXN-14, không còn gắn với SALES_L3.
 | Độ ưu tiên | Cao |
 | Giai đoạn | Giai đoạn 1 (MVP) |
 | Phụ thuộc | Không có cross-dependency bắt buộc trong lane; nghiệp vụ đọc bảng định mức version hiệu lực từ SYS-CORE-BACKEND (phối hợp DEPT-FIN theo Luồng 1 B5 của P1-02). Tính năng hợp đồng/LOI/NDA là bước kế tiếp: FEAT-ERP-QDD-002 |
@@ -65,7 +67,7 @@ Các user story dưới đây đều diễn ra trên web nội bộ responsive; 
 | 5 | SALES_L5 (GDKD) | Duyệt chiết khấu >15–20% và GM dưới ngưỡng (đến 20%) kèm nhận định chiến lược; mở exception vòng sửa/pilot có lý do | Kiểm soát biên lợi nhuận mà vẫn giữ linh hoạt cho deal chiến lược |
 | 6 | BOD_CEO | Nhận yêu cầu duyệt chiết khấu >20% và quyết định bằng văn bản gắn trên hệ thống | Mọi chiết khấu vượt ngưỡng đều có chữ ký cấp cao nhất và audit log |
 | 7 | FIN_L1 (Kế toán/Finances) | Lập quotation theo định mức version hiện hành thay cho NVKD khi được phối hợp | Báo giá bảo đảm đúng cấu trúc giá và GM chuẩn do FIN kiểm soát |
-| 8 | SALES_L3 (SM) | Xem trạng thái quotation của nhóm, nhận cảnh báo khi bản đã duyệt GM chưa gửi trong 2 ngày làm việc | Đốc thúc thành viên gửi khách đúng hạn, không bỏ sót deal |
+| 8 | SALES_L3 (TNKD) | Xem trạng thái quotation của nhóm, nhận cảnh báo khi bản đã duyệt GM chưa gửi trong 2 ngày làm việc | Đốc thúc thành viên gửi khách đúng hạn, không bỏ sót deal |
 | 9 | SALES_L2 (NVKD) | Tạo version mới từ bản đã gửi khi khách yêu cầu chỉnh, thấy số vòng sửa còn lại theo tier | Kiểm soát đàm phán không vượt vòng sửa, vượt thì phải có exception GDKD |
 | 10 | SALES_L1 (Intern) | Xem quotation gắn với deal được giao hỗ trợ | Nắm tình trạng báo giá để hỗ trợ Nuôi lead và chuẩn bị tài liệu |
 
@@ -203,3 +205,4 @@ Chi tiết kĩ thuật (data model, API, integration) nằm tại các file chuy
 | Bản counterpart SYS-CORE-BACKEND (GM engine, approval engine, version lock) | `phase2-features/core-backend/quotation-dealdesk/` (cùng fan-out REQ-SALES-006) |
 | Bản counterpart SYS-MOBILE-INTERNAL (duyệt push Phase2) | `phase2-features/mobile-internal/quotation-dealdesk/` (cùng fan-out REQ-SALES-006) |
 | Nguồn domain CMS (serviceType, phí RENTAL/MANAGED) | `documents/02_Quy_trinh_Cho_thue_TKQC.md` (CMS Domain Model v1) |
+| Ghi chú P4: SM ánh xạ SALES_L4 theo KXN-14 (đồng bộ stakeholder review 12/09) | `phase1-business/stakeholder-review.md` (F.5 — Quyết định 12/09/2026) |

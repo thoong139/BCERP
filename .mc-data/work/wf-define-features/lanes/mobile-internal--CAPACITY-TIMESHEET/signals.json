@@ -1,0 +1,18 @@
+{
+  "lane_key": "mobile-internal--CAPACITY-TIMESHEET",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-CAPACITY-TIMESHEET",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-CAPTS-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/capacity-timesheet/capacity-va-timesheet.md",
+      "req_ids": ["REQ-OPS-007"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T02:20:44+07:00",
+    "words_written": 4297
+  }
+}

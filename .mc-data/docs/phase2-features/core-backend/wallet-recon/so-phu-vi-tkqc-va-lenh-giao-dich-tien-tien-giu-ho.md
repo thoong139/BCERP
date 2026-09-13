@@ -67,6 +67,7 @@ Xây dựng sổ phụ ví (wallet ledger) per-khách trên Core Backend làm **
 | BR-W06 | Công thức top-up Wallet → AdAccount: `k = 1 + feePercent × (1 + vatOnFeePercent) + vatOnSpendPercent`; nhập NET (NSQC) → `grossAmount = netAmount × k` trừ ví; nhập GROSS (tổng tiền) → `netAmount = grossAmount / k` (CMS §5; ví dụ fee 3%, vatOnFee 8%, vatOnSpend 8% → k = 1,1124). Lưu **snapshot** fee/vat % tại thời điểm giao dịch, không tham chiếu sống tới Contract — Contract đổi % sau này không ảnh hưởng giao dịch cũ | Tính toán chạy trong service, test 2 chiều phải khớp ngược chính xác; sai khớp ngược → chặn giao dịch |
 | BR-W07 | Ledger append-only: sửa số dư chỉ qua giao dịch điều chỉnh/reversal có **reason code bắt buộc**; chặn UPDATE/DELETE ở tầng dữ liệu; Super Admin cũng không sửa được dữ liệu giao dịch tiền (BR-FIN-101/501) | DB account của app chỉ có INSERT/SELECT trên bảng giao dịch; yêu cầu sửa trực tiếp bị từ chối + log |
 | BR-W08 | SoD 4 vai dòng tiền: người tạo/đề xuất (OPS_AM/OPS_ADS) ≠ người khớp tiền (FIN_L1) ≠ người duyệt chi (FIN_L2) ≠ người ghi sổ; một người không giữ ≥2 vai trong cùng chuỗi giao dịch (BR-FIN-106) | SoD engine chặn submit/gán duyệt khi vai trùng; log vi phạm append-only cho BOD_CFO_CTO rà định kỳ |
+| BR-W08a | SoD tường minh trên từng lệnh: người tạo lệnh không được duyệt chính lệnh đó (**approver ≠ creator**), áp dụng cả chế độ SINGLE — FIN_L1 không tự duyệt lệnh do mình khởi tạo; engine so sánh `createdBy` và `approvedBy` trên cùng một lệnh trước khi ghi nhận chữ ký duyệt | Vi phạm bị chặn ở service layer (`SOD_SELF_APPROVAL_DENIED`) + ghi audit log append-only cho BOD_CFO_CTO rà định kỳ |
 | BR-W09 | Cảnh báo số dư đọc từ ledger này: Core tính số dư đủ chi theo ADS 7 ngày rolling, phân 3 mức Xanh (≥3 ngày)/Vàng (<3)/Đỏ (<1 hoặc dưới mức tối thiểu nền tảng), SLA đỏ 2h — chi tiết tại FEAT-CORE-WALLET-002 (BR-FIN-104) | — (rule chi tiết thuộc FEAT-002; ledger chỉ bảo đảm số dư real-time nhất quán) |
 | BR-W10 | Đối trừ 3 số (sổ ví – platform – ngân hàng) dùng ledger này làm vế 1; dung sai nạp = 0/dòng (ngày), chi tiêu ≤0,5% hoặc ≤10 USD/TK/ngày, tích lũy ≤1% hoặc ≤20 USD/khách/tuần (mức mặc định đã chốt theo DI-001); chốt & khóa kỳ — chi tiết tại FEAT-CORE-WALLET-004 (BR-FIN-201/204) | — (rule chi tiết thuộc FEAT-004) |
 | BR-W11 | AML monitoring T1–T6 + UBO ≥25% (ngưỡng mặc định đã chốt theo DI-001, cấu hình được không sửa code) chạy trên mọi lệnh nạp/hoàn/điều chỉnh của ledger; hoàn tiền đúng nguồn — chi tiết tại FEAT-CORE-WALLET-006; Rebate mặc định TẮT, Finance bật tay + nhập tay theo quý (CMS §3.10) — rebate không nằm trong công thức BR-W06 | Giao dịch nghi vấn bị khóa mềm (hold) đến khi có quyết định (chi tiết FEAT-006) |
@@ -82,7 +83,7 @@ Xây dựng sổ phụ ví (wallet ledger) per-khách trên Core Backend làm **
 |-----------|--------|--------|-------------|----------------|-----------|-------------------|
 | Xem sổ phụ ví khách được gán | ✅ | ✅ (toàn bộ khách) | ✅ (tổng hợp) | ❌ (chỉ trạng thái TKQC, không dòng tiền chi tiết) | ❌ (không xem dữ liệu nghiệp vụ) | ✅ (tenant mình, read-only) |
 | Tạo lệnh nạp/đề xuất | ✅ | ✅ | ✅ | ✅ (đề xuất) | ❌ | ❌ |
-| Duyệt lệnh nạp — SINGLE | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Duyệt lệnh nạp — SINGLE | ✅ (không tự duyệt lệnh do mình tạo — BR-W08a) | ✅ (≠ người tạo lệnh) | ✅ (≠ người tạo lệnh) | ❌ | ❌ | ❌ |
 | Duyệt lệnh nạp — DUAL bước 1 | ✅ (bắt buộc) | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Duyệt lệnh nạp — DUAL bước 2 | ❌ | ✅ (bắt buộc) | ❌ | ❌ | ❌ | ❌ |
 | Đối chiếu sao kê ↔ lệnh, ghi nhận ví | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -122,7 +123,7 @@ Xây dựng sổ phụ ví (wallet ledger) per-khách trên Core Backend làm **
 
 | Trạng thái hiện tại | Hành động | Trạng thái mới | Ai được phép | Điều kiện bắt buộc |
 |---------------------|-----------|----------------|-------------|---------------------|
-| `PENDING` | Duyệt (SINGLE) | `APPROVED` | FIN_L1 / FIN_L2 / BOD_CFO_CTO (1 người) | Mode hệ thống = SINGLE; duyệt 1 lần là xong |
+| `PENDING` | Duyệt (SINGLE) | `APPROVED` | FIN_L1 / FIN_L2 / BOD_CFO_CTO (1 người) | Mode hệ thống = SINGLE; duyệt 1 lần là xong; người duyệt ≠ người tạo lệnh (BR-W08a) |
 | `PENDING` | Duyệt bước 1 (DUAL) | `STEP1_APPROVED` | FIN_L1 (bắt buộc) | Mode hệ thống = DUAL; ghi danh tính + timestamp |
 | `STEP1_APPROVED` | Duyệt bước 2 (DUAL) | `APPROVED` | FIN_L2 (bắt buộc) | Người duyệt ≠ người duyệt bước 1; không đảo thứ tự |
 | `PENDING` / `STEP1_APPROVED` | Từ chối | `REJECTED` | Theo mode hiện hành | Bắt buộc nhập lý do từ chối |

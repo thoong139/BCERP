@@ -20,7 +20,9 @@
 | ID tính năng | FEAT-ERP-COMM-001 |
 | Module | MOD-COMMISSION-QUOTA |
 | Yêu cầu nghiệp vụ | [REQ-SALES-009] |
-| Người dùng liên quan | SALES_L1 (Intern Sales), SALES_L2 (NVKD), SALES_L3 (TNKD/SM), SALES_L4 (TPKD), SALES_L5 (GDKD), FIN_L1 (xem đối soát), FIN_L2 (xác nhận clawback, đồng khóa kỳ), HR_L1 (đối chiếu KPI theo cấp), BOD_CFO_CTO (duyệt mở khóa kỳ), SYS_ADMIN |
+| Người dùng liên quan | SALES_L1 (Intern Sales), SALES_L2 (NVKD), SALES_L3 (TNKD), SALES_L4 (TPKD/SM — KXN-14), SALES_L5 (GDKD), FIN_L1 (xem đối soát), FIN_L2 (xác nhận clawback, đồng khóa kỳ), HR_L1 (đối chiếu KPI theo cấp), BOD_CFO_CTO (duyệt mở khóa kỳ), SYS_ADMIN |
+
+> **Chú thích phân biệt (P4 — KXN-14):** `SALES_L3` là vai TNKD (trưởng nhóm kinh doanh) theo `sales.md`; chức danh **SM** ánh xạ **SALES_L4 (TPKD)** — người ký/duyệt các mốc gate theo KXN-14, không còn gắn với SALES_L3.
 | Độ ưu tiên | Trung bình (MEDIUM) |
 | Giai đoạn | Giai đoạn 3 (Phase3 — phụ thuộc Công nợ AR GĐ2 + timesheet nhãn billable) |
 | Phụ thuộc | Không có cross-dependency chặn; nội bộ: Credit engine + clawback engine + coverage/attainment tính tự động nằm ở counterpart `SYS-CORE-BACKEND` (cùng REQ-ID); dữ liệu đầu vào từ Pipeline (REQ-SALES-001/002), Quotation & Deal Desk (REQ-SALES-006), Handoff Gate 2 (REQ-SALES-008), Công nợ AR GĐ2 (REQ-FIN-007) |
@@ -56,8 +58,8 @@ Trên web, dữ liệu hoa hồng chảy một chiều từ engine: sale mở da
 |---|------------------|------------|-------|
 | 1 | SALES_L2 (NVKD) | Xem dashboard hoa hồng của mình: credit từng đợt thực nhận đối chiếu AR, clawback đã áp, attainment so quota quý | Minh bạch thu nhập, tự biết còn cách quota bao xa, không tranh chấp cuối kỳ |
 | 2 | SALES_L2 (NVKD) | Ghi split credit (ai chủ deal, ai hỗ trợ, bao nhiêu %) trên form web trước khi deal qua Gate 2 | Chốt trước phần credit của mỗi người, tránh tranh chấp phát sinh sau khi deal sống |
-| 3 | SALES_L3 (TNKD/SM) | Xem dashboard coverage nhóm với màu vàng (<3×)/đỏ (<2×) và danh sách deal đang treo credit | Chủ động kế hoạch bổ sung lead khi nhóm đỏ — mình là người chịu trách nhiệm trước GDKD |
-| 4 | SALES_L3 (TNKD/SM) | Xử lý hàng đợi hòa giải tranh chấp credit deal trùng trong 24h, ghi kết quả có bằng chứng | Tranh chấp không treo credit vô thời hạn, kết quả minh bạch cho cả hai bên |
+| 3 | SALES_L3 (TNKD) | Xem dashboard coverage nhóm với màu vàng (<3×)/đỏ (<2×) và danh sách deal đang treo credit | Chủ động kế hoạch bổ sung lead khi nhóm đỏ — mình là người chịu trách nhiệm trước GDKD |
+| 4 | SALES_L4 (TPKD/SM — KXN-14) | Xử lý hàng đợi hòa giải tranh chấp credit deal trùng trong 24h, ghi kết quả có bằng chứng | Tranh chấp không treo credit vô thời hạn, kết quả minh bạch cho cả hai bên |
 | 5 | SALES_L4 (TPKD) | Xem dashboard phòng + trình đơn điều chỉnh quota giữa kỳ cho nhân sự nghỉ ốm/thai sản/chuyển vị trí | Chỉ tiêu phản ánh công bằng số ngày làm việc thực tế, GDKD duyệt có căn cứ |
 | 6 | SALES_L5 (GDKD) | Có một màn duyệt gộp: clawback chờ duyệt (SLA 3 ngày), yêu cầu điều chỉnh quota, khiếu nại phân xử vượt SM | Ra quyết định trừ hồi/chỉ tiêu nhanh, không trượt SLA, mọi quyết định có audit log |
 | 7 | FIN_L2 | Xác nhận từng dòng clawback kèm dẫn chiếu hóa đơn/phiếu thu/công nợ, đồng khóa kỳ cùng GDKD | Mỗi dòng trừ hoa hồng bám chứng từ AR thật, kỳ chốt sạch không sửa ngầm |
@@ -76,7 +78,7 @@ Trên web, dữ liệu hoa hồng chảy một chiều từ engine: sale mở da
 | BR-SALES-901 | Credit tính theo **thanh toán thực nhận** đối chiếu sổ AR (FIN nguồn sự thật) — không theo ngày ký; doanh thu chỉ đếm phí dịch vụ/markup, loại bỏ phần pass-through NSQC; HĐ dài hạn >12 tháng credit chia theo từng kỳ thực nhận; deal bị trả về từ Gate 2 → credit tạm dừng (PAUSED) đến khi handoff lại thành công | Con số hiển thị trên dashboard chỉ lấy từ `commission_credit` do engine ghi; web không có bất kỳ form nhập/sửa credit thủ công nào |
 | BR-SALES-902 | Clawback: khách hủy/hoàn phí → hồi hoa hồng theo tỷ lệ tiền hoàn; nợ quá hạn >90 ngày → clawback 100% phần chưa thu; trừ vào kỳ kế tiếp; FIN_L2 xác nhận số liệu + GDKD duyệt trong SLA 3 ngày làm việc kể từ khi aging vượt 90; luôn dẫn chiếu hóa đơn/phiếu thu/công nợ | Web không cho duyệt clawback khi chưa có FIN xác nhận (nút vô hiệu + API từ chối); quá SLA tự escalate và hiển thị cảnh báo trễ; cấm xóa dòng đã áp — sai sót xử lý bằng dòng điều chỉnh ngược có phê duyệt |
 | BR-SALES-903 | Split credit: chủ deal 70% – người hỗ trợ 30%; SM/TPKD hỗ trợ pre-sale tối đa 20% credit deal; **tổng mọi split ≤100%**; ghi trước Gate 2 — sau Gate 2 chặn bổ sung cứng | Form split tính tổng realtime, vượt 100% không cho lưu; deal đã qua Gate 2 mở form ở chế độ chỉ đọc kèm ghi chú "khóa sau Gate 2" |
-| BR-SALES-904 | Quota theo cấp/quý (khởi tạo đã chốt theo DI-001: L1 600 triệu → L5 5 tỷ/phòng); pipeline coverage ≥3× quota kỳ kế tiếp = on-track; <3× vàng; <2× đỏ — bắt buộc kế hoạch bổ sung lead, SM (SALES_L3) chịu trách nhiệm; **attainment tự động, cấm nhập tay**; hệ số attainment quý: ≥100% ×1,2; 80–99% ×1,0; 70–79% ×0,9; <70% ×0,8 | Không tồn tại form nhập attainment trên web; dashboard màu vàng/đỏ đọc từ `attainment_snapshot` của engine, các kênh (web/mobile) hiển thị đồng nhất một nguồn |
+| BR-SALES-904 | Quota theo cấp/quý (khởi tạo đã chốt theo DI-001: L1 600 triệu → L5 5 tỷ/phòng); pipeline coverage ≥3× quota kỳ kế tiếp = on-track; <3× vàng; <2× đỏ — bắt buộc kế hoạch bổ sung lead, SM (SALES_L4 TPKD — KXN-14) chịu trách nhiệm; **attainment tự động, cấm nhập tay**; hệ số attainment quý: ≥100% ×1,2; 80–99% ×1,0; 70–79% ×0,9; <70% ×0,8 | Không tồn tại form nhập attainment trên web; dashboard màu vàng/đỏ đọc từ `attainment_snapshot` của engine, các kênh (web/mobile) hiển thị đồng nhất một nguồn |
 | BR-SALES-905 | Thang hoa hồng theo cấp: khởi tạo L1 2,5% → L5 6,5% (L4/L5 cộng 0,5% doanh thu đơn vị) — đã chốt theo DI-001; chi tiết theo vị trí tra bảng "Mức Level/Rank" 12 bậc theo %KPI tại HR §6 (`CHÍNH_SÁCH_LƯƠNG_2026`, sheet Sale/NV Sale không BHXH/Sale TV/Leader Sale/TPKD...); chính sách là bản ghi effective-dated — sửa = ban hành phiên bản mới | Web hiển thị thang hiệu lực tại thời điểm phát sinh credit; tham số không hardcode — sai phiên bản hiệu lực là lỗi hiển thị phải sửa ở nguồn dữ liệu, không sửa tay trên màn hình |
 | BR-SALES-906 | Nghỉ ốm/thai sản/chuyển vị trí giữa kỳ: quota giảm theo **tỷ lệ ngày làm việc thực tế**, GDKD duyệt; điều chỉnh phải kèm ngày hiệu lực + lý do | Đề xuất thiếu lý do/hiệu lực không gửi được; attainment sau đó tính trên quota đã điều chỉnh, dashboard hiển thị cả quota gốc và quota điều chỉnh |
 | BR-SALES-907 | Khóa kỳ hoa hồng sau khi chốt (GDKD + FIN_L2 đồng chốt); mở khóa phải phê duyệt (BOD_CFO_CTO) + audit log bất biến | Kỳ LOCKED: mọi form nhập vô hiệu, API từ chối ghi trừ clawback điều chỉnh đã duyệt; mở khóa không phê duyệt bị chặn kể cả với SYS_ADMIN |
@@ -88,13 +90,13 @@ Trên web, dữ liệu hoa hồng chảy một chiều từ engine: sale mở da
 
 > *Dữ liệu hoa hồng là PII Restricted — quyền xem chặt hơn quyền xem pipeline thường. Ma trận theo 18 vai registry; thực thi ở API core, UI chỉ ẩn/vô hiệu tương ứng.*
 
-| Hành động | SALES_L1 | SALES_L2 | SALES_L3 (SM) | SALES_L4 (TPKD) | SALES_L5 (GDKD) | FIN_L2 | HR_L1 | SYS_ADMIN / BOD_CFO_CTO |
+| Hành động | SALES_L1 | SALES_L2 | SALES_L3 (TNKD) | SALES_L4 (TPKD/SM) | SALES_L5 (GDKD) | FIN_L2 | HR_L1 | SYS_ADMIN / BOD_CFO_CTO |
 |-----------|----------|----------|---------------|-----------------|-----------------|--------|-------|--------------------------|
 | Xem hoa hồng/clawback/attainment của chính mình | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Xem hoa hồng chi tiết người khác | ❌ | ❌ | ✅ (nhóm mình) | ✅ (phòng) | ✅ (toàn KD) | ✅ (đối soát) | ❌ (chỉ tổng hợp không PII) | ✅ (BOD xem báo cáo) |
 | Ghi split credit (chỉ trước Gate 2) | ❌ | ✅ (deal của mình) | ✅ (kèm pre-sale ≤20%) | ✅ (kèm pre-sale ≤20%) | ✅ | ❌ | ❌ | ❌ |
 | Sửa/xóa split sau Gate 2 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ (không tồn tại — chặn cứng) |
-| Hòa giải tranh chấp credit (24h) | ❌ | ❌ | ✅ | ❌ | ✅ (khi SM là đương sự) | ❌ | ❌ | ❌ |
+| Hòa giải tranh chấp credit (24h) | ❌ | ❌ | ❌ | ✅ | ✅ (khi SM là đương sự) | ❌ | ❌ | ❌ |
 | Quyết khiếu nại phân xử (3 ngày) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
 | Xác nhận clawback (đối chiếu AR) | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Duyệt clawback (SLA 3 ngày) | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
@@ -216,3 +218,4 @@ Trên web, dữ liệu hoa hồng chảy một chiều từ engine: sale mở da
 | Nguồn domain chính sách lương — hoa hồng theo vị trí | `documents/03_Quy_che_KPI_HR.md` (§5, §6 — `CHÍNH_SÁCH_LƯƠNG_2026`, §9) |
 | Business rules gốc REQ-SALES-009 | `phase1-business/departments/sales/sales.md` (A Mục 9, B.9) |
 | Vòng đời báo cáo coverage/clawback trong workflow tổng | `phase1-business/P1-02-business-workflow.md` (Bảng B.9: coverage ≥3×; aging >90 ngày clawback — FIN_L2, GDKD) |
+| Ghi chú P4: SM ánh xạ SALES_L4 theo KXN-14 (đồng bộ stakeholder review 12/09) | `phase1-business/stakeholder-review.md` (F.5 — Quyết định 12/09/2026) |

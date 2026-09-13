@@ -1,0 +1,28 @@
+{
+  "lane_key": "mobile-internal--RBAC-AUDIT",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-RBAC-AUDIT",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-RBAC-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/rbac-audit/compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+      "req_ids": [
+        "REQ-BOD-002"
+      ],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-RBAC-002",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T18:57:37+00:00",
+    "words_written": 5995
+  }
+}

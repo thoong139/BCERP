@@ -1,0 +1,18 @@
+{
+  "lane_key": "mobile-internal--SLA-NOTIF",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-SLA-NOTIF",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-SLANOT-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/sla-notif/sla-va-notification-engine.md",
+      "req_ids": ["REQ-OPS-008"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T19:35:27Z",
+    "words_written": 2999
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "lane_key": "mobile-internal--HANDOFF-ONBOARD",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-HANDOFF-ONBOARD",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-HONB-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/handoff-onboard/handoff-va-onboarding-bridge.md",
+      "req_ids": ["REQ-SALES-008"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-HONB-002",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md",
+      "req_ids": ["REQ-OPS-004"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T18:48:07Z",
+    "words_written": 8716
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "lane_key": "integration-gw--TIKTOK-SHOP",
+  "lane_type": "feature",
+  "system": "SYS-INTEGRATION-GW",
+  "module": "MOD-TIKTOK-SHOP",
+  "items": [
+    {
+      "feat_id": "FEAT-GW-TIKTOK-001",
+      "file": ".mc-data/docs/phase2-features/integration-gw/tiktok-shop/tiktok-shop-monitoring.md",
+      "req_ids": ["REQ-OPS-011"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T18:16:28Z",
+    "words_written": 5049
+  }
+}

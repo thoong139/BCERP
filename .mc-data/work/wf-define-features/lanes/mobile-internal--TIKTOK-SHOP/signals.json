@@ -1,0 +1,18 @@
+{
+  "lane_key": "mobile-internal--TIKTOK-SHOP",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-TIKTOK-SHOP",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-TIKTOK-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/tiktok-shop/tiktok-shop-monitoring.md",
+      "req_ids": ["REQ-OPS-011"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T19:55:50Z",
+    "words_written": 2999
+  }
+}

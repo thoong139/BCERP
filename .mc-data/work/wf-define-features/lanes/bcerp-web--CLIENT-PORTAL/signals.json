@@ -1,0 +1,18 @@
+{
+  "lane_key": "bcerp-web--client-portal",
+  "lane_type": "feature",
+  "system": "SYS-BCERP-WEB",
+  "module": "MOD-CLIENT-PORTAL",
+  "items": [
+    {
+      "feat_id": "FEAT-ERP-CPORT-001",
+      "file": ".mc-data/docs/phase2-features/bcerp-web/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "req_ids": ["REQ-OPS-010", "REQ-FIN-017"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T17:40:41Z",
+    "words_written": 4493
+  }
+}

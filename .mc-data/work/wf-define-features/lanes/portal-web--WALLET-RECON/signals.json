@@ -1,0 +1,18 @@
+{
+  "lane_key": "portal-web--WALLET-RECON",
+  "lane_type": "feature",
+  "system": "SYS-PORTAL-WEB",
+  "module": "MOD-WALLET-RECON",
+  "items": [
+    {
+      "feat_id": "FEAT-PORTAL-WALLET-001",
+      "file": ".mc-data/docs/phase2-features/portal-web/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "req_ids": ["REQ-OPS-003", "REQ-FIN-002", "REQ-FIN-017"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T20:10:46Z",
+    "words_written": 3277
+  }
+}

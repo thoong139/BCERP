@@ -1,0 +1,18 @@
+{
+  "lane_key": "mobile-internal--ADACCOUNT-CC",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-ADACCOUNT-CC",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-ADACC-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "req_ids": ["REQ-OPS-001"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T02:25:00+07:00",
+    "words_written": 2915
+  }
+}

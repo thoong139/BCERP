@@ -1,0 +1,20 @@
+{
+  "lane_key": "portal-web--SLA-NOTIF",
+  "lane_type": "feature",
+  "system": "SYS-PORTAL-WEB",
+  "module": "MOD-SLA-NOTIF",
+  "items": [
+    {
+      "feat_id": "FEAT-PORTAL-SLANOT-001",
+      "file": ".mc-data/docs/phase2-features/portal-web/sla-notif/sla-va-notification-engine.md",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T03:16:10+07:00",
+    "words_written": 3081
+  }
+}

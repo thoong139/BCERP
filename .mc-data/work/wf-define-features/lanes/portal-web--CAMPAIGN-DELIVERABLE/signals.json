@@ -1,0 +1,18 @@
+{
+  "lane_key": "portal-web--CAMPAIGN-DELIVERABLE",
+  "lane_type": "feature",
+  "system": "SYS-PORTAL-WEB",
+  "module": "MOD-CAMPAIGN-DELIVERABLE",
+  "items": [
+    {
+      "feat_id": "FEAT-PORTAL-CAMP-001",
+      "file": ".mc-data/docs/phase2-features/portal-web/campaign-deliverable/campaign-va-deliverable-management.md",
+      "req_ids": ["REQ-OPS-006"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T15:30:00Z",
+    "words_written": 4386
+  }
+}

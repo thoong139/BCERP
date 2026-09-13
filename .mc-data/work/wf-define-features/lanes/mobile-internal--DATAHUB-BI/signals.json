@@ -1,0 +1,42 @@
+{
+  "lane_key": "mobile-internal--DATAHUB-BI",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-DATAHUB-BI",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-DHUB-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/datahub-bi/p-va-l-toan-cong-ty-realtime.md",
+      "req_ids": ["REQ-BOD-003", "REQ-FIN-016"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-DHUB-002",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/datahub-bi/bi-dashboard-dieu-hanh.md",
+      "req_ids": ["REQ-BOD-004"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-DHUB-003",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md",
+      "req_ids": ["REQ-BOD-006"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-DHUB-004",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md",
+      "req_ids": ["REQ-FIN-015"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-MBI-DHUB-005",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md",
+      "req_ids": ["REQ-FIN-016", "REQ-BOD-003"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T01:37:46+07:00",
+    "words_written": 14717
+  }
+}

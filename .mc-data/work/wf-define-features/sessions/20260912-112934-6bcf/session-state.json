@@ -3,10 +3,10 @@
   "session_id": "20260912-112934-6bcf",
   "skill_name": "wf-define-features",
   "created_at": "2026-09-12T04:29:34.562Z",
-  "updated_at": "2026-09-12T15:35:02.670Z",
-  "status": "in_progress",
+  "updated_at": "2026-09-12T21:58:42.462Z",
+  "status": "completed",
   "profile_used": "large-project",
-  "next_action": "phase2-create-specs",
+  "next_action": "DONE — /wf-design",
   "flags": {
     "legacy_mode": false,
     "large_project": true,
@@ -33,10 +33,44 @@
       "batches": 24
     },
     "P2": {
-      "status": "in_progress",
+      "status": "completed",
       "started_at": "2026-09-12T15:35:02.670Z",
-      "batches": {},
-      "files_on_disk": 73
+      "completed_at": "2026-09-12T20:56:49.418Z",
+      "files_total": 170,
+      "files_completed": 170,
+      "lanes": 72
+    },
+    "P3": {
+      "status": "completed",
+      "completed_at": "2026-09-12T21:01:04.526Z",
+      "iterations": 1,
+      "errors_found": 0,
+      "verdict": "PASS_WITH_WARN"
+    },
+    "P4": {
+      "status": "completed",
+      "completed_at": "2026-09-12T21:55:20.663Z",
+      "iterations": 1,
+      "verdict": "APPROVED_WITH_CONDITIONS",
+      "findings": {
+        "total": 14,
+        "critical": 0,
+        "high": 3,
+        "medium": 6,
+        "low": 5,
+        "resolved": 5,
+        "resolved_pending_p5": 2,
+        "deferred": 7
+      }
+    },
+    "P5": {
+      "status": "completed",
+      "completed_at": "2026-09-12T21:58:42.462Z",
+      "features_registered": 170,
+      "ops_ad_added": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
     }
   },
   "cdg_decisions": [
@@ -65,6 +99,14 @@
   "gate_result": "block",
   "user_decision": "plan_b_continue_full_scope",
   "systems_completed": [
-    "SYS-CORE-BACKEND"
-  ]
+    "SYS-CORE-BACKEND",
+    "SYS-BCERP-WEB",
+    "SYS-INTEGRATION-GW",
+    "SYS-MOBILE-INTERNAL",
+    "SYS-PORTAL-WEB",
+    "SYS-MOBILE-PORTAL"
+  ],
+  "dedup_input_count": 170,
+  "dedup_output_count": 170,
+  "conflict_count": 0
 }

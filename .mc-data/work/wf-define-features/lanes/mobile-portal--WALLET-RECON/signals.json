@@ -1,0 +1,22 @@
+{
+  "lane_key": "mobile-portal--WALLET-RECON",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-PORTAL",
+  "module": "MOD-WALLET-RECON",
+  "items": [
+    {
+      "feat_id": "FEAT-MPO-WALLET-001",
+      "file": ".mc-data/docs/phase2-features/mobile-portal/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "req_ids": [
+        "REQ-OPS-003",
+        "REQ-FIN-002",
+        "REQ-FIN-017"
+      ],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T20:30:18Z",
+    "words_written": 4107
+  }
+}

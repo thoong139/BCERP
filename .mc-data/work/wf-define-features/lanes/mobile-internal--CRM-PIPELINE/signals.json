@@ -1,0 +1,18 @@
+{
+  "lane_key": "mobile-internal--CRM-PIPELINE",
+  "lane_type": "feature",
+  "system": "SYS-MOBILE-INTERNAL",
+  "module": "MOD-CRM-PIPELINE",
+  "items": [
+    {
+      "feat_id": "FEAT-MBI-CRM-001",
+      "file": ".mc-data/docs/phase2-features/mobile-internal/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md",
+      "req_ids": ["REQ-SALES-004"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T20:10:00+07:00",
+    "words_written": 5350
+  }
+}

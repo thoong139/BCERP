@@ -1,0 +1,24 @@
+{
+  "lane_key": "integration-gw--WALLET-RECON",
+  "lane_type": "feature",
+  "system": "SYS-INTEGRATION-GW",
+  "module": "MOD-WALLET-RECON",
+  "items": [
+    {
+      "feat_id": "FEAT-GW-WALLET-001",
+      "file": ".mc-data/docs/phase2-features/integration-gw/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md",
+      "req_ids": ["REQ-FIN-004"],
+      "status": "created"
+    },
+    {
+      "feat_id": "FEAT-GW-WALLET-002",
+      "file": ".mc-data/docs/phase2-features/integration-gw/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "req_ids": ["REQ-OPS-003", "REQ-FIN-002"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-12T20:15:00+07:00",
+    "words_written": 6102
+  }
+}

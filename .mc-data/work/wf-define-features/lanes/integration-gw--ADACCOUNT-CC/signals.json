@@ -1,0 +1,18 @@
+{
+  "lane_key": "integration-gw--ADACCOUNT-CC",
+  "lane_type": "feature",
+  "system": "SYS-INTEGRATION-GW",
+  "module": "MOD-ADACCOUNT-CC",
+  "items": [
+    {
+      "feat_id": "FEAT-GW-ADACC-001",
+      "file": ".mc-data/docs/phase2-features/integration-gw/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "req_ids": ["REQ-OPS-001"],
+      "status": "created"
+    }
+  ],
+  "metadata": {
+    "completed_at": "2026-09-13T01:15:26+07:00",
+    "words_written": 2908
+  }
+}
