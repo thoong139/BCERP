@@ -1,0 +1,63 @@
+{
+  "lane_type": "system",
+  "system_slug": "mobile-portal",
+  "system_id": "SYS-MOBILE-PORTAL",
+  "modules": ["MOD-CLIENT-PORTAL", "MOD-WALLET-RECON", "MOD-CAMPAIGN-DELIVERABLE", "MOD-SLA-NOTIF", "MOD-TICKET-CSKH"],
+  "api_items": [
+    { "api_id": "API-MPO-001", "method": "POST", "path": "/api/v1/mpo/auth/activate", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-002", "method": "POST", "path": "/api/v1/mpo/auth/login", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-003", "method": "POST", "path": "/api/v1/mpo/auth/otp", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-004", "method": "POST", "path": "/api/v1/mpo/auth/otp/verify", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-005", "method": "POST", "path": "/api/v1/mpo/auth/password-reset", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-006", "method": "POST", "path": "/api/v1/mpo/auth/logout", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-007", "method": "GET", "path": "/api/v1/mpo/me", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-008", "method": "PUT", "path": "/api/v1/mpo/me/preferences", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-009", "method": "GET", "path": "/api/v1/mpo/portal-users", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-010", "method": "POST", "path": "/api/v1/mpo/portal-users/invites", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-011", "method": "POST", "path": "/api/v1/mpo/portal-users/:id/invites/resend", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-012", "method": "POST", "path": "/api/v1/mpo/portal-users/:id/disable", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-013", "method": "POST", "path": "/api/v1/mpo/sessions/revoke-all", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] },
+    { "api_id": "API-MPO-014", "method": "POST", "path": "/api/v1/mpo/devices", "module": "MOD-SLA-NOTIF", "req_ids": ["REQ-OPS-008", "REQ-OPS-010"], "feat_ids": ["FEAT-MPO-SLANOT-001"] },
+    { "api_id": "API-MPO-015", "method": "PUT", "path": "/api/v1/mpo/devices/:id", "module": "MOD-SLA-NOTIF", "req_ids": ["REQ-OPS-008"], "feat_ids": ["FEAT-MPO-SLANOT-001"] },
+    { "api_id": "API-MPO-016", "method": "DELETE", "path": "/api/v1/mpo/devices/:id", "module": "MOD-SLA-NOTIF", "req_ids": ["REQ-OPS-008"], "feat_ids": ["FEAT-MPO-SLANOT-001"] },
+    { "api_id": "API-MPO-017", "method": "GET", "path": "/api/v1/mpo/notifications", "module": "MOD-SLA-NOTIF", "req_ids": ["REQ-OPS-008"], "feat_ids": ["FEAT-MPO-SLANOT-001"] },
+    { "api_id": "API-MPO-018", "method": "POST", "path": "/api/v1/mpo/notifications/:id/read", "module": "MOD-SLA-NOTIF", "req_ids": ["REQ-OPS-008"], "feat_ids": ["FEAT-MPO-SLANOT-001"] },
+    { "api_id": "API-MPO-019", "method": "GET", "path": "/api/v1/mpo/wallet/summary", "module": "MOD-WALLET-RECON", "req_ids": ["REQ-OPS-003", "REQ-FIN-017"], "feat_ids": ["FEAT-MPO-WALLET-001"] },
+    { "api_id": "API-MPO-020", "method": "GET", "path": "/api/v1/mpo/wallet/spend", "module": "MOD-WALLET-RECON", "req_ids": ["REQ-OPS-003", "REQ-FIN-002", "REQ-FIN-017"], "feat_ids": ["FEAT-MPO-WALLET-001"] },
+    { "api_id": "API-MPO-021", "method": "GET", "path": "/api/v1/mpo/wallet/transactions", "module": "MOD-WALLET-RECON", "req_ids": ["REQ-OPS-003", "REQ-FIN-017"], "feat_ids": ["FEAT-MPO-WALLET-001"] },
+    { "api_id": "API-MPO-022", "method": "GET", "path": "/api/v1/mpo/wallet/statement-link", "module": "MOD-WALLET-RECON", "req_ids": ["REQ-OPS-003", "REQ-FIN-017"], "feat_ids": ["FEAT-MPO-WALLET-001"] },
+    { "api_id": "API-MPO-023", "method": "GET", "path": "/api/v1/mpo/campaigns", "module": "MOD-CAMPAIGN-DELIVERABLE", "req_ids": ["REQ-OPS-006"], "feat_ids": ["FEAT-MPO-CAMP-001"] },
+    { "api_id": "API-MPO-024", "method": "GET", "path": "/api/v1/mpo/campaigns/:id", "module": "MOD-CAMPAIGN-DELIVERABLE", "req_ids": ["REQ-OPS-006"], "feat_ids": ["FEAT-MPO-CAMP-001"] },
+    { "api_id": "API-MPO-025", "method": "POST", "path": "/api/v1/mpo/campaigns/:id/milestones/:mid/confirm", "module": "MOD-CAMPAIGN-DELIVERABLE", "req_ids": ["REQ-OPS-006"], "feat_ids": ["FEAT-MPO-CAMP-001"] },
+    { "api_id": "API-MPO-026", "method": "POST", "path": "/api/v1/mpo/campaigns/:id/milestones/:mid/revision", "module": "MOD-CAMPAIGN-DELIVERABLE", "req_ids": ["REQ-OPS-006"], "feat_ids": ["FEAT-MPO-CAMP-001"] },
+    { "api_id": "API-MPO-027", "method": "GET", "path": "/api/v1/mpo/tickets", "module": "MOD-TICKET-CSKH", "req_ids": ["REQ-OPS-009"], "feat_ids": ["FEAT-MPO-CSKH-001"] },
+    { "api_id": "API-MPO-028", "method": "GET", "path": "/api/v1/mpo/tickets/:id", "module": "MOD-TICKET-CSKH", "req_ids": ["REQ-OPS-009"], "feat_ids": ["FEAT-MPO-CSKH-001"] },
+    { "api_id": "API-MPO-029", "method": "POST", "path": "/api/v1/mpo/tickets", "module": "MOD-TICKET-CSKH", "req_ids": ["REQ-OPS-009"], "feat_ids": ["FEAT-MPO-CSKH-001"] },
+    { "api_id": "API-MPO-030", "method": "POST", "path": "/api/v1/mpo/tickets/:id/comments", "module": "MOD-TICKET-CSKH", "req_ids": ["REQ-OPS-009"], "feat_ids": ["FEAT-MPO-CSKH-001"] },
+    { "api_id": "API-MPO-031", "method": "POST", "path": "/api/v1/mpo/tickets/:id/reopen", "module": "MOD-TICKET-CSKH", "req_ids": ["REQ-OPS-009"], "feat_ids": ["FEAT-MPO-CSKH-001"] },
+    { "api_id": "API-MPO-032", "method": "POST", "path": "/api/v1/mpo/tickets/:id/csat", "module": "MOD-TICKET-CSKH", "req_ids": ["REQ-OPS-009"], "feat_ids": ["FEAT-MPO-CSKH-001"] },
+    { "api_id": "API-MPO-033", "method": "GET", "path": "/api/v1/mpo/app-config", "module": "MOD-CLIENT-PORTAL", "req_ids": ["REQ-OPS-010"], "feat_ids": ["FEAT-MPO-CPORT-001"] }
+  ],
+  "db_items": [
+    { "db_table_id": "TBL-MPO-001", "table_name": "mpo_device.devices", "module": "MOD-SLA-NOTIF" },
+    { "db_table_id": "TBL-MPO-002", "table_name": "mpo_device.push_preferences", "module": "MOD-SLA-NOTIF" }
+  ],
+  "infra_items": [
+    { "infra_resource_id": "INFRA-MPO-001", "type": "service", "name": "mpo-bff (Node/NestJS cùng stack PORTAL-WEB, port 8085, stateless, 2 replicas, mask + freshness gate)" },
+    { "infra_resource_id": "INFRA-MPO-002", "type": "worker", "name": "mpo-push-worker (queue consumer, fan-out FCM/APNs, SLA ≤5 phút, DLQ)" },
+    { "infra_resource_id": "INFRA-MPO-003", "type": "database", "name": "PostgreSQL schema mpo_device (RLS tenant, primary + replica dùng chung nền tảng)" },
+    { "infra_resource_id": "INFRA-MPO-004", "type": "cache", "name": "Redis namespace mpo:* (session, OTP, rate-limit, idempotency, push queue — ephemeral)" },
+    { "infra_resource_id": "INFRA-MPO-005", "type": "secret", "name": "Push credentials vault (FCM service account + APNs key/token, xoay vòng ≥90 ngày)" },
+    { "infra_resource_id": "INFRA-MPO-006", "type": "distribution", "name": "App Store + Google Play (staging TestFlight/Play Internal Testing) + kênh MDM [NEEDS_REVIEW]" },
+    { "infra_resource_id": "INFRA-MPO-007", "type": "config", "name": "Min-version gating qua GET /api/v1/mpo/app-config (force update, nâng ngưỡng khẩn không cần release)" },
+    { "infra_resource_id": "INFRA-MPO-008", "type": "network", "name": "DMZ cùng zone PORTAL — chỉ 443 public; BFF internal-only tới PORTAL/CORE; cấm chạm INTEGRATION-GW/vault" }
+  ],
+  "needs_review": [
+    "Số thứ tự API-PORTAL-0xx được ủy quyền (read-model + forward ghi) — lane SYS-PORTAL-WEB song song chốt; ownership Portal API Gateway dùng chung [KXN-15/20/22 liên quan, Phụ lục A #23]",
+    "Công nghệ 2FA/OTP (TOTP/SMS/email) chưa chỉ định — quyết chung với CORE-BACKEND (Phụ lục A #9)",
+    "Invoice trên mobile: baseline §1 khách 'nhận invoice' nhưng spec CPORT không liệt kê màn invoice — xác nhận scope trước khi thêm endpoint",
+    "Kênh phân phối ngoài store (MDM/APK direct) cho khách doanh nghiệp — chưa có căn cứ registry",
+    "Bảng session mobile dùng chung (nếu không dùng Redis thuần) — chốt cùng lane PORTAL-WEB; retention dòng device REVOKED (đề xuất 12 tháng)",
+    "[KXN-20] mức cảnh báo mở rộng, [KXN-22] PAUSE non-payment 15/30 ngày, [KXN-15] kênh CSAT — chỉ ảnh hưởng payload hiển thị, không đổi shape API/DB"
+  ]
+}

@@ -1,0 +1,854 @@
+{
+  "$schema": "design-input-digest-schema-v1.0",
+  "description": "Architecture + technical summary from Phase 3 (BCERP). Purpose: cho wf-design-ux / wf-plan-modules / wf-implement-feature nhanh chóp tốc độ.",
+  "generated_at": "2026-09-13",
+  "generated_by_session": "20260913-053848-f4d7",
+  "architecture_summary": {
+    "pattern": "Platform 6 systems: Modular Monolith domain services (SYS-BCERP-WEB) + Platform Core identity/audit/analytics (SYS-CORE-BACKEND) + Headless Integration Gateway (SYS-INTEGRATION-GW) + Thin Clients (PORTAL-WEB DMZ, MOBILE-INTERNAL, MOBILE-PORTAL) — 60 components",
+    "key_components": [
+      "COMP-CORE-001 IdP SSO/MFA",
+      "COMP-CORE-002 RBAC PDP",
+      "COMP-CORE-005 WORM Store",
+      "COMP-CORE-009 Realtime P&L",
+      "COMP-ERP-001 Sales & Pipeline",
+      "COMP-ERP-002 Finance & Treasury",
+      "COMP-ERP-003 Ad Account & Delivery",
+      "COMP-ERP-006 SLA & Notification Worker",
+      "COMP-ERP-007 Batch & Recon Scheduler",
+      "COMP-GW-001 Connector Registry (DI-004)",
+      "COMP-GW-002 Credentials Vault",
+      "COMP-GW-005 Degraded & Backfill",
+      "COMP-PORTAL-002 Portal BFF DMZ"
+    ],
+    "communication_style": "REST /api/v1 sync + Kafka events (outbox, idempotent, DLQ) + OIDC/OAuth2 SSO tập trung; mobile qua BFF; portal read-model polling"
+  },
+  "tech_stack": {
+    "runtime": "Node.js 20 (TypeScript)",
+    "frameworks": [
+      "NestJS",
+      "React SPA (web nội bộ)",
+      "Next.js (portal DMZ)",
+      "React Native [NEEDS_REVIEW platform]"
+    ],
+    "database": {
+      "primary": "PostgreSQL 16 per-system schema + RLS; ClickHouse OLAP (warehouse)",
+      "cache": "Redis (session, PDP cache 60s, rate limit, scheduler lock)",
+      "search": null
+    },
+    "cloud": null
+  },
+  "api_summary": [
+    {
+      "endpoint": "GET /api/v1/erp/wallets",
+      "method": "GET",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-001,REQ-FIN-002",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /api/v1/erp/wallets/{id}/ledger",
+      "method": "GET",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-001",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/erp/wallets/{id}/transactions",
+      "method": "POST",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-001,REQ-FIN-003",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/erp/wallet-transactions/{id}/approvals",
+      "method": "POST",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-003,REQ-FIN-010,REQ-BOD-002",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /api/v1/erp/reconciliation-runs",
+      "method": "GET",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-004",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/erp/reconciliation-runs/{period}/close",
+      "method": "POST",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-004",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/erp/wallets/{customerId}/hard-stop/confirm",
+      "method": "POST",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-006",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /api/v1/erp/wallets/{customerId}/hard-stop-status",
+      "method": "GET",
+      "purpose": "MOD-WALLET-RECON — REQ-FIN-006,REQ-OPS-002",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/erp/payment-orders/{id}/approve",
+      "method": "POST",
+      "purpose": "MOD-ARAP-PAYMENT — REQ-FIN-008,REQ-BOD-001,REQ-BOD-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/erp/commissions/{id}/approve",
+      "method": "POST",
+      "purpose": "MOD-COMMISSION-QUOTA — REQ-SALES-009",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST|DELETE /api/v1/erp/portal-accounts",
+      "method": "POST|DELETE",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "GET /api/v1/erp/portal-accounts/{customerId}/usage",
+      "method": "GET",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/core/auth/token",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/auth/token/refresh",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/auth/mfa/step-up",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-011,REQ-BOD-008",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/auth/mfa/enrollments",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/pdp/check",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET,POST /api/v1/core/access-reviews/campaigns",
+      "method": "GET,POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-007",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /api/v1/core/access-reviews/campaigns/:id/items",
+      "method": "GET",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-007",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/access-reviews/items/:id/decisions",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-007",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/access-reviews/campaigns/:id/close",
+      "method": "POST",
+      "purpose": "MOD-RBAC-AUDIT — REQ-BOD-007,REQ-FIN-012",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET,POST /api/v1/core/alerts/rules",
+      "method": "GET,POST",
+      "purpose": "MOD-DATAHUB-BI — REQ-BOD-006",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "PUT /api/v1/core/alerts/rules/:id",
+      "method": "PUT",
+      "purpose": "MOD-DATAHUB-BI — REQ-BOD-006",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /api/v1/core/alerts/instances",
+      "method": "GET",
+      "purpose": "MOD-DATAHUB-BI — REQ-BOD-006",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/core/alerts/instances/:id/transitions",
+      "method": "POST",
+      "purpose": "MOD-DATAHUB-BI — REQ-BOD-006",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET,PUT /api/v1/core/alerts/routing",
+      "method": "GET,PUT",
+      "purpose": "MOD-DATAHUB-BI — REQ-BOD-006",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /gw/imports/statements",
+      "method": "POST",
+      "purpose": "MOD-SETTINGS-GW — REQ-FIN-005",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /gw/statements",
+      "method": "GET",
+      "purpose": "MOD-SETTINGS-GW — REQ-FIN-005,REQ-FIN-004",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /gw/shop/alerts",
+      "method": "GET",
+      "purpose": "MOD-TIKTOK-SHOP — REQ-OPS-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "GET /internal/gw/shop/portal-feed",
+      "method": "GET",
+      "purpose": "MOD-TIKTOK-SHOP — REQ-OPS-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "GET /internal/gw/feed/wallet-status",
+      "method": "GET",
+      "purpose": "MOD-SETTINGS-GW — REQ-FIN-005,REQ-OPS-003",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": null
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/invites/:token/accept",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/invites/:token/activate",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/login",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010,REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/2fa/verify",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010,REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/otp/requests",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/otp/verifications",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/token/refresh",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/logout",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-BOD-011",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    },
+    {
+      "endpoint": "POST /api/v1/portal/auth/password/reset-requests",
+      "method": "POST",
+      "purpose": "MOD-CLIENT-PORTAL — REQ-OPS-010",
+      "auth": "OIDC JWT + PDP",
+      "ratelimit": "per-tenant [DEFERRED F-D-04]"
+    }
+  ],
+  "api_stats": {
+    "total": 280,
+    "by_system": {
+      "API-ERP": 77,
+      "API-CORE": 49,
+      "API-GW": 48,
+      "API-PORTAL": 39,
+      "API-MBI": 34,
+      "API-MPO": 33
+    }
+  },
+  "database_summary": [
+    {
+      "entity_name": "erp_sales.leads",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.leads_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_sales.lead_assignment_history",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.lead_assignment_history_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_sales.lead_gate_decisions",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.lead_gate_decisions_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_sales.quotations",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.quotations_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_sales.quotation_approvals",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.quotation_approvals_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_sales.handoffs",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.handoffs_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_sales.handoff_tasks",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_sales.handoff_tasks_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.wallets",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.wallets_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.wallet_journal",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.wallet_journal_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.wallet_journal_lines",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.wallet_journal_lines_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.wallet_transactions",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.wallet_transactions_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.ar_invoices",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.ar_invoices_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.payment_orders",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.payment_orders_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.payment_order_approvals",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.payment_order_approvals_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_finance.einvoices",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_finance.einvoices_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_ops.ad_accounts",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_ops.ad_accounts_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_ops.ad_account_events",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_ops.ad_account_events_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_ops.campaigns",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_ops.campaigns_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_ops.tickets",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_ops.tickets_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_ops.ticket_assignment_history",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_ops.ticket_assignment_history_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_people.timesheets",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_people.timesheets_created_at"
+      ]
+    },
+    {
+      "entity_name": "erp_people.timesheet_approvals",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_erp_people.timesheet_approvals_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.users",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.users_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.roles",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.roles_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.permissions",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.permissions_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.role_permissions",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.role_permissions_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.user_roles",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.user_roles_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.role_assignment_approvals",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.role_assignment_approvals_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_identity.access_review_campaigns",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_identity.access_review_campaigns_created_at"
+      ]
+    },
+    {
+      "entity_name": "core_audit.audit_log",
+      "key_fields": [
+        "id (uuid)",
+        "status (state machine)",
+        "owner_id/assignee_id",
+        "created_by/updated_by",
+        "created_at/updated_at"
+      ],
+      "indexes": [
+        "idx_owner_status",
+        "idx_core_audit.audit_log_created_at"
+      ]
+    }
+  ],
+  "db_stats": {
+    "total_tables": 122,
+    "schemas": [
+      "core_identity",
+      "core_audit",
+      "core_dhub",
+      "erp_sales",
+      "erp_finance",
+      "erp_ops",
+      "erp_people",
+      "erp_sla",
+      "gw_connector",
+      "gw_tiktok",
+      "portal_account",
+      "mbi_device",
+      "mpo_device"
+    ]
+  },
+  "integration_points": [
+    {
+      "system": "7 nền tảng TKQC (Meta, Google, TikTok, Bing, X, Pinterest, Yandex)",
+      "integration_type": "api",
+      "protocol": "REST per-platform adapter (pull, rate-limited, circuit breaker)",
+      "auth_method": "OAuth/API key từ Credentials Vault"
+    },
+    {
+      "system": "Phần mềm kế toán VAS",
+      "integration_type": "file_exchange",
+      "protocol": "API adapter hoặc import/export file chuẩn (DI-004)",
+      "auth_method": "[KXN-9]"
+    },
+    {
+      "system": "TikTok Shop",
+      "integration_type": "api",
+      "protocol": "OAuth per-client pull",
+      "auth_method": "OAuth per shop"
+    },
+    {
+      "system": "FCM/APNs push",
+      "integration_type": "message_queue",
+      "protocol": "Push gateway từ SLA-NOTIF",
+      "auth_method": "Service credentials"
+    },
+    {
+      "system": "E-sign provider",
+      "integration_type": "api",
+      "protocol": "[NEEDS_REVIEW #4]",
+      "auth_method": "[NEEDS_REVIEW #4]"
+    },
+    {
+      "system": "Sao kê ngân hàng (đối trừ 3 số)",
+      "integration_type": "file_exchange",
+      "protocol": "[NEEDS_REVIEW #2]",
+      "auth_method": "manual import hiện tại"
+    }
+  ],
+  "nfr_implementations": {
+    "performance": "P&L realtime stream freshness <=5 phút (chuẩn hóa F-D-19); batch nightly reconcile; BI marts",
+    "security": "RBAC 4 chiều + MFA step-up + WORM >=10 năm + PII field encryption + tenant RLS 2 lớp + Financial Hard Stop + SoD/dual approval fail-closed",
+    "scalability": "Modular monolith scale-out ngang; Kafka decouple; GW rate-limit queue HA; portal cache TTL"
+  },
+  "known_gotchas": [
+    "DI-007: degraded mode manual là trạng thái KHỞI ĐIỂM — mọi luồng phải chạy 100% manual từ ngày 1",
+    "Nhãn nguồn api/manual gắn tại thời điểm ghi, bất biến — kể cả FIN không sửa tay",
+    "Financial Hard Stop already-matched (FIN_L1) chặn cấp phát TKQC — sweep re-validate tại nguồn, event chỉ là tối ưu",
+    "Vault management CẤM từ mobile; offline queue mobile CẤM cho lệnh tiền",
+    "USD/VND 2 sổ độc lập — không gộp/quy đổi; snapshot tỷ giá/fee % tại thời điểm giao dịch",
+    "CFO kiêm CTO (REQ-BOD-002): cờ combined_role → dual approval cứng khác người",
+    "TikTok Shop GMV reference_only=true — cấm map vào doanh thu agency",
+    "Error codes đã chuẩn hóa Phase 4 (SOD_VIOLATION 409, INVITE_EXPIRED 409, DPA_NOT_SIGNED 403, OTP 401/400, AUDIT_MUTATION_NOT_SUPPORTED 405)"
+  ],
+  "review": {
+    "verdict": "APPROVED_WITH_CONDITIONS",
+    "findings": {
+      "total": 33,
+      "resolved": 20,
+      "deferred": 13,
+      "critical": 0
+    },
+    "deferred_file": ".mc-data/work/wf-design/deferred-findings.md"
+  },
+  "validation": {
+    "required_fields": [
+      "architecture_summary",
+      "tech_stack",
+      "api_summary"
+    ],
+    "encoding": "UTF-8"
+  },
+  "usage": {
+    "produced_by": "wf-design (Phase 8)",
+    "consumed_by": [
+      "wf-design-ux",
+      "wf-plan-modules",
+      "wf-implement-feature"
+    ],
+    "location": ".mc-data/docs/_meta/design-input-digest.json",
+    "fallback": "Đọc phase3-architecture/ docs nếu digest thiếu"
+  }
+}

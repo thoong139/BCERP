@@ -1,0 +1,888 @@
+{
+ "missingCount": 70,
+ "basenameMismatch": [
+  "FEAT-ERP-RBAC-001 vs nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+  "FEAT-ERP-RBAC-002 vs nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+  "FEAT-GW-RBAC-001 vs compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+  "FEAT-GW-RBAC-001 vs compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+  "FEAT-GW-RBAC-001 vs nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+  "FEAT-CORE-ARAP-002 vs duyet-chi-giai-ngan-nguong-sod-delegate.md",
+  "FEAT-CORE-CAPTS-001 vs capacity-va-timesheet.md",
+  "FEAT-CORE-WALLET-001 vs vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+  "FEAT-CORE-WALLET-001 vs vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+  "FEAT-CORE-WALLET-004 vs financial-hard-stop-da-khop-tien-fin-l1.md",
+  "FEAT-GW-WALLET-001 vs so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md",
+  "FEAT-GW-WALLET-001 vs so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md",
+  "FEAT-GW-WALLET-001 vs vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+  "FEAT-GW-WALLET-001 vs vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+  "FEAT-CORE-WALLET-005 vs aml-monitoring-t1-t6-hoan-tien-dung-nguon.md",
+  "FEAT-CORE-ADACC-001 vs ad-account-command-center-registry-va-vong-doi-tkqc.md",
+  "FEAT-CORE-WALLET-006 vs vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+  "FEAT-GW-ARAP-001 vs phe-duyet-vuot-nguong-va-escalation.md",
+  "FEAT-GW-ARAP-001 vs phe-duyet-vuot-nguong-va-escalation.md",
+  "FEAT-GW-ARAP-002 vs phe-duyet-tai-chinh-doc-quyen-cua-cfo.md",
+  "FEAT-GW-ARAP-002 vs duyet-chi-giai-ngan-nguong-sod-delegate.md",
+  "FEAT-CORE-CPORT-001 vs client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+  "FEAT-CORE-CPORT-001 vs client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+  "FEAT-CORE-CPORT-001 vs client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+  "FEAT-CORE-CRM-001 vs gate-1-va-gate-2-go-no-go-va-ky-handoff.md",
+  "FEAT-GW-ADACC-001 vs kyc-phap-nhan-truoc-cap-phat-tkqc.md",
+  "FEAT-GW-WALLET-002 vs canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md",
+  "FEAT-GW-WALLET-002 vs canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md"
+ ],
+ "rows": [
+  {
+   "id": "FEAT-CORE-ARAP-001",
+   "name": "Phe duyet vuot nguong  va  escalation",
+   "siblings": [
+    "FEAT-ERP-ARAP-001",
+    "FEAT-MBI-ARAP-001"
+   ],
+   "apis": [
+    "API-MBI-011",
+    "API-MBI-013"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-RBAC-001",
+   "name": "Compensating control kiem nhiem CFO kiem CTO",
+   "siblings": [
+    "FEAT-CORE-RBAC-001",
+    "FEAT-MBI-RBAC-001",
+    "FEAT-PORTAL-RBAC-001"
+   ],
+   "apis": [
+    "API-CORE-017",
+    "API-CORE-022",
+    "API-CORE-023",
+    "API-MBI-007",
+    "API-PORTAL-007",
+    "API-PORTAL-008",
+    "API-PORTAL-011",
+    "API-PORTAL-012"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-DHUB-001",
+   "name": "P va L toan cong ty realtime",
+   "siblings": [
+    "FEAT-CORE-DHUB-001",
+    "FEAT-MBI-DHUB-001"
+   ],
+   "apis": [
+    "API-CORE-037",
+    "API-CORE-040",
+    "API-CORE-046",
+    "API-CORE-047",
+    "API-CORE-049",
+    "API-MBI-016"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-DHUB-002",
+   "name": "BI dashboard dieu hanh",
+   "siblings": [
+    "FEAT-CORE-DHUB-002",
+    "FEAT-MBI-DHUB-002"
+   ],
+   "apis": [
+    "API-CORE-036",
+    "API-CORE-038",
+    "API-MBI-016"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-RBAC-002",
+   "name": "Giam sat  va  truy xuat audit log",
+   "siblings": [
+    "FEAT-CORE-RBAC-002",
+    "FEAT-MBI-RBAC-002"
+   ],
+   "apis": [
+    "API-CORE-028",
+    "API-CORE-029",
+    "API-CORE-030",
+    "API-CORE-031",
+    "API-CORE-032",
+    "API-MBI-004",
+    "API-MBI-005",
+    "API-MBI-006",
+    "API-MBI-010"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-DHUB-003",
+   "name": "Alert center  va  canh bao rui ro van hanh",
+   "siblings": [
+    "FEAT-CORE-DHUB-003",
+    "FEAT-MBI-DHUB-003"
+   ],
+   "apis": [
+    "API-CORE-041",
+    "API-CORE-042",
+    "API-CORE-043",
+    "API-CORE-044",
+    "API-CORE-045",
+    "API-CORE-048",
+    "API-MBI-017",
+    "API-MBI-018"
+   ]
+  },
+  {
+   "id": "FEAT-GW-RBAC-001",
+   "name": "Quarterly access review  va  phan quyen",
+   "siblings": [
+    "FEAT-CORE-RBAC-001",
+    "FEAT-MBI-RBAC-001",
+    "FEAT-PORTAL-RBAC-001"
+   ],
+   "apis": [
+    "API-CORE-017",
+    "API-CORE-022",
+    "API-CORE-023",
+    "API-MBI-007",
+    "API-PORTAL-007",
+    "API-PORTAL-008",
+    "API-PORTAL-011",
+    "API-PORTAL-012"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-RBAC-003",
+   "name": "Quarterly access review  va  phan quyen",
+   "siblings": [
+    "FEAT-CORE-RBAC-003"
+   ],
+   "apis": [
+    "API-CORE-018",
+    "API-CORE-024",
+    "API-CORE-025",
+    "API-CORE-026",
+    "API-CORE-027",
+    "API-CORE-031"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-STGW-001",
+   "name": "Quan tri Integration Gateway  va  credentials vault (vai CTO)",
+   "siblings": [
+    "FEAT-GW-STGW-001"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-ERP-STGW-001",
+   "name": "Quan tri Integration Gateway  va  credentials vault (vai CTO)",
+   "siblings": [
+    "FEAT-GW-STGW-001"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-ERP-RBAC-004",
+   "name": "Phe duyet chinh sach, tham so quan tri  va  tier",
+   "siblings": [
+    "FEAT-CORE-RBAC-004"
+   ],
+   "apis": [
+    "API-CORE-020",
+    "API-CORE-021"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-ARAP-002",
+   "name": "Phe duyet tai chinh doc quyen cua CFO",
+   "siblings": [
+    "FEAT-ERP-ARAP-002",
+    "FEAT-MBI-ARAP-002"
+   ],
+   "apis": [
+    "API-MBI-011",
+    "API-MBI-012",
+    "API-MBI-013"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-RBAC-005",
+   "name": "Nen tang RBAC  va  SSO/MFA tap trung (cross-cutting)",
+   "siblings": [
+    "FEAT-CORE-RBAC-005"
+   ],
+   "apis": [
+    "API-CORE-009",
+    "API-CORE-010",
+    "API-CORE-011",
+    "API-CORE-012",
+    "API-CORE-013",
+    "API-CORE-014",
+    "API-CORE-015",
+    "API-CORE-016",
+    "API-CORE-019"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-HRCORE-001",
+   "name": "Ho so nhan su trung tam L1–L5 + ma vai",
+   "siblings": [
+    "FEAT-ERP-HRCORE-001"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-HRCORE-002",
+   "name": "HĐLĐ  va  canh bao het han 90/60/30 ngay",
+   "siblings": [
+    "FEAT-ERP-HRCORE-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-HRCORE-003",
+   "name": "Cham cong  va  overtime",
+   "siblings": [
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-HRCORE-004",
+   "name": "Nghi phep: so du tu dong  va  duyet phan cap",
+   "siblings": [
+    "FEAT-ERP-HRCORE-004"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-HRCORE-005",
+   "name": "Self-service nhan vien (ESS)",
+   "siblings": [
+    "FEAT-ERP-HRCORE-005"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-HRCORE-006",
+   "name": "Cost Rate Card version hoa, tham dinh finance",
+   "siblings": [
+    "FEAT-ERP-HRCORE-006"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-KPI-001",
+   "name": "KPI 3 tru cot tu tong hop + calibration",
+   "siblings": [
+    "FEAT-ERP-KPI-001"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-KPI-002",
+   "name": "PIP 30-60-90",
+   "siblings": [
+    "FEAT-ERP-KPI-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-CAPTS-001",
+   "name": "Duyet timesheet  va  capacity (phoi hop OPS)",
+   "siblings": [
+    "FEAT-ERP-CAPTS-001",
+    "FEAT-MBI-CAPTS-001"
+   ],
+   "apis": [
+    "API-MBI-021",
+    "API-MBI-024",
+    "API-MBI-025"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-RBAC-006",
+   "name": "Bao ve PII nhan su (luong Confidential/Restricted)",
+   "siblings": [
+    "FEAT-CORE-RBAC-006"
+   ],
+   "apis": [
+    "API-CORE-033",
+    "API-CORE-034",
+    "API-CORE-035"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-WALLET-001",
+   "name": "So phu vi TKQC  va  lenh giao dich tien (tien giu ho)",
+   "siblings": [
+    "FEAT-ERP-WALLET-001",
+    "FEAT-MBI-WALLET-001",
+    "FEAT-PORTAL-WALLET-001",
+    "FEAT-MPO-WALLET-001"
+   ],
+   "apis": [
+    "API-MBI-014",
+    "API-MPO-019",
+    "API-MPO-020",
+    "API-MPO-021",
+    "API-MPO-022",
+    "API-PORTAL-023"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-WALLET-002",
+   "name": "Canh bao so du du chi ≥3 ngay + SLA do 2h",
+   "siblings": [
+    "FEAT-ERP-WALLET-002",
+    "FEAT-MBI-WALLET-002"
+   ],
+   "apis": [
+    "API-MBI-014"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-WALLET-003",
+   "name": "Dual approval dieu chinh so du / doi ty gia / hoan tien",
+   "siblings": [
+    "FEAT-ERP-WALLET-003",
+    "FEAT-MBI-WALLET-003"
+   ],
+   "apis": [
+    "API-MBI-012"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-WALLET-004",
+   "name": "Đoi tru 3 so tu dong, da tien te, chot  va  khoa ky",
+   "siblings": [
+    "FEAT-ERP-WALLET-004",
+    "FEAT-MBI-WALLET-004"
+   ],
+   "apis": [
+    "API-MBI-013"
+   ]
+  },
+  {
+   "id": "FEAT-GW-WALLET-001",
+   "name": "Đoi tru 3 so tu dong, da tien te, chot  va  khoa ky",
+   "siblings": [
+    "FEAT-ERP-WALLET-001",
+    "FEAT-MBI-WALLET-001",
+    "FEAT-PORTAL-WALLET-001",
+    "FEAT-MPO-WALLET-001"
+   ],
+   "apis": [
+    "API-MBI-014",
+    "API-MPO-019",
+    "API-MPO-020",
+    "API-MPO-021",
+    "API-MPO-022",
+    "API-PORTAL-023"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-STGW-002",
+   "name": "API 7 nen tang + degraded mode manual",
+   "siblings": [
+    "FEAT-GW-STGW-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-ERP-STGW-002",
+   "name": "API 7 nen tang + degraded mode manual",
+   "siblings": [
+    "FEAT-GW-STGW-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-WALLET-005",
+   "name": "Financial Hard Stop \"da khop tien\" FIN_L1",
+   "siblings": [
+    "FEAT-ERP-WALLET-005",
+    "FEAT-MBI-WALLET-005"
+   ],
+   "apis": [
+    "API-MBI-015"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-ARAP-003",
+   "name": "Cong no AR/AP + aging + nhac no",
+   "siblings": [
+    "FEAT-ERP-ARAP-003"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-ARAP-004",
+   "name": "Duyet chi/giai ngan: nguong, SoD, delegate",
+   "siblings": [
+    "FEAT-ERP-ARAP-004"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-ADACC-001",
+   "name": "KYC phap nhan truoc cap phat TKQC",
+   "siblings": [
+    "FEAT-ERP-ADACC-001",
+    "FEAT-MBI-ADACC-001"
+   ],
+   "apis": [
+    "API-MBI-031"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-WALLET-006",
+   "name": "AML monitoring T1–T6 + hoan tien dung nguon",
+   "siblings": [
+    "FEAT-ERP-WALLET-006",
+    "FEAT-MBI-WALLET-006"
+   ],
+   "apis": [
+    "API-MBI-014"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-ARAP-005",
+   "name": "Hoa don dien tu TT78/2021 + NĐ123/2020",
+   "siblings": [
+    "FEAT-ERP-ARAP-005"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-ERP-RBAC-007",
+   "name": "Luu tru chung tu  va  audit log tien ≥10 nam (WORM)",
+   "siblings": [
+    "FEAT-CORE-RBAC-007"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-GW-ARAP-001",
+   "name": "Tich hop phan mem ke toan VAS hien huu",
+   "siblings": [
+    "FEAT-ERP-ARAP-001",
+    "FEAT-MBI-ARAP-001"
+   ],
+   "apis": [
+    "API-MBI-011",
+    "API-MBI-013"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-ARAP-006",
+   "name": "Tich hop phan mem ke toan VAS hien huu",
+   "siblings": [
+    "FEAT-ERP-ARAP-006"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-ARAP-007",
+   "name": "Phi nen tang  va  nghia vu thue",
+   "siblings": [
+    "FEAT-ERP-ARAP-007"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-GW-ARAP-002",
+   "name": "Phi nen tang  va  nghia vu thue",
+   "siblings": [
+    "FEAT-ERP-ARAP-002",
+    "FEAT-MBI-ARAP-002"
+   ],
+   "apis": [
+    "API-MBI-011",
+    "API-MBI-012",
+    "API-MBI-013"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-DHUB-004",
+   "name": "Dashboard  va  bao cao tai chinh noi bo",
+   "siblings": [
+    "FEAT-CORE-DHUB-004",
+    "FEAT-MBI-DHUB-004"
+   ],
+   "apis": [
+    "API-CORE-039",
+    "API-MBI-016"
+   ]
+  },
+  {
+   "id": "FEAT-ERP-DHUB-005",
+   "name": "BI/BOD dashboard  va  P va L realtime",
+   "siblings": [
+    "FEAT-CORE-DHUB-005",
+    "FEAT-MBI-DHUB-005"
+   ],
+   "apis": [
+    "API-MBI-016"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CPORT-001",
+   "name": "Du lieu vi read-only cho Client Portal",
+   "siblings": [
+    "FEAT-PORTAL-CPORT-001",
+    "FEAT-ERP-CPORT-001",
+    "FEAT-MBI-CPORT-001",
+    "FEAT-MPO-CPORT-001"
+   ],
+   "apis": [
+    "API-MBI-032",
+    "API-MPO-001",
+    "API-MPO-002",
+    "API-MPO-003",
+    "API-MPO-004",
+    "API-MPO-005",
+    "API-MPO-006",
+    "API-MPO-007",
+    "API-MPO-008",
+    "API-MPO-009",
+    "API-MPO-010",
+    "API-MPO-011",
+    "API-MPO-012",
+    "API-MPO-013",
+    "API-MPO-033",
+    "API-PORTAL-019",
+    "API-PORTAL-020",
+    "API-PORTAL-021",
+    "API-PORTAL-022",
+    "API-PORTAL-031",
+    "API-PORTAL-032",
+    "API-PORTAL-033",
+    "API-PORTAL-034",
+    "API-PORTAL-035",
+    "API-PORTAL-036",
+    "API-PORTAL-037"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CRM-001",
+   "name": "Thu nhan lead da kenh  va  chong trung lap (anti-duplicate)",
+   "siblings": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-MBI-CRM-001"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CRM-002",
+   "name": "Pipeline V6.0 — hard gate \"khong ghi nhan = khong ton tai\"  va  phan bo lead",
+   "siblings": [
+    "FEAT-ERP-CRM-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-CRM-003",
+   "name": "AUTO SCORING K1–K12  va  Tier A–E",
+   "siblings": [
+    "FEAT-ERP-CRM-003"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-CRM-004",
+   "name": "Gate 1  va  Gate 2 — Go/No-Go va ky Handoff",
+   "siblings": [
+    "FEAT-ERP-CRM-004"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-CRM-005",
+   "name": "Chuyen tier Sales → CS  va  ra soat quy tier",
+   "siblings": [
+    "FEAT-ERP-CRM-005"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-QDD-001",
+   "name": "Quotation  va  Deal Desk — dinh muc, chiet khau phan cap, duyet GM",
+   "siblings": [
+    "FEAT-ERP-QDD-001",
+    "FEAT-MBI-QDD-001"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-QDD-002",
+   "name": "Hop dong/LOI/NDA  va  Brand Safety + e-sign",
+   "siblings": [
+    "FEAT-ERP-QDD-002",
+    "FEAT-MBI-QDD-002"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-HONB-001",
+   "name": "Handoff  va  Onboarding Bridge",
+   "siblings": [
+    "FEAT-ERP-HONB-001",
+    "FEAT-MBI-HONB-001"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-COMM-001",
+   "name": "Commission  va  Quota — hoa hong theo thuc nhan, clawback, coverage ≥3×",
+   "siblings": [
+    "FEAT-ERP-COMM-001",
+    "FEAT-MBI-COMM-001"
+   ],
+   "apis": [
+    "API-MBI-033"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-ADACC-002",
+   "name": "Ad Account Command Center — registry  va  vong doi TKQC",
+   "siblings": [
+    "FEAT-ERP-ADACC-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-GW-ADACC-001",
+   "name": "Ad Account Command Center — registry  va  vong doi TKQC",
+   "siblings": [
+    "FEAT-ERP-ADACC-001",
+    "FEAT-MBI-ADACC-001"
+   ],
+   "apis": [
+    "API-MBI-031"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-ADACC-003",
+   "name": "Financial Hard Stop chan cap phat TKQC",
+   "siblings": [
+    "FEAT-ERP-ADACC-003"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-WALLET-007",
+   "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+   "siblings": [
+    "FEAT-ERP-WALLET-007"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-GW-WALLET-002",
+   "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+   "siblings": [
+    "FEAT-ERP-WALLET-002",
+    "FEAT-MBI-WALLET-002"
+   ],
+   "apis": [
+    "API-MBI-014"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-HONB-002",
+   "name": "Handoff  va  Onboarding Bridge",
+   "siblings": [
+    "FEAT-ERP-HONB-002",
+    "FEAT-MBI-HONB-002"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-PROPLN-001",
+   "name": "Proposal  va  Planning Workspace (stage-gate V6.0)",
+   "siblings": [
+    "FEAT-ERP-PROPLN-001",
+    "FEAT-MBI-PROPLN-001"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CAMP-001",
+   "name": "Campaign  va  Deliverable Management",
+   "siblings": [
+    "FEAT-ERP-CAMP-001",
+    "FEAT-MBI-CAMP-001",
+    "FEAT-PORTAL-CAMP-001",
+    "FEAT-MPO-CAMP-001"
+   ],
+   "apis": [
+    "API-MBI-027",
+    "API-MPO-023",
+    "API-MPO-024",
+    "API-MPO-025",
+    "API-MPO-026",
+    "API-PORTAL-024",
+    "API-PORTAL-025",
+    "API-PORTAL-026"
+   ]
+  },
+  {
+   "id": "FEAT-GW-CAMP-001",
+   "name": "Campaign  va  Deliverable Management",
+   "siblings": [
+    "FEAT-ERP-CAMP-001",
+    "FEAT-MBI-CAMP-001",
+    "FEAT-PORTAL-CAMP-001",
+    "FEAT-MPO-CAMP-001"
+   ],
+   "apis": [
+    "API-MBI-027",
+    "API-MPO-023",
+    "API-MPO-024",
+    "API-MPO-025",
+    "API-MPO-026",
+    "API-PORTAL-024",
+    "API-PORTAL-025",
+    "API-PORTAL-026"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CAPTS-002",
+   "name": "Capacity  va  Timesheet",
+   "siblings": [
+    "FEAT-ERP-CAPTS-002"
+   ],
+   "apis": []
+  },
+  {
+   "id": "FEAT-CORE-SLANOT-001",
+   "name": "SLA  va  Notification Engine",
+   "siblings": [
+    "FEAT-ERP-SLANOT-001",
+    "FEAT-MBI-SLANOT-001",
+    "FEAT-MPO-SLANOT-001"
+   ],
+   "apis": [
+    "API-MBI-008",
+    "API-MBI-009",
+    "API-MBI-034",
+    "API-MPO-014",
+    "API-MPO-015",
+    "API-MPO-016",
+    "API-MPO-017",
+    "API-MPO-018"
+   ]
+  },
+  {
+   "id": "FEAT-PORTAL-SLANOT-001",
+   "name": "SLA  va  Notification Engine",
+   "siblings": [
+    "FEAT-ERP-SLANOT-001",
+    "FEAT-MBI-SLANOT-001",
+    "FEAT-MPO-SLANOT-001"
+   ],
+   "apis": [
+    "API-MBI-008",
+    "API-MBI-009",
+    "API-MBI-034",
+    "API-MPO-014",
+    "API-MPO-015",
+    "API-MPO-016",
+    "API-MPO-017",
+    "API-MPO-018"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CSKH-001",
+   "name": "Ticket  va  CSKH",
+   "siblings": [
+    "FEAT-ERP-CSKH-001",
+    "FEAT-MBI-CSKH-001",
+    "FEAT-PORTAL-CSKH-001",
+    "FEAT-MPO-CSKH-001"
+   ],
+   "apis": [
+    "API-MBI-027",
+    "API-MBI-028",
+    "API-MBI-029",
+    "API-MPO-027",
+    "API-MPO-028",
+    "API-MPO-029",
+    "API-MPO-030",
+    "API-MPO-031",
+    "API-MPO-032",
+    "API-PORTAL-027",
+    "API-PORTAL-028",
+    "API-PORTAL-029",
+    "API-PORTAL-030"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CPORT-002",
+   "name": "Client Portal goc nhin ops — cap tai khoan  va  monitor",
+   "siblings": [
+    "FEAT-PORTAL-CPORT-002"
+   ],
+   "apis": [
+    "API-PORTAL-001",
+    "API-PORTAL-002",
+    "API-PORTAL-003",
+    "API-PORTAL-004",
+    "API-PORTAL-005",
+    "API-PORTAL-006",
+    "API-PORTAL-009",
+    "API-PORTAL-010",
+    "API-PORTAL-013",
+    "API-PORTAL-014",
+    "API-PORTAL-015",
+    "API-PORTAL-016",
+    "API-PORTAL-017",
+    "API-PORTAL-018"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-TIKTOK-001",
+   "name": "TikTok Shop Monitoring",
+   "siblings": [
+    "FEAT-GW-TIKTOK-001",
+    "FEAT-ERP-TIKTOK-001",
+    "FEAT-MBI-TIKTOK-001"
+   ],
+   "apis": [
+    "API-MBI-030"
+   ]
+  },
+  {
+   "id": "FEAT-CORE-CAMP-002",
+   "name": "A/B Testing  va  chien luoc campaign theo muc tieu khach",
+   "siblings": [
+    "FEAT-ERP-CAMP-002",
+    "FEAT-MBI-CAMP-002"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  },
+  {
+   "id": "FEAT-GW-CAMP-002",
+   "name": "A/B Testing  va  chien luoc campaign theo muc tieu khach",
+   "siblings": [
+    "FEAT-ERP-CAMP-002",
+    "FEAT-MBI-CAMP-002"
+   ],
+   "apis": [
+    "API-MBI-027"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,63 @@
+{
+ "4.2": {
+  "total": 59,
+  "missing": []
+ },
+ "CQG1": {
+  "total": 170,
+  "covered": 170,
+  "missing": []
+ },
+ "4.6a": {
+  "createTables": 111,
+  "views": 0,
+  "tblMarkers": 80,
+  "duplicates": [],
+  "duplicateTblIds": [],
+  "tablesNoMarker": [
+   "SYS-BCERP-WEB:erp_finance.wallet_journal",
+   "SYS-BCERP-WEB:erp_finance.wallet_journal_lines",
+   "SYS-BCERP-WEB:erp_finance.reconciliation_runs",
+   "SYS-BCERP-WEB:erp_finance.reconciliation_items",
+   "SYS-BCERP-WEB:erp_finance.ar_invoices",
+   "SYS-BCERP-WEB:erp_finance.dunning_logs",
+   "SYS-BCERP-WEB:erp_finance.payment_orders",
+   "SYS-BCERP-WEB:erp_finance.payment_order_approvals",
+   "SYS-BCERP-WEB:erp_finance.commissions",
+   "SYS-BCERP-WEB:erp_finance.commission_clawbacks",
+   "SYS-BCERP-WEB:erp_finance.quotas",
+   "SYS-BCERP-WEB:erp_ops.proposals",
+   "SYS-BCERP-WEB:erp_ops.proposal_stages",
+   "SYS-BCERP-WEB:erp_ops.campaigns",
+   "SYS-BCERP-WEB:erp_ops.deliverables",
+   "SYS-BCERP-WEB:erp_ops.deliverable_assignment_history",
+   "SYS-BCERP-WEB:erp_ops.ab_tests",
+   "SYS-BCERP-WEB:erp_ops.tickets",
+   "SYS-BCERP-WEB:erp_ops.ticket_assignment_history",
+   "SYS-BCERP-WEB:erp_people.leave_requests",
+   "SYS-BCERP-WEB:erp_people.leave_balances",
+   "SYS-BCERP-WEB:erp_people.timesheets",
+   "SYS-BCERP-WEB:erp_people.timesheet_approvals",
+   "SYS-BCERP-WEB:erp_people.kpi_periods",
+   "SYS-BCERP-WEB:erp_people.kpi_scores",
+   "SYS-BCERP-WEB:erp_people.pip_plans",
+   "SYS-BCERP-WEB:erp_people.pip_checkpoints",
+   "SYS-BCERP-WEB:erp_sla.job_registry",
+   "SYS-BCERP-WEB:erp_sla.job_runs",
+   "SYS-BCERP-WEB:erp_sla.job_dead_letters",
+   "SYS-CORE-BACKEND:dhub_marts.pnl_realtime"
+  ]
+ },
+ "_bySys": {
+  "SYS-BCERP-WEB": 62,
+  "SYS-CORE-BACKEND": 17,
+  "SYS-INTEGRATION-GW": 18,
+  "SYS-PORTAL-WEB": 9,
+  "SYS-MOBILE-INTERNAL": 3,
+  "SYS-MOBILE-PORTAL": 2
+ },
+ "CQG2": {
+  "coveredCount": 19,
+  "uncovered": []
+ }
+}

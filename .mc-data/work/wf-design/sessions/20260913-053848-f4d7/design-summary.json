@@ -1,0 +1,987 @@
+{
+  "generated_at": "2026-09-13",
+  "version": "1.0",
+  "project": "BCERP",
+  "design_id": "DESIGN-20260913-001",
+  "session_id": "20260913-053848-f4d7",
+  "modules": {
+    "MOD-RBAC-AUDIT": {
+      "name": "RBAC & Audit Log",
+      "components": [
+        "COMP-CORE-001 Identity & SSO/MFA Service (IdP tập trung)",
+        "COMP-CORE-002 RBAC & Policy Engine (PDP)",
+        "COMP-CORE-003 Access Review & Recertification Worker",
+        "COMP-CORE-004 Audit Log Service (append-only)",
+        "COMP-CORE-005 WORM Evidence Store",
+        "COMP-CORE-006 PII Field Protection Service",
+        "COMP-MBI-020 RBAC/MFA Mobile Enforcement Surface"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/core/auth/token [API-CORE-001]",
+        "POST /api/v1/core/auth/token/refresh [API-CORE-002]",
+        "POST /api/v1/core/auth/mfa/step-up [API-CORE-003]",
+        "POST /api/v1/core/auth/mfa/enrollments [API-CORE-004]",
+        "POST /api/v1/core/auth/logout [API-CORE-005]",
+        "GET,DELETE /api/v1/core/auth/sessions [API-CORE-006]",
+        "GET /api/v1/core/auth/.well-known/openid-configuration [API-CORE-007]",
+        "POST /api/v1/core/auth/introspect [API-CORE-008]",
+        "GET /api/v1/core/users [API-CORE-009]",
+        "POST /api/v1/core/users [API-CORE-010]",
+        "GET /api/v1/core/users/:id [API-CORE-011]",
+        "PUT /api/v1/core/users/:id [API-CORE-012]",
+        "POST /api/v1/core/users/:id/transitions [API-CORE-013]",
+        "POST /api/v1/core/pdp/check [API-CORE-014]",
+        "GET /api/v1/core/roles [API-CORE-015]",
+        "POST,PUT /api/v1/core/roles [API-CORE-016]",
+        "POST /api/v1/core/roles/:id/assignments [API-CORE-017]",
+        "DELETE /api/v1/core/roles/:id/assignments/:userId [API-CORE-018]",
+        "GET,POST,PUT /api/v1/core/permissions [API-CORE-019]",
+        "GET,POST /api/v1/core/policies [API-CORE-020]",
+        "POST /api/v1/core/policies/:id/transitions [API-CORE-021]",
+        "POST /api/v1/core/pdp/sod-check [API-CORE-022]",
+        "GET,PUT /api/v1/core/policies/delegates [API-CORE-023]",
+        "GET,POST /api/v1/core/access-reviews/campaigns [API-CORE-024]",
+        "GET /api/v1/core/access-reviews/campaigns/:id/items [API-CORE-025]",
+        "POST /api/v1/core/access-reviews/items/:id/decisions [API-CORE-026]",
+        "POST /api/v1/core/access-reviews/campaigns/:id/close [API-CORE-027]",
+        "POST /api/v1/core/audit/events [API-CORE-028]",
+        "GET /api/v1/core/audit/events [API-CORE-029]",
+        "GET /api/v1/core/audit/objects/:objectId/timeline [API-CORE-030]",
+        "POST /api/v1/core/audit/export-requests [API-CORE-031]",
+        "GET /api/v1/core/audit/chain/verify [API-CORE-032]",
+        "GET,POST,PUT /api/v1/core/pii/classifications [API-CORE-033]",
+        "GET,PUT /api/v1/core/pii/mask-configs [API-CORE-034]",
+        "POST /api/v1/core/pii/break-glass-requests [API-CORE-035]",
+        "POST /api/v1/mbi/auth/token [API-MBI-001]",
+        "POST /api/v1/mbi/auth/mfa/step-up [API-MBI-002]",
+        "POST /api/v1/mbi/auth/logout [API-MBI-003]",
+        "POST /api/v1/mbi/devices [API-MBI-004]",
+        "PUT /api/v1/mbi/devices/:deviceId [API-MBI-005]"
+      ],
+      "api_total": 42,
+      "db_tables": [
+        "core_identity.users [TBL-CORE-001]",
+        "core_identity.mfa_enrollments [TBL-CORE-002]",
+        "core_identity.sessions [TBL-CORE-003]",
+        "core_identity.roles [TBL-CORE-004]",
+        "core_identity.permissions [TBL-CORE-005]",
+        "core_identity.role_permissions [TBL-CORE-006]",
+        "core_identity.user_roles [TBL-CORE-007]",
+        "core_identity.role_assignment_approvals [TBL-CORE-008]",
+        "core_identity.policy_versions [TBL-CORE-009]",
+        "core_identity.policy_approvals [TBL-CORE-010]",
+        "core_identity.sod_rules [TBL-CORE-011]",
+        "core_identity.delegate_map [TBL-CORE-012]",
+        "core_identity.access_review_campaigns [TBL-CORE-013]",
+        "core_identity.access_review_items [TBL-CORE-014]",
+        "core_audit.audit_log [TBL-CORE-015]",
+        "core_audit.audit_export_requests [TBL-CORE-016]",
+        "core_audit.worm_evidence_refs [TBL-CORE-017]",
+        "core_audit.pii_classifications [TBL-CORE-018]",
+        "core_audit.pii_mask_configs [TBL-CORE-019]",
+        "core_audit.pii_access_log [TBL-CORE-020]",
+        "mobile_device [TBL-MBI-001]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "PDP check cho mọi service (INT-S-002)",
+        "SSO/OIDC 5 relying parties (INT-S-001)",
+        "audit WORM ghi qua COMP-CORE-004",
+        "sla.warning → push (INT-E)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/rbac-audit/entities/",
+        "service": "src/modules/rbac-audit/rbac-audit.service.ts",
+        "controller": "src/modules/rbac-audit/rbac-audit.controller.ts",
+        "tests": "src/modules/rbac-audit/__tests__/"
+      }
+    },
+    "MOD-SETTINGS-GW": {
+      "name": "Settings & Integration Gateway",
+      "components": [
+        "COMP-GW-001 Connector Registry & Adapter Framework",
+        "COMP-GW-002 Credentials Vault",
+        "COMP-GW-003 Sync Scheduler & Rate-Limited Job Queue",
+        "COMP-GW-004 Ingest & Normalization Pipeline",
+        "COMP-GW-005 Degraded Mode & Backfill Engine",
+        "COMP-GW-006 Gateway Health & Policy Config Service",
+        "COMP-GW-007 Gateway Audit & API Call Log",
+        "COMP-GW-008 VAS Accounting Connector",
+        "COMP-GW-009 Wallet & TKQC Feed Dispatcher"
+      ],
+      "api_quick_ref": [
+        "GET /gw/connections [API-GW-001]",
+        "POST /gw/connections [API-GW-002]",
+        "GET /gw/connections/:id [API-GW-003]",
+        "PUT /gw/connections/:id [API-GW-004]",
+        "POST /gw/connections/:id/transitions [API-GW-005]",
+        "GET /gw/connections/:id/health [API-GW-006]",
+        "GET /gw/vault/credentials [API-GW-007]",
+        "GET /gw/vault/credentials/:id [API-GW-008]",
+        "POST /gw/vault/credentials [API-GW-009]",
+        "POST /gw/vault/credentials/:id/rotate [API-GW-010]",
+        "POST /gw/vault/credentials/:id/revoke [API-GW-011]",
+        "GET /gw/sync/schedules [API-GW-012]",
+        "PUT /gw/sync/schedules/:id [API-GW-013]",
+        "POST /gw/sync/jobs [API-GW-014]",
+        "GET /gw/sync/jobs [API-GW-015]",
+        "GET /gw/sync/jobs/:id [API-GW-016]",
+        "POST /gw/sync/jobs/:id/retry [API-GW-017]",
+        "GET /gw/policies [API-GW-018]",
+        "GET /gw/policies/:paramKey/versions [API-GW-019]",
+        "POST /gw/policies/:paramKey [API-GW-020]",
+        "GET /gw/mappings [API-GW-021]",
+        "PUT /gw/mappings/:id [API-GW-022]",
+        "POST /gw/exports [API-GW-023]",
+        "GET /gw/health [API-GW-024]",
+        "GET /gw/degraded/status [API-GW-025]",
+        "POST /gw/backfill/runs [API-GW-026]",
+        "GET /gw/backfill/runs [API-GW-027]",
+        "POST /gw/imports/statements [API-GW-028]",
+        "POST /gw/imports/rows [API-GW-029]",
+        "GET /gw/imports/batches/:id [API-GW-030]",
+        "POST /gw/imports/batches/:id/retry-rows [API-GW-031]",
+        "GET /gw/statements [API-GW-032]",
+        "GET /gw/raw-payloads [API-GW-033]",
+        "POST /gw/raw-payloads/:id/reprocess [API-GW-034]",
+        "GET /gw/audit-logs [API-GW-035]",
+        "GET /internal/gw/feed/wallet-status [API-GW-048]"
+      ],
+      "api_total": 36,
+      "db_tables": [
+        "gw_connector.connection_profile [TBL-GW-001]",
+        "gw_connector.credential_version [TBL-GW-002]",
+        "gw_connector.sync_schedule [TBL-GW-003]",
+        "gw_connector.sync_job [TBL-GW-004]",
+        "gw_connector.adapter_health [TBL-GW-005]",
+        "gw_connector.policy_config_version [TBL-GW-006]",
+        "gw_connector.field_mapping [TBL-GW-007]",
+        "gw_connector.import_batch [TBL-GW-008]",
+        "gw_connector.import_row [TBL-GW-009]",
+        "gw_connector.raw_payload [TBL-GW-010]",
+        "gw_connector.platform_statement [TBL-GW-011]",
+        "gw_connector.backfill_run [TBL-GW-012]",
+        "gw_connector.gateway_audit [TBL-GW-013]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "connection lifecycle duyệt CTO",
+        "wallet.sync.completed → CORE (INT-E)",
+        "statement query cho đối trừ (INT-S)",
+        "policy config effective-dated"
+      ],
+      "folder_map": {
+        "entity": "src/modules/settings-gw/entities/",
+        "service": "src/modules/settings-gw/settings-gw.service.ts",
+        "controller": "src/modules/settings-gw/settings-gw.controller.ts",
+        "tests": "src/modules/settings-gw/__tests__/"
+      }
+    },
+    "MOD-HR-CORE": {
+      "name": "HR Core",
+      "components": [
+        "COMP-MBI-016 ESS Mobile — Chấm công & Đơn nghỉ phép & Hồ sơ"
+      ],
+      "api_quick_ref": [
+        "POST|GET|PUT /api/v1/erp/employees [API-ERP-062]",
+        "GET|POST /api/v1/erp/employees/{id}/contracts [API-ERP-063]",
+        "POST /api/v1/erp/attendance [API-ERP-064]",
+        "POST /api/v1/erp/leave-requests [API-ERP-065]",
+        "GET /api/v1/erp/ess/me [API-ERP-066]",
+        "POST /api/v1/erp/rate-cards [API-ERP-067]",
+        "POST /api/v1/mbi/ess/attendance [API-MBI-019]",
+        "GET /api/v1/mbi/ess/attendance/today [API-MBI-020]",
+        "POST /api/v1/mbi/ess/leave-requests [API-MBI-022]",
+        "GET /api/v1/mbi/ess/leave-requests [API-MBI-023]",
+        "GET /api/v1/mbi/ess/profile [API-MBI-026]"
+      ],
+      "api_total": 11,
+      "db_tables": [
+        "erp_people.employees [TBL-ERP-042]",
+        "erp_people.employment_contracts [TBL-ERP-043]",
+        "erp_people.attendance_records [TBL-ERP-044]",
+        "erp_people.leave_requests [TBL-ERP-045]",
+        "erp_people.leave_balances [TBL-ERP-046]",
+        "erp_people.rate_card_versions [TBL-ERP-047]",
+        "erp_people.people_activities [TBL-ERP-055]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "PII masking trước ETL (REQ-HR-010)",
+        "hdld.expiring → SLA-NOTIF",
+        "rate card thẩm định FIN"
+      ],
+      "folder_map": {
+        "entity": "src/modules/hr-core/entities/",
+        "service": "src/modules/hr-core/hr-core.service.ts",
+        "controller": "src/modules/hr-core/hr-core.controller.ts",
+        "tests": "src/modules/hr-core/__tests__/"
+      }
+    },
+    "MOD-CRM-PIPELINE": {
+      "name": "CRM & Lead Pipeline V6.0",
+      "components": [
+        "COMP-MBI-008 Sales Gate Surface — Gate 1/Gate 2"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/leads [API-ERP-001]",
+        "POST /api/v1/erp/leads/bulk-import [API-ERP-002]",
+        "GET /api/v1/erp/leads [API-ERP-003]",
+        "GET /api/v1/erp/leads/{id} [API-ERP-004]",
+        "GET /api/v1/erp/leads/{id}/activity [API-ERP-005]",
+        "POST /api/v1/erp/leads/{id}/transitions [API-ERP-006]",
+        "POST /api/v1/erp/leads/{id}/assign [API-ERP-007]",
+        "POST /api/v1/erp/leads/{id}/gate-decision [API-ERP-008]",
+        "GET|POST /api/v1/erp/customers/{id}/tier-review [API-ERP-009]"
+      ],
+      "api_total": 9,
+      "db_tables": [
+        "erp_sales.customers [TBL-ERP-001]",
+        "erp_sales.leads [TBL-ERP-002]",
+        "erp_sales.lead_assignment_history [TBL-ERP-003]",
+        "erp_sales.lead_gate_decisions [TBL-ERP-004]",
+        "erp_sales.sales_activities [TBL-ERP-010]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "lead.qualified → QDD",
+        "tier review quý (scheduler)",
+        "crm.reassigned event (assignment change)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/crm-pipeline/entities/",
+        "service": "src/modules/crm-pipeline/crm-pipeline.service.ts",
+        "controller": "src/modules/crm-pipeline/crm-pipeline.controller.ts",
+        "tests": "src/modules/crm-pipeline/__tests__/"
+      }
+    },
+    "MOD-QUOTATION-DEALDESK": {
+      "name": "Quotation & Deal Desk",
+      "components": [
+        "COMP-MBI-009 Deal Desk Mobile Approval"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/quotations [API-ERP-010]",
+        "GET /api/v1/erp/quotations [API-ERP-011]",
+        "POST /api/v1/erp/quotations/{id}/transitions [API-ERP-012]",
+        "POST /api/v1/erp/quotations/{id}/discount-approval [API-ERP-013]",
+        "POST /api/v1/erp/contracts/{id}/esign-complete [API-ERP-014]"
+      ],
+      "api_total": 5,
+      "db_tables": [
+        "erp_sales.quotations [TBL-ERP-005]",
+        "erp_sales.quotation_approvals [TBL-ERP-006]",
+        "erp_sales.contracts [TBL-ERP-007]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "deal.signed → ARAP + handoff draft (INT-E)",
+        "duyệt chiết khấu phân cấp → GM"
+      ],
+      "folder_map": {
+        "entity": "src/modules/quotation-dealdesk/entities/",
+        "service": "src/modules/quotation-dealdesk/quotation-dealdesk.service.ts",
+        "controller": "src/modules/quotation-dealdesk/quotation-dealdesk.controller.ts",
+        "tests": "src/modules/quotation-dealdesk/__tests__/"
+      }
+    },
+    "MOD-ADACCOUNT-CC": {
+      "name": "Quản lý TKQC — Ad Account Command Center",
+      "components": [
+        "COMP-MBI-012 Ad Account Quick View"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/ad-accounts [API-ERP-043]",
+        "GET /api/v1/erp/ad-accounts [API-ERP-044]",
+        "POST /api/v1/erp/ad-accounts/{id}/transitions [API-ERP-045]",
+        "POST /api/v1/erp/ad-accounts/{id}/revoke [API-ERP-046]",
+        "GET /api/v1/mbi/ad-accounts [API-MBI-031]"
+      ],
+      "api_total": 5,
+      "db_tables": [
+        "erp_ops.ad_accounts [TBL-ERP-030]",
+        "erp_ops.ad_account_events [TBL-ERP-031]",
+        "erp_ops.ops_activities [TBL-ERP-041]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "wallet.matched mở hard stop (INT-E)",
+        "hard stop guard check (INT-S)",
+        "kyc trước cấp phát"
+      ],
+      "folder_map": {
+        "entity": "src/modules/adaccount-cc/entities/",
+        "service": "src/modules/adaccount-cc/adaccount-cc.service.ts",
+        "controller": "src/modules/adaccount-cc/adaccount-cc.controller.ts",
+        "tests": "src/modules/adaccount-cc/__tests__/"
+      }
+    },
+    "MOD-WALLET-RECON": {
+      "name": "Wallet & Đối soát TKQC",
+      "components": [
+        "COMP-MBI-006 Wallet Approval & Alert Surface"
+      ],
+      "api_quick_ref": [
+        "GET /api/v1/erp/wallets [API-ERP-020]",
+        "GET /api/v1/erp/wallets/{id}/ledger [API-ERP-021]",
+        "POST /api/v1/erp/wallets/{id}/transactions [API-ERP-022]",
+        "POST /api/v1/erp/wallet-transactions/{id}/approvals [API-ERP-023]",
+        "GET /api/v1/erp/reconciliation-runs [API-ERP-024]",
+        "POST /api/v1/erp/reconciliation-runs/{period}/close [API-ERP-025]",
+        "POST /api/v1/erp/wallets/{customerId}/hard-stop/confirm [API-ERP-026]",
+        "GET /api/v1/erp/wallets/{customerId}/hard-stop-status [API-ERP-027]",
+        "GET|POST /api/v1/erp/aml-flags [API-ERP-028]",
+        "GET /api/v1/mbi/wallet/summary [API-MBI-014]",
+        "GET /api/v1/mbi/wallet/aml-flags [API-MBI-015]",
+        "GET /api/v1/mpo/wallet/summary [API-MPO-019]",
+        "GET /api/v1/mpo/wallet/spend [API-MPO-020]",
+        "GET /api/v1/mpo/wallet/transactions [API-MPO-021]",
+        "GET /api/v1/mpo/wallet/statement-link [API-MPO-022]"
+      ],
+      "api_total": 15,
+      "db_tables": [
+        "erp_finance.wallets [TBL-ERP-011]",
+        "erp_finance.wallet_journal [TBL-ERP-012]",
+        "erp_finance.wallet_journal_lines [TBL-ERP-013]",
+        "erp_finance.wallet_transactions [TBL-ERP-014]",
+        "erp_finance.reconciliation_runs [TBL-ERP-015]",
+        "erp_finance.reconciliation_items [TBL-ERP-016]",
+        "erp_finance.period_locks [TBL-ERP-017]",
+        "erp_finance.hard_stop_confirmations [TBL-ERP-018]",
+        "erp_finance.aml_flags [TBL-ERP-019]",
+        "erp_finance.finance_activities [TBL-ERP-029]",
+        "erp_sla.job_registry [TBL-ERP-059]",
+        "erp_sla.job_runs [TBL-ERP-060]",
+        "erp_sla.outbox_events [TBL-ERP-062]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "statement sync từ GW (INT-S)",
+        "wallet.matched → ADACC (INT-E)",
+        "wallet.low_balance → SLA đỏ 2h (INT-E)",
+        "portal read-model ví (INT-S)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/wallet-recon/entities/",
+        "service": "src/modules/wallet-recon/wallet-recon.service.ts",
+        "controller": "src/modules/wallet-recon/wallet-recon.controller.ts",
+        "tests": "src/modules/wallet-recon/__tests__/"
+      }
+    },
+    "MOD-ARAP-PAYMENT": {
+      "name": "Công nợ AR/AP & Giải ngân",
+      "components": [
+        "COMP-MBI-005 Approval Inbox — Duyệt vượt ngưỡng & Giải ngân"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/ar-invoices [API-ERP-029]",
+        "GET /api/v1/erp/ar-invoices [API-ERP-030]",
+        "POST /api/v1/erp/ar-invoices/{id}/payments [API-ERP-031]",
+        "POST /api/v1/erp/ar-invoices/{id}/dunning [API-ERP-032]",
+        "POST /api/v1/erp/payment-orders [API-ERP-033]",
+        "POST /api/v1/erp/payment-orders/{id}/approve [API-ERP-034]",
+        "POST /api/v1/erp/payment-orders/{id}/disburse [API-ERP-035]",
+        "POST /api/v1/erp/einvoices/{id}/issue [API-ERP-036]",
+        "GET /api/v1/erp/einvoices [API-ERP-037]",
+        "GET /api/v1/erp/platform-fees [API-ERP-038]",
+        "GET /api/v1/mbi/approvals [API-MBI-011]",
+        "GET /api/v1/mbi/approvals/:approvalId [API-MBI-012]",
+        "POST /api/v1/mbi/approvals/:approvalId/decision [API-MBI-013]"
+      ],
+      "api_total": 13,
+      "db_tables": [
+        "erp_finance.ar_invoices [TBL-ERP-020]",
+        "erp_finance.dunning_logs [TBL-ERP-021]",
+        "erp_finance.payment_orders [TBL-ERP-022]",
+        "erp_finance.payment_order_approvals [TBL-ERP-023]",
+        "erp_finance.einvoices [TBL-ERP-024]",
+        "erp_finance.platform_fees [TBL-ERP-025]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "payment.received → commission (INT-E)",
+        "invoice.issued → SLANOT + PORTAL (INT-E)",
+        "VAS export qua GW (INT-S)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/arap-payment/entities/",
+        "service": "src/modules/arap-payment/arap-payment.service.ts",
+        "controller": "src/modules/arap-payment/arap-payment.controller.ts",
+        "tests": "src/modules/arap-payment/__tests__/"
+      }
+    },
+    "MOD-HANDOFF-ONBOARD": {
+      "name": "Handoff & Onboarding Bridge",
+      "components": [
+        "COMP-MBI-010 Handoff Mobile Acknowledgment"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/handoffs [API-ERP-015]",
+        "GET /api/v1/erp/handoffs [API-ERP-016]",
+        "POST /api/v1/erp/handoffs/{id}/sales-submit [API-ERP-017]",
+        "POST /api/v1/erp/handoffs/{id}/ops-ack [API-ERP-018]",
+        "GET|PATCH /api/v1/erp/handoffs/{id}/onboarding-tasks [API-ERP-019]"
+      ],
+      "api_total": 5,
+      "db_tables": [
+        "erp_sales.handoffs [TBL-ERP-008]",
+        "erp_sales.handoff_tasks [TBL-ERP-009]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "handoff.ops_ack → onboarding tasks (INT-E)",
+        "sinh việc ADACC/PORTAL/CAMP"
+      ],
+      "folder_map": {
+        "entity": "src/modules/handoff-onboard/entities/",
+        "service": "src/modules/handoff-onboard/handoff-onboard.service.ts",
+        "controller": "src/modules/handoff-onboard/handoff-onboard.controller.ts",
+        "tests": "src/modules/handoff-onboard/__tests__/"
+      }
+    },
+    "MOD-PROPOSAL-PLANNING": {
+      "name": "Proposal & Planning Workspace",
+      "components": [
+        "COMP-MBI-013 Proposal Stage-gate Mobile Approve"
+      ],
+      "api_quick_ref": [
+        "POST|GET /api/v1/erp/proposals [API-ERP-047]",
+        "POST /api/v1/erp/proposals/{id}/stage-transitions [API-ERP-048]"
+      ],
+      "api_total": 2,
+      "db_tables": [
+        "erp_ops.proposals [TBL-ERP-032]",
+        "erp_ops.proposal_stages [TBL-ERP-033]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "stage-gate V6.0 transitions",
+        "duyệt mobile surface"
+      ],
+      "folder_map": {
+        "entity": "src/modules/proposal-planning/entities/",
+        "service": "src/modules/proposal-planning/proposal-planning.service.ts",
+        "controller": "src/modules/proposal-planning/proposal-planning.controller.ts",
+        "tests": "src/modules/proposal-planning/__tests__/"
+      }
+    },
+    "MOD-CAMPAIGN-DELIVERABLE": {
+      "name": "Campaign & Deliverable Management",
+      "components": [
+        "COMP-MBI-014 Campaign/Deliverable Mobile Checklist"
+      ],
+      "api_quick_ref": [
+        "POST|GET /api/v1/erp/campaigns [API-ERP-049]",
+        "POST /api/v1/erp/campaigns/{id}/deliverables [API-ERP-050]",
+        "POST /api/v1/erp/deliverables/{id}/transitions [API-ERP-051]",
+        "POST /api/v1/erp/deliverables/{id}/acceptance [API-ERP-052]",
+        "POST /api/v1/erp/campaigns/{id}/ab-tests [API-ERP-053]",
+        "GET /api/v1/mpo/campaigns [API-MPO-023]",
+        "GET /api/v1/mpo/campaigns/:id [API-MPO-024]",
+        "POST /api/v1/mpo/campaigns/:id/milestones/:mid/confirm [API-MPO-025]",
+        "POST /api/v1/mpo/campaigns/:id/milestones/:mid/revision [API-MPO-026]"
+      ],
+      "api_total": 9,
+      "db_tables": [
+        "erp_ops.campaigns [TBL-ERP-034]",
+        "erp_ops.deliverables [TBL-ERP-035]",
+        "erp_ops.deliverable_assignment_history [TBL-ERP-036]",
+        "erp_ops.ab_tests [TBL-ERP-037]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "deliverable.acceptance_due → SLANOT (INT-E)",
+        "nghiệm thu 3 ngày timer",
+        "portal campaign read-model"
+      ],
+      "folder_map": {
+        "entity": "src/modules/campaign-deliverable/entities/",
+        "service": "src/modules/campaign-deliverable/campaign-deliverable.service.ts",
+        "controller": "src/modules/campaign-deliverable/campaign-deliverable.controller.ts",
+        "tests": "src/modules/campaign-deliverable/__tests__/"
+      }
+    },
+    "MOD-CAPACITY-TIMESHEET": {
+      "name": "Capacity & Timesheet",
+      "components": [
+        "COMP-MBI-015 Timesheet Mobile Entry"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/timesheets [API-ERP-068]",
+        "GET /api/v1/erp/capacity [API-ERP-069]",
+        "POST /api/v1/mbi/ess/sync [API-MBI-021]",
+        "POST /api/v1/mbi/ess/timesheets [API-MBI-024]",
+        "GET /api/v1/mbi/ess/timesheets [API-MBI-025]"
+      ],
+      "api_total": 5,
+      "db_tables": [
+        "erp_people.timesheets [TBL-ERP-048]",
+        "erp_people.timesheet_approvals [TBL-ERP-049]",
+        "erp_people.capacity_snapshots [TBL-ERP-050]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "timesheet.approved → KPI + DataHub (INT-E)",
+        "duyệt OPS ∥ HR"
+      ],
+      "folder_map": {
+        "entity": "src/modules/capacity-timesheet/entities/",
+        "service": "src/modules/capacity-timesheet/capacity-timesheet.service.ts",
+        "controller": "src/modules/capacity-timesheet/capacity-timesheet.controller.ts",
+        "tests": "src/modules/capacity-timesheet/__tests__/"
+      }
+    },
+    "MOD-SLA-NOTIF": {
+      "name": "SLA & Notification Engine",
+      "components": [
+        "COMP-ERP-006 SLA & Notification Worker",
+        "COMP-MBI-004 Push Notification Consumer",
+        "COMP-MPO-003 Portal Push Notification Worker"
+      ],
+      "api_quick_ref": [
+        "GET|PUT /api/v1/erp/sla-policies [API-ERP-072]",
+        "GET /api/v1/erp/sla-timers [API-ERP-073]",
+        "GET /api/v1/erp/notifications [API-ERP-074]",
+        "GET /api/v1/mbi/push-preferences [API-MBI-008]",
+        "PUT /api/v1/mbi/push-preferences [API-MBI-009]",
+        "POST /internal/mbi/push/dispatch [API-MBI-034]",
+        "POST /api/v1/mpo/devices [API-MPO-014]",
+        "PUT /api/v1/mpo/devices/:id [API-MPO-015]",
+        "DELETE /api/v1/mpo/devices/:id [API-MPO-016]",
+        "GET /api/v1/mpo/notifications [API-MPO-017]",
+        "POST /api/v1/mpo/notifications/:id/read [API-MPO-018]"
+      ],
+      "api_total": 11,
+      "db_tables": [
+        "erp_sla.sla_policies [TBL-ERP-056]",
+        "erp_sla.sla_timers [TBL-ERP-057]",
+        "erp_sla.notifications [TBL-ERP-058]",
+        "erp_sla.job_dead_letters [TBL-ERP-061]",
+        "push_preference [TBL-MBI-002]",
+        "mpo_device.devices [TBL-MPO-001]",
+        "mpo_device.push_preferences [TBL-MPO-002]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "sla.warning/breach → escalation + push (INT-E)",
+        "alert.raised dispatch từ Alert Engine",
+        "on-call DI-005"
+      ],
+      "folder_map": {
+        "entity": "src/modules/sla-notif/entities/",
+        "service": "src/modules/sla-notif/sla-notif.service.ts",
+        "controller": "src/modules/sla-notif/sla-notif.controller.ts",
+        "tests": "src/modules/sla-notif/__tests__/"
+      }
+    },
+    "MOD-TICKET-CSKH": {
+      "name": "Ticket & CSKH",
+      "components": [
+        "COMP-ERP-004 Client Care Service (service-domain)",
+        "COMP-MBI-017 Ticket Mobile Surface"
+      ],
+      "api_quick_ref": [
+        "POST /api/v1/erp/tickets [API-ERP-057]",
+        "GET /api/v1/erp/tickets [API-ERP-058]",
+        "POST /api/v1/erp/tickets/{id}/assign [API-ERP-059]",
+        "POST /api/v1/erp/tickets/{id}/transitions [API-ERP-060]",
+        "GET /api/v1/erp/tickets/{id}/activity [API-ERP-061]",
+        "GET /api/v1/mbi/tickets [API-MBI-028]",
+        "GET /api/v1/mbi/tickets/:ticketId [API-MBI-029]",
+        "GET /api/v1/mpo/tickets [API-MPO-027]",
+        "GET /api/v1/mpo/tickets/:id [API-MPO-028]",
+        "POST /api/v1/mpo/tickets [API-MPO-029]",
+        "POST /api/v1/mpo/tickets/:id/comments [API-MPO-030]",
+        "POST /api/v1/mpo/tickets/:id/reopen [API-MPO-031]",
+        "POST /api/v1/mpo/tickets/:id/csat [API-MPO-032]"
+      ],
+      "api_total": 13,
+      "db_tables": [
+        "erp_ops.tickets [TBL-ERP-038]",
+        "erp_ops.ticket_assignment_history [TBL-ERP-039]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "ticket từ portal (ghi duy nhất INT-S)",
+        "ticket.reassigned event",
+        "SLA tier×priority"
+      ],
+      "folder_map": {
+        "entity": "src/modules/ticket-cskh/entities/",
+        "service": "src/modules/ticket-cskh/ticket-cskh.service.ts",
+        "controller": "src/modules/ticket-cskh/ticket-cskh.controller.ts",
+        "tests": "src/modules/ticket-cskh/__tests__/"
+      }
+    },
+    "MOD-COMMISSION-QUOTA": {
+      "name": "Commission & Quota",
+      "components": [
+        "COMP-MBI-011 Commission Mobile View"
+      ],
+      "api_quick_ref": [
+        "GET /api/v1/erp/commissions [API-ERP-039]",
+        "POST /api/v1/erp/commissions/{id}/approve [API-ERP-040]",
+        "GET|POST /api/v1/erp/clawbacks [API-ERP-041]",
+        "GET /api/v1/erp/quotas [API-ERP-042]",
+        "GET /api/v1/mbi/commission/summary [API-MBI-033]"
+      ],
+      "api_total": 5,
+      "db_tables": [
+        "erp_finance.commissions [TBL-ERP-026]",
+        "erp_finance.commission_clawbacks [TBL-ERP-027]",
+        "erp_finance.quotas [TBL-ERP-028]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "computed từ payment.received (INT-E)",
+        "clawback từ refund.executed (INT-E)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/commission-quota/entities/",
+        "service": "src/modules/commission-quota/commission-quota.service.ts",
+        "controller": "src/modules/commission-quota/commission-quota.controller.ts",
+        "tests": "src/modules/commission-quota/__tests__/"
+      }
+    },
+    "MOD-KPI-PERFORMANCE": {
+      "name": "KPI & Performance",
+      "components": [],
+      "api_quick_ref": [
+        "GET|POST /api/v1/erp/kpi-periods [API-ERP-070]",
+        "POST|PATCH /api/v1/erp/pips [API-ERP-071]"
+      ],
+      "api_total": 2,
+      "db_tables": [
+        "erp_people.kpi_periods [TBL-ERP-051]",
+        "erp_people.kpi_scores [TBL-ERP-052]",
+        "erp_people.pip_plans [TBL-ERP-053]",
+        "erp_people.pip_checkpoints [TBL-ERP-054]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "auto-aggregate 3 trụ cột (scheduler)",
+        "kpi.below_threshold → PIP (INT-E)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/kpi-performance/entities/",
+        "service": "src/modules/kpi-performance/kpi-performance.service.ts",
+        "controller": "src/modules/kpi-performance/kpi-performance.controller.ts",
+        "tests": "src/modules/kpi-performance/__tests__/"
+      }
+    },
+    "MOD-CLIENT-PORTAL": {
+      "name": "Client Portal",
+      "components": [
+        "COMP-PORTAL-001 Portal Web App (Client-facing SPA)",
+        "COMP-PORTAL-002 Portal API Gateway / BFF",
+        "COMP-PORTAL-003 Portal Identity & Account Service",
+        "COMP-PORTAL-004 Portal Read-Model Serving Service",
+        "COMP-PORTAL-005 Portal Audit, Watermark & Anomaly Service",
+        "COMP-PORTAL-006 Portal Adoption Event Forwarder",
+        "COMP-MBI-019 Portal Ops Mobile View",
+        "COMP-MPO-001 BC Portal Mobile App (iOS/Android)",
+        "COMP-MPO-002 Portal Mobile BFF (mobile API surface)"
+      ],
+      "api_quick_ref": [
+        "POST|DELETE /api/v1/erp/portal-accounts [API-ERP-055]",
+        "GET /api/v1/erp/portal-accounts/{customerId}/usage [API-ERP-056]",
+        "POST /api/v1/portal/auth/invites/:token/accept [API-PORTAL-001]",
+        "POST /api/v1/portal/auth/invites/:token/activate [API-PORTAL-002]",
+        "POST /api/v1/portal/auth/login [API-PORTAL-003]",
+        "POST /api/v1/portal/auth/2fa/verify [API-PORTAL-004]",
+        "POST /api/v1/portal/auth/otp/requests [API-PORTAL-005]",
+        "POST /api/v1/portal/auth/otp/verifications [API-PORTAL-006]",
+        "POST /api/v1/portal/auth/token/refresh [API-PORTAL-007]",
+        "POST /api/v1/portal/auth/logout [API-PORTAL-008]",
+        "POST /api/v1/portal/auth/password/reset-requests [API-PORTAL-009]",
+        "POST /api/v1/portal/auth/password/resets [API-PORTAL-010]",
+        "GET /api/v1/portal/auth/sessions [API-PORTAL-011]",
+        "DELETE /api/v1/portal/auth/sessions/:sessionId [API-PORTAL-012]",
+        "GET /api/v1/portal/accounts/users [API-PORTAL-013]",
+        "POST /api/v1/portal/accounts/users [API-PORTAL-014]",
+        "POST /api/v1/portal/accounts/users/:userId/transitions [API-PORTAL-015]",
+        "GET /api/v1/portal/accounts/me [API-PORTAL-016]",
+        "PUT /api/v1/portal/accounts/me/password [API-PORTAL-017]",
+        "GET /api/v1/portal/accounts/tenant [API-PORTAL-018]",
+        "GET /api/v1/portal/wallet/adaccounts/balances [API-PORTAL-019]",
+        "GET /api/v1/portal/wallet/spend-daily [API-PORTAL-020]",
+        "GET /api/v1/portal/wallet/transactions [API-PORTAL-021]",
+        "GET /api/v1/portal/wallet/deposits [API-PORTAL-022]",
+        "GET /api/v1/portal/wallet/alerts [API-PORTAL-023]",
+        "GET /api/v1/portal/campaigns [API-PORTAL-024]",
+        "GET /api/v1/portal/campaigns/:campaignId [API-PORTAL-025]",
+        "POST /api/v1/portal/campaigns/:campaignId/milestones/:milestoneId/acceptance [API-PORTAL-026]",
+        "GET /api/v1/portal/tickets [API-PORTAL-027]",
+        "GET /api/v1/portal/tickets/:ticketId [API-PORTAL-028]",
+        "POST /api/v1/portal/tickets [API-PORTAL-029]",
+        "POST /api/v1/portal/tickets/:ticketId/comments [API-PORTAL-030]",
+        "GET /api/v1/portal/invoices [API-PORTAL-031]",
+        "GET /api/v1/portal/invoices/:invoiceId [API-PORTAL-032]",
+        "GET /api/v1/portal/invoices/:invoiceId/file [API-PORTAL-033]",
+        "POST /api/v1/portal/exports [API-PORTAL-034]",
+        "GET /api/v1/portal/exports/:exportId [API-PORTAL-035]",
+        "GET /api/v1/portal/meta/freshness [API-PORTAL-036]",
+        "POST /api/v1/portal/incidents [API-PORTAL-037]",
+        "POST /internal/portal/adoption-events [API-PORTAL-038]"
+      ],
+      "api_total": 56,
+      "db_tables": [
+        "erp_ops.portal_account_requests [TBL-ERP-040]",
+        "portal_account.portal_user [TBL-PORTAL-001]",
+        "portal_account.portal_invite [TBL-PORTAL-002]",
+        "portal_account.portal_session [TBL-PORTAL-003]",
+        "portal_account.portal_otp_challenge [TBL-PORTAL-004]",
+        "portal_account.portal_access_log [TBL-PORTAL-005]",
+        "portal_account.portal_download_log [TBL-PORTAL-006]",
+        "portal_account.tenant_ref [TBL-PORTAL-007]",
+        "portal_account.portal_export_job [TBL-PORTAL-008]",
+        "portal_account.portal_anomaly_event [TBL-PORTAL-009]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "portal.adoption.* → CORE gate Day 14 (INT-E)",
+        "read-model từ CORE/ERP (INT-S)",
+        "ticket ghi duy nhất (INT-S)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/client-portal/entities/",
+        "service": "src/modules/client-portal/client-portal.service.ts",
+        "controller": "src/modules/client-portal/client-portal.controller.ts",
+        "tests": "src/modules/client-portal/__tests__/"
+      }
+    },
+    "MOD-DATAHUB-BI": {
+      "name": "Data Integration Hub & Analytics — BI/BOD Dashboard",
+      "components": [
+        "COMP-CORE-007 CDC/ETL Ingest Pipeline",
+        "COMP-CORE-008 Analytics Warehouse",
+        "COMP-CORE-009 Realtime P&L Compute Worker",
+        "COMP-CORE-010 BI Serving API",
+        "COMP-CORE-011 Alert Engine (Alert Center)",
+        "COMP-MBI-007 BI Dashboard Mobile (read-only)"
+      ],
+      "api_quick_ref": [
+        "GET /api/v1/core/bi/marts/:martName [API-CORE-036]",
+        "GET /api/v1/core/bi/pnl [API-CORE-037]",
+        "GET /api/v1/core/bi/dashboards [API-CORE-038]",
+        "POST /api/v1/core/bi/exports [API-CORE-039]",
+        "GET /api/v1/core/bi/freshness [API-CORE-040]",
+        "GET,POST /api/v1/core/alerts/rules [API-CORE-041]",
+        "PUT /api/v1/core/alerts/rules/:id [API-CORE-042]",
+        "GET /api/v1/core/alerts/instances [API-CORE-043]",
+        "POST /api/v1/core/alerts/instances/:id/transitions [API-CORE-044]",
+        "GET,PUT /api/v1/core/alerts/routing [API-CORE-045]",
+        "GET,POST,PUT /api/v1/core/ingest/contracts [API-CORE-046]",
+        "GET /api/v1/core/ingest/runs [API-CORE-047]",
+        "GET,POST /api/v1/core/ingest/dlq [API-CORE-048]",
+        "POST /api/v1/core/ingest/backfills [API-CORE-049]",
+        "GET /api/v1/mbi/bi/summary [API-MBI-016]",
+        "GET /api/v1/mbi/alerts [API-MBI-017]",
+        "POST /api/v1/mbi/alerts/:alertId/ack [API-MBI-018]"
+      ],
+      "api_total": 17,
+      "db_tables": [
+        "core_dhub.ingestion_contracts [TBL-CORE-021]",
+        "core_dhub.ingest_runs [TBL-CORE-022]",
+        "core_dhub.ingest_dlq [TBL-CORE-023]",
+        "core_dhub.warehouse_datasets [TBL-CORE-024]",
+        "core_dhub.mart_publish_log [TBL-CORE-025]",
+        "core_dhub.alert_rules [TBL-CORE-026]",
+        "core_dhub.alert_instances [TBL-CORE-027]",
+        "core_dhub.alert_routing [TBL-CORE-028]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "CDC/ETL ingest từ 19 modules (INT-S)",
+        "wallet.sync.completed từ GW (INT-E-INT-0xx)",
+        "alert.raised → SLA-NOTIF dispatch",
+        "BI serving cho ERP/MOBILE (INT-S)"
+      ],
+      "folder_map": {
+        "entity": "src/modules/datahub-bi/entities/",
+        "service": "src/modules/datahub-bi/datahub-bi.service.ts",
+        "controller": "src/modules/datahub-bi/datahub-bi.controller.ts",
+        "tests": "src/modules/datahub-bi/__tests__/"
+      }
+    },
+    "MOD-TIKTOK-SHOP": {
+      "name": "TikTok Shop Monitoring",
+      "components": [
+        "COMP-GW-010 TikTok Shop Connection Manager",
+        "COMP-GW-011 TikTok Shop Metrics Sync Worker",
+        "COMP-GW-012 PII Guard & Tenant Isolation Service",
+        "COMP-GW-013 Shop Alert & Portal Feed Emitter",
+        "COMP-MBI-018 Shop Alert Mobile Surface"
+      ],
+      "api_quick_ref": [
+        "GET /api/v1/erp/tiktok-shop/monitor [API-ERP-054]",
+        "POST /gw/shop/connections [API-GW-036]",
+        "GET /gw/shop/connections [API-GW-037]",
+        "GET /gw/shop/connections/:id [API-GW-038]",
+        "POST /gw/shop/connections/:id/transitions [API-GW-039]",
+        "GET /gw/shop/connections/:id/access-logs [API-GW-040]",
+        "GET /gw/shop/metrics [API-GW-041]",
+        "POST /gw/shop/imports/metrics [API-GW-042]",
+        "GET /gw/shop/imports/batches/:id [API-GW-043]",
+        "POST /gw/shop/pii-sessions [API-GW-044]",
+        "DELETE /gw/shop/pii-sessions/:id [API-GW-045]",
+        "GET /gw/shop/alerts [API-GW-046]",
+        "GET /internal/gw/shop/portal-feed [API-GW-047]",
+        "GET /api/v1/mbi/shop-alerts [API-MBI-030]"
+      ],
+      "api_total": 14,
+      "db_tables": [
+        "gw_tiktok.shop_connection [TBL-GW-014]",
+        "gw_tiktok.shop_access_log [TBL-GW-015]",
+        "gw_tiktok.shop_metric_daily [TBL-GW-016]",
+        "gw_tiktok.pii_access_session [TBL-GW-017]",
+        "gw_tiktok.portal_report_feed [TBL-GW-018]"
+      ],
+      "key_constraints": [
+        "uuid_pk",
+        "soft_delete",
+        "status_state_machine_versioned",
+        "owner_assignee+timestamps",
+        "audit_hash_chain",
+        "pagination_20_100"
+      ],
+      "integration_calls": [
+        "shop.alert → CORE + MOBILE push (INT-E)",
+        "PortalReportFeed tenant-scoped",
+        "gate stage từ core workflow 3 Gate"
+      ],
+      "folder_map": {
+        "entity": "src/modules/tiktok-shop/entities/",
+        "service": "src/modules/tiktok-shop/tiktok-shop.service.ts",
+        "controller": "src/modules/tiktok-shop/tiktok-shop.controller.ts",
+        "tests": "src/modules/tiktok-shop/__tests__/"
+      }
+    }
+  }
+}

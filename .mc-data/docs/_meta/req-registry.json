@@ -28,7 +28,7 @@
   "counters": {
     "REQ": 59,
     "MOD": 0,
-    "FEAT": 0,
+    "FEAT": 170,
     "UI": 0,
     "API": 0,
     "DB": 0,
@@ -58,7 +58,8 @@
         "OPS_DES",
         "OPS_EDIT",
         "OPS_ADS",
-        "SYS_ADMIN"
+        "SYS_ADMIN",
+        "OPS_AD"
       ],
       "touchpoints": [
         "web"
@@ -178,7 +179,8 @@
         "SALES_L4",
         "SALES_L5",
         "OPS_AM",
-        "OPS_ADS"
+        "OPS_ADS",
+        "OPS_AD"
       ],
       "touchpoints": [
         "mobile"
@@ -1302,10 +1304,2937 @@
       "primary_module": "MOD-CAMPAIGN-DELIVERABLE"
     }
   ],
-  "features": [],
+  "features": [
+    {
+      "id": "FEAT-CORE-ARAP-001",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phe duyet vuot nguong  va  escalation",
+      "req_ids": [
+        "REQ-BOD-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/phe-duyet-vuot-nguong-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-001",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phe duyet vuot nguong  va  escalation",
+      "req_ids": [
+        "REQ-BOD-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/phe-duyet-vuot-nguong-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-ARAP-001",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phe duyet vuot nguong  va  escalation",
+      "req_ids": [
+        "REQ-BOD-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/arap-payment/phe-duyet-vuot-nguong-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-001",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Compensating control kiem nhiem CFO kiem CTO",
+      "req_ids": [
+        "REQ-BOD-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-001",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Compensating control kiem nhiem CFO kiem CTO",
+      "req_ids": [
+        "REQ-BOD-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-RBAC-001",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Compensating control kiem nhiem CFO kiem CTO",
+      "req_ids": [
+        "REQ-BOD-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/rbac-audit/compensating-control-kiem-nhiem-cfo-kiem-cto.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-DHUB-001",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "P va L toan cong ty realtime",
+      "req_ids": [
+        "REQ-BOD-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/datahub-bi/p-va-l-toan-cong-ty-realtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-DHUB-001",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "P va L toan cong ty realtime",
+      "req_ids": [
+        "REQ-BOD-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/datahub-bi/p-va-l-toan-cong-ty-realtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-DHUB-001",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "P va L toan cong ty realtime",
+      "req_ids": [
+        "REQ-BOD-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/datahub-bi/p-va-l-toan-cong-ty-realtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-DHUB-002",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "BI dashboard dieu hanh",
+      "req_ids": [
+        "REQ-BOD-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/datahub-bi/bi-dashboard-dieu-hanh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-DHUB-002",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "BI dashboard dieu hanh",
+      "req_ids": [
+        "REQ-BOD-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/datahub-bi/bi-dashboard-dieu-hanh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-DHUB-002",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "BI dashboard dieu hanh",
+      "req_ids": [
+        "REQ-BOD-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/datahub-bi/bi-dashboard-dieu-hanh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-002",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Giam sat  va  truy xuat audit log",
+      "req_ids": [
+        "REQ-BOD-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/giam-sat-va-truy-xuat-audit-log.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-002",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Giam sat  va  truy xuat audit log",
+      "req_ids": [
+        "REQ-BOD-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/giam-sat-va-truy-xuat-audit-log.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-DHUB-003",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "Alert center  va  canh bao rui ro van hanh",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-DHUB-003",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "Alert center  va  canh bao rui ro van hanh",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-DHUB-003",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "Alert center  va  canh bao rui ro van hanh",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-003",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Quarterly access review  va  phan quyen",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/quarterly-access-review-va-phan-quyen.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-GW-RBAC-001",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Quarterly access review  va  phan quyen",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/rbac-audit/quarterly-access-review-va-phan-quyen.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-003",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Quarterly access review  va  phan quyen",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/quarterly-access-review-va-phan-quyen.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW"
+      ]
+    },
+    {
+      "id": "FEAT-GW-STGW-001",
+      "module_id": "MOD-SETTINGS-GW",
+      "name": "Quan tri Integration Gateway  va  credentials vault (vai CTO)",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-STGW-001",
+      "module_id": "MOD-SETTINGS-GW",
+      "name": "Quan tri Integration Gateway  va  credentials vault (vai CTO)",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-STGW-001",
+      "module_id": "MOD-SETTINGS-GW",
+      "name": "Quan tri Integration Gateway  va  credentials vault (vai CTO)",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-004",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Phe duyet chinh sach, tham so quan tri  va  tier",
+      "req_ids": [
+        "REQ-BOD-009"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/phe-duyet-chinh-sach-tham-so-quan-tri-va-tier.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-004",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Phe duyet chinh sach, tham so quan tri  va  tier",
+      "req_ids": [
+        "REQ-BOD-009"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/phe-duyet-chinh-sach-tham-so-quan-tri-va-tier.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ARAP-002",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phe duyet tai chinh doc quyen cua CFO",
+      "req_ids": [
+        "REQ-BOD-010"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/phe-duyet-tai-chinh-doc-quyen-cua-cfo.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-002",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phe duyet tai chinh doc quyen cua CFO",
+      "req_ids": [
+        "REQ-BOD-010"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/phe-duyet-tai-chinh-doc-quyen-cua-cfo.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-005",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Nen tang RBAC  va  SSO/MFA tap trung (cross-cutting)",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-005",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Nen tang RBAC  va  SSO/MFA tap trung (cross-cutting)",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-RBAC-001",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Nen tang RBAC  va  SSO/MFA tap trung (cross-cutting)",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-RBAC-002",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Nen tang RBAC  va  SSO/MFA tap trung (cross-cutting)",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HRCORE-001",
+      "module_id": "MOD-HR-CORE",
+      "name": "Ho so nhan su trung tam L1–L5 + ma vai",
+      "req_ids": [
+        "REQ-HR-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/hr-core/ho-so-nhan-su-trung-tam-l1-l5-ma-vai.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HRCORE-001",
+      "module_id": "MOD-HR-CORE",
+      "name": "Ho so nhan su trung tam L1–L5 + ma vai",
+      "req_ids": [
+        "REQ-HR-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/hr-core/ho-so-nhan-su-trung-tam-l1-l5-ma-vai.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HRCORE-002",
+      "module_id": "MOD-HR-CORE",
+      "name": "HĐLĐ  va  canh bao het han 90/60/30 ngay",
+      "req_ids": [
+        "REQ-HR-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/hr-core/hdld-va-canh-bao-het-han-90-60-30-ngay.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HRCORE-002",
+      "module_id": "MOD-HR-CORE",
+      "name": "HĐLĐ  va  canh bao het han 90/60/30 ngay",
+      "req_ids": [
+        "REQ-HR-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/hr-core/hdld-va-canh-bao-het-han-90-60-30-ngay.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HRCORE-003",
+      "module_id": "MOD-HR-CORE",
+      "name": "Cham cong  va  overtime",
+      "req_ids": [
+        "REQ-HR-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/hr-core/cham-cong-va-overtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HRCORE-003",
+      "module_id": "MOD-HR-CORE",
+      "name": "Cham cong  va  overtime",
+      "req_ids": [
+        "REQ-HR-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/hr-core/cham-cong-va-overtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HRCORE-004",
+      "module_id": "MOD-HR-CORE",
+      "name": "Nghi phep: so du tu dong  va  duyet phan cap",
+      "req_ids": [
+        "REQ-HR-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/hr-core/nghi-phep-so-du-tu-dong-va-duyet-phan-cap.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HRCORE-004",
+      "module_id": "MOD-HR-CORE",
+      "name": "Nghi phep: so du tu dong  va  duyet phan cap",
+      "req_ids": [
+        "REQ-HR-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/hr-core/nghi-phep-so-du-tu-dong-va-duyet-phan-cap.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HRCORE-005",
+      "module_id": "MOD-HR-CORE",
+      "name": "Self-service nhan vien (ESS)",
+      "req_ids": [
+        "REQ-HR-005"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/hr-core/self-service-nhan-vien-ess.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HRCORE-005",
+      "module_id": "MOD-HR-CORE",
+      "name": "Self-service nhan vien (ESS)",
+      "req_ids": [
+        "REQ-HR-005"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/hr-core/self-service-nhan-vien-ess.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HRCORE-006",
+      "module_id": "MOD-HR-CORE",
+      "name": "Cost Rate Card version hoa, tham dinh finance",
+      "req_ids": [
+        "REQ-HR-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/hr-core/cost-rate-card-version-hoa-tham-dinh-finance.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HRCORE-006",
+      "module_id": "MOD-HR-CORE",
+      "name": "Cost Rate Card version hoa, tham dinh finance",
+      "req_ids": [
+        "REQ-HR-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/hr-core/cost-rate-card-version-hoa-tham-dinh-finance.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-KPI-001",
+      "module_id": "MOD-KPI-PERFORMANCE",
+      "name": "KPI 3 tru cot tu tong hop + calibration",
+      "req_ids": [
+        "REQ-HR-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/kpi-performance/kpi-3-tru-cot-tu-tong-hop-calibration.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-KPI-001",
+      "module_id": "MOD-KPI-PERFORMANCE",
+      "name": "KPI 3 tru cot tu tong hop + calibration",
+      "req_ids": [
+        "REQ-HR-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/kpi-performance/kpi-3-tru-cot-tu-tong-hop-calibration.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-KPI-002",
+      "module_id": "MOD-KPI-PERFORMANCE",
+      "name": "PIP 30-60-90",
+      "req_ids": [
+        "REQ-HR-008"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/kpi-performance/pip-30-60-90.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-KPI-002",
+      "module_id": "MOD-KPI-PERFORMANCE",
+      "name": "PIP 30-60-90",
+      "req_ids": [
+        "REQ-HR-008"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/kpi-performance/pip-30-60-90.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CAPTS-001",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "name": "Duyet timesheet  va  capacity (phoi hop OPS)",
+      "req_ids": [
+        "REQ-HR-009"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/capacity-timesheet/duyet-timesheet-va-capacity-phoi-hop-ops.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CAPTS-001",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "name": "Duyet timesheet  va  capacity (phoi hop OPS)",
+      "req_ids": [
+        "REQ-HR-009"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/capacity-timesheet/duyet-timesheet-va-capacity-phoi-hop-ops.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-006",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Bao ve PII nhan su (luong Confidential/Restricted)",
+      "req_ids": [
+        "REQ-HR-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/bao-ve-pii-nhan-su-luong-confidential-restricted.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-006",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Bao ve PII nhan su (luong Confidential/Restricted)",
+      "req_ids": [
+        "REQ-HR-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/bao-ve-pii-nhan-su-luong-confidential-restricted.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-001",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "So phu vi TKQC  va  lenh giao dich tien (tien giu ho)",
+      "req_ids": [
+        "REQ-FIN-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-001",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "So phu vi TKQC  va  lenh giao dich tien (tien giu ho)",
+      "req_ids": [
+        "REQ-FIN-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-WALLET-001",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "So phu vi TKQC  va  lenh giao dich tien (tien giu ho)",
+      "req_ids": [
+        "REQ-FIN-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/wallet-recon/so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-002",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Canh bao so du du chi ≥3 ngay + SLA do 2h",
+      "req_ids": [
+        "REQ-FIN-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-002",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Canh bao so du du chi ≥3 ngay + SLA do 2h",
+      "req_ids": [
+        "REQ-FIN-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-WALLET-002",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Canh bao so du du chi ≥3 ngay + SLA do 2h",
+      "req_ids": [
+        "REQ-FIN-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/wallet-recon/canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-003",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Dual approval dieu chinh so du / doi ty gia / hoan tien",
+      "req_ids": [
+        "REQ-FIN-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/dual-approval-dieu-chinh-so-du-doi-ty-gia-hoan-tien.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-003",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Dual approval dieu chinh so du / doi ty gia / hoan tien",
+      "req_ids": [
+        "REQ-FIN-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/dual-approval-dieu-chinh-so-du-doi-ty-gia-hoan-tien.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-WALLET-003",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Dual approval dieu chinh so du / doi ty gia / hoan tien",
+      "req_ids": [
+        "REQ-FIN-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/wallet-recon/dual-approval-dieu-chinh-so-du-doi-ty-gia-hoan-tien.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-004",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Đoi tru 3 so tu dong, da tien te, chot  va  khoa ky",
+      "req_ids": [
+        "REQ-FIN-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-GW-WALLET-001",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Đoi tru 3 so tu dong, da tien te, chot  va  khoa ky",
+      "req_ids": [
+        "REQ-FIN-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-004",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Đoi tru 3 so tu dong, da tien te, chot  va  khoa ky",
+      "req_ids": [
+        "REQ-FIN-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW"
+      ]
+    },
+    {
+      "id": "FEAT-GW-STGW-002",
+      "module_id": "MOD-SETTINGS-GW",
+      "name": "API 7 nen tang + degraded mode manual",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/settings-gw/api-7-nen-tang-degraded-mode-manual.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-STGW-002",
+      "module_id": "MOD-SETTINGS-GW",
+      "name": "API 7 nen tang + degraded mode manual",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/settings-gw/api-7-nen-tang-degraded-mode-manual.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-STGW-002",
+      "module_id": "MOD-SETTINGS-GW",
+      "name": "API 7 nen tang + degraded mode manual",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/settings-gw/api-7-nen-tang-degraded-mode-manual.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-005",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Financial Hard Stop \"da khop tien\" FIN_L1",
+      "req_ids": [
+        "REQ-FIN-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/financial-hard-stop-da-khop-tien-fin-l1.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-005",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Financial Hard Stop \"da khop tien\" FIN_L1",
+      "req_ids": [
+        "REQ-FIN-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/financial-hard-stop-da-khop-tien-fin-l1.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-WALLET-004",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Financial Hard Stop \"da khop tien\" FIN_L1",
+      "req_ids": [
+        "REQ-FIN-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/wallet-recon/financial-hard-stop-da-khop-tien-fin-l1.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ARAP-003",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Cong no AR/AP + aging + nhac no",
+      "req_ids": [
+        "REQ-FIN-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/cong-no-ar-ap-aging-nhac-no.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-003",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Cong no AR/AP + aging + nhac no",
+      "req_ids": [
+        "REQ-FIN-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/cong-no-ar-ap-aging-nhac-no.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ARAP-004",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Duyet chi/giai ngan: nguong, SoD, delegate",
+      "req_ids": [
+        "REQ-FIN-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-004",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Duyet chi/giai ngan: nguong, SoD, delegate",
+      "req_ids": [
+        "REQ-FIN-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-ARAP-002",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Duyet chi/giai ngan: nguong, SoD, delegate",
+      "req_ids": [
+        "REQ-FIN-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ADACC-001",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "KYC phap nhan truoc cap phat TKQC",
+      "req_ids": [
+        "REQ-FIN-009"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/adaccount-cc/kyc-phap-nhan-truoc-cap-phat-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ADACC-001",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "KYC phap nhan truoc cap phat TKQC",
+      "req_ids": [
+        "REQ-FIN-009"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/adaccount-cc/kyc-phap-nhan-truoc-cap-phat-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-006",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "AML monitoring T1–T6 + hoan tien dung nguon",
+      "req_ids": [
+        "REQ-FIN-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/aml-monitoring-t1-t6-hoan-tien-dung-nguon.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-006",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "AML monitoring T1–T6 + hoan tien dung nguon",
+      "req_ids": [
+        "REQ-FIN-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/aml-monitoring-t1-t6-hoan-tien-dung-nguon.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-WALLET-005",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "AML monitoring T1–T6 + hoan tien dung nguon",
+      "req_ids": [
+        "REQ-FIN-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/wallet-recon/aml-monitoring-t1-t6-hoan-tien-dung-nguon.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ARAP-005",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Hoa don dien tu TT78/2021 + NĐ123/2020",
+      "req_ids": [
+        "REQ-FIN-011"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/hoa-don-dien-tu-tt78-2021-nd123-2020.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-005",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Hoa don dien tu TT78/2021 + NĐ123/2020",
+      "req_ids": [
+        "REQ-FIN-011"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/hoa-don-dien-tu-tt78-2021-nd123-2020.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-RBAC-007",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Luu tru chung tu  va  audit log tien ≥10 nam (WORM)",
+      "req_ids": [
+        "REQ-FIN-012"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/rbac-audit/luu-tru-chung-tu-va-audit-log-tien-10-nam-worm.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-RBAC-007",
+      "module_id": "MOD-RBAC-AUDIT",
+      "name": "Luu tru chung tu  va  audit log tien ≥10 nam (WORM)",
+      "req_ids": [
+        "REQ-FIN-012"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/rbac-audit/luu-tru-chung-tu-va-audit-log-tien-10-nam-worm.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-GW-ARAP-001",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Tich hop phan mem ke toan VAS hien huu",
+      "req_ids": [
+        "REQ-FIN-013"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ARAP-006",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Tich hop phan mem ke toan VAS hien huu",
+      "req_ids": [
+        "REQ-FIN-013"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-006",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Tich hop phan mem ke toan VAS hien huu",
+      "req_ids": [
+        "REQ-FIN-013"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ARAP-007",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phi nen tang  va  nghia vu thue",
+      "req_ids": [
+        "REQ-FIN-014"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/arap-payment/phi-nen-tang-va-nghia-vu-thue.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-GW-ARAP-002",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phi nen tang  va  nghia vu thue",
+      "req_ids": [
+        "REQ-FIN-014"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/arap-payment/phi-nen-tang-va-nghia-vu-thue.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ARAP-007",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "name": "Phi nen tang  va  nghia vu thue",
+      "req_ids": [
+        "REQ-FIN-014"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/arap-payment/phi-nen-tang-va-nghia-vu-thue.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-DHUB-004",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "Dashboard  va  bao cao tai chinh noi bo",
+      "req_ids": [
+        "REQ-FIN-015"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-DHUB-004",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "Dashboard  va  bao cao tai chinh noi bo",
+      "req_ids": [
+        "REQ-FIN-015"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-DHUB-004",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "Dashboard  va  bao cao tai chinh noi bo",
+      "req_ids": [
+        "REQ-FIN-015"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-DHUB-005",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "BI/BOD dashboard  va  P va L realtime",
+      "req_ids": [
+        "REQ-FIN-016"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-DHUB-005",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "BI/BOD dashboard  va  P va L realtime",
+      "req_ids": [
+        "REQ-FIN-016"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-DHUB-005",
+      "module_id": "MOD-DATAHUB-BI",
+      "name": "BI/BOD dashboard  va  P va L realtime",
+      "req_ids": [
+        "REQ-FIN-016"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-CPORT-001",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Du lieu vi read-only cho Client Portal",
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/client-portal/du-lieu-vi-read-only-cho-client-portal.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CPORT-001",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Du lieu vi read-only cho Client Portal",
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/client-portal/du-lieu-vi-read-only-cho-client-portal.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CRM-001",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Thu nhan lead da kenh  va  chong trung lap (anti-duplicate)",
+      "req_ids": [
+        "REQ-SALES-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/crm-pipeline/thu-nhan-lead-da-kenh-va-chong-trung-lap-anti-duplicate.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CRM-001",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Thu nhan lead da kenh  va  chong trung lap (anti-duplicate)",
+      "req_ids": [
+        "REQ-SALES-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/crm-pipeline/thu-nhan-lead-da-kenh-va-chong-trung-lap-anti-duplicate.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CRM-002",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Pipeline V6.0 — hard gate \"khong ghi nhan = khong ton tai\"  va  phan bo lead",
+      "req_ids": [
+        "REQ-SALES-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/crm-pipeline/pipeline-v6-0-hard-gate-khong-ghi-nhan-khong-ton-tai-va-phan-bo-lead.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CRM-002",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Pipeline V6.0 — hard gate \"khong ghi nhan = khong ton tai\"  va  phan bo lead",
+      "req_ids": [
+        "REQ-SALES-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/crm-pipeline/pipeline-v6-0-hard-gate-khong-ghi-nhan-khong-ton-tai-va-phan-bo-lead.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CRM-003",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "AUTO SCORING K1–K12  va  Tier A–E",
+      "req_ids": [
+        "REQ-SALES-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/crm-pipeline/auto-scoring-k1-k12-va-tier-a-e.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CRM-003",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "AUTO SCORING K1–K12  va  Tier A–E",
+      "req_ids": [
+        "REQ-SALES-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/crm-pipeline/auto-scoring-k1-k12-va-tier-a-e.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CRM-004",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Gate 1  va  Gate 2 — Go/No-Go va ky Handoff",
+      "req_ids": [
+        "REQ-SALES-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CRM-004",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Gate 1  va  Gate 2 — Go/No-Go va ky Handoff",
+      "req_ids": [
+        "REQ-SALES-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-CRM-001",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Gate 1  va  Gate 2 — Go/No-Go va ky Handoff",
+      "req_ids": [
+        "REQ-SALES-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CRM-005",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Chuyen tier Sales → CS  va  ra soat quy tier",
+      "req_ids": [
+        "REQ-SALES-005"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/crm-pipeline/chuyen-tier-sales-cs-va-ra-soat-quy-tier.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CRM-005",
+      "module_id": "MOD-CRM-PIPELINE",
+      "name": "Chuyen tier Sales → CS  va  ra soat quy tier",
+      "req_ids": [
+        "REQ-SALES-005"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/crm-pipeline/chuyen-tier-sales-cs-va-ra-soat-quy-tier.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-QDD-001",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "name": "Quotation  va  Deal Desk — dinh muc, chiet khau phan cap, duyet GM",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/quotation-dealdesk/quotation-va-deal-desk-dinh-muc-chiet-khau-phan-cap-duyet-gm.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-QDD-001",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "name": "Quotation  va  Deal Desk — dinh muc, chiet khau phan cap, duyet GM",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/quotation-dealdesk/quotation-va-deal-desk-dinh-muc-chiet-khau-phan-cap-duyet-gm.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-QDD-001",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "name": "Quotation  va  Deal Desk — dinh muc, chiet khau phan cap, duyet GM",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/quotation-dealdesk/quotation-va-deal-desk-dinh-muc-chiet-khau-phan-cap-duyet-gm.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-QDD-002",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "name": "Hop dong/LOI/NDA  va  Brand Safety + e-sign",
+      "req_ids": [
+        "REQ-SALES-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/quotation-dealdesk/hop-dong-loi-nda-va-brand-safety-e-sign.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-QDD-002",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "name": "Hop dong/LOI/NDA  va  Brand Safety + e-sign",
+      "req_ids": [
+        "REQ-SALES-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/quotation-dealdesk/hop-dong-loi-nda-va-brand-safety-e-sign.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-QDD-002",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "name": "Hop dong/LOI/NDA  va  Brand Safety + e-sign",
+      "req_ids": [
+        "REQ-SALES-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/quotation-dealdesk/hop-dong-loi-nda-va-brand-safety-e-sign.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HONB-001",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff  va  Onboarding Bridge",
+      "req_ids": [
+        "REQ-SALES-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/handoff-onboard/handoff-va-onboarding-bridge.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HONB-001",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff  va  Onboarding Bridge",
+      "req_ids": [
+        "REQ-SALES-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/handoff-onboard/handoff-va-onboarding-bridge.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-HONB-001",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff  va  Onboarding Bridge",
+      "req_ids": [
+        "REQ-SALES-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/handoff-onboard/handoff-va-onboarding-bridge.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-COMM-001",
+      "module_id": "MOD-COMMISSION-QUOTA",
+      "name": "Commission  va  Quota — hoa hong theo thuc nhan, clawback, coverage ≥3×",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/commission-quota/commission-va-quota-hoa-hong-theo-thuc-nhan-clawback-coverage-3.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-COMM-001",
+      "module_id": "MOD-COMMISSION-QUOTA",
+      "name": "Commission  va  Quota — hoa hong theo thuc nhan, clawback, coverage ≥3×",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/commission-quota/commission-va-quota-hoa-hong-theo-thuc-nhan-clawback-coverage-3.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-COMM-001",
+      "module_id": "MOD-COMMISSION-QUOTA",
+      "name": "Commission  va  Quota — hoa hong theo thuc nhan, clawback, coverage ≥3×",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/commission-quota/commission-va-quota-hoa-hong-theo-thuc-nhan-clawback-coverage-3.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ADACC-002",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "Ad Account Command Center — registry  va  vong doi TKQC",
+      "req_ids": [
+        "REQ-OPS-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ADACC-002",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "Ad Account Command Center — registry  va  vong doi TKQC",
+      "req_ids": [
+        "REQ-OPS-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-GW-ADACC-001",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "Ad Account Command Center — registry  va  vong doi TKQC",
+      "req_ids": [
+        "REQ-OPS-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-ADACC-001",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "Ad Account Command Center — registry  va  vong doi TKQC",
+      "req_ids": [
+        "REQ-OPS-001"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-INTEGRATION-GW"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-ADACC-003",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "Financial Hard Stop chan cap phat TKQC",
+      "req_ids": [
+        "REQ-OPS-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/adaccount-cc/financial-hard-stop-chan-cap-phat-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-ADACC-003",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "name": "Financial Hard Stop chan cap phat TKQC",
+      "req_ids": [
+        "REQ-OPS-002"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/adaccount-cc/financial-hard-stop-chan-cap-phat-tkqc.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-WALLET-007",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+      "req_ids": [
+        "REQ-OPS-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-GW-WALLET-002",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+      "req_ids": [
+        "REQ-OPS-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-WALLET-007",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+      "req_ids": [
+        "REQ-OPS-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-WALLET-006",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+      "req_ids": [
+        "REQ-OPS-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-WALLET-001",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+      "req_ids": [
+        "REQ-OPS-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MPO-WALLET-001",
+      "module_id": "MOD-WALLET-RECON",
+      "name": "Vi TKQC goc ops — canh bao so du  va  escalation",
+      "req_ids": [
+        "REQ-OPS-003"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-portal/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-HONB-002",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff  va  Onboarding Bridge",
+      "req_ids": [
+        "REQ-OPS-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-HONB-002",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff  va  Onboarding Bridge",
+      "req_ids": [
+        "REQ-OPS-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-HONB-002",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "name": "Handoff  va  Onboarding Bridge",
+      "req_ids": [
+        "REQ-OPS-004"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-PROPLN-001",
+      "module_id": "MOD-PROPOSAL-PLANNING",
+      "name": "Proposal  va  Planning Workspace (stage-gate V6.0)",
+      "req_ids": [
+        "REQ-OPS-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/proposal-planning/proposal-va-planning-workspace-stage-gate-v6-0.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-PROPLN-001",
+      "module_id": "MOD-PROPOSAL-PLANNING",
+      "name": "Proposal  va  Planning Workspace (stage-gate V6.0)",
+      "req_ids": [
+        "REQ-OPS-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/proposal-planning/proposal-va-planning-workspace-stage-gate-v6-0.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-PROPLN-001",
+      "module_id": "MOD-PROPOSAL-PLANNING",
+      "name": "Proposal  va  Planning Workspace (stage-gate V6.0)",
+      "req_ids": [
+        "REQ-OPS-005"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/proposal-planning/proposal-va-planning-workspace-stage-gate-v6-0.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CAMP-001",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign  va  Deliverable Management",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/campaign-deliverable/campaign-va-deliverable-management.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-GW-CAMP-001",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign  va  Deliverable Management",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/campaign-deliverable/campaign-va-deliverable-management.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CAMP-001",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign  va  Deliverable Management",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/campaign-deliverable/campaign-va-deliverable-management.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-CAMP-001",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign  va  Deliverable Management",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/campaign-deliverable/campaign-va-deliverable-management.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-CAMP-001",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign  va  Deliverable Management",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/campaign-deliverable/campaign-va-deliverable-management.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MPO-CAMP-001",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "Campaign  va  Deliverable Management",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-portal/campaign-deliverable/campaign-va-deliverable-management.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CAPTS-002",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "name": "Capacity  va  Timesheet",
+      "req_ids": [
+        "REQ-OPS-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/capacity-timesheet/capacity-va-timesheet.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CAPTS-002",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "name": "Capacity  va  Timesheet",
+      "req_ids": [
+        "REQ-OPS-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/capacity-timesheet/capacity-va-timesheet.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-CAPTS-001",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "name": "Capacity  va  Timesheet",
+      "req_ids": [
+        "REQ-OPS-007"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/capacity-timesheet/capacity-va-timesheet.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-SLANOT-001",
+      "module_id": "MOD-SLA-NOTIF",
+      "name": "SLA  va  Notification Engine",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/sla-notif/sla-va-notification-engine.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-SLANOT-001",
+      "module_id": "MOD-SLA-NOTIF",
+      "name": "SLA  va  Notification Engine",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/sla-notif/sla-va-notification-engine.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-SLANOT-001",
+      "module_id": "MOD-SLA-NOTIF",
+      "name": "SLA  va  Notification Engine",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/sla-notif/sla-va-notification-engine.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-SLANOT-001",
+      "module_id": "MOD-SLA-NOTIF",
+      "name": "SLA  va  Notification Engine",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/sla-notif/sla-va-notification-engine.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MPO-SLANOT-001",
+      "module_id": "MOD-SLA-NOTIF",
+      "name": "SLA  va  Notification Engine",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-portal/sla-notif/sla-va-notification-engine.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CSKH-001",
+      "module_id": "MOD-TICKET-CSKH",
+      "name": "Ticket  va  CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/ticket-cskh/ticket-va-cskh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CSKH-001",
+      "module_id": "MOD-TICKET-CSKH",
+      "name": "Ticket  va  CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/ticket-cskh/ticket-va-cskh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-CSKH-001",
+      "module_id": "MOD-TICKET-CSKH",
+      "name": "Ticket  va  CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/ticket-cskh/ticket-va-cskh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-CSKH-001",
+      "module_id": "MOD-TICKET-CSKH",
+      "name": "Ticket  va  CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/ticket-cskh/ticket-va-cskh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MPO-CSKH-001",
+      "module_id": "MOD-TICKET-CSKH",
+      "name": "Ticket  va  CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-portal/ticket-cskh/ticket-va-cskh.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CPORT-002",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal goc nhin ops — cap tai khoan  va  monitor",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CPORT-001",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal goc nhin ops — cap tai khoan  va  monitor",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-CPORT-001",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal goc nhin ops — cap tai khoan  va  monitor",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-PORTAL-WEB",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-PORTAL-CPORT-002",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal goc nhin ops — cap tai khoan  va  monitor",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/portal-web/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-MOBILE-PORTAL"
+      ]
+    },
+    {
+      "id": "FEAT-MPO-CPORT-001",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "name": "Client Portal goc nhin ops — cap tai khoan  va  monitor",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "priority": "HIGH",
+      "phase": 1,
+      "dependencies": [],
+      "file": "phase2-features/mobile-portal/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL",
+        "SYS-PORTAL-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-TIKTOK-001",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "name": "TikTok Shop Monitoring",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/tiktok-shop/tiktok-shop-monitoring.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-GW-TIKTOK-001",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "name": "TikTok Shop Monitoring",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/tiktok-shop/tiktok-shop-monitoring.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-TIKTOK-001",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "name": "TikTok Shop Monitoring",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/tiktok-shop/tiktok-shop-monitoring.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-TIKTOK-001",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "name": "TikTok Shop Monitoring",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/tiktok-shop/tiktok-shop-monitoring.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    },
+    {
+      "id": "FEAT-CORE-CAMP-002",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "A/B Testing  va  chien luoc campaign theo muc tieu khach",
+      "req_ids": [
+        "REQ-OPS-012"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/core-backend/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-GW-CAMP-002",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "A/B Testing  va  chien luoc campaign theo muc tieu khach",
+      "req_ids": [
+        "REQ-OPS-012"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/integration-gw/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-ERP-CAMP-002",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "A/B Testing  va  chien luoc campaign theo muc tieu khach",
+      "req_ids": [
+        "REQ-OPS-012"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/bcerp-web/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-MOBILE-INTERNAL"
+      ]
+    },
+    {
+      "id": "FEAT-MBI-CAMP-002",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "name": "A/B Testing  va  chien luoc campaign theo muc tieu khach",
+      "req_ids": [
+        "REQ-OPS-012"
+      ],
+      "priority": "MEDIUM",
+      "phase": 2,
+      "dependencies": [],
+      "file": "phase2-features/mobile-internal/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md",
+      "impl_status": "not_started",
+      "cross_system": [
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW",
+        "SYS-BCERP-WEB"
+      ]
+    }
+  ],
   "screen_groups": [],
   "interface_type": "web+mobile",
-  "design_status": "pending",
+  "design_status": "completed",
   "ux_design_status": "pending",
   "impl_status": {},
   "implementation_order": {

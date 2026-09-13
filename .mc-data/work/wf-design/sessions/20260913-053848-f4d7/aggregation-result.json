@@ -1,0 +1,5135 @@
+{
+  "session_id": "20260913-053848-f4d7",
+  "generated_at": "2026-09-12T23:51:47.825Z",
+  "components": [
+    {
+      "component_id": "COMP-ERP-001",
+      "name": "Sales & Pipeline Service (sales-domain)",
+      "type": "service",
+      "module_id": "MOD-CRM-PIPELINE,MOD-QUOTATION-DEALDESK,MOD-HANDOFF-ONBOARD",
+      "responsibilities": [
+        "Lead lifecycle: new -> dedup_check (anti-duplicate) -> assigned -> scored K1-K12 (Tier A-E; A<1.5 AUTO LOST, E>=3.5 bypass) -> gate1_go/gate1_no_go -> qualified -> gate2_signed_handoff -> handed_to_cs; rejected/recycled; hard gate 'khong ghi nhan = khong ton tai'",
+        "Phan bo/assign/reassign lead (SALES_L2+ duyet reassign), Gate 1/Gate 2 Go-No-Go (SALES_L2/L3), ra soat tier quy, chuyen tier Sales -> CS",
+        "Quotation/Deal Desk: margin_check dinh muc theo tier, chiet khau phan cap (vua dinh muc -> duyet cap; vuot -> duyet GM), hop dong/LOI/NDA + brand safety checklist + e-sign",
+        "Handoff Package 5 nhom bat buoc: sales_submit -> ops_ack (ky nhan 2 phia) -> sinh onboarding tasks Day 1/7/14/30 cho ADACC (cap TKQC), CLIENT-PORTAL (tai khoan), CAMP"
+      ],
+      "dependencies": [
+        "COMP-ERP-002",
+        "COMP-ERP-003",
+        "COMP-ERP-006",
+        "COMP-ERP-007",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-ERP-002",
+      "name": "Finance & Treasury Service (finance-domain)",
+      "type": "service",
+      "module_id": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-COMMISSION-QUOTA",
+      "responsibilities": [
+        "So phu vi TKQC per-khach multi-currency (USD/VND khong gop quy doi), lenh giao dich tien giu ho, snapshot fee % tai thoi diem giao dich; entry -> reconciling -> matched/mismatch -> period_locked",
+        "Doi tru 3 so (portal vs bank vs ledger) da tien te, chot & khoa ky; dual approval (FIN_L1+FIN_L2) dieu chinh so du / doi ty gia / hoan tien; AML monitoring T1-T6, hoan tien dung nguon",
+        "Financial Hard Stop 'da khop tien' (FIN_L1 xac nhan) - phat tin hieu chan cap phat TKQC; canh bao so du du chi >=3 ngay, SLA do 2h; vi goc ops cho OPS (canh bao + escalation)",
+        "AR/AP: invoice -> aging_bucket -> dunning -> paid/overdue; lenh chi theo nguong 5/50/200 trieu (FIN_L1 khoi tao -> FIN_L2 -> CFO -> CEO + delegate), SoD 4 vai; hoa don dien tu TT78/2021 + ND123/2020; phi nen tang & nghia vu thue; xuat VAS ke toan qua GW (DI-004)",
+        "Commission & Quota: computed theo thuc nhan (ARAP da thu + QDD deal value + tier nhan vien), clawback khi hoan tien/huy (>90 ngay), quota coverage >=3x"
+      ],
+      "dependencies": [
+        "COMP-ERP-001",
+        "COMP-ERP-003",
+        "COMP-ERP-006",
+        "COMP-ERP-007",
+        "SYS-CORE-BACKEND",
+        "SYS-INTEGRATION-GW"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-ERP-003",
+      "name": "Ad Account & Delivery Service (delivery-domain)",
+      "type": "service",
+      "module_id": "MOD-ADACCOUNT-CC,MOD-PROPOSAL-PLANNING,MOD-CAMPAIGN-DELIVERABLE",
+      "responsibilities": [
+        "TKQC registry 2.600+ tai khoan: vong doi kyc_required -> kyc_verified -> registered -> pre_spend_hardstop_check -> active -> suspended/closed; KYC phap nhan bat buoc truoc cap phat; naming/UTM chuan; die account; thu hoi 24h; nhan hard stop 'da khop tien' tu finance",
+        "Proposal & Planning Workspace stage-gate V6.0 (30 stage, done-criteria machine-checkable) - OPS_PLAN soan va duyet theo gate",
+        "Campaign & Deliverable theo WBS (planned -> in_flight -> delivered -> reported), A/B testing theo muc tieu khach; nghiem thu 3 ngay lam viec (nhac ngay 2, escalate AD ngay 4, khong ap 'im lang = dong y')"
+      ],
+      "dependencies": [
+        "COMP-ERP-001",
+        "COMP-ERP-002",
+        "COMP-ERP-005",
+        "COMP-ERP-006",
+        "COMP-ERP-007",
+        "SYS-INTEGRATION-GW",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-ERP-004",
+      "name": "Client Care Service (service-domain)",
+      "type": "service",
+      "module_id": "MOD-TICKET-CSKH",
+      "responsibilities": [
+        "Ticket lifecycle open -> assigned -> in_progress -> resolved -> closed; queue OPS_CONT; escalation path AM -> AD -> BOD khi SLA vo",
+        "SLA theo tier khach x priority (GMT+7); gan context campaign/TKQC vao timeline ticket",
+        "Tiep nhan ticket tu client portal (SYS-PORTAL-WEB) va tao noi bo; activity/audit timeline cho moi ticket"
+      ],
+      "dependencies": [
+        "COMP-ERP-001",
+        "COMP-ERP-003",
+        "COMP-ERP-006",
+        "SYS-PORTAL-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-ERP-005",
+      "name": "People & Performance Service (people-domain)",
+      "type": "service",
+      "module_id": "MOD-HR-CORE,MOD-CAPACITY-TIMESHEET,MOD-KPI-PERFORMANCE",
+      "responsibilities": [
+        "Ho so nhan su L1-L5 + ma vai (SSOT), HDLD canh bao het han 90/60/30 ngay, cham cong & overtime, nghi phep so du tu dong + duyet phan cap L1->L2, ESS; cost rate card version hoa + tham dinh FIN; bao ve PII luong Confidential/Restricted (field-level security theo RBAC)",
+        "Timesheet billable tai nguon: draft -> submitted -> reviewed (OPS || HR duyet song song) -> approved; capacity vang 90% / do 100%; gio chua duyet khong vao P&L",
+        "KPI 3 tru cot tu tong hop (tu CAPTS/COMM/CRM) -> calibration (HR_L2 + ban dieu hanh) -> finalized; PIP 30-60-90 trigger khi KPI duoi chuan lien tuc"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "COMP-ERP-002",
+        "COMP-ERP-003",
+        "COMP-ERP-006",
+        "COMP-ERP-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-ERP-006",
+      "name": "SLA & Notification Worker",
+      "type": "worker",
+      "module_id": "MOD-SLA-NOTIF",
+      "responsibilities": [
+        "SLA policy ma tran tier x priority GMT+7; timer/đem nguoc cho ticket, nghiem thu creative, vi SLA do 2h, aging bucket, handoff checkpoint",
+        "Escalation tu dong theo ma tran (ticket AM -> AD -> BOD; vi -> ops escalation; SLA do 2h); ca truc Critical on-call xoay vong SLA 4h ngoai gio (DI-005)",
+        "Dispatch notification da kenh (in-app + kenh ngoai [NEEDS_REVIEW]); idempotent, retry, dead-letter; log notification de audit"
+      ],
+      "dependencies": [
+        "COMP-ERP-001",
+        "COMP-ERP-002",
+        "COMP-ERP-003",
+        "COMP-ERP-004",
+        "COMP-ERP-005",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-ERP-007",
+      "name": "Batch & Reconciliation Scheduler",
+      "type": "scheduler",
+      "module_id": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-HR-CORE,MOD-KPI-PERFORMANCE,MOD-COMMISSION-QUOTA,MOD-CAPACITY-TIMESHEET,MOD-CRM-PIPELINE",
+      "responsibilities": [
+        "Job doi tru 3 so dinh ky + sweep/re-validate hard stop 'da khop tien' tai nguon (nguon truth cho chan TKQC, khong phu thuoc event)",
+        "AR aging bucket + dunning runs theo bucket; chot & khoa ky vi; clawback sweep khi hoan tien/huy",
+        "HDLD expiry sweep 90/60/30; KPI auto-aggregate dinh ky; ra soat tier quy; capacity computation; checkpoint Day 1/7/14/30 handoff"
+      ],
+      "dependencies": [
+        "COMP-ERP-001",
+        "COMP-ERP-002",
+        "COMP-ERP-003",
+        "COMP-ERP-005",
+        "COMP-ERP-006",
+        "SYS-INTEGRATION-GW"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "component_id": "COMP-CORE-001",
+      "name": "Identity & SSO/MFA Service (IdP tập trung)",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Quản lý user identity toàn platform (nội bộ + user portal) với state machine: active/suspended/locked/deactivated",
+        "OIDC/OAuth2 Provider: phát hành/refresh/revoke token, SSO cho BCERP-WEB, MOBILE-INTERNAL, PORTAL-WEB, MOBILE-PORTAL, INTEGRATION-GW",
+        "MFA enrollment + step-up verification (bắt buộc với vai tài chính/BOD/SYS_ADMIN) — [NEEDS_REVIEW: phương pháp MFA (TOTP/hardware key) chưa chốt trong registry]",
+        "Session quản trị tập trung: thu hồi quyền tức thời khi offboarding/thu hồi access (24h)",
+        "Ghi mọi auth event (login, fail, step-up, token issue) vào Audit Log Service"
+      ],
+      "dependencies": [
+        "COMP-CORE-002",
+        "COMP-CORE-004"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-002",
+      "name": "RBAC & Policy Engine (PDP)",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Danh mục 18 vai chuẩn hóa (SALES_L1–L5, OPS_AD, OPS_PLAN, OPS_CONT, FIN_L1, FIN_L2, HR_L1, HR_L2, BOD_CEO, BOD_CFO_CTO, SYS_ADMIN, ESS...) — [NEEDS_REVIEW: liệt kê đủ 18 vai từ req-registry]",
+        "Ma trận Role × Permission × Dept × Data-scope; trả quyết định allow/deny + scope filter cho mọi PEP",
+        "SoD rules: SoD 4 vai duyệt chi (ngưỡng 5/50/200 triệu, FIN_L1 khởi tạo → FIN_L2 → CFO → CEO + delegate); chặn tự-approve (người tạo ≠ người duyệt cả 2 nấc)",
+        "Compensating control kiêm nhiệm CFO kiêm CTO (REQ-BOD-002): cờ combined-role buộc dual approval + escalation CEO",
+        "Data-scope row-level filter cho list API server-side (search/filter/sort/pagination)",
+        "Tham số chính sách quan trị version hóa (ngưỡng duyệt, tier, capacity vàng/đỏ) — phê duyệt theo REQ-BOD-009"
+      ],
+      "dependencies": [
+        "COMP-CORE-001",
+        "COMP-CORE-004",
+        "COMP-CORE-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-003",
+      "name": "Access Review & Recertification Worker",
+      "type": "worker",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Quarterly access review (REQ-BOD-007): sinh campaign rà soát quyền theo user/role/dept, phân công reviewer (SYS_ADMIN + chủ sở hữu vai), track approve/revoke từng mục",
+        "Recertification tự động khi đổi vai/phòng/bổ nhiệm kiêm nhiệm",
+        "Đóng gói bằng chứng review (decision log) nộp vào WORM Evidence Store",
+        "Báo cáo đặc quyền nhạy cảm: truy cập credentials vault CTO, quyền Restricted — phối hợp dữ liệu với INTEGRATION-GW"
+      ],
+      "dependencies": [
+        "COMP-CORE-001",
+        "COMP-CORE-002",
+        "COMP-CORE-004",
+        "SYS-INTEGRATION-GW"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-004",
+      "name": "Audit Log Service (append-only)",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "API append duy nhất cho mọi module: who/what/object/state transition/before-after/when/ip — không update/xóa",
+        "Hash-chain tamper-evident từng bản ghi; export định kỳ sang WORM Evidence Store",
+        "Truy xuất giám sát có kiểm soát (REQ-BOD-005): search/filter/sort server-side, limit mặc định 20 max 100, chỉ vai được cấp (BOD_CEO, SYS_ADMIN, FIN_L2 theo phạm vi)",
+        "Activity timeline per object (feed cho business module có timeline: lệnh tiền, TKQC, ticket...)"
+      ],
+      "dependencies": [
+        "COMP-CORE-002",
+        "COMP-CORE-005"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-005",
+      "name": "WORM Evidence Store",
+      "type": "store",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Lưu trữ bất biến ≥10 năm: audit log giao dịch tiền + chứng từ (REQ-FIN-012)",
+        "Write-once/object-lock, retention policy per record class, legal hold",
+        "Integrity verification định kỳ (re-hash chain), truy xuất có kiểm soát qua Audit Log Service"
+      ],
+      "dependencies": [],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-006",
+      "name": "PII Field Protection Service",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Field-level encryption (envelope + KMS) cho PII lương classification Confidential/Restricted (REQ-HR-010)",
+        "Masking/redaction policy theo vai khi trả dữ liệu qua API (chỉ HR_L1/L2 xem lương; ESS xem thông tin cá nhân)",
+        "Data classification registry: Public/Internal/Confidential/Restricted — áp cho ingest DataHub và mọi API trả dữ liệu",
+        "Audit bắt buộc mọi lượt đọc PII (break-glass access log) — [NEEDS_REVIEW: quy định khôi phục khẩn cấp chưa có trong registry]"
+      ],
+      "dependencies": [
+        "COMP-CORE-002",
+        "COMP-CORE-004"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-007",
+      "name": "CDC/ETL Ingest Pipeline",
+      "type": "pipeline",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Thu CDC/event stream từ mọi business module trong CORE-BACKEND (WALLET, ARAP, CRM, QDD, HONB, CAMP, CAPTS, HR, KPI, COMM, CSKH, SLANOT, ADACC, PORTAL...)",
+        "Thu dữ liệu platform API (7 nền tảng quảng cáo, VAS kế toán, TikTok Shop) qua INTEGRATION-GW; degraded mode: import manual có đánh dấu nguồn thủ công",
+        "Contract-first + schema registry + idempotent upsert + watermark; compatibility check chống schema drift",
+        "Normalize + classification/PII scan (qua COMP-CORE-006) trước khi nạp warehouse",
+        "Batch backfill/replay theo yêu cầu điều tra dữ liệu"
+      ],
+      "dependencies": [
+        "COMP-CORE-008",
+        "COMP-CORE-006",
+        "SYS-INTEGRATION-GW"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-008",
+      "name": "Analytics Warehouse",
+      "type": "store",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Modeled store 3 lớp: raw → staged → marts (finance, ops, sales, hr)",
+        "Reconcile stage: đối chiếu tổng số với nguồn (số liệu FIN là nguồn chuẩn REQ-FIN-016) trước khi publish mart",
+        "Partition theo kỳ, index phục vụ BI query, retention policy per layer",
+        "KHÔNG sở hữu business object — chỉ bản sao phục vụ phân tích; nguồn sự thật vẫn ở module gốc"
+      ],
+      "dependencies": [
+        "COMP-CORE-007"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-009",
+      "name": "Realtime P&L Compute Worker",
+      "type": "worker",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Stream aggregation P&L toàn công ty: doanh thu thực nhận – chi phí nền tảng – hoa hồng – cost rate (REQ-BOD-003, REQ-FIN-016)",
+        "Áp rule nghiệp vụ: giờ timesheet chưa duyệt không vào P&L (REQ-OPS-007); USD/VND không gộp quy đổi tùy tiện",
+        "Snapshot + version kỳ phục vụ so sánh; đối soát liên tục với batch marts (reconcile gap alert)"
+      ],
+      "dependencies": [
+        "COMP-CORE-007",
+        "COMP-CORE-008"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-010",
+      "name": "BI Serving API",
+      "type": "service",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "API dashboard: P&L realtime, BI điều hành, dashboard tài chính nội bộ (REQ-BOD-003/004, REQ-FIN-015/016) — filter/sort server-side, limit 20 max 100",
+        "Export báo cáo (CSV/PDF) + scheduled snapshot định kỳ",
+        "Authorization bắt buộc qua Policy Engine: quyền xem P&L giới hạn BOD + FIN theo registry",
+        "Phục vụ BCERP-WEB + MOBILE-INTERNAL; PORTAL không đi qua BI serving (ví read-only của portal do module FIN/CLIENT-PORTAL cung cấp)"
+      ],
+      "dependencies": [
+        "COMP-CORE-002",
+        "COMP-CORE-008",
+        "COMP-CORE-009"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-CORE-011",
+      "name": "Alert Engine (Alert Center)",
+      "type": "service",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Rule engine cảnh báo rủi ro vận hành (REQ-BOD-006): số dư ví < đủ chi 3 ngày, mismatch đối trừ, aging vượt hạn, die account, anomaly TikTok Shop, KPI lệch chuẩn",
+        "Alert lifecycle state machine: open → acknowledged → investigating → resolved + audit log",
+        "Dedup/throttle + severity routing; điều phối gửi thông báo qua MOD-SLA-NOTIF (SLANOT) — không tự dựng notification (scope guard CORE-006)"
+      ],
+      "dependencies": [
+        "COMP-CORE-008",
+        "COMP-CORE-009"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "component_id": "COMP-GW-001",
+      "name": "Connector Registry & Adapter Framework",
+      "type": "gateway",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Registry connection profile cho mọi hệ thống ngoại vi theo DI-004: 7 nền tảng QC (Meta/Google/TikTok/Bing/X/Pinterest/Yandex), connector kế toán VAS (REQ-FIN-013), nguồn khác khai báo tương tự — vendor-agnostic, không hardcode tên phần mềm trong code",
+        "Định nghĩa adapter interface chuẩn (connection_type: api_adapter | import_export); mỗi nền tảng đúng 1 adapter + credentials riêng trong vault + sync scheduler riêng",
+        "Thực thi state machine ConnectionProfile (configured/credentials_vaulted → active → degraded/disabled/revoked) — machine-state do gateway giữ, web/mobile chỉ hiển thị",
+        "Chặn tạo/kích hoạt connector nằm ngoài registry Settings (BR-GW-STGW-001)"
+      ],
+      "dependencies": [
+        "COMP-GW-002",
+        "COMP-GW-007",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-002",
+      "name": "Credentials Vault",
+      "type": "vault",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Mã hóa credentials at rest + in transit (CredentialVersion: encrypted_blob, masked_value, rotate_due_at); plaintext không bao giờ xuất hiện ở UI/API response/log — chỉ mask + metadata (BR-GW-STGW-002)",
+        "Enforce độc quyền quản trị BOD_CFO_CTO: MFA TOTP step-up bắt buộc cho mọi thao tác ghi; SYS_ADMIN chỉ thực thi sau phê duyệt; từ chối mọi request vault từ touchpoint mobile (BR-GW-STGW-005)",
+        "Rotate định kỳ ≥90 ngày + cảnh báo T-7; quá hạn >7 ngày → adapter tự degraded + alert; thu hồi khẩn tức thì khi nghi ngờ rò rỉ/offboarding ≤24h (BR-GW-STGW-006)",
+        "Version hóa credential (rotate tạo version mới, giữ lịch sử); REVOKED là trạng thái an toàn bắt buộc trước khi nạp credential mới"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "COMP-GW-007"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-003",
+      "name": "Sync Scheduler & Rate-Limited Job Queue",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Điều phối pull hourly cho 2.600+ TKQC qua batch/queue chống rate limit theo quota từng nền tảng; retry + backoff tự động; không chạy song song 2 job cùng adapter (BR-GW-STGW-008)",
+        "Ưu tiên TKQC đang active chi tiêu khi không kịp cửa sổ hourly (priority rules trong SyncSchedule, cấu hình tại Settings)",
+        "Job fail vượt ngưỡng retry → chuyển adapter degraded + alert gộp theo nguồn (không ngập người nhận từng job fail)",
+        "Tham số sync (tần suất, batch, SLA, freshness) là PolicyConfigVersion — chỉ BOD_CEO/BOD_CFO_CTO duyệt, effective-dated, không hồi tố (BR-FIN-STGW-005)"
+      ],
+      "dependencies": [
+        "COMP-GW-001",
+        "COMP-GW-002",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-004",
+      "name": "Ingest & Normalization Pipeline",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Lưu raw payload gốc trước khi parse (RawPayload) làm căn cứ đối chiếu + reprocess khi mapping đổi; chuẩn hóa qua FieldMapping cấu hình tại Settings (DI-004, BR-FIN-STGW-004) — thiếu mapping → dòng vào hàng lỗi, không suy diễn",
+        "Gắn nhãn nguồn `api`/`manual` tại thời điểm ghi, không ai sửa tay; record thiếu nhãn bị reject (BR-FIN-205a)",
+        "Kênh import degraded: nhận PlatformStatement schema chuẩn 8 trường (nền tảng, TKQC, ngày, loại giao dịch, số tiền gốc, tiền tệ, phí, mã tham chiếu) từ màn hình FIN_L1 trên BCERP-WEB; chặn sai schema theo dòng, dòng hợp lệ vẫn nhận (BR-FIN-205b); bắt buộc entered_by + evidence_ref cho bản ghi manual (BR-FIN-205c)",
+        "Khóa tự nhiên chống trùng: nền tảng + TKQC + ngày + loại giao dịch + mã tham chiếu"
+      ],
+      "dependencies": [
+        "COMP-GW-001",
+        "SYS-BCERP-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-005",
+      "name": "Degraded Mode & Backfill Engine",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Quản lý state luồng dữ liệu per-platform: MANUAL (khởi điểm — DI-007 Business Verification chưa có quyền developer) ↔ API ↔ BACKFILL (BR-FIN-301b)",
+        "Khi API sống lại/được cấp quyền: backfill tự động theo thứ tự thời gian, gắn nhãn `api` cho dữ liệu gốc, KHÔNG ghi đè/xóa bản ghi manual đã đối soát — giữ làm vết so sánh (BR-FIN-301c)",
+        "Kích hoạt tín hiệu đối soát lại kỳ đã nhập tay về core (SYS-CORE-BACKEND) — chênh lệch xử lý qua ticket discrepancy của core, gateway chỉ ghi dữ liệu gốc",
+        "Không cho phép vận hành ở trạng thái fail câm: mất quyền mà không chuyển degraded là lỗi P1"
+      ],
+      "dependencies": [
+        "COMP-GW-003",
+        "COMP-GW-004",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-006",
+      "name": "Gateway Health & Policy Config Service",
+      "type": "gateway",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Bảng sức khỏe 7 adapter: AdapterHealthCheck (success/fail/degraded), tuổi dữ liệu (data_freshness) từng nguồn, hạn rotate còn lại, trạng thái sync scheduler",
+        "Quản lý PolicyConfigVersion cho ngưỡng cảnh báo/tier/SLA sync — version + ngày hiệu lực + người duyệt + audit log, chỉ ADMIN/BOD sửa (BR-GW-STGW-004)",
+        "Cảnh báo token rotate T-7, job fail, adapter degraded — alert gộp theo nguồn (theo quy tắc alert REQ-BOD-006), đẩy về alert center core",
+        "Phục vụ báo cáo oversight BOD_CEO (số kết nối, trạng thái, sự cố, lịch sử rotate)"
+      ],
+      "dependencies": [
+        "COMP-GW-003",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-007",
+      "name": "Gateway Audit & API Call Log",
+      "type": "gateway",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Ghi audit bất biến (append-only, hash-chain — dùng hạ tầng WORM REQ-FIN-012) mọi thao tác vault: xem mask, tạo, sửa, rotate, thu hồi; việc xem log cũng bị log (BR-GW-STGW-007)",
+        "Ghi log mọi lần gọi API ra hệ thống ngoài (job id, endpoint, kết quả, mã lỗi)",
+        "Ghi audit mọi chuyển trạng thái adapter/connection kèm trigger truy vết (job id, mã lỗi API, người thao tác, lý do)",
+        "Bất thường hash-chain kích hoạt alert BOD (nối REQ-BOD-005); không có API sửa/xóa audit entry"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-008",
+      "name": "VAS Accounting Connector",
+      "type": "connector",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Connector phần mềm kế toán VAS hiện hữu như 1 connection profile bình thường theo DI-004 (REQ-FIN-013/BR-FIN-305): profile khai báo connection_type api_adapter hoặc import_export — cấu hình tổng quát cho cả 2 trường hợp [KXN-9]",
+        "Xuất file chuẩn schema qua import/export template + FieldMapping cấu hình tại Settings; log lượt xuất; đổi phần mềm kế toán = thêm 1 profile, không sửa code, không deploy lại (SC-007)",
+        "Tiếp nhận dữ liệu kế toán (nếu VAS hỗ trợ API) qua cùng pipeline chuẩn hóa/nhãn nguồn dùng chung",
+        "Cho FIN_L2 xem trạng thái kết nối VAS (hoạt động/lỗi/hàng chờ xuất) để lên lịch đối chiếu sổ — chỉ xem, không đụng vault"
+      ],
+      "dependencies": [
+        "COMP-GW-001",
+        "COMP-GW-004",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-009",
+      "name": "Wallet & TKQC Feed Dispatcher",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Đẩy PlatformStatement đã gắn nhãn nguồn vào fact tables của SYS-CORE-BACKEND phục vụ đối trừ 3 số MOD-WALLET-RECON (REQ-FIN-004/REQ-FIN-005) — gateway không tự quy đổi tỷ giá, lưu amount_original + currency nguyên vẹn",
+        "Feed số dư/chi tiêu + freshness cho Ad Account Command Center (REQ-OPS-001) và cảnh báo số dư ví (REQ-OPS-003) — OPS chỉ xem được nguồn feed TKQC của mình",
+        "Phát event `wallet.sync.completed` kèm platform, cửa sổ sync, số bản ghi, nhãn nguồn — core tiêu thụ vào pipeline cảnh báo SLA đỏ 2h",
+        "Nền tảng không có API statement → hạ đối soát xuống tuần + bù khớp tích lũy khi có API (tham số chu kỳ là policy versioned)"
+      ],
+      "dependencies": [
+        "COMP-GW-004",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-010",
+      "name": "TikTok Shop Connection Manager",
+      "type": "connector",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Thiết lập OAuth per-client từng shop của khách: đúng 1 shop/1 ủy quyền/1 khách, scope đọc ghi rõ trên bản ghi; cấm ủy quyền gom chung, cấm chia sẻ đăng nhập chủ shop (BR-OPS-4.1a)",
+        "Lưu ShopAccessLog bất biến (ai, khi nào, API/đối tượng, scope_used); OAuth hết hạn giữa chừng → dừng pull mới + cảnh báo, không tự xin mở rộng scope thiếu đồng ý khách (BR-OPS-4.1b)",
+        "Thực thi thu hồi ủy quyền ≤24h theo sự kiện hợp đồng/khách yêu cầu; sau REVOKED mọi pull bị vô hiệu vĩnh viễn kể cả backfill (BR-OPS-4.1c)",
+        "Phản chiếu gate stage từ workflow 3 Gate của core (Gate 1 Verification → Gate 2 Go-live → Gate 3 đối soát): chỉ bật pull sau tín hiệu Gate 2 — gate check tự kiểm tra trước mỗi job (BR-OPS-4.5)"
+      ],
+      "dependencies": [
+        "COMP-GW-001",
+        "COMP-GW-002",
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-011",
+      "name": "TikTok Shop Metrics Sync Worker",
+      "type": "worker",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Pull định kỳ GMV/đơn/settlement/shop health theo từng shop qua OAuth; lưu raw payload; ghi ShopMetricDaily gắn nhãn nguồn `api`/`manual` + cờ `reference_only=true` luôn bật (BR-OPS-4.4)",
+        "Tách bạch tuyệt đối luồng GMV/settlement shop (thuộc khách) với luồng NSQC ads (REQ-OPS-001/003): giữ key dữ liệu và nguồn riêng, không trộn record; join chỉ qua mã tham chiếu ở lớp tổng hợp core (BR-OPS-4.3a)",
+        "Chỉ monitoring — KHÔNG làm OMS/WMS: không quản lý đơn/fulfillment/tồn kho, không endpoint ghi thao tác về shop (BR-OPS-4.3b)",
+        "Chạy degraded mode `manual` (schema: shop, ngày, loại chỉ số, số tiền gốc, tiền tệ, mã tham chiếu; OPS_ADS/OPS_AM nạp qua kênh import kèm người nạp + căn cứ) + backfill khi API sống lại, cùng cơ chế nhãn nguồn dùng chung COMP-GW-005 (BR-GW-TT-001)"
+      ],
+      "dependencies": [
+        "COMP-GW-004",
+        "COMP-GW-005",
+        "COMP-GW-010",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-012",
+      "name": "PII Guard & Tenant Isolation Service",
+      "type": "gateway",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Mask PII người mua cuối mặc định (SĐT `090****123`, địa chỉ chỉ tỉnh/huyện, tên mask); dữ liệu đầy đủ chỉ tồn tại trong phiên PiiAccessSession có TTL + lý do, KHÔNG persist vào DB (BR-OPS-4.2a)",
+        "Tenant isolation giữa shops: dữ liệu shop A không bao giờ xuất hiện ở báo cáo/API/export của shop B — Row-Level Security tầng API; test truy cập chéo hàng quý (BR-OPS-4.2b)",
+        "Chặn cứng tầng API mọi attempt mapping GMV/settlement vào tài khoản doanh thu (cờ reference_only) — không chỉ UI (BR-OPS-4.4)",
+        "Chuẩn hóa PortalReportFeed tenant-scoped: chỉ chứa trường theo cấu hình phạm vi hợp đồng từng tenant, đã mask + tổng hợp — raw PII không bao giờ tới touchpoint khách (BR-GW-TT-002)"
+      ],
+      "dependencies": [
+        "COMP-GW-011",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-GW-013",
+      "name": "Shop Alert & Portal Feed Emitter",
+      "type": "worker",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Phát event `shop.alert`: shop bị hạn chế/khóa, GMV/settlement lệch bất thường, giấy phép ngành hàng + OAuth sắp hết hạn, baseline lệch — kèm shop, loại cảnh báo, timestamp, giá trị lệch (BR-OPS-4.6)",
+        "Đẩy tín hiệu về alert center của SYS-CORE-BACKEND để push M-INT cho OPS_ADS/OPS_AM; xử lý theo SLA ticket tier×priority (REQ-OPS-008)",
+        "Cấp PortalReportFeed đã mask/tổng hợp cho báo cáo khách trên Portal — read-only, tenant-scoped, qua Portal API Gateway của core (gateway không serve trực tiếp portal, không chạm DB nội bộ)",
+        "Cấp dữ liệu tổng hợp GMV/shop health cho dashboard nội bộ web (bản counterpart SYS-BCERP-WEB) — kèm freshness và nhãn nguồn"
+      ],
+      "dependencies": [
+        "COMP-GW-011",
+        "COMP-GW-012",
+        "SYS-CORE-BACKEND",
+        "SYS-MOBILE-INTERNAL"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "component_id": "COMP-PORTAL-001",
+      "name": "Portal Web App (Client-facing SPA)",
+      "type": "app",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "SPA client-facing cho CUSTOMER (CLIENT_ADMIN/CLIENT_USER): dashboard ví read-only, tiến độ nghiệm thu theo milestone, ticket, lịch nạp, invoice",
+        "Luồng nhận invite, kích hoạt tài khoản, bật 2FA, xác minh OTP cho hành động nhạy cảm (thêm user, xuất dữ liệu, đổi mật khẩu)",
+        "Render bắt buộc kèm freshness metadata (nhãn nguồn + timestamp + disclaimer độ trễ); thiếu metadata thì không render số",
+        "CLIENT_ADMIN tự quản portal user trong hạn mức theo hợp đồng; hiển thị trạng thái 'Đang đối soát' + số tham chiếu cho giao dịch tranh chấp",
+        "i18n đa ngôn ngữ/múi giờ cho khách quốc tế (GMT+7 mặc định); watermark hiển thị trên dữ liệu xuất"
+      ],
+      "dependencies": [
+        "COMP-PORTAL-002"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "component_id": "COMP-PORTAL-002",
+      "name": "Portal API Gateway / BFF",
+      "type": "bff",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Cổng API duy nhất cho portal, triển khai trong network zone tách biệt (DMZ) khỏi hệ nội bộ; không cho phép portal chạm DB nội bộ",
+        "Quản lý session, rate limit, khóa phiên khi hành vi bất thường (quét dữ liệu, thử chéo tenant)",
+        "Scoping tenant_id bắt buộc trên mọi request; chặn mọi route ghi lên dữ liệu tài chính (read-only tuyệt đối)",
+        "Từ chối đăng nhập của tài khoản nội bộ (client identity tách internal identity)",
+        "Tổng hợp response từ Identity, Read-Model, Audit services trước khi trả client"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "COMP-PORTAL-003",
+        "COMP-PORTAL-004",
+        "COMP-PORTAL-005"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "component_id": "COMP-PORTAL-003",
+      "name": "Portal Identity & Account Service",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Sở hữu portal_user, portal_invite, session/token 2FA-OTP; lifecycle INVITED → ACTIVE → LOCKED / DISABLED / EXPIRED",
+        "Kích hoạt: OTP + bật 2FA bắt buộc (không tồn tại ACTIVE chưa 2FA); khóa tự động sau 5 lần sai; mở khóa sau xác minh danh tính/POC",
+        "Kiểm tra hạn mức user theo hợp đồng (mặc định 2 CLIENT_ADMIN + 10 CLIENT_USER, mở rộng theo tier) và cờ dpa_signed trước khi hoàn tất kích hoạt (khách EU/US)",
+        "Chỉ tiếp nhận invite do OPS_AM (CLIENT_ADMIN đầu tiên, Day 1) hoặc CLIENT_ADMIN (user sau) phát hành — nội bộ không tạo hộ",
+        "Thu hồi/offboard: vô hiệu session ngay tại request kế tiếp; thu hồi quyền trong 24h theo BR-FIN-603"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "component_id": "COMP-PORTAL-004",
+      "name": "Portal Read-Model Serving Service",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Pull/cache read-model từ CORE read-views (đã RLS + tenant_id filter + mask tầng API): số dư ví theo TKQC, chi tiêu daily, trạng thái đối soát mức khách, lịch nạp (REQ-FIN-017)",
+        "Cung cấp read-model campaign/deliverable: tiến độ nghiệm thu theo milestone (REQ-OPS-006 touchpoint); ticket của chính khách theo SLA (REQ-OPS-009 touchpoint); invoice từ ARAP",
+        "Gắn nhãn nguồn + timestamp + disclaimer vào mọi chỉ số (số dư 15 phút–24h; chi tiêu daily 3–24h; lịch nạp/ticket/tiến độ realtime); số tranh chấp chỉ hiển thị dạng 'Đang đối soát' + số tham chiếu",
+        "Không lưu bản sao business data lâu dài — cache TTL ngắn gắn freshness metadata; giá vốn/chiết khấu/P&L/tỷ giá nội bộ không bao giờ xuất hiện trong payload",
+        "Duy trì portal share model chung để SYS-MOBILE-PORTAL tái dùng (mobile rút gọn: số dư, thông báo, ticket)"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB",
+        "COMP-PORTAL-003"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "component_id": "COMP-PORTAL-005",
+      "name": "Portal Audit, Watermark & Anomaly Service",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Sở hữu portal_access_log + portal_download_log: append-only, hash-chain (BR-FIN-501/603), phục vụ điều tra rò rỉ bởi FIN_L2",
+        "Sinh watermark (tên user + thời điểm) server-side cho mọi xuất/download; không tạo được watermark → chặn xuất",
+        "Phát hiện hành vi bất thường: quét dữ liệu, download hàng loạt, thử truy cập chéo tenant → rate limit + alert bảo mật; lặp lại → khóa phiên, escalate SYS_ADMIN/FIN_L2",
+        "Log truy cập/download bất biến phục vụ review ma trận chia sẻ hằng quý (BOD_CFO_CTO)"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "COMP-PORTAL-002"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "component_id": "COMP-PORTAL-006",
+      "name": "Portal Adoption Event Forwarder",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Forward sự kiện portal (tạo user, kích hoạt, login, tạo ticket) về SYS-CORE-BACKEND để OPS_AM/OPS_PLAN monitor gate Day 1/7/14/30 trên WEB nội bộ",
+        "Portal không giữ số adoption cục bộ (BR-010 của FEAT-PORTAL-CPORT-002); gate Day 14 tính ở CORE từ dữ liệu activation thực, không chốt tay",
+        "Điểm tiếp nhận báo cáo sự cố phía khách (BR-FIN-604) → đẩy incident intake CORE trong 4h đầu, timer 72h theo NĐ 13/2023 + GDPR/DPA"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "COMP-PORTAL-003"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "component_id": "COMP-MBI-001",
+      "name": "Mobile App Shell — BCERP Internal",
+      "type": "app",
+      "module_id": null,
+      "responsibilities": [
+        "Khung app đa nền tảng: navigation role-aware theo vai (BOD_CEO, BOD_CFO_CTO, FIN_L1/L2, HR, OPS, SALES, Nhân viên ESS), bootstrap SSO/MFA từ CORE-BACKEND",
+        "Đăng ký device + push token lên backend qua BFF; hiển thị/ẩn surface theo vai từ RBAC (không tự quyết quyền)",
+        "Offline/online strategy tổng: nhận diện kết nối, điều phối sync, kiểm tra minimum app version + force-update"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-002",
+      "name": "Offline Sync & Local Cache Engine",
+      "type": "app",
+      "module_id": null,
+      "responsibilities": [
+        "Outbox queue cho thao tác offline (ưu tiên ESS chấm công/timesheet): ghi local + idempotency key, replay khi online, không replay lệnh tài chính",
+        "Local cache read-only mã hóa với TTL, purge khi logout/remote wipe; server timestamp là trọng tài thời gian chấm công"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-003",
+      "name": "Mobile BFF (Backend-for-Frontend)",
+      "type": "bff",
+      "module_id": null,
+      "responsibilities": [
+        "Tổng hợp view-model mỏng từ API các module backend cho UI mobile (shaping, gộp gọi, pagination chuẩn limit 20/max 100) — không chứa business logic, không nhân bản quy tắc ngưỡng/SoD",
+        "Cầu dẫn state-transition endpoints (approve/reject/submit/check-in) về SYS-CORE-BACKEND; rate limit và chuẩn hóa lỗi cho kênh di động"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-004",
+      "name": "Push Notification Consumer",
+      "type": "push-worker",
+      "module_id": "MOD-SLA-NOTIF",
+      "responsibilities": [
+        "Nhận sự kiện notification từ SLA-NOTIF worker của BCERP-WEB (SLA sắp vỡ/vỡ, escalation AM→AD→BOD) + alert center DATAHUB (REQ-BOD-006) + cảnh báo ví SLA đỏ 2h (REQ-FIN-002/REQ-OPS-003) và đẩy qua FCM/APNs",
+        "Deep-link thông báo tới đúng surface (approval inbox, alert center); push chỉ là kênh báo — SLA timer/escalation vẫn chạy phía backend, mất push không làm vỡ SLA"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND",
+        "SYS-BCERP-WEB"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-005",
+      "name": "Approval Inbox — Duyệt vượt ngưỡng & Giải ngân",
+      "type": "app",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "responsibilities": [
+        "Inbox phê duyệt cho BOD_CEO/FIN/BOD_CFO_CTO: duyệt vượt ngưỡng & escalation (REQ-BOD-001), duyệt chi/giải ngân theo ngưỡng 5/50/200 triệu + SoD 4 vai + delegate (REQ-FIN-008)",
+        "Hiển thị đủ context tối thiểu bắt buộc (số tiền, ngưỡng, người khởi tạo, chứng từ đính kèm) trước khi cho phép approve/reject; gọi state-transition endpoint, không tự tính ngưỡng"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-006",
+      "name": "Wallet Approval & Alert Surface",
+      "type": "app",
+      "module_id": "MOD-WALLET-RECON",
+      "responsibilities": [
+        "Góc FIN: xem sổ phụ ví (REQ-FIN-001), dual approval điều chỉnh số dư/đổi tỷ giá/hoàn tiền (REQ-FIN-003), xác nhận Financial Hard Stop 'đã khớp tiền' (REQ-FIN-006), xem AML flag T1–T6 (REQ-FIN-010)",
+        "Góc OPS: cảnh báo số dư đủ chi ≥3 ngày + escalation (REQ-FIN-002/REQ-OPS-003); mọi lệnh tiền đều là endpoint backend, mobile không tạo lệnh trực tiếp"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-007",
+      "name": "BI Dashboard Mobile (read-only)",
+      "type": "app",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "BOD xem P&L realtime (REQ-BOD-003/REQ-FIN-016), BI dashboard điều hành (REQ-BOD-004), alert center (REQ-BOD-006), dashboard tài chính nội bộ (REQ-FIN-015)",
+        "Chỉ đọc, zero mutation; dữ liệu do DATAHUB publish, mobile chỉ render phiên bản rút gọn cho màn hình nhỏ"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-008",
+      "name": "Sales Gate Surface — Gate 1/Gate 2",
+      "type": "app",
+      "module_id": "MOD-CRM-PIPELINE",
+      "responsibilities": [
+        "SALES_L2/L3 duyệt Gate 1/Gate 2 Go/No-Go và trigger ký handoff từ di động (REQ-SALES-004); quyết định đi qua pipeline V6.0 phía backend, mobile không đổi state trực tiếp"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-009",
+      "name": "Deal Desk Mobile Approval",
+      "type": "app",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "responsibilities": [
+        "GM duyệt chiết khấu vượt định mức (REQ-SALES-006); xem + phê duyệt hợp đồng/LOI/NDA kèm e-sign (REQ-SALES-007); định mức/chiết khấu do QDD engine tính, mobile chỉ trình bày kết quả"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-010",
+      "name": "Handoff Mobile Acknowledgment",
+      "type": "app",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "responsibilities": [
+        "OPS_AM ký nhận handoff package từ di động (REQ-SALES-008/REQ-OPS-004); theo dõi checkpoint Day 1/7/14/30 — ký nhận là state transition ops_ack gọi xuống backend"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-011",
+      "name": "Commission Mobile View",
+      "type": "app",
+      "module_id": "MOD-COMMISSION-QUOTA",
+      "responsibilities": [
+        "SALES xem hoa hồng theo thực nhận, clawback, quota coverage (REQ-SALES-009) — read-only; số liệu do COMM tính từ ARAP+QDD"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-012",
+      "name": "Ad Account Quick View",
+      "type": "app",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "responsibilities": [
+        "OPS tra cứu nhanh registry TKQC (trạng thái vòng đời, die account) và nhận alert thu hồi (REQ-OPS-001); dữ liệu nền tảng do backend tổng hợp qua Integration Gateway, mobile không gọi GW"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-013",
+      "name": "Proposal Stage-gate Mobile Approve",
+      "type": "app",
+      "module_id": "MOD-PROPOSAL-PLANNING",
+      "responsibilities": [
+        "Duyệt stage-gate V6.0 từ di động (REQ-OPS-005); done-criteria machine-checkable do backend xác thực, mobile chỉ trình bày trạng thái gate và gửi quyết định"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-014",
+      "name": "Campaign/Deliverable Mobile Checklist",
+      "type": "app",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "responsibilities": [
+        "OPS_CONT tick deliverable, xác nhận nghiệm thu và nhận nhắc SLA creative (REQ-OPS-006/REQ-OPS-012); SLA timer và escalate AD ngày 4 do backend điều phối"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-015",
+      "name": "Timesheet Mobile Entry",
+      "type": "app",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "responsibilities": [
+        "Nhân viên nhập timesheet + submit từ di động (REQ-OPS-007); giờ chưa duyệt không vào P&L — duyệt OPS∥HR vẫn phía backend, mobile chỉ draft/submit"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-016",
+      "name": "ESS Mobile — Chấm công & Đơn nghỉ phép & Hồ sơ",
+      "type": "app",
+      "module_id": "MOD-HR-CORE",
+      "responsibilities": [
+        "Nhân viên chấm công (check-in/out, hỗ trợ offline qua outbox), xin nghỉ phép (số dư tự động do HR-CORE kiểm tra), xem thông tin cá nhân (REQ-HR-003/004/005)",
+        "PII lương không cache trên thiết bị; chỉ hiển thị theo field-level security của backend [NEEDS_REVIEW: registry chưa có FEAT touchpoint HR-CORE cho SYS-MOBILE-INTERNAL]"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-017",
+      "name": "Ticket Mobile Surface",
+      "type": "app",
+      "module_id": "MOD-TICKET-CSKH",
+      "responsibilities": [
+        "OPS_CONT nhận/thao tác ticket queue, phản hồi và nhận escalation SLA vỡ (REQ-OPS-009); SLA timer theo tier khách do SLANOT chạy phía backend"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-018",
+      "name": "Shop Alert Mobile Surface",
+      "type": "app",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "OPS nhận alert anomaly TikTok Shop và xem trạng thái shop (REQ-OPS-011); sync GMV do backend qua GW, mobile chỉ tiêu thụ trạng thái monitoring"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-019",
+      "name": "Portal Ops Mobile View",
+      "type": "app",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "OPS xem trạng thái tài khoản client portal và monitor cấp phát từ di động (REQ-OPS-010); hoạt động cấp tài khoản vẫn thực thi phía backend"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MBI-020",
+      "name": "RBAC/MFA Mobile Enforcement Surface",
+      "type": "app",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Client của SSO/MFA tập trung (REQ-BOD-011): luồng đăng nhập, biometric unlock local, MFA step-up khi thao tác tài chính nhạy cảm; hiển thị state device binding",
+        "Hiển thị biên vai cho compensating control kiêm nhiệm CFO kiêm CTO (REQ-BOD-002) — quyền do RBAC backend quyết, mobile không tự cấp/bỏ quyền"
+      ],
+      "dependencies": [
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-internal"
+    },
+    {
+      "component_id": "COMP-MPO-001",
+      "name": "BC Portal Mobile App (iOS/Android)",
+      "type": "app",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Màn tổng hợp '30 giây' cho CUSTOMER: số dư ví tham chiếu, chi tiêu daily, trạng thái ticket, thông báo (FEAT-MPO-CPORT-001)",
+        "Ví read-only tuyệt đối (REQ-FIN-017): availableBalance/frozenBalance theo tiền gốc USD/VND tách sổ, không gộp quy đổi; disclaimer độ trễ 15 phút-24h + timestamp + nhãn nguồn api/manual trên mọi con số (FEAT-MPO-WALLET-001)",
+        "Render kết quả engine CORE tính sẵn: chi tiêu daily, số ngày chạy dự kiến, mức Xanh/Vàng/Đỏ per TKQC/nền tảng - app không tự tính ADS hay SLA",
+        "Lịch sử lệnh ví bản rút gọn đã mask giá vốn ('Điều chỉnh đối soát'); lệnh PENDING/STEP1_APPROVED hiển thị khối 'Chờ phê duyệt' riêng, không đổi số dư",
+        "Tiến độ campaign/deliverable theo milestone + confirm nghiệm thu nhẹ (phê duyệt phi tài chính) (FEAT-MPO-CAMP-001)",
+        "Ticket: tạo, comment, theo dõi trạng thái/SLA theo tier, trả CSAT sau Closed (FEAT-MPO-CSKH-001)",
+        "Nhận invite, kích hoạt tài khoản + bật 2FA bắt buộc; CLIENT_ADMIN quản portal user trong hạn mức qua lớp OTP; tenant switcher cho khách đa pháp nhân",
+        "Notification inbox in-app + deep-link sau 2FA; deep-link sang Portal Web tải sổ phụ PDF watermark (CLIENT_ADMIN); cấu hình nhận push per-thiết bị",
+        "Offline cache chỉ đọc gắn nhãn 'dữ liệu cũ', mọi ghi vô hiệu khi offline; che số dư khi background; sinh trắc học/PIN"
+      ],
+      "dependencies": [
+        "SYS-PORTAL-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "component_id": "COMP-MPO-002",
+      "name": "Portal Mobile BFF (mobile API surface)",
+      "type": "bff",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Tổng hợp/shape dữ liệu mobile từ view tổng hợp đã lọc tenant dùng chung Portal Web (PortalWalletView, PortalAdjustmentHistoryView, tiến độ nghiệm thu, ticket, lịch nạp) - không truy cập DB nội bộ",
+        "Forward tenant context phục vụ isolation 2 lớp (RLS DB + filter API tầng CORE); Portal API Gateway từ chối tài khoản nội bộ BCERP (tách danh tính portal user)",
+        "Field whitelist + mask trường nội bộ (giá vốn, chiết khấu, P&L, ghi chú nội bộ, AML/KYC/UBO) trước khi trả app; thiếu freshness metadata (last_updated, data_source) thì không render",
+        "Endpoint đăng ký/thu hồi push token (MobileDevice: user_id + tenant_id + platform + push_opt_in)",
+        "Phiên mobile: xác thực portal user qua SSO/2FA của CORE-BACKEND; session timeout; khóa sau 5 lần sai; thu hồi từ xa toàn bộ thiết bị",
+        "Chặn mọi endpoint ghi dữ liệu tài chính (HTTP 403 + log bảo mật); ghi phi tài chính chỉ ticket/confirm nghiệm thu/quản lý user",
+        "ETag, pagination (limit mặc định 20, max 100), đa ngôn ngữ/múi giờ, watermark + portal_download_log cho tệp tải về"
+      ],
+      "dependencies": [
+        "SYS-PORTAL-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "component_id": "COMP-MPO-003",
+      "name": "Portal Push Notification Worker",
+      "type": "push-worker",
+      "module_id": "MOD-SLA-NOTIF",
+      "responsibilities": [
+        "Tiêu thụ sự kiện notification từ SLA-NOTIF qua PORTAL-WEB/CORE: ví chuyển mức Xanh/Vàng/Đỏ (phân phối <=5 phút từ lúc sync), phản hồi ticket, nghiệm thu chờ confirm, invite/kích hoạt portal user (FEAT-MPO-SLANOT-001)",
+        "Fan-out FCM (Android) / APNs (iOS) theo thiết bị opt-in; body push chỉ tiêu đề loại sự kiện, không chứa số liệu tài chính (an toàn lock screen)",
+        "Quản lý device token registry: gắn user_id + tenant_id; revoke ngay khi user DISABLED/đăng xuất/mất thiết bị; tách push theo tenant đang chọn, không hợp nhất chéo tenant",
+        "Cấu hình nhận thông báo per-thiết bị theo mức cảnh báo của chính user khách; AlertNotification log sent/read (payload_masked)",
+        "Fallback notification center in-app khi push không tới được; push không phải nguồn sự thật - mở app/deep-link luôn fetch trạng thái fresh từ server"
+      ],
+      "dependencies": [
+        "SYS-PORTAL-WEB",
+        "SYS-CORE-BACKEND"
+      ],
+      "_lane": "mobile-portal"
+    }
+  ],
+  "apis": [
+    {
+      "api_id": "API-ERP-001",
+      "method": "POST",
+      "path": "/api/v1/erp/leads",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-001",
+        "REQ-SALES-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-002",
+      "method": "POST",
+      "path": "/api/v1/erp/leads/bulk-import",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-001"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-003",
+      "method": "GET",
+      "path": "/api/v1/erp/leads",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-004",
+      "method": "GET",
+      "path": "/api/v1/erp/leads/{id}",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-003"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-005",
+      "method": "GET",
+      "path": "/api/v1/erp/leads/{id}/activity",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-006",
+      "method": "POST",
+      "path": "/api/v1/erp/leads/{id}/transitions",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-002",
+        "REQ-SALES-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-007",
+      "method": "POST",
+      "path": "/api/v1/erp/leads/{id}/assign",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-008",
+      "method": "POST",
+      "path": "/api/v1/erp/leads/{id}/gate-decision",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-009",
+      "method": "GET|POST",
+      "path": "/api/v1/erp/customers/{id}/tier-review",
+      "module": "MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-SALES-005"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-010",
+      "method": "POST",
+      "path": "/api/v1/erp/quotations",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-011",
+      "method": "GET",
+      "path": "/api/v1/erp/quotations",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-012",
+      "method": "POST",
+      "path": "/api/v1/erp/quotations/{id}/transitions",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-013",
+      "method": "POST",
+      "path": "/api/v1/erp/quotations/{id}/discount-approval",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "req_ids": [
+        "REQ-SALES-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-014",
+      "method": "POST",
+      "path": "/api/v1/erp/contracts/{id}/esign-complete",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "req_ids": [
+        "REQ-SALES-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-015",
+      "method": "POST",
+      "path": "/api/v1/erp/handoffs",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "req_ids": [
+        "REQ-SALES-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-016",
+      "method": "GET",
+      "path": "/api/v1/erp/handoffs",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "req_ids": [
+        "REQ-OPS-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-017",
+      "method": "POST",
+      "path": "/api/v1/erp/handoffs/{id}/sales-submit",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "req_ids": [
+        "REQ-SALES-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-018",
+      "method": "POST",
+      "path": "/api/v1/erp/handoffs/{id}/ops-ack",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "req_ids": [
+        "REQ-OPS-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-019",
+      "method": "GET|PATCH",
+      "path": "/api/v1/erp/handoffs/{id}/onboarding-tasks",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "req_ids": [
+        "REQ-OPS-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-020",
+      "method": "GET",
+      "path": "/api/v1/erp/wallets",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-001",
+        "REQ-FIN-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-021",
+      "method": "GET",
+      "path": "/api/v1/erp/wallets/{id}/ledger",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-001"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-022",
+      "method": "POST",
+      "path": "/api/v1/erp/wallets/{id}/transactions",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-001",
+        "REQ-FIN-003"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-023",
+      "method": "POST",
+      "path": "/api/v1/erp/wallet-transactions/{id}/approvals",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-003",
+        "REQ-FIN-010",
+        "REQ-BOD-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-024",
+      "method": "GET",
+      "path": "/api/v1/erp/reconciliation-runs",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-025",
+      "method": "POST",
+      "path": "/api/v1/erp/reconciliation-runs/{period}/close",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-026",
+      "method": "POST",
+      "path": "/api/v1/erp/wallets/{customerId}/hard-stop/confirm",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-027",
+      "method": "GET",
+      "path": "/api/v1/erp/wallets/{customerId}/hard-stop-status",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-006",
+        "REQ-OPS-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-028",
+      "method": "GET|POST",
+      "path": "/api/v1/erp/aml-flags",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-FIN-010"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-029",
+      "method": "POST",
+      "path": "/api/v1/erp/ar-invoices",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-030",
+      "method": "GET",
+      "path": "/api/v1/erp/ar-invoices",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-031",
+      "method": "POST",
+      "path": "/api/v1/erp/ar-invoices/{id}/payments",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-032",
+      "method": "POST",
+      "path": "/api/v1/erp/ar-invoices/{id}/dunning",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-033",
+      "method": "POST",
+      "path": "/api/v1/erp/payment-orders",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-034",
+      "method": "POST",
+      "path": "/api/v1/erp/payment-orders/{id}/approve",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-008",
+        "REQ-BOD-001",
+        "REQ-BOD-010"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-035",
+      "method": "POST",
+      "path": "/api/v1/erp/payment-orders/{id}/disburse",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-036",
+      "method": "POST",
+      "path": "/api/v1/erp/einvoices/{id}/issue",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-011"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-037",
+      "method": "GET",
+      "path": "/api/v1/erp/einvoices",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-011",
+        "REQ-FIN-012"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-038",
+      "method": "GET",
+      "path": "/api/v1/erp/platform-fees",
+      "module": "MOD-ARAP-PAYMENT",
+      "req_ids": [
+        "REQ-FIN-014"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-039",
+      "method": "GET",
+      "path": "/api/v1/erp/commissions",
+      "module": "MOD-COMMISSION-QUOTA",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-040",
+      "method": "POST",
+      "path": "/api/v1/erp/commissions/{id}/approve",
+      "module": "MOD-COMMISSION-QUOTA",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-041",
+      "method": "GET|POST",
+      "path": "/api/v1/erp/clawbacks",
+      "module": "MOD-COMMISSION-QUOTA",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-042",
+      "method": "GET",
+      "path": "/api/v1/erp/quotas",
+      "module": "MOD-COMMISSION-QUOTA",
+      "req_ids": [
+        "REQ-SALES-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-043",
+      "method": "POST",
+      "path": "/api/v1/erp/ad-accounts",
+      "module": "MOD-ADACCOUNT-CC",
+      "req_ids": [
+        "REQ-FIN-009",
+        "REQ-OPS-001"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-044",
+      "method": "GET",
+      "path": "/api/v1/erp/ad-accounts",
+      "module": "MOD-ADACCOUNT-CC",
+      "req_ids": [
+        "REQ-OPS-001",
+        "REQ-FIN-005"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-045",
+      "method": "POST",
+      "path": "/api/v1/erp/ad-accounts/{id}/transitions",
+      "module": "MOD-ADACCOUNT-CC",
+      "req_ids": [
+        "REQ-OPS-001",
+        "REQ-OPS-002",
+        "REQ-FIN-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-046",
+      "method": "POST",
+      "path": "/api/v1/erp/ad-accounts/{id}/revoke",
+      "module": "MOD-ADACCOUNT-CC",
+      "req_ids": [
+        "REQ-OPS-001"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-047",
+      "method": "POST|GET",
+      "path": "/api/v1/erp/proposals",
+      "module": "MOD-PROPOSAL-PLANNING",
+      "req_ids": [
+        "REQ-OPS-005"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-048",
+      "method": "POST",
+      "path": "/api/v1/erp/proposals/{id}/stage-transitions",
+      "module": "MOD-PROPOSAL-PLANNING",
+      "req_ids": [
+        "REQ-OPS-005"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-049",
+      "method": "POST|GET",
+      "path": "/api/v1/erp/campaigns",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-050",
+      "method": "POST",
+      "path": "/api/v1/erp/campaigns/{id}/deliverables",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-051",
+      "method": "POST",
+      "path": "/api/v1/erp/deliverables/{id}/transitions",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006",
+        "REQ-OPS-012"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-052",
+      "method": "POST",
+      "path": "/api/v1/erp/deliverables/{id}/acceptance",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-053",
+      "method": "POST",
+      "path": "/api/v1/erp/campaigns/{id}/ab-tests",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-012"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-054",
+      "method": "GET",
+      "path": "/api/v1/erp/tiktok-shop/monitor",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011",
+        "REQ-FIN-005"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-055",
+      "method": "POST|DELETE",
+      "path": "/api/v1/erp/portal-accounts",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-056",
+      "method": "GET",
+      "path": "/api/v1/erp/portal-accounts/{customerId}/usage",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-057",
+      "method": "POST",
+      "path": "/api/v1/erp/tickets",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-058",
+      "method": "GET",
+      "path": "/api/v1/erp/tickets",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-059",
+      "method": "POST",
+      "path": "/api/v1/erp/tickets/{id}/assign",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-060",
+      "method": "POST",
+      "path": "/api/v1/erp/tickets/{id}/transitions",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-061",
+      "method": "GET",
+      "path": "/api/v1/erp/tickets/{id}/activity",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-062",
+      "method": "POST|GET|PUT",
+      "path": "/api/v1/erp/employees",
+      "module": "MOD-HR-CORE",
+      "req_ids": [
+        "REQ-HR-001",
+        "REQ-HR-010"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-063",
+      "method": "GET|POST",
+      "path": "/api/v1/erp/employees/{id}/contracts",
+      "module": "MOD-HR-CORE",
+      "req_ids": [
+        "REQ-HR-002"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-064",
+      "method": "POST",
+      "path": "/api/v1/erp/attendance",
+      "module": "MOD-HR-CORE",
+      "req_ids": [
+        "REQ-HR-003"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-065",
+      "method": "POST",
+      "path": "/api/v1/erp/leave-requests",
+      "module": "MOD-HR-CORE",
+      "req_ids": [
+        "REQ-HR-004"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-066",
+      "method": "GET",
+      "path": "/api/v1/erp/ess/me",
+      "module": "MOD-HR-CORE",
+      "req_ids": [
+        "REQ-HR-005"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-067",
+      "method": "POST",
+      "path": "/api/v1/erp/rate-cards",
+      "module": "MOD-HR-CORE",
+      "req_ids": [
+        "REQ-HR-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-068",
+      "method": "POST",
+      "path": "/api/v1/erp/timesheets",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "req_ids": [
+        "REQ-OPS-007",
+        "REQ-HR-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-069",
+      "method": "GET",
+      "path": "/api/v1/erp/capacity",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "req_ids": [
+        "REQ-OPS-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-070",
+      "method": "GET|POST",
+      "path": "/api/v1/erp/kpi-periods",
+      "module": "MOD-KPI-PERFORMANCE",
+      "req_ids": [
+        "REQ-HR-007"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-071",
+      "method": "POST|PATCH",
+      "path": "/api/v1/erp/pips",
+      "module": "MOD-KPI-PERFORMANCE",
+      "req_ids": [
+        "REQ-HR-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-072",
+      "method": "GET|PUT",
+      "path": "/api/v1/erp/sla-policies",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008",
+        "REQ-BOD-009"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-073",
+      "method": "GET",
+      "path": "/api/v1/erp/sla-timers",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-074",
+      "method": "GET",
+      "path": "/api/v1/erp/notifications",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-075",
+      "method": "GET",
+      "path": "/api/v1/erp/jobs",
+      "module": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-HR-CORE,MOD-KPI-PERFORMANCE,MOD-COMMISSION-QUOTA,MOD-CAPACITY-TIMESHEET,MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-FIN-004",
+        "REQ-FIN-006",
+        "REQ-OPS-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-076",
+      "method": "POST",
+      "path": "/api/v1/erp/jobs/{key}/trigger",
+      "module": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-HR-CORE,MOD-KPI-PERFORMANCE,MOD-COMMISSION-QUOTA,MOD-CAPACITY-TIMESHEET,MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-FIN-006"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-ERP-077",
+      "method": "GET|POST",
+      "path": "/api/v1/erp/jobs/dead-letters",
+      "module": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-HR-CORE,MOD-KPI-PERFORMANCE,MOD-COMMISSION-QUOTA,MOD-CAPACITY-TIMESHEET,MOD-CRM-PIPELINE",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "_lane": "bcerp-web"
+    },
+    {
+      "api_id": "API-CORE-001",
+      "method": "POST",
+      "path": "/api/v1/core/auth/token",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-002",
+      "method": "POST",
+      "path": "/api/v1/core/auth/token/refresh",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-003",
+      "method": "POST",
+      "path": "/api/v1/core/auth/mfa/step-up",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011",
+        "REQ-BOD-008"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-004",
+      "method": "POST",
+      "path": "/api/v1/core/auth/mfa/enrollments",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-005",
+      "method": "POST",
+      "path": "/api/v1/core/auth/logout",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-006",
+      "method": "GET,DELETE",
+      "path": "/api/v1/core/auth/sessions",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-007",
+      "method": "GET",
+      "path": "/api/v1/core/auth/.well-known/openid-configuration",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-008",
+      "method": "POST",
+      "path": "/api/v1/core/auth/introspect",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-009",
+      "method": "GET",
+      "path": "/api/v1/core/users",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-010",
+      "method": "POST",
+      "path": "/api/v1/core/users",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-011",
+      "method": "GET",
+      "path": "/api/v1/core/users/:id",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-012",
+      "method": "PUT",
+      "path": "/api/v1/core/users/:id",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-013",
+      "method": "POST",
+      "path": "/api/v1/core/users/:id/transitions",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-014",
+      "method": "POST",
+      "path": "/api/v1/core/pdp/check",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-015",
+      "method": "GET",
+      "path": "/api/v1/core/roles",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-016",
+      "method": "POST,PUT",
+      "path": "/api/v1/core/roles",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-017",
+      "method": "POST",
+      "path": "/api/v1/core/roles/:id/assignments",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-002",
+        "REQ-BOD-007"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-018",
+      "method": "DELETE",
+      "path": "/api/v1/core/roles/:id/assignments/:userId",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-019",
+      "method": "GET,POST,PUT",
+      "path": "/api/v1/core/permissions",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-020",
+      "method": "GET,POST",
+      "path": "/api/v1/core/policies",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-009"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-021",
+      "method": "POST",
+      "path": "/api/v1/core/policies/:id/transitions",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-009"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-022",
+      "method": "POST",
+      "path": "/api/v1/core/pdp/sod-check",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-002"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-023",
+      "method": "GET,PUT",
+      "path": "/api/v1/core/policies/delegates",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-002",
+        "REQ-FIN-008"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-024",
+      "method": "GET,POST",
+      "path": "/api/v1/core/access-reviews/campaigns",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-025",
+      "method": "GET",
+      "path": "/api/v1/core/access-reviews/campaigns/:id/items",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-026",
+      "method": "POST",
+      "path": "/api/v1/core/access-reviews/items/:id/decisions",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-007"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-027",
+      "method": "POST",
+      "path": "/api/v1/core/access-reviews/campaigns/:id/close",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-007",
+        "REQ-FIN-012"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-028",
+      "method": "POST",
+      "path": "/api/v1/core/audit/events",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-005"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-029",
+      "method": "GET",
+      "path": "/api/v1/core/audit/events",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-005"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-030",
+      "method": "GET",
+      "path": "/api/v1/core/audit/objects/:objectId/timeline",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-005"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-031",
+      "method": "POST",
+      "path": "/api/v1/core/audit/export-requests",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-005",
+        "REQ-FIN-012"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-032",
+      "method": "GET",
+      "path": "/api/v1/core/audit/chain/verify",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-BOD-005",
+        "REQ-FIN-012"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-033",
+      "method": "GET,POST,PUT",
+      "path": "/api/v1/core/pii/classifications",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-HR-010"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-034",
+      "method": "GET,PUT",
+      "path": "/api/v1/core/pii/mask-configs",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-HR-010"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-035",
+      "method": "POST",
+      "path": "/api/v1/core/pii/break-glass-requests",
+      "module": "MOD-RBAC-AUDIT",
+      "req_ids": [
+        "REQ-HR-010"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-036",
+      "method": "GET",
+      "path": "/api/v1/core/bi/marts/:martName",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-004",
+        "REQ-FIN-015"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-037",
+      "method": "GET",
+      "path": "/api/v1/core/bi/pnl",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-003",
+        "REQ-FIN-016"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-038",
+      "method": "GET",
+      "path": "/api/v1/core/bi/dashboards",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-004",
+        "REQ-FIN-016"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-039",
+      "method": "POST",
+      "path": "/api/v1/core/bi/exports",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-FIN-015"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-040",
+      "method": "GET",
+      "path": "/api/v1/core/bi/freshness",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-003"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-041",
+      "method": "GET,POST",
+      "path": "/api/v1/core/alerts/rules",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-042",
+      "method": "PUT",
+      "path": "/api/v1/core/alerts/rules/:id",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-043",
+      "method": "GET",
+      "path": "/api/v1/core/alerts/instances",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-044",
+      "method": "POST",
+      "path": "/api/v1/core/alerts/instances/:id/transitions",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-045",
+      "method": "GET,PUT",
+      "path": "/api/v1/core/alerts/routing",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-046",
+      "method": "GET,POST,PUT",
+      "path": "/api/v1/core/ingest/contracts",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-003",
+        "REQ-FIN-005"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-047",
+      "method": "GET",
+      "path": "/api/v1/core/ingest/runs",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-003"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-048",
+      "method": "GET,POST",
+      "path": "/api/v1/core/ingest/dlq",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-BOD-006"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-CORE-049",
+      "method": "POST",
+      "path": "/api/v1/core/ingest/backfills",
+      "module": "MOD-DATAHUB-BI",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "core-backend"
+    },
+    {
+      "api_id": "API-GW-001",
+      "method": "GET",
+      "path": "/gw/connections",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-002",
+      "method": "POST",
+      "path": "/gw/connections",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-FIN-013"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-003",
+      "method": "GET",
+      "path": "/gw/connections/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-004",
+      "method": "PUT",
+      "path": "/gw/connections/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-005",
+      "method": "POST",
+      "path": "/gw/connections/:id/transitions",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-006",
+      "method": "GET",
+      "path": "/gw/connections/:id/health",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-007",
+      "method": "GET",
+      "path": "/gw/vault/credentials",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-008",
+      "method": "GET",
+      "path": "/gw/vault/credentials/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-009",
+      "method": "POST",
+      "path": "/gw/vault/credentials",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-010",
+      "method": "POST",
+      "path": "/gw/vault/credentials/:id/rotate",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-BOD-007"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-011",
+      "method": "POST",
+      "path": "/gw/vault/credentials/:id/revoke",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-BOD-007"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-012",
+      "method": "GET",
+      "path": "/gw/sync/schedules",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-013",
+      "method": "PUT",
+      "path": "/gw/sync/schedules/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-014",
+      "method": "POST",
+      "path": "/gw/sync/jobs",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-015",
+      "method": "GET",
+      "path": "/gw/sync/jobs",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-016",
+      "method": "GET",
+      "path": "/gw/sync/jobs/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-017",
+      "method": "POST",
+      "path": "/gw/sync/jobs/:id/retry",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-018",
+      "method": "GET",
+      "path": "/gw/policies",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-009"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-019",
+      "method": "GET",
+      "path": "/gw/policies/:paramKey/versions",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-009"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-020",
+      "method": "POST",
+      "path": "/gw/policies/:paramKey",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-BOD-009"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-021",
+      "method": "GET",
+      "path": "/gw/mappings",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005",
+        "REQ-FIN-013"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-022",
+      "method": "PUT",
+      "path": "/gw/mappings/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-013"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-023",
+      "method": "POST",
+      "path": "/gw/exports",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-013"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-024",
+      "method": "GET",
+      "path": "/gw/health",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-025",
+      "method": "GET",
+      "path": "/gw/degraded/status",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-026",
+      "method": "POST",
+      "path": "/gw/backfill/runs",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-027",
+      "method": "GET",
+      "path": "/gw/backfill/runs",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-028",
+      "method": "POST",
+      "path": "/gw/imports/statements",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-029",
+      "method": "POST",
+      "path": "/gw/imports/rows",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-030",
+      "method": "GET",
+      "path": "/gw/imports/batches/:id",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-031",
+      "method": "POST",
+      "path": "/gw/imports/batches/:id/retry-rows",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-032",
+      "method": "GET",
+      "path": "/gw/statements",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005",
+        "REQ-FIN-004"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-033",
+      "method": "GET",
+      "path": "/gw/raw-payloads",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-034",
+      "method": "POST",
+      "path": "/gw/raw-payloads/:id/reprocess",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-035",
+      "method": "GET",
+      "path": "/gw/audit-logs",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-BOD-008",
+        "REQ-FIN-012"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-036",
+      "method": "POST",
+      "path": "/gw/shop/connections",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-037",
+      "method": "GET",
+      "path": "/gw/shop/connections",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-038",
+      "method": "GET",
+      "path": "/gw/shop/connections/:id",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-039",
+      "method": "POST",
+      "path": "/gw/shop/connections/:id/transitions",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-040",
+      "method": "GET",
+      "path": "/gw/shop/connections/:id/access-logs",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-041",
+      "method": "GET",
+      "path": "/gw/shop/metrics",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-042",
+      "method": "POST",
+      "path": "/gw/shop/imports/metrics",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-043",
+      "method": "GET",
+      "path": "/gw/shop/imports/batches/:id",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-044",
+      "method": "POST",
+      "path": "/gw/shop/pii-sessions",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-045",
+      "method": "DELETE",
+      "path": "/gw/shop/pii-sessions/:id",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-046",
+      "method": "GET",
+      "path": "/gw/shop/alerts",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-047",
+      "method": "GET",
+      "path": "/internal/gw/shop/portal-feed",
+      "module": "MOD-TIKTOK-SHOP",
+      "req_ids": [
+        "REQ-OPS-011"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-GW-048",
+      "method": "GET",
+      "path": "/internal/gw/feed/wallet-status",
+      "module": "MOD-SETTINGS-GW",
+      "req_ids": [
+        "REQ-FIN-005",
+        "REQ-OPS-003"
+      ],
+      "_lane": "integration-gw"
+    },
+    {
+      "api_id": "API-PORTAL-001",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/invites/:token/accept",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-002",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/invites/:token/activate",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-003",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/login",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002",
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-004",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/2fa/verify",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002",
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-005",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/otp/requests",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-006",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/otp/verifications",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-007",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/token/refresh",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-008",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/logout",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-009",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/password/reset-requests",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-010",
+      "method": "POST",
+      "path": "/api/v1/portal/auth/password/resets",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-011",
+      "method": "GET",
+      "path": "/api/v1/portal/auth/sessions",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-012",
+      "method": "DELETE",
+      "path": "/api/v1/portal/auth/sessions/:sessionId",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-013",
+      "method": "GET",
+      "path": "/api/v1/portal/accounts/users",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-014",
+      "method": "POST",
+      "path": "/api/v1/portal/accounts/users",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-015",
+      "method": "POST",
+      "path": "/api/v1/portal/accounts/users/:userId/transitions",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-016",
+      "method": "GET",
+      "path": "/api/v1/portal/accounts/me",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-017",
+      "method": "PUT",
+      "path": "/api/v1/portal/accounts/me/password",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-018",
+      "method": "GET",
+      "path": "/api/v1/portal/accounts/tenant",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-019",
+      "method": "GET",
+      "path": "/api/v1/portal/wallet/adaccounts/balances",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-020",
+      "method": "GET",
+      "path": "/api/v1/portal/wallet/spend-daily",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-021",
+      "method": "GET",
+      "path": "/api/v1/portal/wallet/transactions",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-022",
+      "method": "GET",
+      "path": "/api/v1/portal/wallet/deposits",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-023",
+      "method": "GET",
+      "path": "/api/v1/portal/wallet/alerts",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-WALLET-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-003",
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-024",
+      "method": "GET",
+      "path": "/api/v1/portal/campaigns",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CAMP-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-025",
+      "method": "GET",
+      "path": "/api/v1/portal/campaigns/:campaignId",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CAMP-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-026",
+      "method": "POST",
+      "path": "/api/v1/portal/campaigns/:campaignId/milestones/:milestoneId/acceptance",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CAMP-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-027",
+      "method": "GET",
+      "path": "/api/v1/portal/tickets",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CSKH-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-028",
+      "method": "GET",
+      "path": "/api/v1/portal/tickets/:ticketId",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CSKH-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-029",
+      "method": "POST",
+      "path": "/api/v1/portal/tickets",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CSKH-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-030",
+      "method": "POST",
+      "path": "/api/v1/portal/tickets/:ticketId/comments",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CSKH-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-031",
+      "method": "GET",
+      "path": "/api/v1/portal/invoices",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-032",
+      "method": "GET",
+      "path": "/api/v1/portal/invoices/:invoiceId",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-033",
+      "method": "GET",
+      "path": "/api/v1/portal/invoices/:invoiceId/file",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-034",
+      "method": "POST",
+      "path": "/api/v1/portal/exports",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017",
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-035",
+      "method": "GET",
+      "path": "/api/v1/portal/exports/:exportId",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-036",
+      "method": "GET",
+      "path": "/api/v1/portal/meta/freshness",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-037",
+      "method": "POST",
+      "path": "/api/v1/portal/incidents",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-038",
+      "method": "POST",
+      "path": "/internal/portal/adoption-events",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "internal": true,
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-PORTAL-039",
+      "method": "POST",
+      "path": "/internal/portal/watermark/render",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "internal": true,
+      "_lane": "portal-web"
+    },
+    {
+      "api_id": "API-MBI-001",
+      "method": "POST",
+      "path": "/api/v1/mbi/auth/token",
+      "module": "MOD-RBAC-AUDIT",
+      "note": "proxy REFERENCE /core/auth/token + device binding check",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-002",
+      "method": "POST",
+      "path": "/api/v1/mbi/auth/mfa/step-up",
+      "module": "MOD-RBAC-AUDIT",
+      "note": "proxy REFERENCE /core/auth/mfa/step-up",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-003",
+      "method": "POST",
+      "path": "/api/v1/mbi/auth/logout",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-004",
+      "method": "POST",
+      "path": "/api/v1/mbi/devices",
+      "module": "MOD-RBAC-AUDIT",
+      "note": "device registration + push token + binding",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-005",
+      "method": "PUT",
+      "path": "/api/v1/mbi/devices/:deviceId",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-006",
+      "method": "DELETE",
+      "path": "/api/v1/mbi/devices/:deviceId",
+      "module": "MOD-RBAC-AUDIT",
+      "note": "revoke + remote wipe",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-007",
+      "method": "GET",
+      "path": "/api/v1/mbi/devices",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-008",
+      "method": "GET",
+      "path": "/api/v1/mbi/push-preferences",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-009",
+      "method": "PUT",
+      "path": "/api/v1/mbi/push-preferences",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-010",
+      "method": "GET",
+      "path": "/api/v1/mbi/app-config",
+      "module": "mbi-platform",
+      "note": "min-version gating + cert pinning pinset",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-011",
+      "method": "GET",
+      "path": "/api/v1/mbi/approvals",
+      "module": "MOD-ARAP-PAYMENT",
+      "note": "approval inbox theo vai",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-012",
+      "method": "GET",
+      "path": "/api/v1/mbi/approvals/:approvalId",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-013",
+      "method": "POST",
+      "path": "/api/v1/mbi/approvals/:approvalId/decision",
+      "module": "MOD-ARAP-PAYMENT",
+      "note": "MFA step-up bắt buộc; OFFLINE CẤM; ủy quyền transition backend",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-014",
+      "method": "GET",
+      "path": "/api/v1/mbi/wallet/summary",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-015",
+      "method": "GET",
+      "path": "/api/v1/mbi/wallet/aml-flags",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-016",
+      "method": "GET",
+      "path": "/api/v1/mbi/bi/summary",
+      "module": "MOD-DATAHUB-BI",
+      "note": "P&L/BI rút gọn + freshness metadata",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-017",
+      "method": "GET",
+      "path": "/api/v1/mbi/alerts",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-018",
+      "method": "POST",
+      "path": "/api/v1/mbi/alerts/:alertId/ack",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-019",
+      "method": "POST",
+      "path": "/api/v1/mbi/ess/attendance",
+      "module": "MOD-HR-CORE",
+      "note": "check-in/out offline outbox + idempotency; REQ-HR-003 [NEEDS_REVIEW registry gap]",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-020",
+      "method": "GET",
+      "path": "/api/v1/mbi/ess/attendance/today",
+      "module": "MOD-HR-CORE",
+      "note": "REQ-HR-003 [NEEDS_REVIEW]",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-021",
+      "method": "POST",
+      "path": "/api/v1/mbi/ess/sync",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "note": "batch replay outbox ESS",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-022",
+      "method": "POST",
+      "path": "/api/v1/mbi/ess/leave-requests",
+      "module": "MOD-HR-CORE",
+      "note": "offline-capable; balance check phía HR-CORE; REQ-HR-004 [NEEDS_REVIEW]",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-023",
+      "method": "GET",
+      "path": "/api/v1/mbi/ess/leave-requests",
+      "module": "MOD-HR-CORE",
+      "note": "REQ-HR-004 [NEEDS_REVIEW]",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-024",
+      "method": "POST",
+      "path": "/api/v1/mbi/ess/timesheets",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "note": "offline-capable",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-025",
+      "method": "GET",
+      "path": "/api/v1/mbi/ess/timesheets",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-026",
+      "method": "GET",
+      "path": "/api/v1/mbi/ess/profile",
+      "module": "MOD-HR-CORE",
+      "note": "field-level security; PII lương không cache; REQ-HR-005 [NEEDS_REVIEW]",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-027",
+      "method": "POST",
+      "path": "/api/v1/mbi/actions/:objectType/:objectId/transitions",
+      "module": "multi-module",
+      "note": "action proxy ủy quyền backend (gate/QDD/handoff/proposal/deliverable/ticket/wallet); OFFLINE CẤM",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-028",
+      "method": "GET",
+      "path": "/api/v1/mbi/tickets",
+      "module": "MOD-TICKET-CSKH",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-029",
+      "method": "GET",
+      "path": "/api/v1/mbi/tickets/:ticketId",
+      "module": "MOD-TICKET-CSKH",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-030",
+      "method": "GET",
+      "path": "/api/v1/mbi/shop-alerts",
+      "module": "MOD-TIKTOK-SHOP",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-031",
+      "method": "GET",
+      "path": "/api/v1/mbi/ad-accounts",
+      "module": "MOD-ADACCOUNT-CC",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-032",
+      "method": "GET",
+      "path": "/api/v1/mbi/portal-accounts",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-033",
+      "method": "GET",
+      "path": "/api/v1/mbi/commission/summary",
+      "module": "MOD-COMMISSION-QUOTA",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MBI-034",
+      "method": "POST",
+      "path": "/internal/mbi/push/dispatch",
+      "module": "MOD-SLA-NOTIF",
+      "note": "internal — nhận event từ COMP-ERP-006/COMP-CORE-011/COMP-GW-013 → FCM/APNs",
+      "_lane": "mobile-internal"
+    },
+    {
+      "api_id": "API-MPO-001",
+      "method": "POST",
+      "path": "/api/v1/mpo/auth/activate",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-002",
+      "method": "POST",
+      "path": "/api/v1/mpo/auth/login",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-003",
+      "method": "POST",
+      "path": "/api/v1/mpo/auth/otp",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-004",
+      "method": "POST",
+      "path": "/api/v1/mpo/auth/otp/verify",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-005",
+      "method": "POST",
+      "path": "/api/v1/mpo/auth/password-reset",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-006",
+      "method": "POST",
+      "path": "/api/v1/mpo/auth/logout",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-007",
+      "method": "GET",
+      "path": "/api/v1/mpo/me",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-008",
+      "method": "PUT",
+      "path": "/api/v1/mpo/me/preferences",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-009",
+      "method": "GET",
+      "path": "/api/v1/mpo/portal-users",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-010",
+      "method": "POST",
+      "path": "/api/v1/mpo/portal-users/invites",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-011",
+      "method": "POST",
+      "path": "/api/v1/mpo/portal-users/:id/invites/resend",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-012",
+      "method": "POST",
+      "path": "/api/v1/mpo/portal-users/:id/disable",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-013",
+      "method": "POST",
+      "path": "/api/v1/mpo/sessions/revoke-all",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-014",
+      "method": "POST",
+      "path": "/api/v1/mpo/devices",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008",
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-SLANOT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-015",
+      "method": "PUT",
+      "path": "/api/v1/mpo/devices/:id",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-SLANOT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-016",
+      "method": "DELETE",
+      "path": "/api/v1/mpo/devices/:id",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-SLANOT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-017",
+      "method": "GET",
+      "path": "/api/v1/mpo/notifications",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-SLANOT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-018",
+      "method": "POST",
+      "path": "/api/v1/mpo/notifications/:id/read",
+      "module": "MOD-SLA-NOTIF",
+      "req_ids": [
+        "REQ-OPS-008"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-SLANOT-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-019",
+      "method": "GET",
+      "path": "/api/v1/mpo/wallet/summary",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-OPS-003",
+        "REQ-FIN-017"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-WALLET-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-020",
+      "method": "GET",
+      "path": "/api/v1/mpo/wallet/spend",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-OPS-003",
+        "REQ-FIN-002",
+        "REQ-FIN-017"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-WALLET-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-021",
+      "method": "GET",
+      "path": "/api/v1/mpo/wallet/transactions",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-OPS-003",
+        "REQ-FIN-017"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-WALLET-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-022",
+      "method": "GET",
+      "path": "/api/v1/mpo/wallet/statement-link",
+      "module": "MOD-WALLET-RECON",
+      "req_ids": [
+        "REQ-OPS-003",
+        "REQ-FIN-017"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-WALLET-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-023",
+      "method": "GET",
+      "path": "/api/v1/mpo/campaigns",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CAMP-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-024",
+      "method": "GET",
+      "path": "/api/v1/mpo/campaigns/:id",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CAMP-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-025",
+      "method": "POST",
+      "path": "/api/v1/mpo/campaigns/:id/milestones/:mid/confirm",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CAMP-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-026",
+      "method": "POST",
+      "path": "/api/v1/mpo/campaigns/:id/milestones/:mid/revision",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "req_ids": [
+        "REQ-OPS-006"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CAMP-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-027",
+      "method": "GET",
+      "path": "/api/v1/mpo/tickets",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CSKH-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-028",
+      "method": "GET",
+      "path": "/api/v1/mpo/tickets/:id",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CSKH-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-029",
+      "method": "POST",
+      "path": "/api/v1/mpo/tickets",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CSKH-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-030",
+      "method": "POST",
+      "path": "/api/v1/mpo/tickets/:id/comments",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CSKH-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-031",
+      "method": "POST",
+      "path": "/api/v1/mpo/tickets/:id/reopen",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CSKH-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-032",
+      "method": "POST",
+      "path": "/api/v1/mpo/tickets/:id/csat",
+      "module": "MOD-TICKET-CSKH",
+      "req_ids": [
+        "REQ-OPS-009"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CSKH-001"
+      ],
+      "_lane": "mobile-portal"
+    },
+    {
+      "api_id": "API-MPO-033",
+      "method": "GET",
+      "path": "/api/v1/mpo/app-config",
+      "module": "MOD-CLIENT-PORTAL",
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "feat_ids": [
+        "FEAT-MPO-CPORT-001"
+      ],
+      "_lane": "mobile-portal"
+    }
+  ],
+  "db_tables": [
+    {
+      "db_table_id": "TBL-ERP-001",
+      "table_name": "erp_sales.customers",
+      "module": "MOD-CRM-PIPELINE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-002",
+      "table_name": "erp_sales.leads",
+      "module": "MOD-CRM-PIPELINE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-003",
+      "table_name": "erp_sales.lead_assignment_history",
+      "module": "MOD-CRM-PIPELINE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-004",
+      "table_name": "erp_sales.lead_gate_decisions",
+      "module": "MOD-CRM-PIPELINE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-005",
+      "table_name": "erp_sales.quotations",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-006",
+      "table_name": "erp_sales.quotation_approvals",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-007",
+      "table_name": "erp_sales.contracts",
+      "module": "MOD-QUOTATION-DEALDESK",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-008",
+      "table_name": "erp_sales.handoffs",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-009",
+      "table_name": "erp_sales.handoff_tasks",
+      "module": "MOD-HANDOFF-ONBOARD",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-010",
+      "table_name": "erp_sales.sales_activities",
+      "module": "MOD-CRM-PIPELINE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-011",
+      "table_name": "erp_finance.wallets",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-012",
+      "table_name": "erp_finance.wallet_journal",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-013",
+      "table_name": "erp_finance.wallet_journal_lines",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-014",
+      "table_name": "erp_finance.wallet_transactions",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-015",
+      "table_name": "erp_finance.reconciliation_runs",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-016",
+      "table_name": "erp_finance.reconciliation_items",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-017",
+      "table_name": "erp_finance.period_locks",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-018",
+      "table_name": "erp_finance.hard_stop_confirmations",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-019",
+      "table_name": "erp_finance.aml_flags",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-020",
+      "table_name": "erp_finance.ar_invoices",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-021",
+      "table_name": "erp_finance.dunning_logs",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-022",
+      "table_name": "erp_finance.payment_orders",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-023",
+      "table_name": "erp_finance.payment_order_approvals",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-024",
+      "table_name": "erp_finance.einvoices",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-025",
+      "table_name": "erp_finance.platform_fees",
+      "module": "MOD-ARAP-PAYMENT",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-026",
+      "table_name": "erp_finance.commissions",
+      "module": "MOD-COMMISSION-QUOTA",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-027",
+      "table_name": "erp_finance.commission_clawbacks",
+      "module": "MOD-COMMISSION-QUOTA",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-028",
+      "table_name": "erp_finance.quotas",
+      "module": "MOD-COMMISSION-QUOTA",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-029",
+      "table_name": "erp_finance.finance_activities",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-030",
+      "table_name": "erp_ops.ad_accounts",
+      "module": "MOD-ADACCOUNT-CC",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-031",
+      "table_name": "erp_ops.ad_account_events",
+      "module": "MOD-ADACCOUNT-CC",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-032",
+      "table_name": "erp_ops.proposals",
+      "module": "MOD-PROPOSAL-PLANNING",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-033",
+      "table_name": "erp_ops.proposal_stages",
+      "module": "MOD-PROPOSAL-PLANNING",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-034",
+      "table_name": "erp_ops.campaigns",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-035",
+      "table_name": "erp_ops.deliverables",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-036",
+      "table_name": "erp_ops.deliverable_assignment_history",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-037",
+      "table_name": "erp_ops.ab_tests",
+      "module": "MOD-CAMPAIGN-DELIVERABLE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-038",
+      "table_name": "erp_ops.tickets",
+      "module": "MOD-TICKET-CSKH",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-039",
+      "table_name": "erp_ops.ticket_assignment_history",
+      "module": "MOD-TICKET-CSKH",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-040",
+      "table_name": "erp_ops.portal_account_requests",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-041",
+      "table_name": "erp_ops.ops_activities",
+      "module": "MOD-ADACCOUNT-CC",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-042",
+      "table_name": "erp_people.employees",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-043",
+      "table_name": "erp_people.employment_contracts",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-044",
+      "table_name": "erp_people.attendance_records",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-045",
+      "table_name": "erp_people.leave_requests",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-046",
+      "table_name": "erp_people.leave_balances",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-047",
+      "table_name": "erp_people.rate_card_versions",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-048",
+      "table_name": "erp_people.timesheets",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-049",
+      "table_name": "erp_people.timesheet_approvals",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-050",
+      "table_name": "erp_people.capacity_snapshots",
+      "module": "MOD-CAPACITY-TIMESHEET",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-051",
+      "table_name": "erp_people.kpi_periods",
+      "module": "MOD-KPI-PERFORMANCE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-052",
+      "table_name": "erp_people.kpi_scores",
+      "module": "MOD-KPI-PERFORMANCE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-053",
+      "table_name": "erp_people.pip_plans",
+      "module": "MOD-KPI-PERFORMANCE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-054",
+      "table_name": "erp_people.pip_checkpoints",
+      "module": "MOD-KPI-PERFORMANCE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-055",
+      "table_name": "erp_people.people_activities",
+      "module": "MOD-HR-CORE",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-056",
+      "table_name": "erp_sla.sla_policies",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-057",
+      "table_name": "erp_sla.sla_timers",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-058",
+      "table_name": "erp_sla.notifications",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-059",
+      "table_name": "erp_sla.job_registry",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-060",
+      "table_name": "erp_sla.job_runs",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-061",
+      "table_name": "erp_sla.job_dead_letters",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-ERP-062",
+      "table_name": "erp_sla.outbox_events",
+      "module": "MOD-WALLET-RECON",
+      "_lane": "bcerp-web"
+    },
+    {
+      "db_table_id": "TBL-CORE-001",
+      "table_name": "core_identity.users",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-002",
+      "table_name": "core_identity.mfa_enrollments",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-003",
+      "table_name": "core_identity.sessions",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-004",
+      "table_name": "core_identity.roles",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-005",
+      "table_name": "core_identity.permissions",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-006",
+      "table_name": "core_identity.role_permissions",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-007",
+      "table_name": "core_identity.user_roles",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-008",
+      "table_name": "core_identity.role_assignment_approvals",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-009",
+      "table_name": "core_identity.policy_versions",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-010",
+      "table_name": "core_identity.policy_approvals",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-011",
+      "table_name": "core_identity.sod_rules",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-012",
+      "table_name": "core_identity.delegate_map",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-013",
+      "table_name": "core_identity.access_review_campaigns",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-014",
+      "table_name": "core_identity.access_review_items",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-015",
+      "table_name": "core_audit.audit_log",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-016",
+      "table_name": "core_audit.audit_export_requests",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-017",
+      "table_name": "core_audit.worm_evidence_refs",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-018",
+      "table_name": "core_audit.pii_classifications",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-019",
+      "table_name": "core_audit.pii_mask_configs",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-020",
+      "table_name": "core_audit.pii_access_log",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-021",
+      "table_name": "core_dhub.ingestion_contracts",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-022",
+      "table_name": "core_dhub.ingest_runs",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-023",
+      "table_name": "core_dhub.ingest_dlq",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-024",
+      "table_name": "core_dhub.warehouse_datasets",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-025",
+      "table_name": "core_dhub.mart_publish_log",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-026",
+      "table_name": "core_dhub.alert_rules",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-027",
+      "table_name": "core_dhub.alert_instances",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-CORE-028",
+      "table_name": "core_dhub.alert_routing",
+      "module": "MOD-DATAHUB-BI",
+      "_lane": "core-backend"
+    },
+    {
+      "db_table_id": "TBL-GW-001",
+      "table_name": "gw_connector.connection_profile",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-002",
+      "table_name": "gw_connector.credential_version",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-003",
+      "table_name": "gw_connector.sync_schedule",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-004",
+      "table_name": "gw_connector.sync_job",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-005",
+      "table_name": "gw_connector.adapter_health",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-006",
+      "table_name": "gw_connector.policy_config_version",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-007",
+      "table_name": "gw_connector.field_mapping",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-008",
+      "table_name": "gw_connector.import_batch",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-009",
+      "table_name": "gw_connector.import_row",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-010",
+      "table_name": "gw_connector.raw_payload",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-011",
+      "table_name": "gw_connector.platform_statement",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-012",
+      "table_name": "gw_connector.backfill_run",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-013",
+      "table_name": "gw_connector.gateway_audit",
+      "module": "MOD-SETTINGS-GW",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-014",
+      "table_name": "gw_tiktok.shop_connection",
+      "module": "MOD-TIKTOK-SHOP",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-015",
+      "table_name": "gw_tiktok.shop_access_log",
+      "module": "MOD-TIKTOK-SHOP",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-016",
+      "table_name": "gw_tiktok.shop_metric_daily",
+      "module": "MOD-TIKTOK-SHOP",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-017",
+      "table_name": "gw_tiktok.pii_access_session",
+      "module": "MOD-TIKTOK-SHOP",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-GW-018",
+      "table_name": "gw_tiktok.portal_report_feed",
+      "module": "MOD-TIKTOK-SHOP",
+      "_lane": "integration-gw"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-001",
+      "table_name": "portal_account.portal_user",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002",
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-002",
+      "table_name": "portal_account.portal_invite",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-003",
+      "table_name": "portal_account.portal_session",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-RBAC-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-BOD-011"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-004",
+      "table_name": "portal_account.portal_otp_challenge",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-005",
+      "table_name": "portal_account.portal_access_log",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-006",
+      "table_name": "portal_account.portal_download_log",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-007",
+      "table_name": "portal_account.tenant_ref",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-002"
+      ],
+      "req_ids": [
+        "REQ-OPS-010",
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-008",
+      "table_name": "portal_account.portal_export_job",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-001"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-PORTAL-009",
+      "table_name": "portal_account.portal_anomaly_event",
+      "module": "MOD-CLIENT-PORTAL",
+      "feat_ids": [
+        "FEAT-PORTAL-CPORT-005"
+      ],
+      "req_ids": [
+        "REQ-FIN-017"
+      ],
+      "_lane": "portal-web"
+    },
+    {
+      "db_table_id": "TBL-MBI-001",
+      "table_name": "mobile_device",
+      "schema": "mbi_device",
+      "module": "MOD-RBAC-AUDIT",
+      "_lane": "mobile-internal"
+    },
+    {
+      "db_table_id": "TBL-MBI-002",
+      "table_name": "push_preference",
+      "schema": "mbi_device",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "mobile-internal"
+    },
+    {
+      "db_table_id": "TBL-MBI-003",
+      "table_name": "offline_outbox",
+      "schema": "mbi_device",
+      "module": "MOD-CAPACITY-TIMESHEET,MOD-HR-CORE",
+      "note": "server-side nhận outbox ESS; idempotency_key unique; chỉ action_type nhóm ESS",
+      "_lane": "mobile-internal"
+    },
+    {
+      "db_table_id": "TBL-MPO-001",
+      "table_name": "mpo_device.devices",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "mobile-portal"
+    },
+    {
+      "db_table_id": "TBL-MPO-002",
+      "table_name": "mpo_device.push_preferences",
+      "module": "MOD-SLA-NOTIF",
+      "_lane": "mobile-portal"
+    }
+  ],
+  "infra": [
+    {
+      "infra_resource_id": "INFRA-ERP-001",
+      "type": "container",
+      "name": "erp-bff",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-002",
+      "type": "container",
+      "name": "erp-domain-api",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-003",
+      "type": "worker",
+      "name": "erp-sla-worker",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-004",
+      "type": "scheduler",
+      "name": "erp-scheduler",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-005",
+      "type": "static-bundle",
+      "name": "bcerp-web-spa",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-006",
+      "type": "consumption",
+      "name": "postgresql-schemas-erp",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-007",
+      "type": "consumption",
+      "name": "redis-lock-idempotency-cache",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-008",
+      "type": "consumption",
+      "name": "event-bus-outbox-dlq",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-ERP-009",
+      "type": "consumption",
+      "name": "worm-object-storage-evidence",
+      "_lane": "bcerp-web"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-001",
+      "type": "service",
+      "name": "svc-idp (Keycloak OIDC/OAuth2 — 2 realms)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-002",
+      "type": "service",
+      "name": "svc-core-api (auth admin + PDP + PII + BI serving + alert + ingest admin)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-003",
+      "type": "worker",
+      "name": "worker-access-review (quarterly + recertification)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-004",
+      "type": "worker",
+      "name": "worker-etl-ingest (CDC/event/pull + gates G0-G5)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-005",
+      "type": "worker",
+      "name": "worker-pnl-compute (stream aggregation + nightly reconcile)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-006",
+      "type": "database",
+      "name": "pg-core (PostgreSQL 16 — core_identity/core_audit/core_dhub)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-007",
+      "type": "database",
+      "name": "clickhouse-olap (raw/staged/marts — đề xuất)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-008",
+      "type": "cache",
+      "name": "redis-core (session + PDP cache + BI cache)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-009",
+      "type": "message-broker",
+      "name": "kafka-bus (platform dùng chung — CDC/event/DLQ)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-010",
+      "type": "object-storage",
+      "name": "worm-store (S3-compatible + Object Lock ≥10 năm)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-011",
+      "type": "kms",
+      "name": "kms-pii (envelope encryption field-level)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-CORE-012",
+      "type": "worker",
+      "name": "worker-alert-engine (rule eval + lifecycle + dispatch qua SLANOT)",
+      "_lane": "core-backend"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-001",
+      "type": "service",
+      "name": "gw-api (REST /api/v1/gw, headless, 2 replicas)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-002",
+      "type": "service",
+      "name": "gw-vault (KMS envelope encryption, mask-only, cấm mobile)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-003",
+      "type": "worker",
+      "name": "gw-sync-worker pool (adapter-lock per platform)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-004",
+      "type": "queue",
+      "name": "gw-queue (Redis Streams, consumer group per-platform + DLQ)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-005",
+      "type": "worker",
+      "name": "gw-backfill-worker (trigger theo sự kiện cấp quyền)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-006",
+      "type": "object-storage",
+      "name": "raw payload + evidence bucket (S3 Object Lock, versioning)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-007",
+      "type": "network",
+      "name": "egress proxy per-platform (rate limit theo quota, egress IP tĩnh)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-008",
+      "type": "database",
+      "name": "PostgreSQL schemas gw_connector + gw_tiktok (RLS, primary + replica)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-009",
+      "type": "scheduler",
+      "name": "cron hourly + distributed lock Redis (chống overlap job)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-GW-010",
+      "type": "pipeline",
+      "name": "secrets-rotation pipeline (≥90 ngày + T-7 + auto-degraded quá hạn 7 ngày)",
+      "_lane": "integration-gw"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-001",
+      "name": "Portal SPA CDN host + edge WAF (portal.bcagency.vn)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-002",
+      "name": "Portal BFF/API Gateway service (NestJS, port 8083, DMZ-app)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-003",
+      "name": "Portal Identity & Account service (DMZ-app)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-004",
+      "name": "Read-model cache Redis (namespace portal:*, TTL 15p-24h, DMZ-data)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-005",
+      "name": "PostgreSQL portal_account (DMZ-data, RLS tenant isolation)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-006",
+      "name": "Audit log store append-only hash-chain + verify/archive",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-007",
+      "name": "Watermark render service (sidecar COMP-PORTAL-005, DMZ-app)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-008",
+      "name": "Rate limit + WAF stack (edge OWASP CRS + BFF limiter + anomaly rules)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-009",
+      "name": "DMZ network segmentation (subnets, firewall, egress allowlist mTLS)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-PORTAL-010",
+      "name": "TLS certs + mTLS + KMS key (totp_secret encryption)",
+      "module": "MOD-CLIENT-PORTAL",
+      "_lane": "portal-web"
+    },
+    {
+      "infra_resource_id": "INFRA-MBI-001",
+      "type": "container",
+      "name": "mobile-bff",
+      "note": "NestJS :8084, 2 replicas prod, stateless proxy + shaping",
+      "_lane": "mobile-internal"
+    },
+    {
+      "infra_resource_id": "INFRA-MBI-002",
+      "type": "container",
+      "name": "push-gateway",
+      "note": "FCM/APNs integration, Redis queue + retry + DLQ, 2 replicas",
+      "_lane": "mobile-internal"
+    },
+    {
+      "infra_resource_id": "INFRA-MBI-003",
+      "type": "distribution-pipeline",
+      "name": "app-distribution",
+      "note": "TestFlight / Play internal testing / MDM [NEEDS_REVIEW: MDM]",
+      "_lane": "mobile-internal"
+    },
+    {
+      "infra_resource_id": "INFRA-MBI-004",
+      "type": "security-config",
+      "name": "cert-pinning",
+      "note": "pinset versioned, phân phối qua app-config ký số, backup pin + rotation",
+      "_lane": "mobile-internal"
+    },
+    {
+      "infra_resource_id": "INFRA-MBI-005",
+      "type": "gating-config",
+      "name": "min-version-gating",
+      "note": "MIN_APP_VERSION + force-update, 426 VERSION_UNSUPPORTED",
+      "_lane": "mobile-internal"
+    },
+    {
+      "infra_resource_id": "INFRA-MBI-006",
+      "type": "database-schema",
+      "name": "mbi_device",
+      "note": "schema trong PostgreSQL platform dùng chung",
+      "_lane": "mobile-internal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-001",
+      "type": "service",
+      "name": "mpo-bff (Node/NestJS cùng stack PORTAL-WEB, port 8085, stateless, 2 replicas, mask + freshness gate)",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-002",
+      "type": "worker",
+      "name": "mpo-push-worker (queue consumer, fan-out FCM/APNs, SLA ≤5 phút, DLQ)",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-003",
+      "type": "database",
+      "name": "PostgreSQL schema mpo_device (RLS tenant, primary + replica dùng chung nền tảng)",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-004",
+      "type": "cache",
+      "name": "Redis namespace mpo:* (session, OTP, rate-limit, idempotency, push queue — ephemeral)",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-005",
+      "type": "secret",
+      "name": "Push credentials vault (FCM service account + APNs key/token, xoay vòng ≥90 ngày)",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-006",
+      "type": "distribution",
+      "name": "App Store + Google Play (staging TestFlight/Play Internal Testing) + kênh MDM [NEEDS_REVIEW]",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-007",
+      "type": "config",
+      "name": "Min-version gating qua GET /api/v1/mpo/app-config (force update, nâng ngưỡng khẩn không cần release)",
+      "_lane": "mobile-portal"
+    },
+    {
+      "infra_resource_id": "INFRA-MPO-008",
+      "type": "network",
+      "name": "DMZ cùng zone PORTAL — chỉ 443 public; BFF internal-only tới PORTAL/CORE; cấm chạm INTEGRATION-GW/vault",
+      "_lane": "mobile-portal"
+    }
+  ],
+  "conflicts": [],
+  "stats": {
+    "components": 60,
+    "apis": 280,
+    "db_tables": 122,
+    "infra": 55
+  }
+}

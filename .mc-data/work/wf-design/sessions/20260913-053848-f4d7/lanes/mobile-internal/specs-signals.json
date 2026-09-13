@@ -1,0 +1,62 @@
+{
+  "lane_type": "system",
+  "system_slug": "mobile-internal",
+  "system_id": "SYS-MOBILE-INTERNAL",
+  "phase": "P2-technical-specs",
+  "api_items": [
+    { "api_id": "API-MBI-001", "method": "POST", "path": "/api/v1/mbi/auth/token", "module": "MOD-RBAC-AUDIT", "note": "proxy REFERENCE /core/auth/token + device binding check" },
+    { "api_id": "API-MBI-002", "method": "POST", "path": "/api/v1/mbi/auth/mfa/step-up", "module": "MOD-RBAC-AUDIT", "note": "proxy REFERENCE /core/auth/mfa/step-up" },
+    { "api_id": "API-MBI-003", "method": "POST", "path": "/api/v1/mbi/auth/logout", "module": "MOD-RBAC-AUDIT" },
+    { "api_id": "API-MBI-004", "method": "POST", "path": "/api/v1/mbi/devices", "module": "MOD-RBAC-AUDIT", "note": "device registration + push token + binding" },
+    { "api_id": "API-MBI-005", "method": "PUT", "path": "/api/v1/mbi/devices/:deviceId", "module": "MOD-RBAC-AUDIT" },
+    { "api_id": "API-MBI-006", "method": "DELETE", "path": "/api/v1/mbi/devices/:deviceId", "module": "MOD-RBAC-AUDIT", "note": "revoke + remote wipe" },
+    { "api_id": "API-MBI-007", "method": "GET", "path": "/api/v1/mbi/devices", "module": "MOD-RBAC-AUDIT" },
+    { "api_id": "API-MBI-008", "method": "GET", "path": "/api/v1/mbi/push-preferences", "module": "MOD-SLA-NOTIF" },
+    { "api_id": "API-MBI-009", "method": "PUT", "path": "/api/v1/mbi/push-preferences", "module": "MOD-SLA-NOTIF" },
+    { "api_id": "API-MBI-010", "method": "GET", "path": "/api/v1/mbi/app-config", "module": "mbi-platform", "note": "min-version gating + cert pinning pinset" },
+    { "api_id": "API-MBI-011", "method": "GET", "path": "/api/v1/mbi/approvals", "module": "MOD-ARAP-PAYMENT", "note": "approval inbox theo vai" },
+    { "api_id": "API-MBI-012", "method": "GET", "path": "/api/v1/mbi/approvals/:approvalId", "module": "MOD-ARAP-PAYMENT" },
+    { "api_id": "API-MBI-013", "method": "POST", "path": "/api/v1/mbi/approvals/:approvalId/decision", "module": "MOD-ARAP-PAYMENT", "note": "MFA step-up bắt buộc; OFFLINE CẤM; ủy quyền transition backend" },
+    { "api_id": "API-MBI-014", "method": "GET", "path": "/api/v1/mbi/wallet/summary", "module": "MOD-WALLET-RECON" },
+    { "api_id": "API-MBI-015", "method": "GET", "path": "/api/v1/mbi/wallet/aml-flags", "module": "MOD-WALLET-RECON" },
+    { "api_id": "API-MBI-016", "method": "GET", "path": "/api/v1/mbi/bi/summary", "module": "MOD-DATAHUB-BI", "note": "P&L/BI rút gọn + freshness metadata" },
+    { "api_id": "API-MBI-017", "method": "GET", "path": "/api/v1/mbi/alerts", "module": "MOD-DATAHUB-BI" },
+    { "api_id": "API-MBI-018", "method": "POST", "path": "/api/v1/mbi/alerts/:alertId/ack", "module": "MOD-DATAHUB-BI" },
+    { "api_id": "API-MBI-019", "method": "POST", "path": "/api/v1/mbi/ess/attendance", "module": "MOD-HR-CORE", "note": "check-in/out offline outbox + idempotency; REQ-HR-003 [NEEDS_REVIEW registry gap]" },
+    { "api_id": "API-MBI-020", "method": "GET", "path": "/api/v1/mbi/ess/attendance/today", "module": "MOD-HR-CORE", "note": "REQ-HR-003 [NEEDS_REVIEW]" },
+    { "api_id": "API-MBI-021", "method": "POST", "path": "/api/v1/mbi/ess/sync", "module": "MOD-CAPACITY-TIMESHEET", "note": "batch replay outbox ESS" },
+    { "api_id": "API-MBI-022", "method": "POST", "path": "/api/v1/mbi/ess/leave-requests", "module": "MOD-HR-CORE", "note": "offline-capable; balance check phía HR-CORE; REQ-HR-004 [NEEDS_REVIEW]" },
+    { "api_id": "API-MBI-023", "method": "GET", "path": "/api/v1/mbi/ess/leave-requests", "module": "MOD-HR-CORE", "note": "REQ-HR-004 [NEEDS_REVIEW]" },
+    { "api_id": "API-MBI-024", "method": "POST", "path": "/api/v1/mbi/ess/timesheets", "module": "MOD-CAPACITY-TIMESHEET", "note": "offline-capable" },
+    { "api_id": "API-MBI-025", "method": "GET", "path": "/api/v1/mbi/ess/timesheets", "module": "MOD-CAPACITY-TIMESHEET" },
+    { "api_id": "API-MBI-026", "method": "GET", "path": "/api/v1/mbi/ess/profile", "module": "MOD-HR-CORE", "note": "field-level security; PII lương không cache; REQ-HR-005 [NEEDS_REVIEW]" },
+    { "api_id": "API-MBI-027", "method": "POST", "path": "/api/v1/mbi/actions/:objectType/:objectId/transitions", "module": "multi-module", "note": "action proxy ủy quyền backend (gate/QDD/handoff/proposal/deliverable/ticket/wallet); OFFLINE CẤM" },
+    { "api_id": "API-MBI-028", "method": "GET", "path": "/api/v1/mbi/tickets", "module": "MOD-TICKET-CSKH" },
+    { "api_id": "API-MBI-029", "method": "GET", "path": "/api/v1/mbi/tickets/:ticketId", "module": "MOD-TICKET-CSKH" },
+    { "api_id": "API-MBI-030", "method": "GET", "path": "/api/v1/mbi/shop-alerts", "module": "MOD-TIKTOK-SHOP" },
+    { "api_id": "API-MBI-031", "method": "GET", "path": "/api/v1/mbi/ad-accounts", "module": "MOD-ADACCOUNT-CC" },
+    { "api_id": "API-MBI-032", "method": "GET", "path": "/api/v1/mbi/portal-accounts", "module": "MOD-CLIENT-PORTAL" },
+    { "api_id": "API-MBI-033", "method": "GET", "path": "/api/v1/mbi/commission/summary", "module": "MOD-COMMISSION-QUOTA" },
+    { "api_id": "API-MBI-034", "method": "POST", "path": "/internal/mbi/push/dispatch", "module": "MOD-SLA-NOTIF", "note": "internal — nhận event từ COMP-ERP-006/COMP-CORE-011/COMP-GW-013 → FCM/APNs" }
+  ],
+  "db_items": [
+    { "db_table_id": "TBL-MBI-001", "table_name": "mobile_device", "schema": "mbi_device", "module": "MOD-RBAC-AUDIT" },
+    { "db_table_id": "TBL-MBI-002", "table_name": "push_preference", "schema": "mbi_device", "module": "MOD-SLA-NOTIF" },
+    { "db_table_id": "TBL-MBI-003", "table_name": "offline_outbox", "schema": "mbi_device", "module": "MOD-CAPACITY-TIMESHEET,MOD-HR-CORE", "note": "server-side nhận outbox ESS; idempotency_key unique; chỉ action_type nhóm ESS" }
+  ],
+  "infra_items": [
+    { "infra_resource_id": "INFRA-MBI-001", "type": "container", "name": "mobile-bff", "note": "NestJS :8084, 2 replicas prod, stateless proxy + shaping" },
+    { "infra_resource_id": "INFRA-MBI-002", "type": "container", "name": "push-gateway", "note": "FCM/APNs integration, Redis queue + retry + DLQ, 2 replicas" },
+    { "infra_resource_id": "INFRA-MBI-003", "type": "distribution-pipeline", "name": "app-distribution", "note": "TestFlight / Play internal testing / MDM [NEEDS_REVIEW: MDM]" },
+    { "infra_resource_id": "INFRA-MBI-004", "type": "security-config", "name": "cert-pinning", "note": "pinset versioned, phân phối qua app-config ký số, backup pin + rotation" },
+    { "infra_resource_id": "INFRA-MBI-005", "type": "gating-config", "name": "min-version-gating", "note": "MIN_APP_VERSION + force-update, 426 VERSION_UNSUPPORTED" },
+    { "infra_resource_id": "INFRA-MBI-006", "type": "database-schema", "name": "mbi_device", "note": "schema trong PostgreSQL platform dùng chung" }
+  ],
+  "needs_review": [
+    "REQ-HR-003/004/005 (ESS chấm công/nghỉ phép/hồ sơ) thiếu FEAT touchpoint MBI trong registry — thiết kế theo baseline §1",
+    "Ánh xạ API-ERP-0xx / API-CORE-0xx chính xác cho các endpoint ủy quyền — chờ spec-api lane bcerp-web/core-backend, sync ở integration-map.md",
+    "Chính sách truy cập BFF từ ngoài mạng (public + device binding + pinning vs VPN-only)",
+    "Chọn MDM/kênh phân phối app (TestFlight Enterprise vs MDM)",
+    "Retention offline_outbox (đề xuất 90 ngày)"
+  ]
+}

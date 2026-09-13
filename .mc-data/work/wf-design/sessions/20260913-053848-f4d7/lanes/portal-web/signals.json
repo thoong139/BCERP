@@ -1,0 +1,101 @@
+{
+  "lane_type": "system",
+  "system_slug": "portal-web",
+  "system_id": "SYS-PORTAL-WEB",
+  "items": [
+    {
+      "component_id": "COMP-PORTAL-001",
+      "name": "Portal Web App (Client-facing SPA)",
+      "type": "app",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "SPA client-facing cho CUSTOMER (CLIENT_ADMIN/CLIENT_USER): dashboard ví read-only, tiến độ nghiệm thu theo milestone, ticket, lịch nạp, invoice",
+        "Luồng nhận invite, kích hoạt tài khoản, bật 2FA, xác minh OTP cho hành động nhạy cảm (thêm user, xuất dữ liệu, đổi mật khẩu)",
+        "Render bắt buộc kèm freshness metadata (nhãn nguồn + timestamp + disclaimer độ trễ); thiếu metadata thì không render số",
+        "CLIENT_ADMIN tự quản portal user trong hạn mức theo hợp đồng; hiển thị trạng thái 'Đang đối soát' + số tham chiếu cho giao dịch tranh chấp",
+        "i18n đa ngôn ngữ/múi giờ cho khách quốc tế (GMT+7 mặc định); watermark hiển thị trên dữ liệu xuất"
+      ],
+      "dependencies": ["COMP-PORTAL-002"]
+    },
+    {
+      "component_id": "COMP-PORTAL-002",
+      "name": "Portal API Gateway / BFF",
+      "type": "bff",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Cổng API duy nhất cho portal, triển khai trong network zone tách biệt (DMZ) khỏi hệ nội bộ; không cho phép portal chạm DB nội bộ",
+        "Quản lý session, rate limit, khóa phiên khi hành vi bất thường (quét dữ liệu, thử chéo tenant)",
+        "Scoping tenant_id bắt buộc trên mọi request; chặn mọi route ghi lên dữ liệu tài chính (read-only tuyệt đối)",
+        "Từ chối đăng nhập của tài khoản nội bộ (client identity tách internal identity)",
+        "Tổng hợp response từ Identity, Read-Model, Audit services trước khi trả client"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "COMP-PORTAL-003", "COMP-PORTAL-004", "COMP-PORTAL-005"]
+    },
+    {
+      "component_id": "COMP-PORTAL-003",
+      "name": "Portal Identity & Account Service",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Sở hữu portal_user, portal_invite, session/token 2FA-OTP; lifecycle INVITED → ACTIVE → LOCKED / DISABLED / EXPIRED",
+        "Kích hoạt: OTP + bật 2FA bắt buộc (không tồn tại ACTIVE chưa 2FA); khóa tự động sau 5 lần sai; mở khóa sau xác minh danh tính/POC",
+        "Kiểm tra hạn mức user theo hợp đồng (mặc định 2 CLIENT_ADMIN + 10 CLIENT_USER, mở rộng theo tier) và cờ dpa_signed trước khi hoàn tất kích hoạt (khách EU/US)",
+        "Chỉ tiếp nhận invite do OPS_AM (CLIENT_ADMIN đầu tiên, Day 1) hoặc CLIENT_ADMIN (user sau) phát hành — nội bộ không tạo hộ",
+        "Thu hồi/offboard: vô hiệu session ngay tại request kế tiếp; thu hồi quyền trong 24h theo BR-FIN-603"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-PORTAL-004",
+      "name": "Portal Read-Model Serving Service",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Pull/cache read-model từ CORE read-views (đã RLS + tenant_id filter + mask tầng API): số dư ví theo TKQC, chi tiêu daily, trạng thái đối soát mức khách, lịch nạp (REQ-FIN-017)",
+        "Cung cấp read-model campaign/deliverable: tiến độ nghiệm thu theo milestone (REQ-OPS-006 touchpoint); ticket của chính khách theo SLA (REQ-OPS-009 touchpoint); invoice từ ARAP",
+        "Gắn nhãn nguồn + timestamp + disclaimer vào mọi chỉ số (số dư 15 phút–24h; chi tiêu daily 3–24h; lịch nạp/ticket/tiến độ realtime); số tranh chấp chỉ hiển thị dạng 'Đang đối soát' + số tham chiếu",
+        "Không lưu bản sao business data lâu dài — cache TTL ngắn gắn freshness metadata; giá vốn/chiết khấu/P&L/tỷ giá nội bộ không bao giờ xuất hiện trong payload",
+        "Duy trì portal share model chung để SYS-MOBILE-PORTAL tái dùng (mobile rút gọn: số dư, thông báo, ticket)"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB", "COMP-PORTAL-003"]
+    },
+    {
+      "component_id": "COMP-PORTAL-005",
+      "name": "Portal Audit, Watermark & Anomaly Service",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Sở hữu portal_access_log + portal_download_log: append-only, hash-chain (BR-FIN-501/603), phục vụ điều tra rò rỉ bởi FIN_L2",
+        "Sinh watermark (tên user + thời điểm) server-side cho mọi xuất/download; không tạo được watermark → chặn xuất",
+        "Phát hiện hành vi bất thường: quét dữ liệu, download hàng loạt, thử truy cập chéo tenant → rate limit + alert bảo mật; lặp lại → khóa phiên, escalate SYS_ADMIN/FIN_L2",
+        "Log truy cập/download bất biến phục vụ review ma trận chia sẻ hằng quý (BOD_CFO_CTO)"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "COMP-PORTAL-002"]
+    },
+    {
+      "component_id": "COMP-PORTAL-006",
+      "name": "Portal Adoption Event Forwarder",
+      "type": "service",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Forward sự kiện portal (tạo user, kích hoạt, login, tạo ticket) về SYS-CORE-BACKEND để OPS_AM/OPS_PLAN monitor gate Day 1/7/14/30 trên WEB nội bộ",
+        "Portal không giữ số adoption cục bộ (BR-010 của FEAT-PORTAL-CPORT-002); gate Day 14 tính ở CORE từ dữ liệu activation thực, không chốt tay",
+        "Điểm tiếp nhận báo cáo sự cố phía khách (BR-FIN-604) → đẩy incident intake CORE trong 4h đầu, timer 72h theo NĐ 13/2023 + GDPR/DPA"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "COMP-PORTAL-003"]
+    }
+  ],
+  "conditional_sections": [],
+  "tech_recommendations": {
+    "runtime": "SPA React/Next.js host CDN, domain riêng cho portal; BFF Node.js (NestJS) trong DMZ; PostgreSQL schema riêng (portal_user, portal_invite, portal_access_log, portal_download_log); Redis cho session + rate limit + cache read-model TTL ngắn",
+    "key_decisions": [
+      "Read-only tuyệt đối lên dữ liệu tài chính: whitelist route, không tồn tại endpoint ghi ví/lệnh/đối soát; enforce chính ở CORE, portal không chống lệnh thay backend bằng UI",
+      "Client identity tách internal identity: SSO/OIDC tập trung từ SYS-CORE-BACKEND, 2FA là điều kiện trạng thái ACTIVE; tài khoản nội bộ đăng nhập portal bị từ chối ở gateway",
+      "Tenant isolation 2 lớp (RLS + tenant_id filter ở CORE) + tự bảo vệ ở BFF (scoping bắt buộc, chéo tenant → 403 + log + khóa phiên khi lặp lại)",
+      "Freshness metadata là điều kiện render; watermark server-side bắt buộc mọi download; log append-only hash-chain cho audit toàn vẹn (dữ liệu mức Restricted — BR-FIN-603, PDPA)",
+      "Read-model pull-based polling + cache TTL theo cadence độ trễ của từng loại dữ liệu; chỉ 1 điểm ghi là tạo ticket vào queue hợp nhất REQ-OPS-009 ở CORE",
+      "Tham số nghiệp vụ đưa vào cấu hình, không hardcode: mốc cảnh báo 15/30 ngày [KXN-22], hạn invite (mặc định 7 ngày), hạn mức user theo tier",
+      "Portal share model là contract chung cho SYS-MOBILE-PORTAL — giữ BFF contract ổn định, không thiết kế riêng cho mobile"
+    ]
+  }
+}

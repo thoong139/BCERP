@@ -1,0 +1,172 @@
+{
+  "session_id": "20260913-053848-f4d7",
+  "created_at": "20260913-053848",
+  "next_action": null,
+  "phases": {
+    "P0": {
+      "status": "completed",
+      "completed_at": "2026-09-12T22:44:20Z"
+    },
+    "P0_5": {
+      "status": "completed",
+      "gate_result": "block",
+      "est_minutes": 90,
+      "decision": "auto-partition-sequential (user unanswered, default C)"
+    },
+    "P1": {
+      "status": "completed",
+      "completed_at": "2026-09-12T23:17:41Z",
+      "batches": {
+        "bcerp-web": {
+          "status": "completed",
+          "items": {
+            "COMP-ERP": {
+              "status": "completed",
+              "count": 7
+            }
+          }
+        },
+        "core-backend": {
+          "status": "completed",
+          "items": {
+            "COMP-CORE": {
+              "status": "completed",
+              "count": 11
+            }
+          }
+        },
+        "integration-gw": {
+          "status": "completed",
+          "items": {
+            "COMP-GW": {
+              "status": "completed",
+              "count": 13
+            }
+          }
+        },
+        "portal-web": {
+          "status": "completed",
+          "items": {
+            "COMP-PORTAL": {
+              "status": "completed",
+              "count": 6
+            }
+          }
+        },
+        "mobile-internal": {
+          "status": "completed",
+          "items": {
+            "COMP-MBI": {
+              "status": "completed",
+              "count": 20
+            }
+          }
+        },
+        "mobile-portal": {
+          "status": "completed",
+          "items": {
+            "COMP-MPO": {
+              "status": "completed",
+              "count": 3
+            }
+          }
+        }
+      }
+    },
+    "P2": {
+      "status": "completed",
+      "completed_at": "2026-09-12T23:51:28Z",
+      "batches": {
+        "bcerp-web": {
+          "status": "completed",
+          "items": {
+            "api": 77,
+            "db": 62,
+            "infra": 9
+          }
+        },
+        "core-backend": {
+          "status": "completed",
+          "items": {
+            "api": 49,
+            "db": 28,
+            "infra": 12
+          }
+        },
+        "integration-gw": {
+          "status": "completed",
+          "items": {
+            "api": 48,
+            "db": 18,
+            "infra": 10
+          }
+        },
+        "portal-web": {
+          "status": "completed",
+          "items": {
+            "api": 39,
+            "db": 9,
+            "infra": 10
+          }
+        },
+        "mobile-internal": {
+          "status": "completed",
+          "items": {
+            "api": 34,
+            "db": 3,
+            "infra": 6
+          }
+        },
+        "mobile-portal": {
+          "status": "completed",
+          "items": {
+            "api": 33,
+            "db": 2,
+            "infra": 8
+          }
+        }
+      }
+    },
+    "P3": {
+      "status": "completed",
+      "completed_at": "2026-09-12T23:59:34Z",
+      "items": {
+        "components": 60,
+        "apis": 280,
+        "conflicts": 0
+      }
+    },
+    "P4": {
+      "status": "completed",
+      "completed_at": "2026-09-13T00:20:19Z",
+      "iterations_run": 3,
+      "errors_found": 9,
+      "errors_fixed": 9,
+      "errors_remaining": 0
+    },
+    "P5": {
+      "status": "completed",
+      "completed_at": "2026-09-13T00:48:46Z",
+      "verdict": "APPROVED_WITH_CONDITIONS",
+      "findings": {
+        "total": 33,
+        "resolved": 20,
+        "deferred": 13,
+        "pending": 0
+      }
+    },
+    "P6": {
+      "status": "completed",
+      "completed_at": "2026-09-13T00:51:06Z",
+      "registry": "design_status=completed",
+      "deferred_findings": 13
+    },
+    "P8": {
+      "status": "completed",
+      "completed_at": "2026-09-13T00:53:15.056Z",
+      "digest": true,
+      "phase_summary": true
+    }
+  },
+  "$schema": "design-session-state-v1"
+}

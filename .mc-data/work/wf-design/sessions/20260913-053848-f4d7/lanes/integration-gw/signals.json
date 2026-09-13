@@ -1,0 +1,192 @@
+{
+  "lane_type": "system",
+  "system_slug": "integration-gw",
+  "system_id": "SYS-INTEGRATION-GW",
+  "items": [
+    {
+      "component_id": "COMP-GW-001",
+      "name": "Connector Registry & Adapter Framework",
+      "type": "gateway",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Registry connection profile cho mọi hệ thống ngoại vi theo DI-004: 7 nền tảng QC (Meta/Google/TikTok/Bing/X/Pinterest/Yandex), connector kế toán VAS (REQ-FIN-013), nguồn khác khai báo tương tự — vendor-agnostic, không hardcode tên phần mềm trong code",
+        "Định nghĩa adapter interface chuẩn (connection_type: api_adapter | import_export); mỗi nền tảng đúng 1 adapter + credentials riêng trong vault + sync scheduler riêng",
+        "Thực thi state machine ConnectionProfile (configured/credentials_vaulted → active → degraded/disabled/revoked) — machine-state do gateway giữ, web/mobile chỉ hiển thị",
+        "Chặn tạo/kích hoạt connector nằm ngoài registry Settings (BR-GW-STGW-001)"
+      ],
+      "dependencies": ["COMP-GW-002", "COMP-GW-007", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-002",
+      "name": "Credentials Vault",
+      "type": "vault",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Mã hóa credentials at rest + in transit (CredentialVersion: encrypted_blob, masked_value, rotate_due_at); plaintext không bao giờ xuất hiện ở UI/API response/log — chỉ mask + metadata (BR-GW-STGW-002)",
+        "Enforce độc quyền quản trị BOD_CFO_CTO: MFA TOTP step-up bắt buộc cho mọi thao tác ghi; SYS_ADMIN chỉ thực thi sau phê duyệt; từ chối mọi request vault từ touchpoint mobile (BR-GW-STGW-005)",
+        "Rotate định kỳ ≥90 ngày + cảnh báo T-7; quá hạn >7 ngày → adapter tự degraded + alert; thu hồi khẩn tức thì khi nghi ngờ rò rỉ/offboarding ≤24h (BR-GW-STGW-006)",
+        "Version hóa credential (rotate tạo version mới, giữ lịch sử); REVOKED là trạng thái an toàn bắt buộc trước khi nạp credential mới"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "COMP-GW-007"]
+    },
+    {
+      "component_id": "COMP-GW-003",
+      "name": "Sync Scheduler & Rate-Limited Job Queue",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Điều phối pull hourly cho 2.600+ TKQC qua batch/queue chống rate limit theo quota từng nền tảng; retry + backoff tự động; không chạy song song 2 job cùng adapter (BR-GW-STGW-008)",
+        "Ưu tiên TKQC đang active chi tiêu khi không kịp cửa sổ hourly (priority rules trong SyncSchedule, cấu hình tại Settings)",
+        "Job fail vượt ngưỡng retry → chuyển adapter degraded + alert gộp theo nguồn (không ngập người nhận từng job fail)",
+        "Tham số sync (tần suất, batch, SLA, freshness) là PolicyConfigVersion — chỉ BOD_CEO/BOD_CFO_CTO duyệt, effective-dated, không hồi tố (BR-FIN-STGW-005)"
+      ],
+      "dependencies": ["COMP-GW-001", "COMP-GW-002", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-004",
+      "name": "Ingest & Normalization Pipeline",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Lưu raw payload gốc trước khi parse (RawPayload) làm căn cứ đối chiếu + reprocess khi mapping đổi; chuẩn hóa qua FieldMapping cấu hình tại Settings (DI-004, BR-FIN-STGW-004) — thiếu mapping → dòng vào hàng lỗi, không suy diễn",
+        "Gắn nhãn nguồn `api`/`manual` tại thời điểm ghi, không ai sửa tay; record thiếu nhãn bị reject (BR-FIN-205a)",
+        "Kênh import degraded: nhận PlatformStatement schema chuẩn 8 trường (nền tảng, TKQC, ngày, loại giao dịch, số tiền gốc, tiền tệ, phí, mã tham chiếu) từ màn hình FIN_L1 trên BCERP-WEB; chặn sai schema theo dòng, dòng hợp lệ vẫn nhận (BR-FIN-205b); bắt buộc entered_by + evidence_ref cho bản ghi manual (BR-FIN-205c)",
+        "Khóa tự nhiên chống trùng: nền tảng + TKQC + ngày + loại giao dịch + mã tham chiếu"
+      ],
+      "dependencies": ["COMP-GW-001", "SYS-BCERP-WEB", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-005",
+      "name": "Degraded Mode & Backfill Engine",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Quản lý state luồng dữ liệu per-platform: MANUAL (khởi điểm — DI-007 Business Verification chưa có quyền developer) ↔ API ↔ BACKFILL (BR-FIN-301b)",
+        "Khi API sống lại/được cấp quyền: backfill tự động theo thứ tự thời gian, gắn nhãn `api` cho dữ liệu gốc, KHÔNG ghi đè/xóa bản ghi manual đã đối soát — giữ làm vết so sánh (BR-FIN-301c)",
+        "Kích hoạt tín hiệu đối soát lại kỳ đã nhập tay về core (SYS-CORE-BACKEND) — chênh lệch xử lý qua ticket discrepancy của core, gateway chỉ ghi dữ liệu gốc",
+        "Không cho phép vận hành ở trạng thái fail câm: mất quyền mà không chuyển degraded là lỗi P1"
+      ],
+      "dependencies": ["COMP-GW-003", "COMP-GW-004", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-006",
+      "name": "Gateway Health & Policy Config Service",
+      "type": "gateway",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Bảng sức khỏe 7 adapter: AdapterHealthCheck (success/fail/degraded), tuổi dữ liệu (data_freshness) từng nguồn, hạn rotate còn lại, trạng thái sync scheduler",
+        "Quản lý PolicyConfigVersion cho ngưỡng cảnh báo/tier/SLA sync — version + ngày hiệu lực + người duyệt + audit log, chỉ ADMIN/BOD sửa (BR-GW-STGW-004)",
+        "Cảnh báo token rotate T-7, job fail, adapter degraded — alert gộp theo nguồn (theo quy tắc alert REQ-BOD-006), đẩy về alert center core",
+        "Phục vụ báo cáo oversight BOD_CEO (số kết nối, trạng thái, sự cố, lịch sử rotate)"
+      ],
+      "dependencies": ["COMP-GW-003", "SYS-CORE-BACKEND", "SYS-BCERP-WEB"]
+    },
+    {
+      "component_id": "COMP-GW-007",
+      "name": "Gateway Audit & API Call Log",
+      "type": "gateway",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Ghi audit bất biến (append-only, hash-chain — dùng hạ tầng WORM REQ-FIN-012) mọi thao tác vault: xem mask, tạo, sửa, rotate, thu hồi; việc xem log cũng bị log (BR-GW-STGW-007)",
+        "Ghi log mọi lần gọi API ra hệ thống ngoài (job id, endpoint, kết quả, mã lỗi)",
+        "Ghi audit mọi chuyển trạng thái adapter/connection kèm trigger truy vết (job id, mã lỗi API, người thao tác, lý do)",
+        "Bất thường hash-chain kích hoạt alert BOD (nối REQ-BOD-005); không có API sửa/xóa audit entry"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-008",
+      "name": "VAS Accounting Connector",
+      "type": "connector",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Connector phần mềm kế toán VAS hiện hữu như 1 connection profile bình thường theo DI-004 (REQ-FIN-013/BR-FIN-305): profile khai báo connection_type api_adapter hoặc import_export — cấu hình tổng quát cho cả 2 trường hợp [KXN-9]",
+        "Xuất file chuẩn schema qua import/export template + FieldMapping cấu hình tại Settings; log lượt xuất; đổi phần mềm kế toán = thêm 1 profile, không sửa code, không deploy lại (SC-007)",
+        "Tiếp nhận dữ liệu kế toán (nếu VAS hỗ trợ API) qua cùng pipeline chuẩn hóa/nhãn nguồn dùng chung",
+        "Cho FIN_L2 xem trạng thái kết nối VAS (hoạt động/lỗi/hàng chờ xuất) để lên lịch đối chiếu sổ — chỉ xem, không đụng vault"
+      ],
+      "dependencies": ["COMP-GW-001", "COMP-GW-004", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-009",
+      "name": "Wallet & TKQC Feed Dispatcher",
+      "type": "worker",
+      "module_id": "MOD-SETTINGS-GW",
+      "responsibilities": [
+        "Đẩy PlatformStatement đã gắn nhãn nguồn vào fact tables của SYS-CORE-BACKEND phục vụ đối trừ 3 số MOD-WALLET-RECON (REQ-FIN-004/REQ-FIN-005) — gateway không tự quy đổi tỷ giá, lưu amount_original + currency nguyên vẹn",
+        "Feed số dư/chi tiêu + freshness cho Ad Account Command Center (REQ-OPS-001) và cảnh báo số dư ví (REQ-OPS-003) — OPS chỉ xem được nguồn feed TKQC của mình",
+        "Phát event `wallet.sync.completed` kèm platform, cửa sổ sync, số bản ghi, nhãn nguồn — core tiêu thụ vào pipeline cảnh báo SLA đỏ 2h",
+        "Nền tảng không có API statement → hạ đối soát xuống tuần + bù khớp tích lũy khi có API (tham số chu kỳ là policy versioned)"
+      ],
+      "dependencies": ["COMP-GW-004", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-010",
+      "name": "TikTok Shop Connection Manager",
+      "type": "connector",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Thiết lập OAuth per-client từng shop của khách: đúng 1 shop/1 ủy quyền/1 khách, scope đọc ghi rõ trên bản ghi; cấm ủy quyền gom chung, cấm chia sẻ đăng nhập chủ shop (BR-OPS-4.1a)",
+        "Lưu ShopAccessLog bất biến (ai, khi nào, API/đối tượng, scope_used); OAuth hết hạn giữa chừng → dừng pull mới + cảnh báo, không tự xin mở rộng scope thiếu đồng ý khách (BR-OPS-4.1b)",
+        "Thực thi thu hồi ủy quyền ≤24h theo sự kiện hợp đồng/khách yêu cầu; sau REVOKED mọi pull bị vô hiệu vĩnh viễn kể cả backfill (BR-OPS-4.1c)",
+        "Phản chiếu gate stage từ workflow 3 Gate của core (Gate 1 Verification → Gate 2 Go-live → Gate 3 đối soát): chỉ bật pull sau tín hiệu Gate 2 — gate check tự kiểm tra trước mỗi job (BR-OPS-4.5)"
+      ],
+      "dependencies": ["COMP-GW-001", "COMP-GW-002", "SYS-CORE-BACKEND", "SYS-BCERP-WEB"]
+    },
+    {
+      "component_id": "COMP-GW-011",
+      "name": "TikTok Shop Metrics Sync Worker",
+      "type": "worker",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Pull định kỳ GMV/đơn/settlement/shop health theo từng shop qua OAuth; lưu raw payload; ghi ShopMetricDaily gắn nhãn nguồn `api`/`manual` + cờ `reference_only=true` luôn bật (BR-OPS-4.4)",
+        "Tách bạch tuyệt đối luồng GMV/settlement shop (thuộc khách) với luồng NSQC ads (REQ-OPS-001/003): giữ key dữ liệu và nguồn riêng, không trộn record; join chỉ qua mã tham chiếu ở lớp tổng hợp core (BR-OPS-4.3a)",
+        "Chỉ monitoring — KHÔNG làm OMS/WMS: không quản lý đơn/fulfillment/tồn kho, không endpoint ghi thao tác về shop (BR-OPS-4.3b)",
+        "Chạy degraded mode `manual` (schema: shop, ngày, loại chỉ số, số tiền gốc, tiền tệ, mã tham chiếu; OPS_ADS/OPS_AM nạp qua kênh import kèm người nạp + căn cứ) + backfill khi API sống lại, cùng cơ chế nhãn nguồn dùng chung COMP-GW-005 (BR-GW-TT-001)"
+      ],
+      "dependencies": ["COMP-GW-004", "COMP-GW-005", "COMP-GW-010", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-012",
+      "name": "PII Guard & Tenant Isolation Service",
+      "type": "gateway",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Mask PII người mua cuối mặc định (SĐT `090****123`, địa chỉ chỉ tỉnh/huyện, tên mask); dữ liệu đầy đủ chỉ tồn tại trong phiên PiiAccessSession có TTL + lý do, KHÔNG persist vào DB (BR-OPS-4.2a)",
+        "Tenant isolation giữa shops: dữ liệu shop A không bao giờ xuất hiện ở báo cáo/API/export của shop B — Row-Level Security tầng API; test truy cập chéo hàng quý (BR-OPS-4.2b)",
+        "Chặn cứng tầng API mọi attempt mapping GMV/settlement vào tài khoản doanh thu (cờ reference_only) — không chỉ UI (BR-OPS-4.4)",
+        "Chuẩn hóa PortalReportFeed tenant-scoped: chỉ chứa trường theo cấu hình phạm vi hợp đồng từng tenant, đã mask + tổng hợp — raw PII không bao giờ tới touchpoint khách (BR-GW-TT-002)"
+      ],
+      "dependencies": ["COMP-GW-011", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-GW-013",
+      "name": "Shop Alert & Portal Feed Emitter",
+      "type": "worker",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "Phát event `shop.alert`: shop bị hạn chế/khóa, GMV/settlement lệch bất thường, giấy phép ngành hàng + OAuth sắp hết hạn, baseline lệch — kèm shop, loại cảnh báo, timestamp, giá trị lệch (BR-OPS-4.6)",
+        "Đẩy tín hiệu về alert center của SYS-CORE-BACKEND để push M-INT cho OPS_ADS/OPS_AM; xử lý theo SLA ticket tier×priority (REQ-OPS-008)",
+        "Cấp PortalReportFeed đã mask/tổng hợp cho báo cáo khách trên Portal — read-only, tenant-scoped, qua Portal API Gateway của core (gateway không serve trực tiếp portal, không chạm DB nội bộ)",
+        "Cấp dữ liệu tổng hợp GMV/shop health cho dashboard nội bộ web (bản counterpart SYS-BCERP-WEB) — kèm freshness và nhãn nguồn"
+      ],
+      "dependencies": ["COMP-GW-011", "COMP-GW-012", "SYS-CORE-BACKEND", "SYS-MOBILE-INTERNAL"]
+    }
+  ],
+  "conditional_sections": [],
+  "tech_recommendations": {
+    "runtime": "Headless service layer (không UI riêng): API service + background worker pool + message queue (Redis Streams hoặc RabbitMQ) + cron scheduler cho cửa sổ pull hourly; PostgreSQL cho connection/credential metadata/sync jobs, object storage (S3-compatible) cho raw payload + import file; cùng stack runtime với SYS-CORE-BACKEND để tái dùng RBAC client + audit SDK",
+    "key_decisions": [
+      "DI-004 vendor-agnostic: adapter interface + FieldMapping/ImportExportTemplate là cấu hình, zero hardcode tên nền tảng/phần mềm kế toán trong service layer — thêm nguồn mới = thêm profile, không deploy",
+      "Degraded-first (DI-007): MANUAL là trạng thái khởi điểm bắt buộc của mọi adapter (Business Verification chưa có quyền developer) — hệ thống phải vận hành full luồng manual từ ngày đầu, backfill là tiến trình nền chờ sự kiện",
+      "Nhãn nguồn `api`/`manual` gắn tại thời điểm ghi, immutable, lưu trên từng bản ghi (không theo kỳ); record thiếu nhãn hoặc thiếu entered_by/evidence_ref bị reject",
+      "Secret rotation: rotate ≥90 ngày + cảnh báo T-7; rotate tạo CredentialVersion mới giữ lịch sử; thu hồi khẩn bắt buộc qua trạng thái REVOKED trước khi nạp token mới; offboarding rotate ≤24h gắn quarterly access review (REQ-BOD-007)",
+      "Idempotency: khóa tự nhiên platform + TKQC/shop + ngày + loại giao dịch/chỉ số + mã tham chiếu; import nhận dòng hợp lệ và trả lỗi theo dòng, không nhận batch mù",
+      "Payload archival cho audit tiền: raw payload lưu object storage trước khi parse (job_id + parse_status), đủ để reprocess khi mapping đổi và đối chiếu khi cảnh báo bị nghi giả; giữ nguyên amount_original + currency, không quy đổi tại gateway",
+      "Resilience outbound: retry + exponential backoff, circuit breaker per-platform, giới hạn tốc độ theo quota; fail vượt ngưỡng → degraded + alert gộp theo nguồn",
+      "Vault security: envelope encryption (KMS master key + per-credential data key), MFA TOTP step-up cho mọi ghi, chỉ trả mask; endpoint vault không tồn tại cho touchpoint mobile",
+      "Audit: GatewayAuditLog append-only hash-chain dùng hạ tầng WORM chung REQ-FIN-012 (≥10 năm)",
+      "Webhook receiver KHÔNG có trong phạm vi: cả 3 spec đều pull-based qua scheduler [NEEDS_REVIEW: nếu nền tảng hỗ trợ push webhook (vd TikTok Shop event), cân nhắc bổ sung component nhận webhook ở giai đoạn API được cấp quyền]"
+    ]
+  }
+}

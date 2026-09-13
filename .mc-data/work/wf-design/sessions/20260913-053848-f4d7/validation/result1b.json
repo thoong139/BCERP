@@ -1,0 +1,152 @@
+{
+ "4.2": {
+  "total": 59,
+  "referencedCount": 59,
+  "missing": []
+ },
+ "4.4": {
+  "modsReferenced": [
+   "MOD-DATAHUB-BI",
+   "MOD-HANDOFF-ONBOARD",
+   "MOD-RBAC-AUDIT",
+   "MOD-WALLET-RECON"
+  ],
+  "unknownInRegistry": [],
+  "modulesNotInMap": [
+   "MOD-SETTINGS-GW",
+   "MOD-HR-CORE",
+   "MOD-CRM-PIPELINE",
+   "MOD-QUOTATION-DEALDESK",
+   "MOD-ADACCOUNT-CC",
+   "MOD-ARAP-PAYMENT",
+   "MOD-PROPOSAL-PLANNING",
+   "MOD-CAMPAIGN-DELIVERABLE",
+   "MOD-CAPACITY-TIMESHEET",
+   "MOD-SLA-NOTIF",
+   "MOD-TICKET-CSKH",
+   "MOD-COMMISSION-QUOTA",
+   "MOD-KPI-PERFORMANCE",
+   "MOD-CLIENT-PORTAL",
+   "MOD-TIKTOK-SHOP"
+  ]
+ },
+ "4.6a": {
+  "tableCount": 80,
+  "viewCount": 0,
+  "duplicates": [],
+  "duplicateTblIds": []
+ },
+ "4.6b": {
+  "endpointRowCount": 307,
+  "duplicates": []
+ },
+ "4.7": {
+  "distinctCodes": 46,
+  "duplicateCodes": [
+   {
+    "code": "SOD_VIOLATION",
+    "defs": [
+     {
+      "http": "409",
+      "desc": "Vi phạm tách nhiệm vụ: tự duyệt, cùng người 2 chân duyệt (kiêm nhiệm CFO=CTO), combined-role thiếu 2 nấc khác người — fail-closed (định nghĩa gốc: SYS-CORE-BACKEND)"
+     },
+     {
+      "http": "409",
+      "desc": "Vi phạm tách nhiệm vụ: tự duyệt, cùng người 2 chân, combined-role thiếu 2 nấc khác người"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": false
+   },
+   {
+    "code": "QUOTA_EXCEEDED",
+    "defs": [
+     {
+      "http": "409",
+      "desc": "Vượt hạn mức user theo hợp đồng — \"liên hệ AM\" (BR-003, SC-002)"
+     },
+     {
+      "http": "409",
+      "desc": "Vượt hạn mức user theo hợp đồng — \"liên hệ AM\" (BR-003, SC-002; đồng bộ SYS-PORTAL-WEB)"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": false
+   },
+   {
+    "code": "INVITE_EXPIRED",
+    "defs": [
+     {
+      "http": "409",
+      "desc": "Token invite hết hạn hoặc đã dùng — gửi lại invite mới"
+     },
+     {
+      "http": "409",
+      "desc": "Token invite hết hạn hoặc đã dùng — gửi lại invite mới (đồng bộ SYS-PORTAL-WEB)"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": false
+   },
+   {
+    "code": "DPA_NOT_SIGNED",
+    "defs": [
+     {
+      "http": "403",
+      "desc": "Tenant chưa ký DPA — chặn kích hoạt + xem ví (BR-FIN-605)"
+     },
+     {
+      "http": "403",
+      "desc": "Tenant chưa ký DPA — chặn kích hoạt + xem ví (BR-FIN-605; đồng bộ SYS-PORTAL-WEB)"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": false
+   }
+  ]
+ },
+ "4.8": {
+  "candidates": [
+   "import_export",
+   "low_balance",
+   "payment_id",
+   "tenant_id"
+  ],
+  "missingInDb": [
+   "import_export",
+   "low_balance",
+   "payment_id",
+   "tenant_id"
+  ]
+ },
+ "CQG1": {
+  "total": 170,
+  "covered": 170,
+  "missing": []
+ },
+ "CQG2": {
+  "modsInDb": [
+   "MOD-CLIENT-PORTAL",
+   "MOD-DATAHUB-BI",
+   "MOD-RBAC-AUDIT",
+   "MOD-SETTINGS-GW",
+   "MOD-SLA-NOTIF",
+   "MOD-TIKTOK-SHOP"
+  ],
+  "uncoveredModules": [
+   "MOD-HR-CORE",
+   "MOD-CRM-PIPELINE",
+   "MOD-QUOTATION-DEALDESK",
+   "MOD-ADACCOUNT-CC",
+   "MOD-WALLET-RECON",
+   "MOD-ARAP-PAYMENT",
+   "MOD-HANDOFF-ONBOARD",
+   "MOD-PROPOSAL-PLANNING",
+   "MOD-CAMPAIGN-DELIVERABLE",
+   "MOD-CAPACITY-TIMESHEET",
+   "MOD-TICKET-CSKH",
+   "MOD-COMMISSION-QUOTA",
+   "MOD-KPI-PERFORMANCE"
+  ]
+ }
+}

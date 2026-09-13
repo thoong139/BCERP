@@ -1,0 +1,165 @@
+{
+  "lane_type": "system",
+  "system_slug": "core-backend",
+  "system_id": "SYS-CORE-BACKEND",
+  "items": [
+    {
+      "component_id": "COMP-CORE-001",
+      "name": "Identity & SSO/MFA Service (IdP tập trung)",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Quản lý user identity toàn platform (nội bộ + user portal) với state machine: active/suspended/locked/deactivated",
+        "OIDC/OAuth2 Provider: phát hành/refresh/revoke token, SSO cho BCERP-WEB, MOBILE-INTERNAL, PORTAL-WEB, MOBILE-PORTAL, INTEGRATION-GW",
+        "MFA enrollment + step-up verification (bắt buộc với vai tài chính/BOD/SYS_ADMIN) — [NEEDS_REVIEW: phương pháp MFA (TOTP/hardware key) chưa chốt trong registry]",
+        "Session quản trị tập trung: thu hồi quyền tức thời khi offboarding/thu hồi access (24h)",
+        "Ghi mọi auth event (login, fail, step-up, token issue) vào Audit Log Service"
+      ],
+      "dependencies": ["COMP-CORE-002", "COMP-CORE-004"]
+    },
+    {
+      "component_id": "COMP-CORE-002",
+      "name": "RBAC & Policy Engine (PDP)",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Danh mục 18 vai chuẩn hóa (SALES_L1–L5, OPS_AD, OPS_PLAN, OPS_CONT, FIN_L1, FIN_L2, HR_L1, HR_L2, BOD_CEO, BOD_CFO_CTO, SYS_ADMIN, ESS...) — [NEEDS_REVIEW: liệt kê đủ 18 vai từ req-registry]",
+        "Ma trận Role × Permission × Dept × Data-scope; trả quyết định allow/deny + scope filter cho mọi PEP",
+        "SoD rules: SoD 4 vai duyệt chi (ngưỡng 5/50/200 triệu, FIN_L1 khởi tạo → FIN_L2 → CFO → CEO + delegate); chặn tự-approve (người tạo ≠ người duyệt cả 2 nấc)",
+        "Compensating control kiêm nhiệm CFO kiêm CTO (REQ-BOD-002): cờ combined-role buộc dual approval + escalation CEO",
+        "Data-scope row-level filter cho list API server-side (search/filter/sort/pagination)",
+        "Tham số chính sách quan trị version hóa (ngưỡng duyệt, tier, capacity vàng/đỏ) — phê duyệt theo REQ-BOD-009"
+      ],
+      "dependencies": ["COMP-CORE-001", "COMP-CORE-004", "COMP-CORE-006"]
+    },
+    {
+      "component_id": "COMP-CORE-003",
+      "name": "Access Review & Recertification Worker",
+      "type": "worker",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Quarterly access review (REQ-BOD-007): sinh campaign rà soát quyền theo user/role/dept, phân công reviewer (SYS_ADMIN + chủ sở hữu vai), track approve/revoke từng mục",
+        "Recertification tự động khi đổi vai/phòng/bổ nhiệm kiêm nhiệm",
+        "Đóng gói bằng chứng review (decision log) nộp vào WORM Evidence Store",
+        "Báo cáo đặc quyền nhạy cảm: truy cập credentials vault CTO, quyền Restricted — phối hợp dữ liệu với INTEGRATION-GW"
+      ],
+      "dependencies": ["COMP-CORE-001", "COMP-CORE-002", "COMP-CORE-004", "SYS-INTEGRATION-GW"]
+    },
+    {
+      "component_id": "COMP-CORE-004",
+      "name": "Audit Log Service (append-only)",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "API append duy nhất cho mọi module: who/what/object/state transition/before-after/when/ip — không update/xóa",
+        "Hash-chain tamper-evident từng bản ghi; export định kỳ sang WORM Evidence Store",
+        "Truy xuất giám sát có kiểm soát (REQ-BOD-005): search/filter/sort server-side, limit mặc định 20 max 100, chỉ vai được cấp (BOD_CEO, SYS_ADMIN, FIN_L2 theo phạm vi)",
+        "Activity timeline per object (feed cho business module có timeline: lệnh tiền, TKQC, ticket...)"
+      ],
+      "dependencies": ["COMP-CORE-002", "COMP-CORE-005"]
+    },
+    {
+      "component_id": "COMP-CORE-005",
+      "name": "WORM Evidence Store",
+      "type": "store",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Lưu trữ bất biến ≥10 năm: audit log giao dịch tiền + chứng từ (REQ-FIN-012)",
+        "Write-once/object-lock, retention policy per record class, legal hold",
+        "Integrity verification định kỳ (re-hash chain), truy xuất có kiểm soát qua Audit Log Service"
+      ],
+      "dependencies": []
+    },
+    {
+      "component_id": "COMP-CORE-006",
+      "name": "PII Field Protection Service",
+      "type": "service",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Field-level encryption (envelope + KMS) cho PII lương classification Confidential/Restricted (REQ-HR-010)",
+        "Masking/redaction policy theo vai khi trả dữ liệu qua API (chỉ HR_L1/L2 xem lương; ESS xem thông tin cá nhân)",
+        "Data classification registry: Public/Internal/Confidential/Restricted — áp cho ingest DataHub và mọi API trả dữ liệu",
+        "Audit bắt buộc mọi lượt đọc PII (break-glass access log) — [NEEDS_REVIEW: quy định khôi phục khẩn cấp chưa có trong registry]"
+      ],
+      "dependencies": ["COMP-CORE-002", "COMP-CORE-004"]
+    },
+    {
+      "component_id": "COMP-CORE-007",
+      "name": "CDC/ETL Ingest Pipeline",
+      "type": "pipeline",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Thu CDC/event stream từ mọi business module trong CORE-BACKEND (WALLET, ARAP, CRM, QDD, HONB, CAMP, CAPTS, HR, KPI, COMM, CSKH, SLANOT, ADACC, PORTAL...)",
+        "Thu dữ liệu platform API (7 nền tảng quảng cáo, VAS kế toán, TikTok Shop) qua INTEGRATION-GW; degraded mode: import manual có đánh dấu nguồn thủ công",
+        "Contract-first + schema registry + idempotent upsert + watermark; compatibility check chống schema drift",
+        "Normalize + classification/PII scan (qua COMP-CORE-006) trước khi nạp warehouse",
+        "Batch backfill/replay theo yêu cầu điều tra dữ liệu"
+      ],
+      "dependencies": ["COMP-CORE-008", "COMP-CORE-006", "SYS-INTEGRATION-GW"]
+    },
+    {
+      "component_id": "COMP-CORE-008",
+      "name": "Analytics Warehouse",
+      "type": "store",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Modeled store 3 lớp: raw → staged → marts (finance, ops, sales, hr)",
+        "Reconcile stage: đối chiếu tổng số với nguồn (số liệu FIN là nguồn chuẩn REQ-FIN-016) trước khi publish mart",
+        "Partition theo kỳ, index phục vụ BI query, retention policy per layer",
+        "KHÔNG sở hữu business object — chỉ bản sao phục vụ phân tích; nguồn sự thật vẫn ở module gốc"
+      ],
+      "dependencies": ["COMP-CORE-007"]
+    },
+    {
+      "component_id": "COMP-CORE-009",
+      "name": "Realtime P&L Compute Worker",
+      "type": "worker",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Stream aggregation P&L toàn công ty: doanh thu thực nhận – chi phí nền tảng – hoa hồng – cost rate (REQ-BOD-003, REQ-FIN-016)",
+        "Áp rule nghiệp vụ: giờ timesheet chưa duyệt không vào P&L (REQ-OPS-007); USD/VND không gộp quy đổi tùy tiện",
+        "Snapshot + version kỳ phục vụ so sánh; đối soát liên tục với batch marts (reconcile gap alert)"
+      ],
+      "dependencies": ["COMP-CORE-007", "COMP-CORE-008"]
+    },
+    {
+      "component_id": "COMP-CORE-010",
+      "name": "BI Serving API",
+      "type": "service",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "API dashboard: P&L realtime, BI điều hành, dashboard tài chính nội bộ (REQ-BOD-003/004, REQ-FIN-015/016) — filter/sort server-side, limit 20 max 100",
+        "Export báo cáo (CSV/PDF) + scheduled snapshot định kỳ",
+        "Authorization bắt buộc qua Policy Engine: quyền xem P&L giới hạn BOD + FIN theo registry",
+        "Phục vụ BCERP-WEB + MOBILE-INTERNAL; PORTAL không đi qua BI serving (ví read-only của portal do module FIN/CLIENT-PORTAL cung cấp)"
+      ],
+      "dependencies": ["COMP-CORE-002", "COMP-CORE-008", "COMP-CORE-009"]
+    },
+    {
+      "component_id": "COMP-CORE-011",
+      "name": "Alert Engine (Alert Center)",
+      "type": "service",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "Rule engine cảnh báo rủi ro vận hành (REQ-BOD-006): số dư ví < đủ chi 3 ngày, mismatch đối trừ, aging vượt hạn, die account, anomaly TikTok Shop, KPI lệch chuẩn",
+        "Alert lifecycle state machine: open → acknowledged → investigating → resolved + audit log",
+        "Dedup/throttle + severity routing; điều phối gửi thông báo qua MOD-SLA-NOTIF (SLANOT) — không tự dựng notification (scope guard CORE-006)"
+      ],
+      "dependencies": ["COMP-CORE-008", "COMP-CORE-009"]
+    }
+  ],
+  "conditional_sections": ["Data Pipeline Architecture"],
+  "tech_recommendations": {
+    "runtime": "Service runtime đề xuất: TypeScript/NestJS (Node.js LTS) containerized; stream: Kafka + Debezium CDC + Flink (hoặc Kafka Streams); OLAP: ClickHouse; OLTP hỗ trợ: PostgreSQL 16; WORM: object storage S3-compatible với Object Lock; IdP: Keycloak (OIDC/OAuth2) — [NEEDS_REVIEW: chốt stack khi có quyết định hạ tầng platform]",
+    "key_decisions": [
+      "D1 — Identity provider tập trung OIDC/OAuth2: mọi system là Relying Party, token chứa role/dept/data-scope claims; không service nào tự quản password",
+      "D2 — PDP/PEP tách bạch: policy engine tập trung ra quyết định, enforcement middleware/gateway ở mọi service; fail-closed với action tài chính",
+      "D3 — Audit append-only + hash-chain, 1 đường ghi duy nhất; WORM 10 năm cho log tiền + chứng từ theo REQ-FIN-012",
+      "D4 — Ingest CDC-first + event stream, batch reconcile hằng đêm; degraded mode manual import qua GW khi mất API nền tảng",
+      "D5 — P&L realtime: stream aggregation freshness mục tiêu ≤5 phút, số liệu FIN là nguồn chuẩn; batch marts là đối soát",
+      "D6 — PII: field-level envelope encryption + masking theo vai; PII không vào warehouse dạng clear (mask/tokenize tại ingest)",
+      "D7 — Alert engine chỉ sinh + quản lifecycle alert; dispatch đa kênh ủy quyền cho MOD-SLA-NOTIF",
+      "D8 — Message broker (Kafka) là infra platform-level dùng chung, không thuộc phạm vi 2 module — xem arch-draft §6"
+    ]
+  }
+}

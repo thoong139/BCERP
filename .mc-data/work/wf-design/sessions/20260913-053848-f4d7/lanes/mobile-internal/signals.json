@@ -1,0 +1,231 @@
+{
+  "lane_type": "system",
+  "system_slug": "mobile-internal",
+  "system_id": "SYS-MOBILE-INTERNAL",
+  "items": [
+    {
+      "component_id": "COMP-MBI-001",
+      "name": "Mobile App Shell — BCERP Internal",
+      "type": "app",
+      "module_id": null,
+      "responsibilities": [
+        "Khung app đa nền tảng: navigation role-aware theo vai (BOD_CEO, BOD_CFO_CTO, FIN_L1/L2, HR, OPS, SALES, Nhân viên ESS), bootstrap SSO/MFA từ CORE-BACKEND",
+        "Đăng ký device + push token lên backend qua BFF; hiển thị/ẩn surface theo vai từ RBAC (không tự quyết quyền)",
+        "Offline/online strategy tổng: nhận diện kết nối, điều phối sync, kiểm tra minimum app version + force-update"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-002",
+      "name": "Offline Sync & Local Cache Engine",
+      "type": "app",
+      "module_id": null,
+      "responsibilities": [
+        "Outbox queue cho thao tác offline (ưu tiên ESS chấm công/timesheet): ghi local + idempotency key, replay khi online, không replay lệnh tài chính",
+        "Local cache read-only mã hóa với TTL, purge khi logout/remote wipe; server timestamp là trọng tài thời gian chấm công"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-003",
+      "name": "Mobile BFF (Backend-for-Frontend)",
+      "type": "bff",
+      "module_id": null,
+      "responsibilities": [
+        "Tổng hợp view-model mỏng từ API các module backend cho UI mobile (shaping, gộp gọi, pagination chuẩn limit 20/max 100) — không chứa business logic, không nhân bản quy tắc ngưỡng/SoD",
+        "Cầu dẫn state-transition endpoints (approve/reject/submit/check-in) về SYS-CORE-BACKEND; rate limit và chuẩn hóa lỗi cho kênh di động"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-004",
+      "name": "Push Notification Consumer",
+      "type": "push-worker",
+      "module_id": "MOD-SLA-NOTIF",
+      "responsibilities": [
+        "Nhận sự kiện notification từ SLA-NOTIF worker của BCERP-WEB (SLA sắp vỡ/vỡ, escalation AM→AD→BOD) + alert center DATAHUB (REQ-BOD-006) + cảnh báo ví SLA đỏ 2h (REQ-FIN-002/REQ-OPS-003) và đẩy qua FCM/APNs",
+        "Deep-link thông báo tới đúng surface (approval inbox, alert center); push chỉ là kênh báo — SLA timer/escalation vẫn chạy phía backend, mất push không làm vỡ SLA"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "SYS-BCERP-WEB"]
+    },
+    {
+      "component_id": "COMP-MBI-005",
+      "name": "Approval Inbox — Duyệt vượt ngưỡng & Giải ngân",
+      "type": "app",
+      "module_id": "MOD-ARAP-PAYMENT",
+      "responsibilities": [
+        "Inbox phê duyệt cho BOD_CEO/FIN/BOD_CFO_CTO: duyệt vượt ngưỡng & escalation (REQ-BOD-001), duyệt chi/giải ngân theo ngưỡng 5/50/200 triệu + SoD 4 vai + delegate (REQ-FIN-008)",
+        "Hiển thị đủ context tối thiểu bắt buộc (số tiền, ngưỡng, người khởi tạo, chứng từ đính kèm) trước khi cho phép approve/reject; gọi state-transition endpoint, không tự tính ngưỡng"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-006",
+      "name": "Wallet Approval & Alert Surface",
+      "type": "app",
+      "module_id": "MOD-WALLET-RECON",
+      "responsibilities": [
+        "Góc FIN: xem sổ phụ ví (REQ-FIN-001), dual approval điều chỉnh số dư/đổi tỷ giá/hoàn tiền (REQ-FIN-003), xác nhận Financial Hard Stop 'đã khớp tiền' (REQ-FIN-006), xem AML flag T1–T6 (REQ-FIN-010)",
+        "Góc OPS: cảnh báo số dư đủ chi ≥3 ngày + escalation (REQ-FIN-002/REQ-OPS-003); mọi lệnh tiền đều là endpoint backend, mobile không tạo lệnh trực tiếp"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-007",
+      "name": "BI Dashboard Mobile (read-only)",
+      "type": "app",
+      "module_id": "MOD-DATAHUB-BI",
+      "responsibilities": [
+        "BOD xem P&L realtime (REQ-BOD-003/REQ-FIN-016), BI dashboard điều hành (REQ-BOD-004), alert center (REQ-BOD-006), dashboard tài chính nội bộ (REQ-FIN-015)",
+        "Chỉ đọc, zero mutation; dữ liệu do DATAHUB publish, mobile chỉ render phiên bản rút gọn cho màn hình nhỏ"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-008",
+      "name": "Sales Gate Surface — Gate 1/Gate 2",
+      "type": "app",
+      "module_id": "MOD-CRM-PIPELINE",
+      "responsibilities": [
+        "SALES_L2/L3 duyệt Gate 1/Gate 2 Go/No-Go và trigger ký handoff từ di động (REQ-SALES-004); quyết định đi qua pipeline V6.0 phía backend, mobile không đổi state trực tiếp"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-009",
+      "name": "Deal Desk Mobile Approval",
+      "type": "app",
+      "module_id": "MOD-QUOTATION-DEALDESK",
+      "responsibilities": [
+        "GM duyệt chiết khấu vượt định mức (REQ-SALES-006); xem + phê duyệt hợp đồng/LOI/NDA kèm e-sign (REQ-SALES-007); định mức/chiết khấu do QDD engine tính, mobile chỉ trình bày kết quả"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-010",
+      "name": "Handoff Mobile Acknowledgment",
+      "type": "app",
+      "module_id": "MOD-HANDOFF-ONBOARD",
+      "responsibilities": [
+        "OPS_AM ký nhận handoff package từ di động (REQ-SALES-008/REQ-OPS-004); theo dõi checkpoint Day 1/7/14/30 — ký nhận là state transition ops_ack gọi xuống backend"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-011",
+      "name": "Commission Mobile View",
+      "type": "app",
+      "module_id": "MOD-COMMISSION-QUOTA",
+      "responsibilities": [
+        "SALES xem hoa hồng theo thực nhận, clawback, quota coverage (REQ-SALES-009) — read-only; số liệu do COMM tính từ ARAP+QDD"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-012",
+      "name": "Ad Account Quick View",
+      "type": "app",
+      "module_id": "MOD-ADACCOUNT-CC",
+      "responsibilities": [
+        "OPS tra cứu nhanh registry TKQC (trạng thái vòng đời, die account) và nhận alert thu hồi (REQ-OPS-001); dữ liệu nền tảng do backend tổng hợp qua Integration Gateway, mobile không gọi GW"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-013",
+      "name": "Proposal Stage-gate Mobile Approve",
+      "type": "app",
+      "module_id": "MOD-PROPOSAL-PLANNING",
+      "responsibilities": [
+        "Duyệt stage-gate V6.0 từ di động (REQ-OPS-005); done-criteria machine-checkable do backend xác thực, mobile chỉ trình bày trạng thái gate và gửi quyết định"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-014",
+      "name": "Campaign/Deliverable Mobile Checklist",
+      "type": "app",
+      "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+      "responsibilities": [
+        "OPS_CONT tick deliverable, xác nhận nghiệm thu và nhận nhắc SLA creative (REQ-OPS-006/REQ-OPS-012); SLA timer và escalate AD ngày 4 do backend điều phối"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-015",
+      "name": "Timesheet Mobile Entry",
+      "type": "app",
+      "module_id": "MOD-CAPACITY-TIMESHEET",
+      "responsibilities": [
+        "Nhân viên nhập timesheet + submit từ di động (REQ-OPS-007); giờ chưa duyệt không vào P&L — duyệt OPS∥HR vẫn phía backend, mobile chỉ draft/submit"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-016",
+      "name": "ESS Mobile — Chấm công & Đơn nghỉ phép & Hồ sơ",
+      "type": "app",
+      "module_id": "MOD-HR-CORE",
+      "responsibilities": [
+        "Nhân viên chấm công (check-in/out, hỗ trợ offline qua outbox), xin nghỉ phép (số dư tự động do HR-CORE kiểm tra), xem thông tin cá nhân (REQ-HR-003/004/005)",
+        "PII lương không cache trên thiết bị; chỉ hiển thị theo field-level security của backend [NEEDS_REVIEW: registry chưa có FEAT touchpoint HR-CORE cho SYS-MOBILE-INTERNAL]"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-017",
+      "name": "Ticket Mobile Surface",
+      "type": "app",
+      "module_id": "MOD-TICKET-CSKH",
+      "responsibilities": [
+        "OPS_CONT nhận/thao tác ticket queue, phản hồi và nhận escalation SLA vỡ (REQ-OPS-009); SLA timer theo tier khách do SLANOT chạy phía backend"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-018",
+      "name": "Shop Alert Mobile Surface",
+      "type": "app",
+      "module_id": "MOD-TIKTOK-SHOP",
+      "responsibilities": [
+        "OPS nhận alert anomaly TikTok Shop và xem trạng thái shop (REQ-OPS-011); sync GMV do backend qua GW, mobile chỉ tiêu thụ trạng thái monitoring"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-019",
+      "name": "Portal Ops Mobile View",
+      "type": "app",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "OPS xem trạng thái tài khoản client portal và monitor cấp phát từ di động (REQ-OPS-010); hoạt động cấp tài khoản vẫn thực thi phía backend"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MBI-020",
+      "name": "RBAC/MFA Mobile Enforcement Surface",
+      "type": "app",
+      "module_id": "MOD-RBAC-AUDIT",
+      "responsibilities": [
+        "Client của SSO/MFA tập trung (REQ-BOD-011): luồng đăng nhập, biometric unlock local, MFA step-up khi thao tác tài chính nhạy cảm; hiển thị state device binding",
+        "Hiển thị biên vai cho compensating control kiêm nhiệm CFO kiêm CTO (REQ-BOD-002) — quyền do RBAC backend quyết, mobile không tự cấp/bỏ quyền"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND"]
+    }
+  ],
+  "conditional_sections": [],
+  "tech_recommendations": {
+    "runtime": "App: React Native + TypeScript (một codebase iOS/Android, OTA patch UI, push qua FCM+APNs). BFF: Node.js/NestJS REST phía trong mạng nội bộ, không mở trực tiếp module API ra ngoài.",
+    "key_decisions": [
+      "Thin client bắt buộc: mobile KHÔNG chứa business logic; mọi hành động là state-transition endpoint gọi xuống SYS-CORE-BACKEND (server-side enforcement ngưỡng 5/50/200tr, SoD 4 vai, dual approval, escalation)",
+      "Tách Mobile BFF mỏng để tổng hợp view-model và shaping; BFF không nhân bản quy tắc nghiệp vụ",
+      "Push channel (COMP-MBI-004) là thành phần kỹ thuật của SYS-MOBILE-INTERNAL, KHÔNG phải module mới (CORE-006); nhận sự kiện từ SLA-NOTIF worker của BCERP-WEB",
+      "Offline-first chỉ áp dụng cho ESS chấm công/timesheet/đơn: local outbox + idempotency key + server timestamp; cấm offline queue cho lệnh tiền và phê duyệt tài chính",
+      "Biometric unlock + MFA step-up (OTP) bắt buộc cho approve/reject lệnh tiền, hard stop 'đã khớp tiền', duyệt vượt ngưỡng",
+      "Device binding 1 user — thiết bị đã đăng ký; token revoke khi thiết bị lạ; remote wipe local cache khi mất thiết bị; cert pinning",
+      "App versioning: minimum supported version + force-update khi API breaking change",
+      "Audit nghiệp vụ ghi toàn bộ phía backend (WORM ≥10 năm theo REQ-FIN-012); mobile chỉ log kỹ thuật"
+    ]
+  }
+}

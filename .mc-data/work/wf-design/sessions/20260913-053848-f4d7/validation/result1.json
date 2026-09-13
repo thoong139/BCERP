@@ -1,0 +1,758 @@
+{
+ "4.2": {
+  "total": 59,
+  "referencedCount": 59,
+  "missing": []
+ },
+ "4.4": {
+  "modsReferenced": [
+   "MOD-DATAHUB-BI",
+   "MOD-HANDOFF-ONBOARD",
+   "MOD-RBAC-AUDIT",
+   "MOD-WALLET-RECON"
+  ],
+  "unknownInRegistry": [],
+  "modulesNotInMap": [
+   "MOD-SETTINGS-GW",
+   "MOD-HR-CORE",
+   "MOD-CRM-PIPELINE",
+   "MOD-QUOTATION-DEALDESK",
+   "MOD-ADACCOUNT-CC",
+   "MOD-ARAP-PAYMENT",
+   "MOD-PROPOSAL-PLANNING",
+   "MOD-CAMPAIGN-DELIVERABLE",
+   "MOD-CAPACITY-TIMESHEET",
+   "MOD-SLA-NOTIF",
+   "MOD-TICKET-CSKH",
+   "MOD-COMMISSION-QUOTA",
+   "MOD-KPI-PERFORMANCE",
+   "MOD-CLIENT-PORTAL",
+   "MOD-TIKTOK-SHOP"
+  ]
+ },
+ "4.6a": {
+  "tableCount": 80,
+  "viewCount": 0,
+  "duplicates": [],
+  "duplicateTblIds": []
+ },
+ "4.6b": {
+  "endpointRowCount": 307,
+  "duplicates": []
+ },
+ "4.7": {
+  "distinctCodes": 45,
+  "duplicateCodes": [
+   {
+    "code": "SOD_VIOLATION",
+    "defs": [
+     {
+      "http": "403",
+      "desc": "Cùng người 2 chân duyệt (kiêm nhiệm CFO=CTO) — fail-closed"
+     },
+     {
+      "http": "409",
+      "desc": "Vi phạm tách nhiệm vụ: tự duyệt, cùng người 2 chân, combined-role thiếu 2 nấc khác người"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": true
+   },
+   {
+    "code": "AUDIT_IMMUTABLE",
+    "defs": [
+     {
+      "http": "409",
+      "desc": "Cố update/delete bản ghi audit — bị chặn tầng DB + alert"
+     },
+     {
+      "http": "405",
+      "desc": "Không có API sửa/xóa audit entry (BR-GW-STGW-007)"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": true
+   },
+   {
+    "code": "QUOTA_EXCEEDED",
+    "defs": [
+     {
+      "http": "409",
+      "desc": "Vượt hạn mức user theo hợp đồng — \"liên hệ AM\" (BR-003, SC-002)"
+     },
+     {
+      "http": "409",
+      "desc": "Vượt hạn mức portal user theo hợp đồng (\"liên hệ AM\")"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": false
+   },
+   {
+    "code": "INVITE_EXPIRED",
+    "defs": [
+     {
+      "http": "409",
+      "desc": "Token invite hết hạn hoặc đã dùng — gửi lại invite mới"
+     },
+     {
+      "http": "410",
+      "desc": "Token invite quá 7 ngày hiệu lực mặc định"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": true
+   },
+   {
+    "code": "DPA_NOT_SIGNED",
+    "defs": [
+     {
+      "http": "403",
+      "desc": "Tenant chưa ký DPA — chặn kích hoạt + xem ví (BR-FIN-605)"
+     },
+     {
+      "http": "409",
+      "desc": "Tenant EU/US chưa có cờ DPA — chặn kích hoạt (BR-FIN-605)"
+     }
+    ],
+    "sameMeaning": false,
+    "httpConflict": true
+   }
+  ]
+ },
+ "4.8": {
+  "candidates": [
+   "import_export",
+   "low_balance",
+   "payment_id",
+   "tenant_id"
+  ],
+  "missingInDb": [
+   "import_export",
+   "low_balance",
+   "payment_id",
+   "tenant_id"
+  ]
+ },
+ "CQG1": {
+  "total": 170,
+  "covered": 72,
+  "missing": [
+   "FEAT-CORE-ARAP-001",
+   "FEAT-ERP-RBAC-001",
+   "FEAT-ERP-DHUB-001",
+   "FEAT-ERP-DHUB-002",
+   "FEAT-ERP-RBAC-002",
+   "FEAT-ERP-DHUB-003",
+   "FEAT-GW-RBAC-001",
+   "FEAT-ERP-RBAC-003",
+   "FEAT-CORE-STGW-001",
+   "FEAT-ERP-STGW-001",
+   "FEAT-ERP-RBAC-004",
+   "FEAT-CORE-ARAP-002",
+   "FEAT-ERP-RBAC-005",
+   "FEAT-CORE-HRCORE-001",
+   "FEAT-CORE-HRCORE-002",
+   "FEAT-ERP-HRCORE-002",
+   "FEAT-ERP-HRCORE-003",
+   "FEAT-CORE-HRCORE-003",
+   "FEAT-ERP-HRCORE-004",
+   "FEAT-CORE-HRCORE-004",
+   "FEAT-ERP-HRCORE-005",
+   "FEAT-CORE-HRCORE-005",
+   "FEAT-CORE-HRCORE-006",
+   "FEAT-ERP-HRCORE-006",
+   "FEAT-CORE-KPI-001",
+   "FEAT-ERP-KPI-002",
+   "FEAT-CORE-KPI-002",
+   "FEAT-CORE-CAPTS-001",
+   "FEAT-ERP-RBAC-006",
+   "FEAT-CORE-WALLET-001",
+   "FEAT-CORE-WALLET-002",
+   "FEAT-ERP-WALLET-002",
+   "FEAT-CORE-WALLET-003",
+   "FEAT-ERP-WALLET-003",
+   "FEAT-CORE-WALLET-004",
+   "FEAT-GW-WALLET-001",
+   "FEAT-ERP-WALLET-004",
+   "FEAT-CORE-STGW-002",
+   "FEAT-ERP-STGW-002",
+   "FEAT-CORE-WALLET-005",
+   "FEAT-ERP-WALLET-005",
+   "FEAT-CORE-ARAP-003",
+   "FEAT-ERP-ARAP-003",
+   "FEAT-CORE-ARAP-004",
+   "FEAT-ERP-ARAP-004",
+   "FEAT-CORE-ADACC-001",
+   "FEAT-CORE-WALLET-006",
+   "FEAT-ERP-WALLET-006",
+   "FEAT-CORE-ARAP-005",
+   "FEAT-ERP-ARAP-005",
+   "FEAT-CORE-RBAC-007",
+   "FEAT-ERP-RBAC-007",
+   "FEAT-GW-ARAP-001",
+   "FEAT-CORE-ARAP-006",
+   "FEAT-CORE-ARAP-007",
+   "FEAT-GW-ARAP-002",
+   "FEAT-ERP-ARAP-007",
+   "FEAT-ERP-DHUB-004",
+   "FEAT-CORE-DHUB-005",
+   "FEAT-ERP-DHUB-005",
+   "FEAT-CORE-CPORT-001",
+   "FEAT-CORE-CRM-001",
+   "FEAT-CORE-CRM-002",
+   "FEAT-ERP-CRM-002",
+   "FEAT-CORE-CRM-003",
+   "FEAT-ERP-CRM-003",
+   "FEAT-CORE-CRM-004",
+   "FEAT-ERP-CRM-004",
+   "FEAT-CORE-CRM-005",
+   "FEAT-ERP-CRM-005",
+   "FEAT-CORE-QDD-001",
+   "FEAT-CORE-QDD-002",
+   "FEAT-ERP-QDD-002",
+   "FEAT-CORE-HONB-001",
+   "FEAT-CORE-COMM-001",
+   "FEAT-CORE-ADACC-002",
+   "FEAT-ERP-ADACC-002",
+   "FEAT-GW-ADACC-001",
+   "FEAT-CORE-ADACC-003",
+   "FEAT-ERP-ADACC-003",
+   "FEAT-CORE-WALLET-007",
+   "FEAT-GW-WALLET-002",
+   "FEAT-ERP-WALLET-007",
+   "FEAT-CORE-HONB-002",
+   "FEAT-ERP-HONB-002",
+   "FEAT-CORE-PROPLN-001",
+   "FEAT-CORE-CAMP-001",
+   "FEAT-GW-CAMP-001",
+   "FEAT-CORE-CAPTS-002",
+   "FEAT-ERP-CAPTS-002",
+   "FEAT-CORE-SLANOT-001",
+   "FEAT-PORTAL-SLANOT-001",
+   "FEAT-CORE-CSKH-001",
+   "FEAT-CORE-CPORT-002",
+   "FEAT-CORE-TIKTOK-001",
+   "FEAT-CORE-CAMP-002",
+   "FEAT-GW-CAMP-002",
+   "FEAT-ERP-CAMP-002"
+  ],
+  "missingDetail": [
+   {
+    "id": "FEAT-CORE-ARAP-001",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/phe-duyet-vuot-nguong-va-escalation.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-001",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/compensating-control-kiem-nhiem-cfo-kiem-cto.md"
+   },
+   {
+    "id": "FEAT-ERP-DHUB-001",
+    "module": "MOD-DATAHUB-BI",
+    "file": "phase2-features/bcerp-web/datahub-bi/p-va-l-toan-cong-ty-realtime.md"
+   },
+   {
+    "id": "FEAT-ERP-DHUB-002",
+    "module": "MOD-DATAHUB-BI",
+    "file": "phase2-features/bcerp-web/datahub-bi/bi-dashboard-dieu-hanh.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-002",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/giam-sat-va-truy-xuat-audit-log.md"
+   },
+   {
+    "id": "FEAT-ERP-DHUB-003",
+    "module": "MOD-DATAHUB-BI",
+    "file": "phase2-features/bcerp-web/datahub-bi/alert-center-va-canh-bao-rui-ro-van-hanh.md"
+   },
+   {
+    "id": "FEAT-GW-RBAC-001",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/integration-gw/rbac-audit/quarterly-access-review-va-phan-quyen.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-003",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/quarterly-access-review-va-phan-quyen.md"
+   },
+   {
+    "id": "FEAT-CORE-STGW-001",
+    "module": "MOD-SETTINGS-GW",
+    "file": "phase2-features/core-backend/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md"
+   },
+   {
+    "id": "FEAT-ERP-STGW-001",
+    "module": "MOD-SETTINGS-GW",
+    "file": "phase2-features/bcerp-web/settings-gw/quan-tri-integration-gateway-va-credentials-vault-vai-cto.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-004",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/phe-duyet-chinh-sach-tham-so-quan-tri-va-tier.md"
+   },
+   {
+    "id": "FEAT-CORE-ARAP-002",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/phe-duyet-tai-chinh-doc-quyen-cua-cfo.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-005",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/nen-tang-rbac-va-sso-mfa-tap-trung-cross-cutting.md"
+   },
+   {
+    "id": "FEAT-CORE-HRCORE-001",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/core-backend/hr-core/ho-so-nhan-su-trung-tam-l1-l5-ma-vai.md"
+   },
+   {
+    "id": "FEAT-CORE-HRCORE-002",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/core-backend/hr-core/hdld-va-canh-bao-het-han-90-60-30-ngay.md"
+   },
+   {
+    "id": "FEAT-ERP-HRCORE-002",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/bcerp-web/hr-core/hdld-va-canh-bao-het-han-90-60-30-ngay.md"
+   },
+   {
+    "id": "FEAT-ERP-HRCORE-003",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/bcerp-web/hr-core/cham-cong-va-overtime.md"
+   },
+   {
+    "id": "FEAT-CORE-HRCORE-003",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/core-backend/hr-core/cham-cong-va-overtime.md"
+   },
+   {
+    "id": "FEAT-ERP-HRCORE-004",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/bcerp-web/hr-core/nghi-phep-so-du-tu-dong-va-duyet-phan-cap.md"
+   },
+   {
+    "id": "FEAT-CORE-HRCORE-004",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/core-backend/hr-core/nghi-phep-so-du-tu-dong-va-duyet-phan-cap.md"
+   },
+   {
+    "id": "FEAT-ERP-HRCORE-005",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/bcerp-web/hr-core/self-service-nhan-vien-ess.md"
+   },
+   {
+    "id": "FEAT-CORE-HRCORE-005",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/core-backend/hr-core/self-service-nhan-vien-ess.md"
+   },
+   {
+    "id": "FEAT-CORE-HRCORE-006",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/core-backend/hr-core/cost-rate-card-version-hoa-tham-dinh-finance.md"
+   },
+   {
+    "id": "FEAT-ERP-HRCORE-006",
+    "module": "MOD-HR-CORE",
+    "file": "phase2-features/bcerp-web/hr-core/cost-rate-card-version-hoa-tham-dinh-finance.md"
+   },
+   {
+    "id": "FEAT-CORE-KPI-001",
+    "module": "MOD-KPI-PERFORMANCE",
+    "file": "phase2-features/core-backend/kpi-performance/kpi-3-tru-cot-tu-tong-hop-calibration.md"
+   },
+   {
+    "id": "FEAT-ERP-KPI-002",
+    "module": "MOD-KPI-PERFORMANCE",
+    "file": "phase2-features/bcerp-web/kpi-performance/pip-30-60-90.md"
+   },
+   {
+    "id": "FEAT-CORE-KPI-002",
+    "module": "MOD-KPI-PERFORMANCE",
+    "file": "phase2-features/core-backend/kpi-performance/pip-30-60-90.md"
+   },
+   {
+    "id": "FEAT-CORE-CAPTS-001",
+    "module": "MOD-CAPACITY-TIMESHEET",
+    "file": "phase2-features/core-backend/capacity-timesheet/duyet-timesheet-va-capacity-phoi-hop-ops.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-006",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/bao-ve-pii-nhan-su-luong-confidential-restricted.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-001",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/so-phu-vi-tkqc-va-lenh-giao-dich-tien-tien-giu-ho.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-002",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md"
+   },
+   {
+    "id": "FEAT-ERP-WALLET-002",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/bcerp-web/wallet-recon/canh-bao-so-du-du-chi-3-ngay-sla-do-2h.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-003",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/dual-approval-dieu-chinh-so-du-doi-ty-gia-hoan-tien.md"
+   },
+   {
+    "id": "FEAT-ERP-WALLET-003",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/bcerp-web/wallet-recon/dual-approval-dieu-chinh-so-du-doi-ty-gia-hoan-tien.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-004",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md"
+   },
+   {
+    "id": "FEAT-GW-WALLET-001",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/integration-gw/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md"
+   },
+   {
+    "id": "FEAT-ERP-WALLET-004",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/bcerp-web/wallet-recon/doi-tru-3-so-tu-dong-da-tien-te-chot-va-khoa-ky.md"
+   },
+   {
+    "id": "FEAT-CORE-STGW-002",
+    "module": "MOD-SETTINGS-GW",
+    "file": "phase2-features/core-backend/settings-gw/api-7-nen-tang-degraded-mode-manual.md"
+   },
+   {
+    "id": "FEAT-ERP-STGW-002",
+    "module": "MOD-SETTINGS-GW",
+    "file": "phase2-features/bcerp-web/settings-gw/api-7-nen-tang-degraded-mode-manual.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-005",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/financial-hard-stop-da-khop-tien-fin-l1.md"
+   },
+   {
+    "id": "FEAT-ERP-WALLET-005",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/bcerp-web/wallet-recon/financial-hard-stop-da-khop-tien-fin-l1.md"
+   },
+   {
+    "id": "FEAT-CORE-ARAP-003",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/cong-no-ar-ap-aging-nhac-no.md"
+   },
+   {
+    "id": "FEAT-ERP-ARAP-003",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/bcerp-web/arap-payment/cong-no-ar-ap-aging-nhac-no.md"
+   },
+   {
+    "id": "FEAT-CORE-ARAP-004",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md"
+   },
+   {
+    "id": "FEAT-ERP-ARAP-004",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/bcerp-web/arap-payment/duyet-chi-giai-ngan-nguong-sod-delegate.md"
+   },
+   {
+    "id": "FEAT-CORE-ADACC-001",
+    "module": "MOD-ADACCOUNT-CC",
+    "file": "phase2-features/core-backend/adaccount-cc/kyc-phap-nhan-truoc-cap-phat-tkqc.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-006",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/aml-monitoring-t1-t6-hoan-tien-dung-nguon.md"
+   },
+   {
+    "id": "FEAT-ERP-WALLET-006",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/bcerp-web/wallet-recon/aml-monitoring-t1-t6-hoan-tien-dung-nguon.md"
+   },
+   {
+    "id": "FEAT-CORE-ARAP-005",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/hoa-don-dien-tu-tt78-2021-nd123-2020.md"
+   },
+   {
+    "id": "FEAT-ERP-ARAP-005",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/bcerp-web/arap-payment/hoa-don-dien-tu-tt78-2021-nd123-2020.md"
+   },
+   {
+    "id": "FEAT-CORE-RBAC-007",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/core-backend/rbac-audit/luu-tru-chung-tu-va-audit-log-tien-10-nam-worm.md"
+   },
+   {
+    "id": "FEAT-ERP-RBAC-007",
+    "module": "MOD-RBAC-AUDIT",
+    "file": "phase2-features/bcerp-web/rbac-audit/luu-tru-chung-tu-va-audit-log-tien-10-nam-worm.md"
+   },
+   {
+    "id": "FEAT-GW-ARAP-001",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/integration-gw/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md"
+   },
+   {
+    "id": "FEAT-CORE-ARAP-006",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/tich-hop-phan-mem-ke-toan-vas-hien-huu.md"
+   },
+   {
+    "id": "FEAT-CORE-ARAP-007",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/core-backend/arap-payment/phi-nen-tang-va-nghia-vu-thue.md"
+   },
+   {
+    "id": "FEAT-GW-ARAP-002",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/integration-gw/arap-payment/phi-nen-tang-va-nghia-vu-thue.md"
+   },
+   {
+    "id": "FEAT-ERP-ARAP-007",
+    "module": "MOD-ARAP-PAYMENT",
+    "file": "phase2-features/bcerp-web/arap-payment/phi-nen-tang-va-nghia-vu-thue.md"
+   },
+   {
+    "id": "FEAT-ERP-DHUB-004",
+    "module": "MOD-DATAHUB-BI",
+    "file": "phase2-features/bcerp-web/datahub-bi/dashboard-va-bao-cao-tai-chinh-noi-bo.md"
+   },
+   {
+    "id": "FEAT-CORE-DHUB-005",
+    "module": "MOD-DATAHUB-BI",
+    "file": "phase2-features/core-backend/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md"
+   },
+   {
+    "id": "FEAT-ERP-DHUB-005",
+    "module": "MOD-DATAHUB-BI",
+    "file": "phase2-features/bcerp-web/datahub-bi/bi-bod-dashboard-va-p-va-l-realtime.md"
+   },
+   {
+    "id": "FEAT-CORE-CPORT-001",
+    "module": "MOD-CLIENT-PORTAL",
+    "file": "phase2-features/core-backend/client-portal/du-lieu-vi-read-only-cho-client-portal.md"
+   },
+   {
+    "id": "FEAT-CORE-CRM-001",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/core-backend/crm-pipeline/thu-nhan-lead-da-kenh-va-chong-trung-lap-anti-duplicate.md"
+   },
+   {
+    "id": "FEAT-CORE-CRM-002",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/core-backend/crm-pipeline/pipeline-v6-0-hard-gate-khong-ghi-nhan-khong-ton-tai-va-phan-bo-lead.md"
+   },
+   {
+    "id": "FEAT-ERP-CRM-002",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/bcerp-web/crm-pipeline/pipeline-v6-0-hard-gate-khong-ghi-nhan-khong-ton-tai-va-phan-bo-lead.md"
+   },
+   {
+    "id": "FEAT-CORE-CRM-003",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/core-backend/crm-pipeline/auto-scoring-k1-k12-va-tier-a-e.md"
+   },
+   {
+    "id": "FEAT-ERP-CRM-003",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/bcerp-web/crm-pipeline/auto-scoring-k1-k12-va-tier-a-e.md"
+   },
+   {
+    "id": "FEAT-CORE-CRM-004",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/core-backend/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md"
+   },
+   {
+    "id": "FEAT-ERP-CRM-004",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/bcerp-web/crm-pipeline/gate-1-va-gate-2-go-no-go-va-ky-handoff.md"
+   },
+   {
+    "id": "FEAT-CORE-CRM-005",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/core-backend/crm-pipeline/chuyen-tier-sales-cs-va-ra-soat-quy-tier.md"
+   },
+   {
+    "id": "FEAT-ERP-CRM-005",
+    "module": "MOD-CRM-PIPELINE",
+    "file": "phase2-features/bcerp-web/crm-pipeline/chuyen-tier-sales-cs-va-ra-soat-quy-tier.md"
+   },
+   {
+    "id": "FEAT-CORE-QDD-001",
+    "module": "MOD-QUOTATION-DEALDESK",
+    "file": "phase2-features/core-backend/quotation-dealdesk/quotation-va-deal-desk-dinh-muc-chiet-khau-phan-cap-duyet-gm.md"
+   },
+   {
+    "id": "FEAT-CORE-QDD-002",
+    "module": "MOD-QUOTATION-DEALDESK",
+    "file": "phase2-features/core-backend/quotation-dealdesk/hop-dong-loi-nda-va-brand-safety-e-sign.md"
+   },
+   {
+    "id": "FEAT-ERP-QDD-002",
+    "module": "MOD-QUOTATION-DEALDESK",
+    "file": "phase2-features/bcerp-web/quotation-dealdesk/hop-dong-loi-nda-va-brand-safety-e-sign.md"
+   },
+   {
+    "id": "FEAT-CORE-HONB-001",
+    "module": "MOD-HANDOFF-ONBOARD",
+    "file": "phase2-features/core-backend/handoff-onboard/handoff-va-onboarding-bridge.md"
+   },
+   {
+    "id": "FEAT-CORE-COMM-001",
+    "module": "MOD-COMMISSION-QUOTA",
+    "file": "phase2-features/core-backend/commission-quota/commission-va-quota-hoa-hong-theo-thuc-nhan-clawback-coverage-3.md"
+   },
+   {
+    "id": "FEAT-CORE-ADACC-002",
+    "module": "MOD-ADACCOUNT-CC",
+    "file": "phase2-features/core-backend/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md"
+   },
+   {
+    "id": "FEAT-ERP-ADACC-002",
+    "module": "MOD-ADACCOUNT-CC",
+    "file": "phase2-features/bcerp-web/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md"
+   },
+   {
+    "id": "FEAT-GW-ADACC-001",
+    "module": "MOD-ADACCOUNT-CC",
+    "file": "phase2-features/integration-gw/adaccount-cc/ad-account-command-center-registry-va-vong-doi-tkqc.md"
+   },
+   {
+    "id": "FEAT-CORE-ADACC-003",
+    "module": "MOD-ADACCOUNT-CC",
+    "file": "phase2-features/core-backend/adaccount-cc/financial-hard-stop-chan-cap-phat-tkqc.md"
+   },
+   {
+    "id": "FEAT-ERP-ADACC-003",
+    "module": "MOD-ADACCOUNT-CC",
+    "file": "phase2-features/bcerp-web/adaccount-cc/financial-hard-stop-chan-cap-phat-tkqc.md"
+   },
+   {
+    "id": "FEAT-CORE-WALLET-007",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/core-backend/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md"
+   },
+   {
+    "id": "FEAT-GW-WALLET-002",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/integration-gw/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md"
+   },
+   {
+    "id": "FEAT-ERP-WALLET-007",
+    "module": "MOD-WALLET-RECON",
+    "file": "phase2-features/bcerp-web/wallet-recon/vi-tkqc-goc-ops-canh-bao-so-du-va-escalation.md"
+   },
+   {
+    "id": "FEAT-CORE-HONB-002",
+    "module": "MOD-HANDOFF-ONBOARD",
+    "file": "phase2-features/core-backend/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md"
+   },
+   {
+    "id": "FEAT-ERP-HONB-002",
+    "module": "MOD-HANDOFF-ONBOARD",
+    "file": "phase2-features/bcerp-web/handoff-onboard/handoff-va-onboarding-bridge-ops-004.md"
+   },
+   {
+    "id": "FEAT-CORE-PROPLN-001",
+    "module": "MOD-PROPOSAL-PLANNING",
+    "file": "phase2-features/core-backend/proposal-planning/proposal-va-planning-workspace-stage-gate-v6-0.md"
+   },
+   {
+    "id": "FEAT-CORE-CAMP-001",
+    "module": "MOD-CAMPAIGN-DELIVERABLE",
+    "file": "phase2-features/core-backend/campaign-deliverable/campaign-va-deliverable-management.md"
+   },
+   {
+    "id": "FEAT-GW-CAMP-001",
+    "module": "MOD-CAMPAIGN-DELIVERABLE",
+    "file": "phase2-features/integration-gw/campaign-deliverable/campaign-va-deliverable-management.md"
+   },
+   {
+    "id": "FEAT-CORE-CAPTS-002",
+    "module": "MOD-CAPACITY-TIMESHEET",
+    "file": "phase2-features/core-backend/capacity-timesheet/capacity-va-timesheet.md"
+   },
+   {
+    "id": "FEAT-ERP-CAPTS-002",
+    "module": "MOD-CAPACITY-TIMESHEET",
+    "file": "phase2-features/bcerp-web/capacity-timesheet/capacity-va-timesheet.md"
+   },
+   {
+    "id": "FEAT-CORE-SLANOT-001",
+    "module": "MOD-SLA-NOTIF",
+    "file": "phase2-features/core-backend/sla-notif/sla-va-notification-engine.md"
+   },
+   {
+    "id": "FEAT-PORTAL-SLANOT-001",
+    "module": "MOD-SLA-NOTIF",
+    "file": "phase2-features/portal-web/sla-notif/sla-va-notification-engine.md"
+   },
+   {
+    "id": "FEAT-CORE-CSKH-001",
+    "module": "MOD-TICKET-CSKH",
+    "file": "phase2-features/core-backend/ticket-cskh/ticket-va-cskh.md"
+   },
+   {
+    "id": "FEAT-CORE-CPORT-002",
+    "module": "MOD-CLIENT-PORTAL",
+    "file": "phase2-features/core-backend/client-portal/client-portal-goc-nhin-ops-cap-tai-khoan-va-monitor.md"
+   },
+   {
+    "id": "FEAT-CORE-TIKTOK-001",
+    "module": "MOD-TIKTOK-SHOP",
+    "file": "phase2-features/core-backend/tiktok-shop/tiktok-shop-monitoring.md"
+   },
+   {
+    "id": "FEAT-CORE-CAMP-002",
+    "module": "MOD-CAMPAIGN-DELIVERABLE",
+    "file": "phase2-features/core-backend/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md"
+   },
+   {
+    "id": "FEAT-GW-CAMP-002",
+    "module": "MOD-CAMPAIGN-DELIVERABLE",
+    "file": "phase2-features/integration-gw/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md"
+   },
+   {
+    "id": "FEAT-ERP-CAMP-002",
+    "module": "MOD-CAMPAIGN-DELIVERABLE",
+    "file": "phase2-features/bcerp-web/campaign-deliverable/a-b-testing-va-chien-luoc-campaign-theo-muc-tieu-khach.md"
+   }
+  ]
+ },
+ "CQG2": {
+  "modsInDb": [
+   "MOD-CLIENT-PORTAL",
+   "MOD-DATAHUB-BI",
+   "MOD-RBAC-AUDIT",
+   "MOD-SETTINGS-GW",
+   "MOD-SLA-NOTIF",
+   "MOD-TIKTOK-SHOP"
+  ],
+  "uncoveredModules": [
+   "MOD-HR-CORE",
+   "MOD-CRM-PIPELINE",
+   "MOD-QUOTATION-DEALDESK",
+   "MOD-ADACCOUNT-CC",
+   "MOD-WALLET-RECON",
+   "MOD-ARAP-PAYMENT",
+   "MOD-HANDOFF-ONBOARD",
+   "MOD-PROPOSAL-PLANNING",
+   "MOD-CAMPAIGN-DELIVERABLE",
+   "MOD-CAPACITY-TIMESHEET",
+   "MOD-TICKET-CSKH",
+   "MOD-COMMISSION-QUOTA",
+   "MOD-KPI-PERFORMANCE"
+  ]
+ }
+}

@@ -1,0 +1,108 @@
+{
+  "lane_type": "system",
+  "system_slug": "bcerp-web",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "component_id": "COMP-ERP-001",
+      "name": "Sales & Pipeline Service (sales-domain)",
+      "type": "service",
+      "module_id": "MOD-CRM-PIPELINE,MOD-QUOTATION-DEALDESK,MOD-HANDOFF-ONBOARD",
+      "responsibilities": [
+        "Lead lifecycle: new -> dedup_check (anti-duplicate) -> assigned -> scored K1-K12 (Tier A-E; A<1.5 AUTO LOST, E>=3.5 bypass) -> gate1_go/gate1_no_go -> qualified -> gate2_signed_handoff -> handed_to_cs; rejected/recycled; hard gate 'khong ghi nhan = khong ton tai'",
+        "Phan bo/assign/reassign lead (SALES_L2+ duyet reassign), Gate 1/Gate 2 Go-No-Go (SALES_L2/L3), ra soat tier quy, chuyen tier Sales -> CS",
+        "Quotation/Deal Desk: margin_check dinh muc theo tier, chiet khau phan cap (vua dinh muc -> duyet cap; vuot -> duyet GM), hop dong/LOI/NDA + brand safety checklist + e-sign",
+        "Handoff Package 5 nhom bat buoc: sales_submit -> ops_ack (ky nhan 2 phia) -> sinh onboarding tasks Day 1/7/14/30 cho ADACC (cap TKQC), CLIENT-PORTAL (tai khoan), CAMP"
+      ],
+      "dependencies": ["COMP-ERP-002", "COMP-ERP-003", "COMP-ERP-006", "COMP-ERP-007", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-ERP-002",
+      "name": "Finance & Treasury Service (finance-domain)",
+      "type": "service",
+      "module_id": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-COMMISSION-QUOTA",
+      "responsibilities": [
+        "So phu vi TKQC per-khach multi-currency (USD/VND khong gop quy doi), lenh giao dich tien giu ho, snapshot fee % tai thoi diem giao dich; entry -> reconciling -> matched/mismatch -> period_locked",
+        "Doi tru 3 so (portal vs bank vs ledger) da tien te, chot & khoa ky; dual approval (FIN_L1+FIN_L2) dieu chinh so du / doi ty gia / hoan tien; AML monitoring T1-T6, hoan tien dung nguon",
+        "Financial Hard Stop 'da khop tien' (FIN_L1 xac nhan) - phat tin hieu chan cap phat TKQC; canh bao so du du chi >=3 ngay, SLA do 2h; vi goc ops cho OPS (canh bao + escalation)",
+        "AR/AP: invoice -> aging_bucket -> dunning -> paid/overdue; lenh chi theo nguong 5/50/200 trieu (FIN_L1 khoi tao -> FIN_L2 -> CFO -> CEO + delegate), SoD 4 vai; hoa don dien tu TT78/2021 + ND123/2020; phi nen tang & nghia vu thue; xuat VAS ke toan qua GW (DI-004)",
+        "Commission & Quota: computed theo thuc nhan (ARAP da thu + QDD deal value + tier nhan vien), clawback khi hoan tien/huy (>90 ngay), quota coverage >=3x"
+      ],
+      "dependencies": ["COMP-ERP-001", "COMP-ERP-003", "COMP-ERP-006", "COMP-ERP-007", "SYS-CORE-BACKEND", "SYS-INTEGRATION-GW"]
+    },
+    {
+      "component_id": "COMP-ERP-003",
+      "name": "Ad Account & Delivery Service (delivery-domain)",
+      "type": "service",
+      "module_id": "MOD-ADACCOUNT-CC,MOD-PROPOSAL-PLANNING,MOD-CAMPAIGN-DELIVERABLE",
+      "responsibilities": [
+        "TKQC registry 2.600+ tai khoan: vong doi kyc_required -> kyc_verified -> registered -> pre_spend_hardstop_check -> active -> suspended/closed; KYC phap nhan bat buoc truoc cap phat; naming/UTM chuan; die account; thu hoi 24h; nhan hard stop 'da khop tien' tu finance",
+        "Proposal & Planning Workspace stage-gate V6.0 (30 stage, done-criteria machine-checkable) - OPS_PLAN soan va duyet theo gate",
+        "Campaign & Deliverable theo WBS (planned -> in_flight -> delivered -> reported), A/B testing theo muc tieu khach; nghiem thu 3 ngay lam viec (nhac ngay 2, escalate AD ngay 4, khong ap 'im lang = dong y')"
+      ],
+      "dependencies": ["COMP-ERP-001", "COMP-ERP-002", "COMP-ERP-005", "COMP-ERP-006", "COMP-ERP-007", "SYS-INTEGRATION-GW", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-ERP-004",
+      "name": "Client Care Service (service-domain)",
+      "type": "service",
+      "module_id": "MOD-TICKET-CSKH",
+      "responsibilities": [
+        "Ticket lifecycle open -> assigned -> in_progress -> resolved -> closed; queue OPS_CONT; escalation path AM -> AD -> BOD khi SLA vo",
+        "SLA theo tier khach x priority (GMT+7); gan context campaign/TKQC vao timeline ticket",
+        "Tiep nhan ticket tu client portal (SYS-PORTAL-WEB) va tao noi bo; activity/audit timeline cho moi ticket"
+      ],
+      "dependencies": ["COMP-ERP-001", "COMP-ERP-003", "COMP-ERP-006", "SYS-PORTAL-WEB", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-ERP-005",
+      "name": "People & Performance Service (people-domain)",
+      "type": "service",
+      "module_id": "MOD-HR-CORE,MOD-CAPACITY-TIMESHEET,MOD-KPI-PERFORMANCE",
+      "responsibilities": [
+        "Ho so nhan su L1-L5 + ma vai (SSOT), HDLD canh bao het han 90/60/30 ngay, cham cong & overtime, nghi phep so du tu dong + duyet phan cap L1->L2, ESS; cost rate card version hoa + tham dinh FIN; bao ve PII luong Confidential/Restricted (field-level security theo RBAC)",
+        "Timesheet billable tai nguon: draft -> submitted -> reviewed (OPS || HR duyet song song) -> approved; capacity vang 90% / do 100%; gio chua duyet khong vao P&L",
+        "KPI 3 tru cot tu tong hop (tu CAPTS/COMM/CRM) -> calibration (HR_L2 + ban dieu hanh) -> finalized; PIP 30-60-90 trigger khi KPI duoi chuan lien tuc"
+      ],
+      "dependencies": ["SYS-CORE-BACKEND", "COMP-ERP-002", "COMP-ERP-003", "COMP-ERP-006", "COMP-ERP-007"]
+    },
+    {
+      "component_id": "COMP-ERP-006",
+      "name": "SLA & Notification Worker",
+      "type": "worker",
+      "module_id": "MOD-SLA-NOTIF",
+      "responsibilities": [
+        "SLA policy ma tran tier x priority GMT+7; timer/đem nguoc cho ticket, nghiem thu creative, vi SLA do 2h, aging bucket, handoff checkpoint",
+        "Escalation tu dong theo ma tran (ticket AM -> AD -> BOD; vi -> ops escalation; SLA do 2h); ca truc Critical on-call xoay vong SLA 4h ngoai gio (DI-005)",
+        "Dispatch notification da kenh (in-app + kenh ngoai [NEEDS_REVIEW]); idempotent, retry, dead-letter; log notification de audit"
+      ],
+      "dependencies": ["COMP-ERP-001", "COMP-ERP-002", "COMP-ERP-003", "COMP-ERP-004", "COMP-ERP-005", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-ERP-007",
+      "name": "Batch & Reconciliation Scheduler",
+      "type": "scheduler",
+      "module_id": "MOD-WALLET-RECON,MOD-ARAP-PAYMENT,MOD-HR-CORE,MOD-KPI-PERFORMANCE,MOD-COMMISSION-QUOTA,MOD-CAPACITY-TIMESHEET,MOD-CRM-PIPELINE",
+      "responsibilities": [
+        "Job doi tru 3 so dinh ky + sweep/re-validate hard stop 'da khop tien' tai nguon (nguon truth cho chan TKQC, khong phu thuoc event)",
+        "AR aging bucket + dunning runs theo bucket; chot & khoa ky vi; clawback sweep khi hoan tien/huy",
+        "HDLD expiry sweep 90/60/30; KPI auto-aggregate dinh ky; ra soat tier quy; capacity computation; checkpoint Day 1/7/14/30 handoff"
+      ],
+      "dependencies": ["COMP-ERP-001", "COMP-ERP-002", "COMP-ERP-003", "COMP-ERP-005", "COMP-ERP-006", "SYS-INTEGRATION-GW"]
+    }
+  ],
+  "conditional_sections": ["Workflow Automation Architecture"],
+  "tech_recommendations": {
+    "runtime": "Modular monolith TypeScript/NestJS (5 bounded-context service + 1 worker + 1 scheduler trong 1 deployment, co the tach sau) + PostgreSQL 16 + Redis (SLA timer, distributed lock) + BullMQ/RabbitMQ event bus; web SPA (React) qua BFF REST; chay trong VPC noi bo",
+    "key_decisions": [
+      "Modular monolith theo bounded context (sales/finance/delivery/care/people) - khong microservices ngay ngay 1; module boundary enforce bang tool (arch-test style) + event contract",
+      "Tien luu DECIMAL per-currency, tuyet doi khong quy doi gop USD/VND; snapshot fee % tai thoi diem giao dich; ghi so vi theo nguyen tac double-entry",
+      "Moi money command idempotent (Idempotency-Key) + optimistic locking; outbox pattern cho async events",
+      "State machine khai bao (JSON definition dung chung) cho moi object; transition endpoint tuong minh co guard role+state",
+      "Hard stop 'da khop tien' luon duoc scheduler re-validate tai nguon, khong tin event thuan",
+      "Approval engine pattern dung chung (nguong 5/50/200, dual approval, SoD 4 vai, delegate) la thu vien noi bo - khong dat thanh module moi",
+      "Audit append-only ghi qua CORE RBAC-AUDIT; chung tu tien WORM >=10 nam qua CORE; list API server-side pagination mac dinh 20, toi da 100",
+      "AuthN/AuthZ delegate toan bo cho SYS-CORE-BACKEND (SSO/MFA, 18 vai chuan, DI-006); he thong khong tu luu password"
+    ]
+  }
+}

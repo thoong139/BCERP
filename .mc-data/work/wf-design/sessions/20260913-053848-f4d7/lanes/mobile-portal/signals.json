@@ -1,0 +1,67 @@
+{
+  "lane_type": "system",
+  "system_slug": "mobile-portal",
+  "system_id": "SYS-MOBILE-PORTAL",
+  "items": [
+    {
+      "component_id": "COMP-MPO-001",
+      "name": "BC Portal Mobile App (iOS/Android)",
+      "type": "app",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Màn tổng hợp '30 giây' cho CUSTOMER: số dư ví tham chiếu, chi tiêu daily, trạng thái ticket, thông báo (FEAT-MPO-CPORT-001)",
+        "Ví read-only tuyệt đối (REQ-FIN-017): availableBalance/frozenBalance theo tiền gốc USD/VND tách sổ, không gộp quy đổi; disclaimer độ trễ 15 phút-24h + timestamp + nhãn nguồn api/manual trên mọi con số (FEAT-MPO-WALLET-001)",
+        "Render kết quả engine CORE tính sẵn: chi tiêu daily, số ngày chạy dự kiến, mức Xanh/Vàng/Đỏ per TKQC/nền tảng - app không tự tính ADS hay SLA",
+        "Lịch sử lệnh ví bản rút gọn đã mask giá vốn ('Điều chỉnh đối soát'); lệnh PENDING/STEP1_APPROVED hiển thị khối 'Chờ phê duyệt' riêng, không đổi số dư",
+        "Tiến độ campaign/deliverable theo milestone + confirm nghiệm thu nhẹ (phê duyệt phi tài chính) (FEAT-MPO-CAMP-001)",
+        "Ticket: tạo, comment, theo dõi trạng thái/SLA theo tier, trả CSAT sau Closed (FEAT-MPO-CSKH-001)",
+        "Nhận invite, kích hoạt tài khoản + bật 2FA bắt buộc; CLIENT_ADMIN quản portal user trong hạn mức qua lớp OTP; tenant switcher cho khách đa pháp nhân",
+        "Notification inbox in-app + deep-link sau 2FA; deep-link sang Portal Web tải sổ phụ PDF watermark (CLIENT_ADMIN); cấu hình nhận push per-thiết bị",
+        "Offline cache chỉ đọc gắn nhãn 'dữ liệu cũ', mọi ghi vô hiệu khi offline; che số dư khi background; sinh trắc học/PIN"
+      ],
+      "dependencies": ["SYS-PORTAL-WEB", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MPO-002",
+      "name": "Portal Mobile BFF (mobile API surface)",
+      "type": "bff",
+      "module_id": "MOD-CLIENT-PORTAL",
+      "responsibilities": [
+        "Tổng hợp/shape dữ liệu mobile từ view tổng hợp đã lọc tenant dùng chung Portal Web (PortalWalletView, PortalAdjustmentHistoryView, tiến độ nghiệm thu, ticket, lịch nạp) - không truy cập DB nội bộ",
+        "Forward tenant context phục vụ isolation 2 lớp (RLS DB + filter API tầng CORE); Portal API Gateway từ chối tài khoản nội bộ BCERP (tách danh tính portal user)",
+        "Field whitelist + mask trường nội bộ (giá vốn, chiết khấu, P&L, ghi chú nội bộ, AML/KYC/UBO) trước khi trả app; thiếu freshness metadata (last_updated, data_source) thì không render",
+        "Endpoint đăng ký/thu hồi push token (MobileDevice: user_id + tenant_id + platform + push_opt_in)",
+        "Phiên mobile: xác thực portal user qua SSO/2FA của CORE-BACKEND; session timeout; khóa sau 5 lần sai; thu hồi từ xa toàn bộ thiết bị",
+        "Chặn mọi endpoint ghi dữ liệu tài chính (HTTP 403 + log bảo mật); ghi phi tài chính chỉ ticket/confirm nghiệm thu/quản lý user",
+        "ETag, pagination (limit mặc định 20, max 100), đa ngôn ngữ/múi giờ, watermark + portal_download_log cho tệp tải về"
+      ],
+      "dependencies": ["SYS-PORTAL-WEB", "SYS-CORE-BACKEND"]
+    },
+    {
+      "component_id": "COMP-MPO-003",
+      "name": "Portal Push Notification Worker",
+      "type": "push-worker",
+      "module_id": "MOD-SLA-NOTIF",
+      "responsibilities": [
+        "Tiêu thụ sự kiện notification từ SLA-NOTIF qua PORTAL-WEB/CORE: ví chuyển mức Xanh/Vàng/Đỏ (phân phối <=5 phút từ lúc sync), phản hồi ticket, nghiệm thu chờ confirm, invite/kích hoạt portal user (FEAT-MPO-SLANOT-001)",
+        "Fan-out FCM (Android) / APNs (iOS) theo thiết bị opt-in; body push chỉ tiêu đề loại sự kiện, không chứa số liệu tài chính (an toàn lock screen)",
+        "Quản lý device token registry: gắn user_id + tenant_id; revoke ngay khi user DISABLED/đăng xuất/mất thiết bị; tách push theo tenant đang chọn, không hợp nhất chéo tenant",
+        "Cấu hình nhận thông báo per-thiết bị theo mức cảnh báo của chính user khách; AlertNotification log sent/read (payload_masked)",
+        "Fallback notification center in-app khi push không tới được; push không phải nguồn sự thật - mở app/deep-link luôn fetch trạng thái fresh từ server"
+      ],
+      "dependencies": ["SYS-PORTAL-WEB", "SYS-CORE-BACKEND"]
+    }
+  ],
+  "conditional_sections": [],
+  "tech_recommendations": {
+    "runtime": "Cross-platform mobile 1 codebase iOS/Android (Flutter hoặc React Native); BFF Node.js/NestJS hoặc cùng stack SYS-PORTAL-WEB; push FCM + APNs; stateless, scale ngang",
+    "key_decisions": [
+      "Thin client bắt buộc: app không chứa business logic, không tự tính ADS/mức cảnh báo/SLA/đối soát - chỉ render kết quả engine CORE",
+      "Dùng chung read-model API/view đã lọc tenant của SYS-PORTAL-WEB; mobile không chạm DB nội bộ, không gọi trực tiếp SYS-INTEGRATION-GW",
+      "Danh tính duy nhất: portal user tenant (CLIENT_ADMIN/CLIENT_USER) qua SSO/2FA CORE-BACKEND; tài khoản nội bộ bị gateway từ chối",
+      "Tài chính read-only tuyệt đối: không có nút/endpoint ghi ví trên mobile; ghi phi tài chính giới hạn ticket/confirm nghiệm thu/quản lý user",
+      "Offline = cache chỉ đọc có nhãn; mọi thao tác ghi vô hiệu khi offline để bảo đảm vết thời gian thực trên CORE",
+      "Push payload tối thiểu hóa (chỉ loại sự kiện), nội dung đầy đủ mở qua deep-link sau 2FA"
+    ]
+  }
+}
