@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "cport-screens",
+  "module_slug": "cport",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-PORTAL-001",
+      "module_slug": "cport",
+      "screen_name": "Portal Accounts (client)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-CPORT-001"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/cport/screens-portal-accounts.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T00:00:00Z",
+  "errors": []
+}

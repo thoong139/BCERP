@@ -1,0 +1,107 @@
+[
+  {
+    "module_id": "MOD-HR-CORE",
+    "name": "HR Core",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 12
+  },
+  {
+    "module_id": "MOD-CRM-PIPELINE",
+    "name": "CRM & Lead Pipeline V6.0",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 11
+  },
+  {
+    "module_id": "MOD-QUOTATION-DEALDESK",
+    "name": "Quotation & Deal Desk",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 6
+  },
+  {
+    "module_id": "MOD-ADACCOUNT-CC",
+    "name": "Quản lý TKQC — Ad Account CC",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 8
+  },
+  {
+    "module_id": "MOD-WALLET-RECON",
+    "name": "Wallet & Đối soát TKQC",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 24
+  },
+  {
+    "module_id": "MOD-ARAP-PAYMENT",
+    "name": "Công nợ AR/AP & Giải ngân",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 18
+  },
+  {
+    "module_id": "MOD-HANDOFF-ONBOARD",
+    "name": "Handoff & Onboarding Bridge",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 6
+  },
+  {
+    "module_id": "MOD-PROPOSAL-PLANNING",
+    "name": "Proposal & Planning Workspace",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 3
+  },
+  {
+    "module_id": "MOD-CAMPAIGN-DELIVERABLE",
+    "name": "Campaign & Deliverable Mgmt",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 10
+  },
+  {
+    "module_id": "MOD-CAPACITY-TIMESHEET",
+    "name": "Capacity & Timesheet",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 5
+  },
+  {
+    "module_id": "MOD-SLA-NOTIF",
+    "name": "SLA & Notification Engine",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 5
+  },
+  {
+    "module_id": "MOD-TICKET-CSKH",
+    "name": "Ticket & CSKH",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 5
+  },
+  {
+    "module_id": "MOD-COMMISSION-QUOTA",
+    "name": "Commission & Quota",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 3
+  },
+  {
+    "module_id": "MOD-KPI-PERFORMANCE",
+    "name": "KPI & Performance",
+    "system": "SYS-BCERP-WEB",
+    "has_ui": true,
+    "features": 4
+  },
+  {
+    "module_id": "MOD-CLIENT-PORTAL",
+    "name": "Client Portal",
+    "system": "SYS-PORTAL-WEB",
+    "has_ui": true,
+    "features": 7
+  }
+]

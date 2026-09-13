@@ -1,411 +1,484 @@
 {
-  "entries": [
-    {
-      "timestamp": "2026-09-12T12:40:06.288Z",
-      "skill": "wf-define-features",
-      "session": "20260912-112934-6bcf",
-      "phase": "phase1-scope-mapping",
-      "event": "COMPLETE",
-      "details": {
-        "features": 170,
-        "lanes": 72,
-        "batches": 24,
-        "mvp_coverage": "PASS",
-        "note": "resume sau dừng chủ động; docs 03_Quy_che_KPI_HR.md mới đã reconcile; DI-004 resolved"
-      }
+ "entries": [
+  {
+   "timestamp": "2026-09-12T12:40:06.288Z",
+   "skill": "wf-define-features",
+   "session": "20260912-112934-6bcf",
+   "phase": "phase1-scope-mapping",
+   "event": "COMPLETE",
+   "details": {
+    "features": 170,
+    "lanes": 72,
+    "batches": 24,
+    "mvp_coverage": "PASS",
+    "note": "resume sau dừng chủ động; docs 03_Quy_che_KPI_HR.md mới đã reconcile; DI-004 resolved"
+   }
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T14:43:15Z",
+   "code": "E101",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T14:43:15Z",
+   "code": "E301",
+   "severity": "error",
+   "phase": "phase07-tdd"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T14:43:15Z",
+   "code": "E601",
+   "severity": "info",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T14:43:15Z",
+   "code": "E901",
+   "severity": "info",
+   "phase": "phase00-init"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T14:43:16Z",
+   "code": "BAD-CODE",
+   "severity": "warning",
+   "phase": "phase00-init"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T14:43:16Z",
+   "code": "E102",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:17Z",
+   "code": "E101",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:18Z",
+   "code": "E301",
+   "severity": "error",
+   "phase": "phase07-tdd"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:18Z",
+   "code": "E602",
+   "severity": "critical",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:18Z",
+   "code": "E601",
+   "severity": "info",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:42Z",
+   "code": "E101",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:43Z",
+   "code": "E301",
+   "severity": "error",
+   "phase": "phase07-tdd"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:43Z",
+   "code": "E602",
+   "severity": "critical",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:43:44Z",
+   "code": "E601",
+   "severity": "info",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:50:12Z",
+   "code": "E101",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:50:12Z",
+   "code": "E301",
+   "severity": "error",
+   "phase": "phase07-tdd"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:50:13Z",
+   "code": "E602",
+   "severity": "critical",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T14:50:13Z",
+   "code": "E601",
+   "severity": "info",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T15:11:48Z",
+   "code": "E101",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T15:11:49Z",
+   "code": "E301",
+   "severity": "error",
+   "phase": "phase07-tdd"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T15:11:49Z",
+   "code": "E601",
+   "severity": "info",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T15:11:49Z",
+   "code": "E901",
+   "severity": "info",
+   "phase": "phase00-init"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T15:11:49Z",
+   "code": "BAD-CODE",
+   "severity": "warning",
+   "phase": "phase00-init"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-feature-sprint4",
+   "session_id": "2026-04-28-test-host",
+   "ts": "2026-09-12T15:11:50Z",
+   "code": "E102",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T15:11:50Z",
+   "code": "E101",
+   "severity": "warning",
+   "phase": "phase01-pattern-scan"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T15:11:51Z",
+   "code": "E301",
+   "severity": "error",
+   "phase": "phase07-tdd"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T15:11:51Z",
+   "code": "E602",
+   "severity": "critical",
+   "phase": "phase10-finalize"
+  },
+  {
+   "skill": "wf-implement-feature",
+   "event": "ERROR_LOGGED",
+   "feature_slug": "test-sprint4-smoke",
+   "session_id": "2026-04-28-smoke",
+   "ts": "2026-09-12T15:11:52Z",
+   "code": "E601",
+   "severity": "info",
+   "phase": "phase10-finalize"
+  },
+  {
+   "timestamp": "2026-09-12T20:57:43.777Z",
+   "skill": "wf-define-features",
+   "session": "20260912-112934-6bcf",
+   "phase": "phase2-create-specs",
+   "event": "COMPLETE",
+   "details": {
+    "files": 170,
+    "lanes": 72,
+    "agents_spawned": 69,
+    "systems": "ALL 6",
+    "post_gate": "PASS"
+   }
+  },
+  {
+   "timestamp": "2026-09-12T21:01:04.526Z",
+   "skill": "wf-define-features",
+   "session": "20260912-112934-6bcf",
+   "phase": "phase3-cross-validation",
+   "event": "COMPLETE",
+   "details": {
+    "iterations": 1,
+    "errors": 0,
+    "warns": 3,
+    "verdict": "PASS_WITH_WARN",
+    "cf6_refs": 378
+   }
+  },
+  {
+   "timestamp": "2026-09-12T21:55:20.663Z",
+   "skill": "wf-define-features",
+   "session": "20260912-112934-6bcf",
+   "phase": "phase4-stakeholder-review",
+   "event": "COMPLETE",
+   "details": {
+    "verdict": "APPROVED_WITH_CONDITIONS",
+    "findings": 14,
+    "resolved": 5,
+    "resolved_pending_p5": 2,
+    "deferred": 7,
+    "auto_fixed": [
+     "H-01 SM mapping 9 files",
+     "M-03 RBAC-005",
+     "M-04 SoD BR-W08a"
+    ]
+   }
+  },
+  {
+   "timestamp": "2026-09-12T21:58:42.462Z",
+   "skill": "wf-define-features",
+   "session": "20260912-112934-6bcf",
+   "phase": "phase5-registry-update",
+   "event": "COMPLETE",
+   "details": {
+    "features_registered": 170,
+    "ops_ad": [
+     "SYS-BCERP-WEB",
+     "SYS-MOBILE-INTERNAL"
+    ],
+    "digest": 170,
+    "post_gate": "PASS",
+    "skill_status": "completed"
+   }
+  },
+  {
+   "timestamp": "2026-09-13T00:53:15.056Z",
+   "skill": "wf-design",
+   "session": "20260913-053848-f4d7",
+   "phase": "phase8-digest-summary",
+   "event": "COMPLETE",
+   "details": {
+    "project": "BCERP",
+    "approach": "Platform Design",
+    "large_project_mode": true,
+    "workload_gate": "block -> auto-partition sequential",
+    "systems": 6,
+    "modules": 19,
+    "requirements": 59,
+    "features": 170,
+    "components": 60,
+    "apis": 280,
+    "db_tables": 122,
+    "infra_items": 55,
+    "integration_conflicts": 0,
+    "coverage": {
+     "req": "59/59",
+     "feat_api": "170/170",
+     "mod_table": "19/19"
     },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T14:43:15Z",
-      "code": "E101",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
+    "crossval": {
+     "iterations": 3,
+     "errors_found": 9,
+     "fixed": 9,
+     "remaining": 0
     },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T14:43:15Z",
-      "code": "E301",
-      "severity": "error",
-      "phase": "phase07-tdd"
+    "review": {
+     "verdict": "APPROVED_WITH_CONDITIONS",
+     "resolved": 20,
+     "deferred": 13,
+     "pending": 0
     },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T14:43:15Z",
-      "code": "E601",
-      "severity": "info",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T14:43:15Z",
-      "code": "E901",
-      "severity": "info",
-      "phase": "phase00-init"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T14:43:16Z",
-      "code": "BAD-CODE",
-      "severity": "warning",
-      "phase": "phase00-init"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T14:43:16Z",
-      "code": "E102",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:17Z",
-      "code": "E101",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:18Z",
-      "code": "E301",
-      "severity": "error",
-      "phase": "phase07-tdd"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:18Z",
-      "code": "E602",
-      "severity": "critical",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:18Z",
-      "code": "E601",
-      "severity": "info",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:42Z",
-      "code": "E101",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:43Z",
-      "code": "E301",
-      "severity": "error",
-      "phase": "phase07-tdd"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:43Z",
-      "code": "E602",
-      "severity": "critical",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:43:44Z",
-      "code": "E601",
-      "severity": "info",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:50:12Z",
-      "code": "E101",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:50:12Z",
-      "code": "E301",
-      "severity": "error",
-      "phase": "phase07-tdd"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:50:13Z",
-      "code": "E602",
-      "severity": "critical",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T14:50:13Z",
-      "code": "E601",
-      "severity": "info",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T15:11:48Z",
-      "code": "E101",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T15:11:49Z",
-      "code": "E301",
-      "severity": "error",
-      "phase": "phase07-tdd"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T15:11:49Z",
-      "code": "E601",
-      "severity": "info",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T15:11:49Z",
-      "code": "E901",
-      "severity": "info",
-      "phase": "phase00-init"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T15:11:49Z",
-      "code": "BAD-CODE",
-      "severity": "warning",
-      "phase": "phase00-init"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-feature-sprint4",
-      "session_id": "2026-04-28-test-host",
-      "ts": "2026-09-12T15:11:50Z",
-      "code": "E102",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T15:11:50Z",
-      "code": "E101",
-      "severity": "warning",
-      "phase": "phase01-pattern-scan"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T15:11:51Z",
-      "code": "E301",
-      "severity": "error",
-      "phase": "phase07-tdd"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T15:11:51Z",
-      "code": "E602",
-      "severity": "critical",
-      "phase": "phase10-finalize"
-    },
-    {
-      "skill": "wf-implement-feature",
-      "event": "ERROR_LOGGED",
-      "feature_slug": "test-sprint4-smoke",
-      "session_id": "2026-04-28-smoke",
-      "ts": "2026-09-12T15:11:52Z",
-      "code": "E601",
-      "severity": "info",
-      "phase": "phase10-finalize"
-    },
-    {
-      "timestamp": "2026-09-12T20:57:43.777Z",
-      "skill": "wf-define-features",
-      "session": "20260912-112934-6bcf",
-      "phase": "phase2-create-specs",
-      "event": "COMPLETE",
-      "details": {
-        "files": 170,
-        "lanes": 72,
-        "agents_spawned": 69,
-        "systems": "ALL 6",
-        "post_gate": "PASS"
-      }
-    },
-    {
-      "timestamp": "2026-09-12T21:01:04.526Z",
-      "skill": "wf-define-features",
-      "session": "20260912-112934-6bcf",
-      "phase": "phase3-cross-validation",
-      "event": "COMPLETE",
-      "details": {
-        "iterations": 1,
-        "errors": 0,
-        "warns": 3,
-        "verdict": "PASS_WITH_WARN",
-        "cf6_refs": 378
-      }
-    },
-    {
-      "timestamp": "2026-09-12T21:55:20.663Z",
-      "skill": "wf-define-features",
-      "session": "20260912-112934-6bcf",
-      "phase": "phase4-stakeholder-review",
-      "event": "COMPLETE",
-      "details": {
-        "verdict": "APPROVED_WITH_CONDITIONS",
-        "findings": 14,
-        "resolved": 5,
-        "resolved_pending_p5": 2,
-        "deferred": 7,
-        "auto_fixed": [
-          "H-01 SM mapping 9 files",
-          "M-03 RBAC-005",
-          "M-04 SoD BR-W08a"
-        ]
-      }
-    },
-    {
-      "timestamp": "2026-09-12T21:58:42.462Z",
-      "skill": "wf-define-features",
-      "session": "20260912-112934-6bcf",
-      "phase": "phase5-registry-update",
-      "event": "COMPLETE",
-      "details": {
-        "features_registered": 170,
-        "ops_ad": [
-          "SYS-BCERP-WEB",
-          "SYS-MOBILE-INTERNAL"
-        ],
-        "digest": 170,
-        "post_gate": "PASS",
-        "skill_status": "completed"
-      }
-    },
-    {
-      "timestamp": "2026-09-13T00:53:15.056Z",
-      "skill": "wf-design",
-      "session": "20260913-053848-f4d7",
-      "phase": "phase8-digest-summary",
-      "event": "COMPLETE",
-      "details": {
-        "project": "BCERP",
-        "approach": "Platform Design",
-        "large_project_mode": true,
-        "workload_gate": "block -> auto-partition sequential",
-        "systems": 6,
-        "modules": 19,
-        "requirements": 59,
-        "features": 170,
-        "components": 60,
-        "apis": 280,
-        "db_tables": 122,
-        "infra_items": 55,
-        "integration_conflicts": 0,
-        "coverage": {
-          "req": "59/59",
-          "feat_api": "170/170",
-          "mod_table": "19/19"
-        },
-        "crossval": {
-          "iterations": 3,
-          "errors_found": 9,
-          "fixed": 9,
-          "remaining": 0
-        },
-        "review": {
-          "verdict": "APPROVED_WITH_CONDITIONS",
-          "resolved": 20,
-          "deferred": 13,
-          "pending": 0
-        },
-        "agents_spawned": 13,
-        "files_created": [
-          "P3-01-architecture.md",
-          "api-contract.md",
-          "database-design.md",
-          "integration-map.md",
-          "infra-spec.md",
-          "stakeholder-review.md"
-        ],
-        "next": "/wf-design-ux"
-      }
-    }
-  ]
+    "agents_spawned": 13,
+    "files_created": [
+     "P3-01-architecture.md",
+     "api-contract.md",
+     "database-design.md",
+     "integration-map.md",
+     "infra-spec.md",
+     "stakeholder-review.md"
+    ],
+    "next": "/wf-design-ux"
+   }
+  },
+  {
+   "skill": "wf-design-ux",
+   "event": "COMPLETE",
+   "timestamp": "2026-09-13T10:44:37+07:00",
+   "duration_seconds": 5400,
+   "session_id": "20260913-080222-df29",
+   "outputs": {
+    "design-system.md": "done",
+    "navigation_files": 4,
+    "screen_group_files": 39,
+    "workflow-context.md": "done",
+    "stakeholder-review.md": "done",
+    "registry_ux_design_status": "done",
+    "ux-input-digest.json": "done",
+    "cross-validation-report.md": "done"
+   },
+   "agents_spawned": [
+    "ux-researcher P1-B",
+    "ux-designer P1-C",
+    "ux-designer P2-B ×4",
+    "ux-architect P2-A ×4",
+    "ux-designer P3 lane ×22",
+    "accessibility-auditor P4",
+    "ux-designer P5-A",
+    "architect P5-B"
+   ],
+   "errors_logged": 11,
+   "errors_fixed": 11,
+   "cross_val_iterations": 2
+  },
+  {
+   "skill": "wf-design-ux",
+   "event": "POST_APPROVAL_REVISION",
+   "revision": "R2 — Workspace Reorganization (bcerp-web)",
+   "timestamp": "2026-09-13T11:43:28+07:00",
+   "session_id": "20260913-080222-df29",
+   "trigger": "user goal: tổ chức tính năng theo workspace phòng ban + bổ sung workspace quản trị đặc thù (settings)",
+   "changes": {
+    "phase4-ux/bcerp-web/Navigation-bcerp-web.md": "7 workspace (5 phòng ban + 2 quản trị đặc thù: tách Settings /settings khỏi Platform Admin); §1.0 Workspace Map mới (Bảng A 7 workspace, Bảng B 19 module/170 FEAT); §1 menu tree, §2 route S27=/settings, §3 thêm workspace Settings, §4.2 breadcrumb, §4.4 icon (Platform Admin=shield-check, Settings=settings), §4.5 làm rõ Preferences cá nhân ≠ workspace Settings",
+    "phase4-ux/bcerp-web/stgw/screens-integrations-settings.md": "route /settings; workspace=Settings; breadcrumb; NEEDS_REVIEW cập nhật route",
+    "phase4-ux/bcerp-web/datahub/screens-alert-center.md": "deep-link S27 → /settings?tab=connections&source=",
+    "phase4-ux/bcerp-web/datahub/screens-executive-bi.md": "deep-link S27 → /settings",
+    "phase4-ux/portal-web/client-portal/screens-portal-home.md": "'6 workspace nội bộ' → 7",
+    "phase4-ux/stakeholder-review.md": "annotation R2 tại A.1 (giữ nguyên kết quả review lịch sử)",
+    "_meta/ux-input-digest.json": "navigation_structure 7 workspace + design_decisions R2"
+   },
+   "constraints_held": [
+    "CORE-006 scope guard: KHÔNG thêm/bớt surface — inventory §2 vẫn 25 dòng, S27 giữ nguyên UI-ID",
+    "CORE-031: chỉ sửa output files hiện có theo template structure — required sections Navigation giữ nguyên",
+    "Registry safe-write: không đổi req-registry (ux_design_status=done giữ nguyên)",
+    "Session working files (workflow-context.md, cross-validation-report) không sửa — audit trail lịch sử"
+   ]
+  },
+  {
+   "skill": "wf-design-ux",
+   "event": "POST_APPROVAL_REVISION",
+   "revision": "R3 — Workspace Folder Structure (bcerp-web)",
+   "timestamp": "2026-09-13T12:04:18+07:00",
+   "session_id": "20260913-080222-df29",
+   "trigger": "user fix bổ sung: thư mục vật lý theo workspace (mỗi workspace chứa thư mục tài liệu giao diện của một bộ phận) + Navigation riêng cho mỗi workspace",
+   "changes": {
+    "phase4-ux/bcerp-web/<ws>/<module>/screens-*.md": "19 thư mục module chuyển vào 7 thư mục workspace: sales(crm,qdd,comm) finance(wallet,arap) ops(honb,adacc,propln,camp,capts,cskh,tiktok,slanot,cport) hr(hr-core,kpi) executive(datahub) admin(rbac) settings(stgw)",
+    "phase4-ux/bcerp-web/<ws>/Navigation-<ws>.md": "7 file Navigation workspace MỚI theo template Navigation (đủ 5 required sections + READS/USED BY) — menu, screens, phân quyền, UI notes scope workspace",
+    "phase4-ux/bcerp-web/Navigation-bcerp-web.md": "R3 note; menu tree + §2 dùng path [ws]/[module]/screens-*.md; §4.3 quy ước File spec mới; Tài Liệu Liên Quan thêm 7 workspace Navigation",
+    ".claude/doc-framework/phase4-ux/_contract.json": "v1.0 → v1.1: output_pattern Navigation + screen-group đổi sang '**' (khớp cả độ sâu có/không workspace) + structure_note"
+   },
+   "link_integrity": "303/303 relative ref tồn tại sau re-resolve (kèm fix 1 pre-existing bug link qdd→crm ../../ sai thành ../; 5 ref dir thiếu workspace prefix được repair bằng existence-check)",
+   "constraints_held": [
+    "CORE-006: không thêm/bớt surface — 25 screens + inventory bất biến; chỉ thêm Navigation docs (artifact điều hướng, không phải surface)",
+    "CORE-031: 7 Navigation workspace tạo theo pattern READ template Navigation → POPULATE → WRITE",
+    "Không đổi route/UI-ID/registry; validate-schema-sync 33/33 PASS sau khi sửa contract"
+   ]
+  }
+ ]
 }

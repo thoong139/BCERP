@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "camp-screens",
+  "module_slug": "camp",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-CAMP-001",
+      "module_slug": "camp",
+      "screen_name": "Campaign & Deliverable (worklist + Campaign 360 pane)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-CAMP-001", "FEAT-ERP-CAMP-002"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/camp/screens-campaigns.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:55:00+07:00",
+  "errors": []
+}

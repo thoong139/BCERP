@@ -1,0 +1,56 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "mobile-portal-screens",
+  "module_slug": "mobile-portal",
+  "system_id": "SYS-MOBILE-PORTAL",
+  "items": [
+    {
+      "screen_id": "UI-MPO-HOME-001",
+      "module_slug": "client-portal",
+      "screen_name": "MPO-01 — Trang chủ (mirror P1)",
+      "screen_type": "dashboard",
+      "feat_ids": ["FEAT-MPO-CPORT-001", "FEAT-MPO-WALLET-001", "FEAT-MPO-SLANOT-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-portal-home.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MPO-CAMP-001",
+      "module_slug": "client-portal",
+      "screen_name": "MPO-02 — Campaign theo dõi (mirror P2)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-MPO-CAMP-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-campaign-tracking.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MPO-INV-001",
+      "module_slug": "client-portal",
+      "screen_name": "MPO-03 — Hóa đơn (mirror P3)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-MPO-CPORT-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-billing.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MPO-TCKT-001",
+      "module_slug": "client-portal",
+      "screen_name": "MPO-04 — Hỗ trợ / Ticket (mirror P4)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-MPO-CSKH-001", "FEAT-MPO-SLANOT-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-tickets.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MPO-ACC-001",
+      "module_slug": "client-portal",
+      "screen_name": "MPO-05 — Tôi (account shell)",
+      "screen_type": "form",
+      "feat_ids": ["FEAT-MPO-CPORT-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-account.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:45:00+07:00",
+  "errors": []
+}

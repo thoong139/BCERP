@@ -1,0 +1,21 @@
+{
+  "ui_modules": 15,
+  "partition_count": 15,
+  "avg_features_per_module": 8.5,
+  "complexity_factor": 1.5,
+  "estimated_minutes": 90.0,
+  "threshold": 45,
+  "gate_status": "block",
+  "ratio": 2.0,
+  "plan_b_batches": [
+    {
+      "items": 15,
+      "minutes": 0.0
+    }
+  ],
+  "plan_a_options": [
+    "Thu hẹp scope — loại modules thấp priority",
+    "Hạ profile (deep → standard, standard → quick)",
+    "Override + CDG — user xác nhận tiếp tục với risk"
+  ]
+}

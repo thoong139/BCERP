@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "capts-screens",
+  "module_slug": "capts",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-CAPTS-001",
+      "module_slug": "capts",
+      "screen_name": "Capacity & Timesheet (duyệt song song OPS ∥ HR)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-CAPTS-001", "FEAT-ERP-CAPTS-002"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/capts/screens-capacity-timesheet.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:34:12+07:00",
+  "errors": []
+}

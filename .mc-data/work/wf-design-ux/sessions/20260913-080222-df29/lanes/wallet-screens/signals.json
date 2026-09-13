@@ -1,0 +1,44 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "wallet-screens",
+  "module_slug": "wallet",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-APPR-001",
+      "module_slug": "wallet",
+      "screen_name": "Approval Inbox (FIN)",
+      "screen_type": "list",
+      "feat_ids": [
+        "FEAT-ERP-WALLET-003",
+        "FEAT-ERP-WALLET-004",
+        "FEAT-ERP-WALLET-005",
+        "FEAT-ERP-WALLET-006",
+        "FEAT-ERP-ARAP-003",
+        "FEAT-ERP-ARAP-004"
+      ],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/wallet/screens-approval-inbox.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-WEB-WALLET-001",
+      "module_slug": "wallet",
+      "screen_name": "Ví & Đối soát",
+      "screen_type": "dashboard",
+      "feat_ids": [
+        "FEAT-ERP-WALLET-001",
+        "FEAT-ERP-WALLET-002",
+        "FEAT-ERP-WALLET-003",
+        "FEAT-ERP-WALLET-004",
+        "FEAT-ERP-WALLET-005",
+        "FEAT-ERP-WALLET-006",
+        "FEAT-ERP-WALLET-007"
+      ],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/wallet/screens-wallet-recon.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T02:17:34Z",
+  "errors": []
+}

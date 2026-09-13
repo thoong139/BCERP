@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "honb-screens",
+  "module_slug": "honb",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-HONB-001",
+      "module_slug": "honb",
+      "screen_name": "Handoff Bridge (shared SALES↔OPS)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-HONB-001", "FEAT-ERP-HONB-002"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/honb/screens-handoff-bridge.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:04:40+07:00",
+  "errors": []
+}

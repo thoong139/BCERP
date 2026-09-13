@@ -1,0 +1,28 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "arap-screens",
+  "module_slug": "arap",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-ARAP-001",
+      "module_slug": "arap",
+      "screen_name": "Công nợ & Giải ngân (tabs: AR / AP-Giải ngân / HĐĐT)",
+      "screen_type": "list",
+      "feat_ids": [
+        "FEAT-ERP-ARAP-001",
+        "FEAT-ERP-ARAP-002",
+        "FEAT-ERP-ARAP-003",
+        "FEAT-ERP-ARAP-004",
+        "FEAT-ERP-ARAP-005",
+        "FEAT-ERP-ARAP-006",
+        "FEAT-ERP-ARAP-007"
+      ],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/arap/screens-ar-ap.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T00:00:00+07:00",
+  "errors": []
+}

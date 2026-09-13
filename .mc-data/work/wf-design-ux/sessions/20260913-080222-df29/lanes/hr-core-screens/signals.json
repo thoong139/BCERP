@@ -1,0 +1,29 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "hr-core-screens",
+  "module_slug": "hr-core",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-HRREC-001",
+      "module_slug": "hr-core",
+      "screen_name": "HR Records (tabs: Hồ sơ / HĐLĐ 90/60/30 / Rate card)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-HRCORE-001", "FEAT-ERP-HRCORE-002", "FEAT-ERP-HRCORE-006"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/hr-core/screens-hr-records.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-WEB-LEAVE-001",
+      "module_slug": "hr-core",
+      "screen_name": "Leave Management (duyệt phân cấp + số dư tự động + lịch team)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-HRCORE-004", "FEAT-ERP-HRCORE-003"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/hr-core/screens-leave.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:48:24+0700",
+  "errors": []
+}

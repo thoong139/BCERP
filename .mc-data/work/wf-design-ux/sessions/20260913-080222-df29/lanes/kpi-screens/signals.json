@@ -1,0 +1,23 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "kpi-screens",
+  "module_slug": "kpi",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-KPI-001",
+      "module_slug": "kpi",
+      "screen_name": "KPI & Performance (kỳ quý 3 trụ cột + calibration + PIP 30-60-90)",
+      "screen_type": "dashboard",
+      "feat_ids": [
+        "FEAT-ERP-KPI-001",
+        "FEAT-ERP-KPI-002"
+      ],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/kpi/screens-kpi-performance.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:56:34+07:00",
+  "errors": []
+}

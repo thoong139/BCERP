@@ -1,0 +1,53 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "portal-web-screens",
+  "module_slug": "client-portal",
+  "system_id": "SYS-PORTAL-WEB",
+  "items": [
+    {
+      "screen_id": "UI-PWEB-HOME-001",
+      "module_slug": "client-portal",
+      "screen_name": "P1 — Portal Home",
+      "screen_type": "dashboard",
+      "feat_ids": ["FEAT-PORTAL-CPORT-001"],
+      "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-portal-home.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-PWEB-CAMP-001",
+      "module_slug": "client-portal",
+      "screen_name": "P2 — Campaign theo dõi (client view)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-PORTAL-CPORT-001", "FEAT-ERP-CAMP-002"],
+      "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-campaign-tracking.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-PWEB-INV-001",
+      "module_slug": "client-portal",
+      "screen_name": "P3 — Billing / Invoices",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-PORTAL-CPORT-002", "FEAT-ERP-ARAP-001"],
+      "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-billing.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-PWEB-TCKT-001",
+      "module_slug": "client-portal",
+      "screen_name": "P4 — Ticket (client)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-PORTAL-CPORT-001", "FEAT-ERP-CSKH-001"],
+      "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-tickets.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:30:00Z",
+  "errors": [],
+  "needs_review": [
+    "P1: thiếu endpoint đếm tổng hợp cho 4 summary card (đang dùng list endpoint có filter; đề xuất /portal/summary)",
+    "P2: bộ trường hiển thị khách API-PORTAL-024 [Phụ lục A #19]",
+    "P3: bộ trường invoice chia sẻ + quy trình duyệt view API-PORTAL-031/032 [Phụ lục A #19]",
+    "P4: portal-web thiếu endpoint reopen + CSAT (chỉ có API-MPO-031/032 phía mobile portal)"
+  ]
+}

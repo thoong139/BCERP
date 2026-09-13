@@ -1,8 +1,9 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "phase": "phase4-ux",
   "description": "Template compliance contracts for Phase 4 UX/UI Design documents",
   "match_note": "required_sections uses 'startswith' matching — check if output section heading starts with the pattern",
+  "structure_note": "v1.1 (R3 2026-09-13): hệ có thể tổ chức workspace folder — [system]/[workspace]/[module]/screens-*.md và [system]/[workspace]/Navigation-[workspace].md (BCERP Web). Hệ không phân workspace giữ [system]/[module]/screens-*.md. output_pattern dùng '**' nên khớp cả 2 độ sâu.",
   "templates": {
     "design-system": {
       "template_file": "phase4-ux/design-system.md",
@@ -26,8 +27,8 @@
     },
     "Navigation": {
       "template_file": "phase4-ux/[system-name]/Navigation-[system].md",
-      "description": "Navigation spec per system — menu tree, screen groups, permissions, UI notes",
-      "output_pattern": ".mc-data/docs/phase4-ux/*/Navigation-*.md",
+      "description": "Navigation spec — system-level (menu tree, screen groups, permissions, UI notes) và workspace-level (Navigation-[workspace].md cùng cấu trúc section, scope 1 workspace)",
+      "output_pattern": ".mc-data/docs/phase4-ux/**/Navigation-*.md",
       "required_sections": [
         "## 1. Sơ Đồ Menu",
         "## 2. Danh Sách Screen Groups",
@@ -41,7 +42,7 @@
     "screen-group": {
       "template_file": "phase4-ux/[system-name]/[module-name]/[screen-group].md",
       "description": "Screen group spec — layout, components, columns, actions, dialogs, API endpoints, UI-ID registry",
-      "output_pattern": ".mc-data/docs/phase4-ux/*/*/screens-*.md",
+      "output_pattern": ".mc-data/docs/phase4-ux/**/screens-*.md",
       "required_sections": [
         "## Thông Tin Chung",
         "## 1. TRANG CHÍNH",

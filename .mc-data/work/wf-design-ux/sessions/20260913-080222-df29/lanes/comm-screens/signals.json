@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "comm-screens",
+  "module_slug": "comm",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-COMM-001",
+      "module_slug": "comm",
+      "screen_name": "Commission (mine / team)",
+      "screen_type": "dashboard",
+      "feat_ids": ["FEAT-ERP-COMM-001"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/comm/screens-commission.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:40:00+07:00",
+  "errors": []
+}

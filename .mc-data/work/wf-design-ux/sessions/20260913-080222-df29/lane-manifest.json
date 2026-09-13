@@ -1,0 +1,413 @@
+[
+ {
+  "sys": "bcerp-web",
+  "module": "crm",
+  "groups": [
+   {
+    "slug": "pipeline",
+    "label": "My Pipeline (worklist lead/deal)",
+    "route": "/sales/pipeline",
+    "ui_id": "UI-WEB-LEAD-001",
+    "feats": "FEAT-ERP-CRM-001..005"
+   },
+   {
+    "slug": "lead-360",
+    "label": "Lead 360 (detail pane của My Pipeline)",
+    "route": "/sales/pipeline/leads/:id",
+    "ui_id": "UI-WEB-LEAD-002",
+    "feats": "FEAT-ERP-CRM-001..005"
+   },
+   {
+    "slug": "client-360",
+    "label": "Client 360 (shared surface)",
+    "route": "/sales/clients/:id",
+    "ui_id": "UI-WEB-CLIENT-001",
+    "feats": "FEAT-ERP-CRM-001 + liên kết CPORT-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "qdd",
+  "groups": [
+   {
+    "slug": "deal-desk",
+    "label": "Deal Desk (quote + duyệt + e-sign)",
+    "route": "/sales/deal-desk",
+    "ui_id": "UI-WEB-DEAL-001",
+    "feats": "FEAT-ERP-QDD-001..002"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "honb",
+  "groups": [
+   {
+    "slug": "handoff-bridge",
+    "label": "Handoff Bridge (shared SALES↔OPS)",
+    "route": "/ops/handoff",
+    "ui_id": "UI-WEB-HONB-001",
+    "feats": "FEAT-ERP-HONB-001..002"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "comm",
+  "groups": [
+   {
+    "slug": "commission",
+    "label": "Commission (mine / team)",
+    "route": "/sales/commission",
+    "ui_id": "UI-WEB-COMM-001",
+    "feats": "FEAT-ERP-COMM-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "wallet",
+  "groups": [
+   {
+    "slug": "approval-inbox",
+    "label": "Approval Inbox (FIN)",
+    "route": "/finance/approvals",
+    "ui_id": "UI-WEB-APPR-001",
+    "feats": "FEAT-ERP-WALLET-003..006, FEAT-ERP-ARAP-003..004"
+   },
+   {
+    "slug": "wallet-recon",
+    "label": "Ví & Đối soát",
+    "route": "/finance/wallet",
+    "ui_id": "UI-WEB-WALLET-001",
+    "feats": "FEAT-ERP-WALLET-001..007"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "adacc",
+  "groups": [
+   {
+    "slug": "tkqc-registry",
+    "label": "TKQC Registry (Ad Account Command Center)",
+    "route": "/ops/ad-accounts",
+    "ui_id": "UI-WEB-ADACC-001",
+    "feats": "FEAT-ERP-ADACC-001..003"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "arap",
+  "groups": [
+   {
+    "slug": "ar-ap",
+    "label": "Công nợ & Giải ngân (tabs: AR / AP-Giải ngân / HĐĐT)",
+    "route": "/finance/ar-ap",
+    "ui_id": "UI-WEB-ARAP-001",
+    "feats": "FEAT-ERP-ARAP-001..007"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "propln",
+  "groups": [
+   {
+    "slug": "proposal-stagegate",
+    "label": "Proposal Stage-Gate Workspace V6.0",
+    "route": "/ops/proposals",
+    "ui_id": "UI-WEB-PROPLN-001",
+    "feats": "FEAT-ERP-PROPLN-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "camp",
+  "groups": [
+   {
+    "slug": "campaigns",
+    "label": "Campaign & Deliverable",
+    "route": "/ops/campaigns",
+    "ui_id": "UI-WEB-CAMP-001",
+    "feats": "FEAT-ERP-CAMP-001..002"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "capts",
+  "groups": [
+   {
+    "slug": "capacity-timesheet",
+    "label": "Capacity & Timesheet (duyệt song song OPS ∥ HR)",
+    "route": "/ops/capacity",
+    "ui_id": "UI-WEB-CAPTS-001",
+    "feats": "FEAT-ERP-CAPTS-001..002"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "cskh",
+  "groups": [
+   {
+    "slug": "tickets",
+    "label": "Ticket Queue + Ticket 360",
+    "route": "/ops/tickets",
+    "ui_id": "UI-WEB-TICK-001",
+    "feats": "FEAT-ERP-CSKH-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "tiktok",
+  "groups": [
+   {
+    "slug": "tiktok-monitor",
+    "label": "TikTok Shop Monitor",
+    "route": "/ops/tiktok-shop",
+    "ui_id": "UI-WEB-TTSHOP-001",
+    "feats": "FEAT-ERP-TIKTOK-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "slanot",
+  "groups": [
+   {
+    "slug": "sla-policies",
+    "label": "SLA Policy Rules",
+    "route": "/ops/sla-policies",
+    "ui_id": "UI-WEB-SLA-001",
+    "feats": "FEAT-ERP-SLANOT-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "cport",
+  "groups": [
+   {
+    "slug": "portal-accounts",
+    "label": "Portal Accounts (client)",
+    "route": "/ops/portal-accounts",
+    "ui_id": "UI-WEB-PORTAL-001",
+    "feats": "FEAT-WEB-CPORT-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "hr-core",
+  "groups": [
+   {
+    "slug": "hr-records",
+    "label": "HR Records (tabs: Hồ sơ / HĐLĐ / Rate card)",
+    "route": "/hr/records",
+    "ui_id": "UI-WEB-HRREC-001",
+    "feats": "FEAT-WEB-HRCORE-001..006"
+   },
+   {
+    "slug": "leave",
+    "label": "Leave Management",
+    "route": "/hr/leave",
+    "ui_id": "UI-WEB-LEAVE-001",
+    "feats": "FEAT-WEB-HRCORE-003..004"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "kpi",
+  "groups": [
+   {
+    "slug": "kpi-performance",
+    "label": "KPI & Performance",
+    "route": "/hr/kpi",
+    "ui_id": "UI-WEB-KPI-001",
+    "feats": "FEAT-WEB-KPI-001..002"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "datahub",
+  "groups": [
+   {
+    "slug": "executive-bi",
+    "label": "Executive BI (tabs: P&L realtime / Phòng ban)",
+    "route": "/exec/bi",
+    "ui_id": "UI-WEB-BI-001",
+    "feats": "FEAT-CORE-DHUB-001..005"
+   },
+   {
+    "slug": "alert-center",
+    "label": "Alert Center",
+    "route": "/exec/alerts",
+    "ui_id": "UI-WEB-ALERT-001",
+    "feats": "FEAT-CORE-DHUB-005 + FEAT-ERP-SLANOT-001"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "rbac",
+  "groups": [
+   {
+    "slug": "audit-log",
+    "label": "Audit Log Query",
+    "route": "/admin/audit",
+    "ui_id": "UI-WEB-AUDIT-001",
+    "feats": "FEAT-CORE-RBAC-006..007"
+   },
+   {
+    "slug": "rbac-admin",
+    "label": "RBAC Admin",
+    "route": "/admin/rbac",
+    "ui_id": "UI-WEB-RBAC-001",
+    "feats": "FEAT-CORE-RBAC-001..005"
+   }
+  ]
+ },
+ {
+  "sys": "bcerp-web",
+  "module": "stgw",
+  "groups": [
+   {
+    "slug": "integrations-settings",
+    "label": "Integration & Settings (tabs: Connections / Credentials / Tham số)",
+    "route": "/admin/settings",
+    "ui_id": "UI-WEB-STGW-001",
+    "feats": "FEAT-CORE-STGW-001..002"
+   }
+  ]
+ },
+ {
+  "sys": "portal-web",
+  "module": "client-portal",
+  "groups": [
+   {
+    "slug": "portal-home",
+    "label": "P1 — Portal Home",
+    "route": "/portal",
+    "ui_id": "UI-PWEB-HOME-001",
+    "feats": "FEAT-PORTAL-CPORT-001"
+   },
+   {
+    "slug": "campaign-tracking",
+    "label": "P2 — Campaign theo dõi (client view)",
+    "route": "/portal/campaigns",
+    "ui_id": "UI-PWEB-CAMP-001",
+    "feats": "FEAT-PORTAL-CPORT-001 + CAMP-002"
+   },
+   {
+    "slug": "billing",
+    "label": "P3 — Billing / Invoices",
+    "route": "/portal/invoices",
+    "ui_id": "UI-PWEB-INV-001",
+    "feats": "FEAT-PORTAL-CPORT-002 + ARAP-001"
+   },
+   {
+    "slug": "tickets",
+    "label": "P4 — Ticket (client)",
+    "route": "/portal/tickets",
+    "ui_id": "UI-PWEB-TCKT-001",
+    "feats": "FEAT-PORTAL-CPORT-001 + CSKH-001"
+   }
+  ]
+ },
+ {
+  "sys": "mobile-internal",
+  "module": "hr-core",
+  "groups": [
+   {
+    "slug": "ess-home",
+    "label": "M1 — ESS Home",
+    "route": "/m/home",
+    "ui_id": "UI-MBI-HOME-001",
+    "feats": "FEAT-MBI-CAPTS-001, HRCORE-005"
+   },
+   {
+    "slug": "attendance",
+    "label": "M2 — Chấm công",
+    "route": "/m/attendance",
+    "ui_id": "UI-MBI-ATT-001/002",
+    "feats": "FEAT-MBI-CAPTS-001 (HRCORE-002)"
+   },
+   {
+    "slug": "leave",
+    "label": "M4 — Nghỉ phép của tôi",
+    "route": "/m/leave",
+    "ui_id": "UI-MBI-LEAVE-001/002",
+    "feats": "FEAT-MBI-HRCORE-003..004 (nếu có — xem ghi chú)"
+   },
+   {
+    "slug": "profile",
+    "label": "M5 — Hồ sơ cá nhân",
+    "route": "/m/profile",
+    "ui_id": "UI-MBI-PROF-001",
+    "feats": "FEAT-MBI-HRCORE-001 (nếu có — xem ghi chú)"
+   }
+  ]
+ },
+ {
+  "sys": "mobile-internal",
+  "module": "capacity-timesheet",
+  "groups": [
+   {
+    "slug": "timesheet",
+    "label": "M3 — Timesheet của tôi",
+    "route": "/m/timesheet",
+    "ui_id": "UI-MBI-TS-001/002",
+    "feats": "FEAT-MBI-CAPTS-001"
+   }
+  ]
+ },
+ {
+  "sys": "mobile-portal",
+  "module": "client-portal",
+  "groups": [
+   {
+    "slug": "portal-home",
+    "label": "MPO-01 — Trang chủ (mirror P1)",
+    "route": "/home",
+    "ui_id": "UI-MPO-HOME-001",
+    "feats": "FEAT-MPO-CPORT-001, WALLET-001, SLANOT-001"
+   },
+   {
+    "slug": "campaign-tracking",
+    "label": "MPO-02 — Campaign theo dõi (mirror P2)",
+    "route": "/campaigns",
+    "ui_id": "UI-MPO-CAMP-001",
+    "feats": "FEAT-MPO-CAMP-001"
+   },
+   {
+    "slug": "billing",
+    "label": "MPO-03 — Hóa đơn (mirror P3)",
+    "route": "/invoices",
+    "ui_id": "UI-MPO-INV-001",
+    "feats": "FEAT-MPO-CPORT-001 [NEEDS_REVIEW: feature invoice mobile không có riêng]"
+   },
+   {
+    "slug": "tickets",
+    "label": "MPO-04 — Hỗ trợ / Ticket (mirror P4)",
+    "route": "/tickets",
+    "ui_id": "UI-MPO-TCKT-001",
+    "feats": "FEAT-MPO-CSKH-001, SLANOT-001"
+   },
+   {
+    "slug": "account",
+    "label": "MPO-05 — Tôi (account shell)",
+    "route": "/me",
+    "ui_id": "UI-MPO-ACC-001",
+    "feats": "FEAT-MPO-CPORT-001"
+   }
+  ]
+ }
+]

@@ -61,33 +61,33 @@ argument-hint: "[--graph] [--mvp] [--impact=<module>] [--skip-sprints] [--status
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 ---
-
 # /wf-plan-modules: $ARGUMENTS
 
 ## Overview
 
-| Mục | Nội dung |
-|-----|----------|
-| **Mục đích** | Xây dựng dependency graph, xếp modules thành layers, tạo Phase 5 roadmap + sprint plans + task files |
-| **Prerequisites** | `.mc-data/docs/_meta/req-registry.json` (có ít nhất 1 module) |
-| **Workflow position** | `/wf-design-ux` (or `/wf-design` if API-only) → **/wf-plan-modules** ← YOU ARE HERE → `/wf-implement-feature` |
-| **Output** | `module-plan.md` + `dependency-graph.md` + `P5-00-implementation-roadmap.md` + `sprints/` + `tasks/` + `stakeholder-review.md` |
-| **Phases** | 0 → 0.5 → 1 → 1.7 → [1.5 LEGACY] → 2 → 3 → 4 → [5 MVP] → [6 IMPACT] → 7 → [7.5.0 ORPHAN] → 7.5 → 7a → 7b → 7c |
+| Mục                        | Nội dung                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Mục đích**       | Xây dựng dependency graph, xếp modules thành layers, tạo Phase 5 roadmap + sprint plans + task files                                  |
+| **Prerequisites**     | `.mc-data/docs/_meta/req-registry.json` (có ít nhất 1 module)                                                                         |
+| **Workflow position** | `/wf-design-ux` (or `/wf-design` if API-only) → **/wf-plan-modules** ← YOU ARE HERE → `/wf-implement-feature`               |
+| **Output**            | `module-plan.md` + `dependency-graph.md` + `P5-00-implementation-roadmap.md` + `sprints/` + `tasks/` + `stakeholder-review.md` |
+| **Phases**            | 0 → 0.5 → 1 → 1.7 → [1.5 LEGACY] → 2 → 3 → 4 → [5 MVP] → [6 IMPACT] → 7 → [7.5.0 ORPHAN] → 7.5 → 7a → 7b → 7c               |
 
 ## Arguments
 
-| Flag | Mô tả |
-|------|-------|
-| `--graph` | Chỉ xuất dependency graph diagram, không tạo roadmap |
-| `--mvp` | Xác định MVP scope với minimal modules (chạy Phase 5) |
+| Flag                  | Mô tả                                                           |
+| --------------------- | ----------------------------------------------------------------- |
+| `--graph`           | Chỉ xuất dependency graph diagram, không tạo roadmap          |
+| `--mvp`             | Xác định MVP scope với minimal modules (chạy Phase 5)        |
 | `--impact=<module>` | Phân tích impact khi thay đổi module cụ thể (chạy Phase 6) |
-| `--skip-sprints` | Bỏ qua tạo sprint plans |
-| `--status` | Hiển thị trạng thái hiện tại từ planmod-status.json |
-| `--resume` | Resume từ checkpoint, tiếp tục phase đang dở |
+| `--skip-sprints`    | Bỏ qua tạo sprint plans                                         |
+| `--status`          | Hiển thị trạng thái hiện tại từ planmod-status.json        |
+| `--resume`          | Resume từ checkpoint, tiếp tục phase đang dở                 |
 
 ### Template Usage Rule (CORE-031)
 
 > **BẮT BUỘC:** Mọi file có Template PHẢI được tạo bằng pattern:
+>
 > 1. **READ** template file từ `templates/` directory (internal) hoặc `doc-framework/` (output docs)
 > 2. **POPULATE** — thay thế placeholders bằng giá trị thực tế
 > 3. **WRITE** output file đến destination path
@@ -95,6 +95,7 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 > **NẾU SKIP bước READ template → STOP skill.** Không viết output từ đầu khi template tồn tại.
 >
 > Áp dụng cho:
+>
 > - **Internal templates** (5 files): `templates/planmod-status.json`, `templates/planmod-plan.md`, `templates/checkpoint.json`, `templates/orphan-no-features.md.tpl`, `templates/implementation-strategy.md.tpl`
 > - **doc-framework templates** (5 files): `dependency-graph.md`, `P5-00-implementation-roadmap.md`, `S01-sprint-template.md`, `feature-impl.md`, `stakeholder-review.md`
 > - **shared-protocols templates**: `phase-summary.template.md` (§14)
@@ -116,15 +117,16 @@ allowed-tools: Read, Glob, Grep, Bash, Write, Edit, Agent, TodoWrite
 
 ## Execution Strategy
 
-| Điều kiện | Chế độ |
-|-----------|--------|
-| Đọc features từ nhiều modules | **PARALLEL** (Phase 2) |
-| Dependency analysis, topological sort | **SEQUENTIAL** (Phase 3-4) |
-| Impact analysis, MVP scope | **SEQUENTIAL** (Phase 5-6) |
-| Tạo task files theo system | **PARALLEL** (Phase 7.5) |
-| Stakeholder Review — `architect` + `qa-lead` (+ optional domain expert) | **PARALLEL** (Phase 7b) |
+| Điều kiện                                                                | Chế độ                        |
+| --------------------------------------------------------------------------- | -------------------------------- |
+| Đọc features từ nhiều modules                                           | **PARALLEL** (Phase 2)     |
+| Dependency analysis, topological sort                                       | **SEQUENTIAL** (Phase 3-4) |
+| Impact analysis, MVP scope                                                  | **SEQUENTIAL** (Phase 5-6) |
+| Tạo task files theo system                                                 | **PARALLEL** (Phase 7.5)   |
+| Stakeholder Review —`architect` + `qa-lead` (+ optional domain expert) | **PARALLEL** (Phase 7b)    |
 
 **Agent Invocation:** Phases 0–7a xử lý trực tiếp (không spawn agent). Chỉ Phase 7.5 và Phase 7b spawn agents:
+
 - Phase 7.5: spawn `architect` per feature để generate A6-EXT + A7-EXT
 - Phase 7b: spawn `architect` + `qa-lead` (+ optional 1 domain expert) để review
 
@@ -154,28 +156,28 @@ Templates: `.claude/skills/workflow/wf-plan-modules/templates/`
 > **Protocol:** `.claude/skills/protocols/20-code-intelligence.md` — CI-ROUTE convention.
 > CI tools duoc auto-detect, khong hoi user (D7). Lock held → fallback Grep/Glob ngay (D8).
 
-| Step | Action | Verify |
-|------|--------|--------|
-| 0.Na | **Load CI Capabilities:** Run `bash .claude/scripts/ci-detect.sh` → check per-tool TTL. Read `.mc-data/work/_meta/code-intelligence.json` → set `$GITNEXUS_AVAILABLE`, `$SERENA_AVAILABLE`. | CI flags set |
-| 0.Nb | **Index Freshness Check:** Run `bash .claude/scripts/ci-freshness-check.sh` → so sanh HEAD vs index_commit. SEVERE (>20 behind) → warning: "Dependency analysis may miss recent module changes." | Freshness status set |
+| Step | Action                                                                                                                                                                                                      | Verify               |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| 0.Na | **Load CI Capabilities:** Run `bash .claude/scripts/ci-detect.sh` → check per-tool TTL. Read `.mc-data/work/_meta/code-intelligence.json` → set `$GITNEXUS_AVAILABLE`, `$SERENA_AVAILABLE`. | CI flags set         |
+| 0.Nb | **Index Freshness Check:** Run `bash .claude/scripts/ci-freshness-check.sh` → so sanh HEAD vs index_commit. SEVERE (>20 behind) → warning: "Dependency analysis may miss recent module changes."  | Freshness status set |
 
 ### CI-ROUTE: Dependency Analysis (Protocol 20 §20.5)
 
 > **Khi CI tools available:** Dung GitNexus impact + clusters de tu dong map cross-module dependencies.
 > **Graceful:** CI unavailable → fallback manual analysis (current behavior, zero regression).
 
-| CI Task | Primary Tool | Fallback | Purpose |
-|---------|-------------|----------|---------|
-| `impact_analysis` | **GitNexus** `impact({module_entry}, upstream, depth=2)` | Manual | Tu dong map cross-module dependencies |
-| `project_structure` | **GitNexus** `clusters` / **Serena** `get_symbols_overview` | Glob | Module grouping + per-module symbols |
+| CI Task               | Primary Tool                                                                | Fallback | Purpose                               |
+| --------------------- | --------------------------------------------------------------------------- | -------- | ------------------------------------- |
+| `impact_analysis`   | **GitNexus** `impact({module_entry}, upstream, depth=2)`            | Manual   | Tu dong map cross-module dependencies |
+| `project_structure` | **GitNexus** `clusters` / **Serena** `get_symbols_overview` | Glob     | Module grouping + per-module symbols  |
 
 > **Freshness caveat:** Neu index behind > 0 → "Results based on index N commits behind HEAD."
 
-| Step | Action | Verify |
-|------|--------|--------|
-| 0.1 | Detect LEGACY_MODE: `test -f .mc-data/work/legacy-scan/project-context.md && size > 500 bytes` → set `$PROJECT_TYPE = LEGACY` | `$LEGACY_MODE` set |
-| 0.2 | Kiểm tra prerequisites (CORE-011 forensic): (a) `jq -e '.modules | length > 0' req-registry.json`, (b) `test -f P3-01-architecture.md`, (c) ít nhất 1 `.md` trong `phase2-features/` — FAIL bất kỳ → STOP với hướng dẫn chạy skill còn thiếu | Tất cả 3 pass |
-| 0.3 | Routing: Read `procedures/phase0-init.md` (Phase 0 detail + parse args + digest loading) | Phase 0 procedure loaded |
+| Step | Action                                                                                                                                                   | Verify                                                                                                                                                                                     |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0.1  | Detect LEGACY_MODE:`test -f .mc-data/work/legacy-scan/project-context.md && size > 500 bytes` → set `$PROJECT_TYPE = LEGACY` | `$LEGACY_MODE` set |                                                                                                                                                                                            |
+| 0.2  | Kiểm tra prerequisites (CORE-011 forensic): (a) `jq -e '.modules                                                                                        | length > 0' req-registry.json`, (b) `test -f P3-01-architecture.md`, (c) ít nhất 1 `.md`trong`phase2-features/` — FAIL bất kỳ → STOP với hướng dẫn chạy skill còn thiếu |
+| 0.3  | Routing: Read`procedures/phase0-init.md` (Phase 0 detail + parse args + digest loading)                                                                | Phase 0 procedure loaded                                                                                                                                                                   |
 
 **Đặc biệt — `--resume` handler:**
 
@@ -206,23 +208,23 @@ IF $ARGUMENTS chứa "--status":
 > SKILL.md routing block KHÔNG chứa execution steps. Toàn bộ logic chi tiết được lazy-load
 > qua các phase files riêng. Read MỖI phase file CHỈ KHI tới phase tương ứng để giảm context load.
 
-| Phase | Procedure file | Điều kiện | Mục đích |
-|-------|---------------|-----------|----------|
-| **0** | `procedures/phase0-init.md` | Always | Init working files, parse args, LEGACY detect, digest load |
-| **0.5** | `procedures/phase0.5-workload-gate.md` | Always | Workload Gate (ADR-OPT-03): DAG preview → estimate → gate decision |
-| **1** | `procedures/phase1-validate.md` | Always | Registry validation + Phase 1.7 Upstream Coverage |
-| **1.5** | `procedures/phase1.5-legacy-impl.md` | `$LEGACY_MODE = true` | Feature-Level Code Status (CORE-019) |
-| **2** | `procedures/phase2-deps.md` | `$MODULE_COUNT >= 3` (skip cho 1-2) | Thu thập Dependencies (PARALLEL) |
-| **3** | `procedures/phase3-cycles.md` | `$MODULE_COUNT >= 3` | Phát hiện Circular Dependencies |
-| **4** | `procedures/phase4-topo.md` | Always | Topological Sorting → `$LAYERS` |
-| **5** | `procedures/phase5-mvp.md` | `--mvp` flag | MVP Scope Analysis |
-| **6** | `procedures/phase6-impact.md` | `--impact=<module>` flag | Impact Analysis |
-| **7** | `procedures/phase7-outputs.md` | Always | Tạo module-plan, dep-graph, roadmap, sprints + update registry. **Note:** CDG-03/CDG-04 (DEPRECATED downgrade `done→skipped`) được trigger tại §Registry Update step 3c trong phase7-outputs.md — không phải phase riêng. CDG tokens ghi vào `cdg-tokens.json` (xem _contract.json). |
-| **7.5.0** | `procedures/phase7.5.0-orphan.md` | `$COVERAGE_STRATEGY == "placeholders"` | Orphan System Placeholders |
-| **7.5** | `procedures/phase7.5-tasks.md` | Always | Task files + A6-EXT + A7-EXT |
-| **7a** | `procedures/phase7a-verify.md` | Always | Output Verification (Auto-Correction Loop, 12 checks) |
-| **7b** | `procedures/phase7b-review.md` | Always | Stakeholder Review (PARALLEL agents) |
-| **7c** | `procedures/phase7c-summary.md` | Always | Phase Summary + Session Close |
+| Phase           | Procedure file                           | Điều kiện                             | Mục đích                                                                                                                                                                                                                                                                                               |
+| --------------- | ---------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **0**     | `procedures/phase0-init.md`            | Always                                   | Init working files, parse args, LEGACY detect, digest load                                                                                                                                                                                                                                                |
+| **0.5**   | `procedures/phase0.5-workload-gate.md` | Always                                   | Workload Gate (ADR-OPT-03): DAG preview → estimate → gate decision                                                                                                                                                                                                                                      |
+| **1**     | `procedures/phase1-validate.md`        | Always                                   | Registry validation + Phase 1.7 Upstream Coverage                                                                                                                                                                                                                                                         |
+| **1.5**   | `procedures/phase1.5-legacy-impl.md`   | `$LEGACY_MODE = true`                  | Feature-Level Code Status (CORE-019)                                                                                                                                                                                                                                                                      |
+| **2**     | `procedures/phase2-deps.md`            | `$MODULE_COUNT >= 3` (skip cho 1-2)    | Thu thập Dependencies (PARALLEL)                                                                                                                                                                                                                                                                         |
+| **3**     | `procedures/phase3-cycles.md`          | `$MODULE_COUNT >= 3`                   | Phát hiện Circular Dependencies                                                                                                                                                                                                                                                                         |
+| **4**     | `procedures/phase4-topo.md`            | Always                                   | Topological Sorting →`$LAYERS`                                                                                                                                                                                                                                                                         |
+| **5**     | `procedures/phase5-mvp.md`             | `--mvp` flag                           | MVP Scope Analysis                                                                                                                                                                                                                                                                                        |
+| **6**     | `procedures/phase6-impact.md`          | `--impact=<module>` flag               | Impact Analysis                                                                                                                                                                                                                                                                                           |
+| **7**     | `procedures/phase7-outputs.md`         | Always                                   | Tạo module-plan, dep-graph, roadmap, sprints + update registry.**Note:** CDG-03/CDG-04 (DEPRECATED downgrade `done→skipped`) được trigger tại §Registry Update step 3c trong phase7-outputs.md — không phải phase riêng. CDG tokens ghi vào `cdg-tokens.json` (xem _contract.json). |
+| **7.5.0** | `procedures/phase7.5.0-orphan.md`      | `$COVERAGE_STRATEGY == "placeholders"` | Orphan System Placeholders                                                                                                                                                                                                                                                                                |
+| **7.5**   | `procedures/phase7.5-tasks.md`         | Always                                   | Task files + A6-EXT + A7-EXT                                                                                                                                                                                                                                                                              |
+| **7a**    | `procedures/phase7a-verify.md`         | Always                                   | Output Verification (Auto-Correction Loop, 12 checks)                                                                                                                                                                                                                                                     |
+| **7b**    | `procedures/phase7b-review.md`         | Always                                   | Stakeholder Review (PARALLEL agents)                                                                                                                                                                                                                                                                      |
+| **7c**    | `procedures/phase7c-summary.md`        | Always                                   | Phase Summary + Session Close                                                                                                                                                                                                                                                                             |
 
 **Routing flow:**
 
@@ -245,27 +247,27 @@ SKILL.md Phase 7c → Read procedures/phase7c-summary.md → execute → return 
 
 ## Output Files
 
-| File | Đường dẫn | Phase | Template |
-|------|-----------|-------|---------|
-| Status file | `.mc-data/work/wf-plan-modules/planmod-status.json` | 0 | `templates/planmod-status.json` |
-| Module plan | `.mc-data/docs/phase5-implementation/module-plan.md` | 7 | — (CORE-031 exception: inline từ LAYERS data) |
-| Dependency graph | `.mc-data/docs/phase5-implementation/dependency-graph.md` | 7 | `doc-framework/_meta/dependency-graph.md` |
-| Implementation roadmap | `.mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md` | 7 | `doc-framework/phase5-implementation/P5-00-implementation-roadmap.md` |
-| Sprint plans | `.mc-data/docs/phase5-implementation/sprints/S[NN]-[name].md` | 7 | `doc-framework/phase5-implementation/sprints/S01-sprint-template.md` |
-| Sprint index | `.mc-data/docs/phase5-implementation/sprints/_index.md` | 7 | `doc-framework/phase5-implementation/sprints/_index.md` |
-| Orphan placeholder | `.mc-data/docs/phase5-implementation/tasks/[sys-slug]/_NO-FEATURES.md` | 7.5.0 | `templates/orphan-no-features.md.tpl` |
-| Impl task files | `.mc-data/docs/phase5-implementation/tasks/[sys-slug]/[mod-slug]/[feat-slug]-impl.md` | 7.5 | `doc-framework/phase5-implementation/tasks/[system]/[module]/[feature]-impl.md` |
-| Stakeholder review | `.mc-data/docs/phase5-implementation/stakeholder-review.md` | 7b | `doc-framework/phase5-implementation/stakeholder-review.md` |
-| Phase summary | `.mc-data/work/wf-plan-modules/phase-summary.md` | 7c | `doc-framework/_meta/phase-summary.template.md` |
+| File                   | Đường dẫn                                                                           | Phase | Template                                                                          |
+| ---------------------- | --------------------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------------------- |
+| Status file            | `.mc-data/work/wf-plan-modules/planmod-status.json`                                   | 0     | `templates/planmod-status.json`                                                 |
+| Module plan            | `.mc-data/docs/phase5-implementation/module-plan.md`                                  | 7     | — (CORE-031 exception: inline từ LAYERS data)                                   |
+| Dependency graph       | `.mc-data/docs/phase5-implementation/dependency-graph.md`                             | 7     | `doc-framework/_meta/dependency-graph.md`                                       |
+| Implementation roadmap | `.mc-data/docs/phase5-implementation/P5-00-implementation-roadmap.md`                 | 7     | `doc-framework/phase5-implementation/P5-00-implementation-roadmap.md`           |
+| Sprint plans           | `.mc-data/docs/phase5-implementation/sprints/S[NN]-[name].md`                         | 7     | `doc-framework/phase5-implementation/sprints/S01-sprint-template.md`            |
+| Sprint index           | `.mc-data/docs/phase5-implementation/sprints/_index.md`                               | 7     | `doc-framework/phase5-implementation/sprints/_index.md`                         |
+| Orphan placeholder     | `.mc-data/docs/phase5-implementation/tasks/[sys-slug]/_NO-FEATURES.md`                | 7.5.0 | `templates/orphan-no-features.md.tpl`                                           |
+| Impl task files        | `.mc-data/docs/phase5-implementation/tasks/[sys-slug]/[mod-slug]/[feat-slug]-impl.md` | 7.5   | `doc-framework/phase5-implementation/tasks/[system]/[module]/[feature]-impl.md` |
+| Stakeholder review     | `.mc-data/docs/phase5-implementation/stakeholder-review.md`                           | 7b    | `doc-framework/phase5-implementation/stakeholder-review.md`                     |
+| Phase summary          | `.mc-data/work/wf-plan-modules/phase-summary.md`                                      | 7c    | `doc-framework/_meta/phase-summary.template.md`                                 |
 
 ### Working Files
 
-| File | Path | Mô tả |
-|------|------|-------|
-| planmod-status.json | `.mc-data/work/wf-plan-modules/` | Trạng thái chi tiết |
-| planmod-plan.md | `.mc-data/work/wf-plan-modules/` | Execution plan |
-| checkpoint.json | `.mc-data/work/wf-plan-modules/` | Checkpoint cho resume |
-| phase-summary.md | `.mc-data/work/wf-plan-modules/` | Tóm tắt kết quả skill — CORE-028 |
+| File                | Path                               | Mô tả                               |
+| ------------------- | ---------------------------------- | ------------------------------------- |
+| planmod-status.json | `.mc-data/work/wf-plan-modules/` | Trạng thái chi tiết                |
+| planmod-plan.md     | `.mc-data/work/wf-plan-modules/` | Execution plan                        |
+| checkpoint.json     | `.mc-data/work/wf-plan-modules/` | Checkpoint cho resume                 |
+| phase-summary.md    | `.mc-data/work/wf-plan-modules/` | Tóm tắt kết quả skill — CORE-028 |
 
 ### Output Report (sample)
 
@@ -317,29 +319,29 @@ Next: `/wf-implement-feature [REQ-ID]`
 
 > **BẮT BUỘC (CORE-026):** Mọi early exit (STOP trước Phase 7c) PHẢI emit `FAIL` entry vào `.mc-data/work/_trace/session-log.json` ngay tại điểm exit với `{event:"FAIL", skill:"wf-plan-modules", phase_failed:"<phase>", error_code:"<Exx>", error_details:"<msg>"}`. Không để session kết thúc mà không có FAIL log.
 
-| Code | Tình huống | Xử lý |
-|------|------------|-------|
-| E001 | Registry không tìm thấy | STOP → chạy `/wf-analyze-requirements` trước |
-| E002 | Circular dependency phát hiện | Hiển thị solutions, chờ user chọn (Phase 3) |
-| E003 | Module không tồn tại | Liệt kê modules có sẵn trong registry |
-| E004 | Không có modules | STOP → chạy `/wf-analyze-requirements` trước |
-| E005 | JSON parse error | Chạy lại `/wf-analyze-requirements` |
-| E006 | Không extract được dependencies | Kiểm tra format feature files |
-| E007 | Output verification mismatch (Phase 7a) | List mismatches, retry Phase 7 |
-| E008 | Context > 90% | FORCE checkpoint, resume từ phase tiếp theo |
-| E009 | POST-GATE fail sau 3 retries | STOP — báo cáo chi tiết → user quyết định |
-| E010 | Auto-fix gây regression | Rollback fix → escalate with context |
-| E011 | Agent timeout trong Phase 7b (parallel review) | Retry agent đó 1 lần. Nếu vẫn timeout → skip agent đó, log warning vào stakeholder-review.md, tiếp tục với kết quả từ agent còn lại. |
-| E012 | Upstream Coverage Gap (Phase 1.7): có orphan systems hoặc modules_without_features | Show System Coverage table → escalate user với 3 options (STOP / placeholders / thin_clients). Nếu user chọn STOP → exit skill với message: "Chạy `/wf-define-features` hoặc `/wf-analyze-requirements` để bổ sung scope, sau đó chạy lại `/wf-plan-modules`." |
+| Code | Tình huống                                                                         | Xử lý                                                                                                                                                                                                                                                                            |
+| ---- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E001 | Registry không tìm thấy                                                           | STOP → chạy`/wf-analyze-requirements` trước                                                                                                                                                                                                                                  |
+| E002 | Circular dependency phát hiện                                                      | Hiển thị solutions, chờ user chọn (Phase 3)                                                                                                                                                                                                                                    |
+| E003 | Module không tồn tại                                                              | Liệt kê modules có sẵn trong registry                                                                                                                                                                                                                                          |
+| E004 | Không có modules                                                                   | STOP → chạy`/wf-analyze-requirements` trước                                                                                                                                                                                                                                  |
+| E005 | JSON parse error                                                                     | Chạy lại`/wf-analyze-requirements`                                                                                                                                                                                                                                             |
+| E006 | Không extract được dependencies                                                  | Kiểm tra format feature files                                                                                                                                                                                                                                                     |
+| E007 | Output verification mismatch (Phase 7a)                                              | List mismatches, retry Phase 7                                                                                                                                                                                                                                                     |
+| E008 | Context > 90%                                                                        | FORCE checkpoint, resume từ phase tiếp theo                                                                                                                                                                                                                                      |
+| E009 | POST-GATE fail sau 3 retries                                                         | STOP — báo cáo chi tiết → user quyết định                                                                                                                                                                                                                                  |
+| E010 | Auto-fix gây regression                                                             | Rollback fix → escalate with context                                                                                                                                                                                                                                              |
+| E011 | Agent timeout trong Phase 7b (parallel review)                                       | Retry agent đó 1 lần. Nếu vẫn timeout → skip agent đó, log warning vào stakeholder-review.md, tiếp tục với kết quả từ agent còn lại.                                                                                                                              |
+| E012 | Upstream Coverage Gap (Phase 1.7): có orphan systems hoặc modules_without_features | Show System Coverage table → escalate user với 3 options (STOP / placeholders / thin_clients). Nếu user chọn STOP → exit skill với message: "Chạy`/wf-define-features` hoặc `/wf-analyze-requirements` để bổ sung scope, sau đó chạy lại `/wf-plan-modules`." |
 
 ---
 
 ## Related Skills
 
-| Skill | Quan hệ |
-|-------|---------|
-| `/wf-analyze-requirements` | Prerequisite |
-| `/wf-design` | Prerequisite |
-| `/wf-design-ux` | Prerequisite (thay thế /wf-design khi dự án có UI) |
-| `/wf-implement-feature` | **Next step** |
-| `/status` | Kiểm tra tiến độ |
+| Skill                        | Quan hệ                                               |
+| ---------------------------- | ------------------------------------------------------ |
+| `/wf-analyze-requirements` | Prerequisite                                           |
+| `/wf-design`               | Prerequisite                                           |
+| `/wf-design-ux`            | Prerequisite (thay thế /wf-design khi dự án có UI) |
+| `/wf-implement-feature`    | **Next step**                                    |
+| `/status`                  | Kiểm tra tiến độ                                   |

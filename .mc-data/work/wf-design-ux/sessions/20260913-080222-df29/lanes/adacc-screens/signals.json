@@ -1,0 +1,24 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "adacc-screens",
+  "module_slug": "adacc",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-ADACC-001",
+      "module_slug": "adacc",
+      "screen_name": "TKQC Registry (Ad Account Command Center)",
+      "screen_type": "list",
+      "feat_ids": [
+        "FEAT-ERP-ADACC-001",
+        "FEAT-ERP-ADACC-002",
+        "FEAT-ERP-ADACC-003"
+      ],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/adacc/screens-tkqc-registry.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T02:16:30Z",
+  "errors": []
+}

@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "propln-screens",
+  "module_slug": "propln",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-PROPLN-001",
+      "module_slug": "propln",
+      "screen_name": "Proposal Stage-Gate Workspace V6.0",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-PROPLN-001"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/propln/screens-proposal-stagegate.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T00:00:00+07:00",
+  "errors": []
+}

@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "tiktok-screens",
+  "module_slug": "tiktok",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-TTSHOP-001",
+      "module_slug": "tiktok",
+      "screen_name": "TikTok Shop Monitor (S17 — lightweight monitor: KPI sức khỏe + anomaly alerts + danh sách shop pull-based)",
+      "screen_type": "dashboard",
+      "feat_ids": ["FEAT-ERP-TIKTOK-001"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/tiktok/screens-tiktok-monitor.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:50:00+07:00",
+  "errors": []
+}

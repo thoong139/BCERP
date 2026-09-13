@@ -1,0 +1,20 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "stgw-screens",
+  "module_slug": "stgw",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-STGW-001",
+      "module_slug": "stgw",
+      "screen_name": "Integration & Settings (tabs: Connections / Credentials Vault / Tham số & Chính sách)",
+      "screen_type": "detail",
+      "feat_ids": ["FEAT-ERP-STGW-001", "FEAT-ERP-STGW-002", "FEAT-CORE-STGW-001", "FEAT-CORE-STGW-002"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/stgw/screens-integrations-settings.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T00:00:00Z",
+  "errors": []
+}

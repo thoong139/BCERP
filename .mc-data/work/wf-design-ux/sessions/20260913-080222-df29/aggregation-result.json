@@ -1,0 +1,533 @@
+{
+ "aggregated_at": "2026-09-13T10:22:58+07:00",
+ "total_lanes": 22,
+ "total_input": 42,
+ "total_output": 42,
+ "duplicates": 0,
+ "conflicts_count": [],
+ "dedup_key": "screen_id",
+ "merged_to_shared_design": 0,
+ "items": [
+  {
+   "screen_id": "UI-WEB-ADACC-001",
+   "module_slug": "adacc",
+   "screen_name": "TKQC Registry (Ad Account Command Center)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-ADACC-001",
+    "FEAT-ERP-ADACC-002",
+    "FEAT-ERP-ADACC-003"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/adacc/screens-tkqc-registry.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-ARAP-001",
+   "module_slug": "arap",
+   "screen_name": "Công nợ & Giải ngân (tabs: AR / AP-Giải ngân / HĐĐT)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-ARAP-001",
+    "FEAT-ERP-ARAP-002",
+    "FEAT-ERP-ARAP-003",
+    "FEAT-ERP-ARAP-004",
+    "FEAT-ERP-ARAP-005",
+    "FEAT-ERP-ARAP-006",
+    "FEAT-ERP-ARAP-007"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/arap/screens-ar-ap.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-CAMP-001",
+   "module_slug": "camp",
+   "screen_name": "Campaign & Deliverable (worklist + Campaign 360 pane)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-CAMP-001",
+    "FEAT-ERP-CAMP-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/camp/screens-campaigns.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-CAPTS-001",
+   "module_slug": "capts",
+   "screen_name": "Capacity & Timesheet (duyệt song song OPS ∥ HR)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-CAPTS-001",
+    "FEAT-ERP-CAPTS-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/capts/screens-capacity-timesheet.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-COMM-001",
+   "module_slug": "comm",
+   "screen_name": "Commission (mine / team)",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-ERP-COMM-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/comm/screens-commission.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-PORTAL-001",
+   "module_slug": "cport",
+   "screen_name": "Portal Accounts (client)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-CPORT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/cport/screens-portal-accounts.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-LEAD-001",
+   "module_slug": "crm",
+   "screen_name": "My Pipeline (worklist lead/deal)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-ERP-CRM-002",
+    "FEAT-ERP-CRM-003",
+    "FEAT-ERP-CRM-004",
+    "FEAT-ERP-CRM-005"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/crm/screens-pipeline.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-LEAD-002",
+   "module_slug": "crm",
+   "screen_name": "Lead 360 (detail pane của My Pipeline)",
+   "screen_type": "detail",
+   "feat_ids": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-ERP-CRM-002",
+    "FEAT-ERP-CRM-003",
+    "FEAT-ERP-CRM-004"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/crm/screens-lead-360.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-CLIENT-001",
+   "module_slug": "crm",
+   "screen_name": "Client 360 (shared surface)",
+   "screen_type": "detail",
+   "feat_ids": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-ERP-CRM-005",
+    "FEAT-ERP-CPORT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/crm/screens-client-360.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-TICK-001",
+   "module_slug": "cskh",
+   "screen_name": "Ticket Queue + Ticket 360",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-CSKH-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/cskh/screens-tickets.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-BI-001",
+   "module_slug": "datahub",
+   "screen_name": "Executive BI (tabs: P&L realtime / Phòng ban)",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-ERP-DHUB-001",
+    "FEAT-ERP-DHUB-002",
+    "FEAT-ERP-DHUB-004",
+    "FEAT-ERP-DHUB-005"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/datahub/screens-executive-bi.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-ALERT-001",
+   "module_slug": "datahub",
+   "screen_name": "Alert Center (escalation inbox cross-module, role-scoped)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-DHUB-003",
+    "FEAT-ERP-SLANOT-001",
+    "FEAT-ERP-DHUB-005"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/datahub/screens-alert-center.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-HONB-001",
+   "module_slug": "honb",
+   "screen_name": "Handoff Bridge (shared SALES↔OPS)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-HONB-001",
+    "FEAT-ERP-HONB-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/honb/screens-handoff-bridge.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-HRREC-001",
+   "module_slug": "hr-core",
+   "screen_name": "HR Records (tabs: Hồ sơ / HĐLĐ 90/60/30 / Rate card)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-001",
+    "FEAT-ERP-HRCORE-002",
+    "FEAT-ERP-HRCORE-006"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/hr-core/screens-hr-records.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-LEAVE-001",
+   "module_slug": "hr-core",
+   "screen_name": "Leave Management (duyệt phân cấp + số dư tự động + lịch team)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-004",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/hr-core/screens-leave.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-KPI-001",
+   "module_slug": "kpi",
+   "screen_name": "KPI & Performance (kỳ quý 3 trụ cột + calibration + PIP 30-60-90)",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-ERP-KPI-001",
+    "FEAT-ERP-KPI-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/kpi/screens-kpi-performance.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-HOME-001",
+   "module_slug": "hr-core",
+   "screen_name": "M1 ESS Home — Alert cá nhân + quick actions 2x2",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001",
+    "FEAT-MBI-SLANOT-001",
+    "FEAT-ERP-HRCORE-005"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-ess-home.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-ATT-001",
+   "module_slug": "hr-core",
+   "screen_name": "M2 Chấm công — Check-in/out (server-authoritative)",
+   "screen_type": "form",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-attendance.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-ATT-002",
+   "module_slug": "hr-core",
+   "screen_name": "M2 Lịch chấm của tôi",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-attendance.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-TS-001",
+   "module_slug": "capacity-timesheet",
+   "screen_name": "M3 Timesheet của tôi — Tuần + trạng thái duyệt 48h",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/capacity-timesheet/screens-timesheet.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-TS-002",
+   "module_slug": "capacity-timesheet",
+   "screen_name": "M3 Ghi nhanh cuối ngày (nhãn billable bắt buộc, offline draft)",
+   "screen_type": "form",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/capacity-timesheet/screens-timesheet.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-LEAVE-001",
+   "module_slug": "hr-core",
+   "screen_name": "M4 Nghỉ phép của tôi — Số dư + đơn, trạng thái đang chờ ai (không nút duyệt BR-008)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-004",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-leave.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-LEAVE-002",
+   "module_slug": "hr-core",
+   "screen_name": "M4 Tạo đơn nghỉ/công tác (1 màn: loại/từ-đến/lý do)",
+   "screen_type": "form",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-004"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-leave.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MBI-PROF-001",
+   "module_slug": "hr-core",
+   "screen_name": "M5 Hồ sơ cá nhân — self-data, PII masked",
+   "screen_type": "detail",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-profile.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MPO-HOME-001",
+   "module_slug": "client-portal",
+   "screen_name": "MPO-01 — Trang chủ (mirror P1)",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-MPO-CPORT-001",
+    "FEAT-MPO-WALLET-001",
+    "FEAT-MPO-SLANOT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-portal-home.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MPO-CAMP-001",
+   "module_slug": "client-portal",
+   "screen_name": "MPO-02 — Campaign theo dõi (mirror P2)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-MPO-CAMP-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-campaign-tracking.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MPO-INV-001",
+   "module_slug": "client-portal",
+   "screen_name": "MPO-03 — Hóa đơn (mirror P3)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-MPO-CPORT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-billing.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MPO-TCKT-001",
+   "module_slug": "client-portal",
+   "screen_name": "MPO-04 — Hỗ trợ / Ticket (mirror P4)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-MPO-CSKH-001",
+    "FEAT-MPO-SLANOT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-tickets.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-MPO-ACC-001",
+   "module_slug": "client-portal",
+   "screen_name": "MPO-05 — Tôi (account shell)",
+   "screen_type": "form",
+   "feat_ids": [
+    "FEAT-MPO-CPORT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-account.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-PWEB-HOME-001",
+   "module_slug": "client-portal",
+   "screen_name": "P1 — Portal Home",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-portal-home.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-PWEB-CAMP-001",
+   "module_slug": "client-portal",
+   "screen_name": "P2 — Campaign theo dõi (client view)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-001",
+    "FEAT-ERP-CAMP-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-campaign-tracking.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-PWEB-INV-001",
+   "module_slug": "client-portal",
+   "screen_name": "P3 — Billing / Invoices",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-002",
+    "FEAT-ERP-ARAP-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-billing.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-PWEB-TCKT-001",
+   "module_slug": "client-portal",
+   "screen_name": "P4 — Ticket (client)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-001",
+    "FEAT-ERP-CSKH-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-tickets.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-PROPLN-001",
+   "module_slug": "propln",
+   "screen_name": "Proposal Stage-Gate Workspace V6.0",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-PROPLN-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/propln/screens-proposal-stagegate.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-DEAL-001",
+   "module_slug": "qdd",
+   "screen_name": "Deal Desk (quote + duyệt + e-sign)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-QDD-001",
+    "FEAT-ERP-QDD-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/qdd/screens-deal-desk.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-RBAC-001",
+   "module_slug": "rbac",
+   "screen_name": "RBAC Admin",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-RBAC-001",
+    "FEAT-ERP-RBAC-003",
+    "FEAT-ERP-RBAC-005",
+    "FEAT-ERP-RBAC-006"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/rbac/screens-rbac-admin.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-AUDIT-001",
+   "module_slug": "rbac",
+   "screen_name": "Audit Log Query",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-RBAC-002",
+    "FEAT-ERP-RBAC-007"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/rbac/screens-audit-log.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-SLA-001",
+   "module_slug": "slanot",
+   "screen_name": "SLA Policy Rules",
+   "screen_type": "form",
+   "feat_ids": [
+    "FEAT-ERP-SLANOT-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/slanot/screens-sla-policies.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-STGW-001",
+   "module_slug": "stgw",
+   "screen_name": "Integration & Settings (tabs: Connections / Credentials Vault / Tham số & Chính sách)",
+   "screen_type": "detail",
+   "feat_ids": [
+    "FEAT-ERP-STGW-001",
+    "FEAT-ERP-STGW-002",
+    "FEAT-CORE-STGW-001",
+    "FEAT-CORE-STGW-002"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/stgw/screens-integrations-settings.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-TTSHOP-001",
+   "module_slug": "tiktok",
+   "screen_name": "TikTok Shop Monitor (S17 — lightweight monitor: KPI sức khỏe + anomaly alerts + danh sách shop pull-based)",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-ERP-TIKTOK-001"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/tiktok/screens-tiktok-monitor.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-APPR-001",
+   "module_slug": "wallet",
+   "screen_name": "Approval Inbox (FIN)",
+   "screen_type": "list",
+   "feat_ids": [
+    "FEAT-ERP-WALLET-003",
+    "FEAT-ERP-WALLET-004",
+    "FEAT-ERP-WALLET-005",
+    "FEAT-ERP-WALLET-006",
+    "FEAT-ERP-ARAP-003",
+    "FEAT-ERP-ARAP-004"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/wallet/screens-approval-inbox.md",
+   "status": "created"
+  },
+  {
+   "screen_id": "UI-WEB-WALLET-001",
+   "module_slug": "wallet",
+   "screen_name": "Ví & Đối soát",
+   "screen_type": "dashboard",
+   "feat_ids": [
+    "FEAT-ERP-WALLET-001",
+    "FEAT-ERP-WALLET-002",
+    "FEAT-ERP-WALLET-003",
+    "FEAT-ERP-WALLET-004",
+    "FEAT-ERP-WALLET-005",
+    "FEAT-ERP-WALLET-006",
+    "FEAT-ERP-WALLET-007"
+   ],
+   "file_path": ".mc-data/docs/phase4-ux/bcerp-web/wallet/screens-wallet-recon.md",
+   "status": "created"
+  }
+ ]
+}

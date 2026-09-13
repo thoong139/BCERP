@@ -1,0 +1,29 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "rbac-screens",
+  "module_slug": "rbac",
+  "system_id": "SYS-BCERP-WEB",
+  "items": [
+    {
+      "screen_id": "UI-WEB-RBAC-001",
+      "module_slug": "rbac",
+      "screen_name": "RBAC Admin",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-RBAC-001", "FEAT-ERP-RBAC-003", "FEAT-ERP-RBAC-005", "FEAT-ERP-RBAC-006"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/rbac/screens-rbac-admin.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-WEB-AUDIT-001",
+      "module_slug": "rbac",
+      "screen_name": "Audit Log Query",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-RBAC-002", "FEAT-ERP-RBAC-007"],
+      "file_path": ".mc-data/docs/phase4-ux/bcerp-web/rbac/screens-audit-log.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:59:46+07:00",
+  "errors": []
+}

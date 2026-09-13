@@ -1,0 +1,90 @@
+{
+  "lane_type": "screen-group",
+  "lane_key": "mobile-internal-screens",
+  "module_slug": "mobile-internal",
+  "system_id": "SYS-MOBILE-INTERNAL",
+  "items": [
+    {
+      "screen_id": "UI-MBI-HOME-001",
+      "module_slug": "hr-core",
+      "screen_name": "M1 ESS Home — Alert cá nhân + quick actions 2x2",
+      "screen_type": "dashboard",
+      "feat_ids": ["FEAT-MBI-CAPTS-001", "FEAT-MBI-SLANOT-001", "FEAT-ERP-HRCORE-005"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-ess-home.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-ATT-001",
+      "module_slug": "hr-core",
+      "screen_name": "M2 Chấm công — Check-in/out (server-authoritative)",
+      "screen_type": "form",
+      "feat_ids": ["FEAT-MBI-CAPTS-001", "FEAT-ERP-HRCORE-003"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-attendance.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-ATT-002",
+      "module_slug": "hr-core",
+      "screen_name": "M2 Lịch chấm của tôi",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-MBI-CAPTS-001", "FEAT-ERP-HRCORE-003"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-attendance.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-TS-001",
+      "module_slug": "capacity-timesheet",
+      "screen_name": "M3 Timesheet của tôi — Tuần + trạng thái duyệt 48h",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-MBI-CAPTS-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/capacity-timesheet/screens-timesheet.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-TS-002",
+      "module_slug": "capacity-timesheet",
+      "screen_name": "M3 Ghi nhanh cuối ngày (nhãn billable bắt buộc, offline draft)",
+      "screen_type": "form",
+      "feat_ids": ["FEAT-MBI-CAPTS-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/capacity-timesheet/screens-timesheet.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-LEAVE-001",
+      "module_slug": "hr-core",
+      "screen_name": "M4 Nghỉ phép của tôi — Số dư + đơn, trạng thái đang chờ ai (không nút duyệt BR-008)",
+      "screen_type": "list",
+      "feat_ids": ["FEAT-ERP-HRCORE-004", "FEAT-ERP-HRCORE-003"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-leave.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-LEAVE-002",
+      "module_slug": "hr-core",
+      "screen_name": "M4 Tạo đơn nghỉ/công tác (1 màn: loại/từ-đến/lý do)",
+      "screen_type": "form",
+      "feat_ids": ["FEAT-ERP-HRCORE-004"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-leave.md",
+      "status": "created"
+    },
+    {
+      "screen_id": "UI-MBI-PROF-001",
+      "module_slug": "hr-core",
+      "screen_name": "M5 Hồ sơ cá nhân — self-data, PII masked",
+      "screen_type": "detail",
+      "feat_ids": ["FEAT-ERP-HRCORE-001"],
+      "file_path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-profile.md",
+      "status": "created"
+    }
+  ],
+  "agent_type": "ux-designer",
+  "completed_at": "2026-09-13T09:20:00+07:00",
+  "errors": [
+    "[NEEDS_REVIEW] REQ-HR-003/004/005 chưa có FEAT touchpoint MBI trong registry (api-contract §6.4 ghi chú) — M2/M4/M5 thiết kế theo baseline actor ESS x MOBILE-INTERNAL, dùng FEAT-ERP-HRCORE-* làm upstream + endpoint API-MBI-019..026 có thật",
+    "[NEEDS_REVIEW] M2 lịch chấm: MBI chỉ có API-MBI-020 (today), thiếu endpoint GET lịch sử attendance — dùng proxy API-ERP-066 /erp/ess/me",
+    "[NEEDS_REVIEW] M3 correction: FEAT-MBI-CAPTS-001 có entity timesheet_correction nhưng api-contract §6.4 chưa có endpoint MBI — sheet UI-MBI-TS-001-S đánh dấu NEEDS_REVIEW",
+    "[NEEDS_REVIEW] M4 số dư phép: MBI chưa có GET leave-balance riêng — dùng API-ERP-066",
+    "[NEEDS_REVIEW] M5 profile: MBI chưa có PUT profile / POST profile-change-request — cập nhật thông tin chuyển CTA 'Mở trên web' (luồng ESS WEB)",
+    "[NEEDS_REVIEW] M6 Duyệt nhanh (manager): Navigation giữ NEEDS_REVIEW tại Phase 3 check 4.1 — không thiết kế trong lane này, không tạo file"
+  ]
+}

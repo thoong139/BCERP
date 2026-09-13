@@ -1,0 +1,648 @@
+{
+ "$schema": "ux-input-digest-schema-v1.0",
+ "produced_by": "wf-design-ux",
+ "produced_at": "2026-09-13T10:44:06+07:00",
+ "interface_type": "web+mobile",
+ "design_system_summary": {
+  "name": "BCERP Design System v1 (enterprise Fluent-inspired, desktop-first)",
+  "colors": {
+   "primary": "#1E5AA8",
+   "secondary": "#0E7490",
+   "accent": "#6D28D9",
+   "semantic_states": "10 cặp bg/fg --state-* (draft/pending/approved/rejected/overdue/sla-warning/sla-breach/manual/mismatch/info) — contrast ≥6:1",
+   "border_control": "#8A94A0 (viền input/control ≥3:1)"
+  },
+  "typography": {
+   "heading_font": "Inter (Be Vietnam Pro fallback)",
+   "body_font": "Inter 14-16px, tabular-nums cho tiền",
+   "scales": [
+    "text-xs 12px",
+    "text-sm 14px",
+    "text-base 16px",
+    "text-lg 18px",
+    "text-xl 20px",
+    "text-2xl 24px",
+    "text-3xl 30px"
+   ],
+   "vietnamese": "CẤM text-transform uppercase — mất dấu thanh"
+  },
+  "components_available": [
+   "DataTable/DataGrid",
+   "StatusBadge",
+   "WarningIndicator",
+   "Tabs",
+   "SidePanel/Drawer",
+   "CommandBar",
+   "ProgressTracker",
+   "Timeline/ActivityFeed",
+   "AssigneePicker",
+   "ApprovalCard (dual-approval + MFA)",
+   "WaitingOnIndicator",
+   "MoneyDisplay",
+   "Button",
+   "Input",
+   "Modal",
+   "Toast",
+   "EmptyState"
+  ]
+ },
+ "navigation_structure": {
+  "main_navigation": [
+   "Sales Workspace /sales",
+   "Finance Workspace /finance",
+   "Ops Workspace /ops",
+   "HR Workspace /hr",
+   "Executive /exec",
+   "Platform Admin /admin (web nội bộ); Portal: Home/Campaign/Hóa đơn/Hỗ trợ; Mobile ESS: 5 tabs; Mobile Portal: 5 tabs"
+  ],
+  "user_flows": [
+   {
+    "flow_name": "Lead → Gate → Handoff → Campaign",
+    "screens": [
+     "My Pipeline",
+     "Lead 360",
+     "Deal Desk",
+     "Handoff Bridge",
+     "TKQC Registry",
+     "Campaign 360"
+    ]
+   },
+   {
+    "flow_name": "Tiền: nạp → đối trừ → hard stop → chi",
+    "screens": [
+     "Ví & Đối soát",
+     "Approval Inbox",
+     "Công nợ & Giải ngân",
+     "TKQC Registry (read-only hard stop)"
+    ]
+   },
+   {
+    "flow_name": "Client-facing",
+    "screens": [
+     "Portal Home",
+     "Campaign theo dõi",
+     "Billing",
+     "Ticket"
+    ]
+   }
+  ]
+ },
+ "responsive_strategy": "Desktop-first (≥1280px base, max-width queries 1279/767); nav rail + command bar; split view master-detail; mobile chỉ transactional ngắn (ESS/portal), data-heavy grid không render trên mobile (\"Mở trên web\"); portal: comfortable density + bottom nav <768px",
+ "accessibility": {
+  "wcag_level": "AA (WCAG 2.1 + 8 bổ sung §8.1: A1-A8)",
+  "keyboard_navigation": true,
+  "screen_reader_ready": true
+ },
+ "interactive_elements": [
+  {
+   "element": "ApprovalCard",
+   "states": [
+    "default",
+    "hover",
+    "active",
+    "disabled",
+    "loading",
+    "approved",
+    "rejected",
+    "mfa-step-up"
+   ]
+  },
+  {
+   "element": "DataTable/DataGrid",
+   "states": [
+    "default",
+    "hover",
+    "selected",
+    "loading",
+    "empty",
+    "error",
+    "compact/comfortable"
+   ]
+  },
+  {
+   "element": "StatusBadge",
+   "states": [
+    "10 state tokens --state-*"
+   ]
+  },
+  {
+   "element": "SidePanel/Drawer",
+   "states": [
+    "closed",
+    "open",
+    "overlay (<1280px)",
+    "focus-trap"
+   ]
+  }
+ ],
+ "design_decisions": [
+  {
+   "decision": "Workspace-first menu (6 workspaces) thay vì menu theo module",
+   "rationale": "R2/R3 — menu theo công việc của phòng ban, không theo hệ thống"
+  },
+  {
+   "decision": "Consolidation 28 proposed → 24 web surfaces (drop hard-stop panel, notification page; merge lệnh chi → tab AR/AP; handoff 1 surface 2 role views)",
+   "rationale": "Minimum necessary screen set — mỗi screen có justification (Step 2.0 v4.1)"
+  },
+  {
+   "decision": "Client 360 hub dùng chung + link-out",
+   "rationale": "R12 — không nhân bản dữ liệu khách trên 7 surfaces"
+  },
+  {
+   "decision": "Keyboard-first approval inbox (A/R/Enter/Space) + MFA step-up",
+   "rationale": "Money-safety UX; FIN/CEO duyệt nhiều"
+  },
+  {
+   "decision": "BEM bcerp-* (web), bcportal-* (portal), bcportal-m-* (mobile portal), PWA cho mobile ESS",
+   "rationale": "Trust boundary external phản ánh vào CSS namespace; tokens CSS custom properties tái dùng 100%"
+  }
+ ],
+ "screen_groups": [
+  {
+   "system": "",
+   "module": "adacc",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/adacc/screens-tkqc-registry.md",
+   "feat_ids": [
+    "FEAT-ERP-ADACC-001",
+    "FEAT-ERP-ADACC-002",
+    "FEAT-ERP-ADACC-003"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "arap",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/arap/screens-ar-ap.md",
+   "feat_ids": [
+    "FEAT-ERP-ARAP-001",
+    "FEAT-ERP-ARAP-002",
+    "FEAT-ERP-ARAP-003",
+    "FEAT-ERP-ARAP-004",
+    "FEAT-ERP-ARAP-005",
+    "FEAT-ERP-ARAP-006",
+    "FEAT-ERP-ARAP-007"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "camp",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/camp/screens-campaigns.md",
+   "feat_ids": [
+    "FEAT-ERP-CAMP-001",
+    "FEAT-ERP-CAMP-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "capts",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/capts/screens-capacity-timesheet.md",
+   "feat_ids": [
+    "FEAT-ERP-CAPTS-001",
+    "FEAT-ERP-CAPTS-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "comm",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/comm/screens-commission.md",
+   "feat_ids": [
+    "FEAT-ERP-COMM-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "cport",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/cport/screens-portal-accounts.md",
+   "feat_ids": [
+    "FEAT-ERP-CPORT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "crm",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/crm/screens-pipeline.md",
+   "feat_ids": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-ERP-CRM-002",
+    "FEAT-ERP-CRM-003",
+    "FEAT-ERP-CRM-004",
+    "FEAT-ERP-CRM-005"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "crm",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/crm/screens-lead-360.md",
+   "feat_ids": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-ERP-CRM-002",
+    "FEAT-ERP-CRM-003",
+    "FEAT-ERP-CRM-004"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "crm",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/crm/screens-client-360.md",
+   "feat_ids": [
+    "FEAT-ERP-CRM-001",
+    "FEAT-ERP-CRM-005",
+    "FEAT-ERP-CPORT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "cskh",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/cskh/screens-tickets.md",
+   "feat_ids": [
+    "FEAT-ERP-CSKH-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "datahub",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/datahub/screens-executive-bi.md",
+   "feat_ids": [
+    "FEAT-ERP-DHUB-001",
+    "FEAT-ERP-DHUB-002",
+    "FEAT-ERP-DHUB-004",
+    "FEAT-ERP-DHUB-005"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "datahub",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/datahub/screens-alert-center.md",
+   "feat_ids": [
+    "FEAT-ERP-DHUB-003",
+    "FEAT-ERP-SLANOT-001",
+    "FEAT-ERP-DHUB-005"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "honb",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/honb/screens-handoff-bridge.md",
+   "feat_ids": [
+    "FEAT-ERP-HONB-001",
+    "FEAT-ERP-HONB-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/hr-core/screens-hr-records.md",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-001",
+    "FEAT-ERP-HRCORE-002",
+    "FEAT-ERP-HRCORE-006"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/hr-core/screens-leave.md",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-004",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "kpi",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/kpi/screens-kpi-performance.md",
+   "feat_ids": [
+    "FEAT-ERP-KPI-001",
+    "FEAT-ERP-KPI-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-ess-home.md",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001",
+    "FEAT-MBI-SLANOT-001",
+    "FEAT-ERP-HRCORE-005"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-attendance.md",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-attendance.md",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "capacity-timesheet",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/capacity-timesheet/screens-timesheet.md",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "capacity-timesheet",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/capacity-timesheet/screens-timesheet.md",
+   "feat_ids": [
+    "FEAT-MBI-CAPTS-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-leave.md",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-004",
+    "FEAT-ERP-HRCORE-003"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-leave.md",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-004"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "hr-core",
+   "path": ".mc-data/docs/phase4-ux/mobile-internal/hr-core/screens-profile.md",
+   "feat_ids": [
+    "FEAT-ERP-HRCORE-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-portal-home.md",
+   "feat_ids": [
+    "FEAT-MPO-CPORT-001",
+    "FEAT-MPO-WALLET-001",
+    "FEAT-MPO-SLANOT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-campaign-tracking.md",
+   "feat_ids": [
+    "FEAT-MPO-CAMP-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-billing.md",
+   "feat_ids": [
+    "FEAT-MPO-CPORT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-tickets.md",
+   "feat_ids": [
+    "FEAT-MPO-CSKH-001",
+    "FEAT-MPO-SLANOT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/mobile-portal/client-portal/screens-account.md",
+   "feat_ids": [
+    "FEAT-MPO-CPORT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-portal-home.md",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-campaign-tracking.md",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-001",
+    "FEAT-ERP-CAMP-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-billing.md",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-002",
+    "FEAT-ERP-ARAP-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "client-portal",
+   "path": ".mc-data/docs/phase4-ux/portal-web/client-portal/screens-tickets.md",
+   "feat_ids": [
+    "FEAT-PORTAL-CPORT-001",
+    "FEAT-ERP-CSKH-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "propln",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/propln/screens-proposal-stagegate.md",
+   "feat_ids": [
+    "FEAT-ERP-PROPLN-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "qdd",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/qdd/screens-deal-desk.md",
+   "feat_ids": [
+    "FEAT-ERP-QDD-001",
+    "FEAT-ERP-QDD-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "rbac",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/rbac/screens-rbac-admin.md",
+   "feat_ids": [
+    "FEAT-ERP-RBAC-001",
+    "FEAT-ERP-RBAC-003",
+    "FEAT-ERP-RBAC-005",
+    "FEAT-ERP-RBAC-006"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "rbac",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/rbac/screens-audit-log.md",
+   "feat_ids": [
+    "FEAT-ERP-RBAC-002",
+    "FEAT-ERP-RBAC-007"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "slanot",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/slanot/screens-sla-policies.md",
+   "feat_ids": [
+    "FEAT-ERP-SLANOT-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "stgw",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/stgw/screens-integrations-settings.md",
+   "feat_ids": [
+    "FEAT-ERP-STGW-001",
+    "FEAT-ERP-STGW-002",
+    "FEAT-CORE-STGW-001",
+    "FEAT-CORE-STGW-002"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "tiktok",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/tiktok/screens-tiktok-monitor.md",
+   "feat_ids": [
+    "FEAT-ERP-TIKTOK-001"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "wallet",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/wallet/screens-approval-inbox.md",
+   "feat_ids": [
+    "FEAT-ERP-WALLET-003",
+    "FEAT-ERP-WALLET-004",
+    "FEAT-ERP-WALLET-005",
+    "FEAT-ERP-WALLET-006",
+    "FEAT-ERP-ARAP-003",
+    "FEAT-ERP-ARAP-004"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  },
+  {
+   "system": "",
+   "module": "wallet",
+   "path": ".mc-data/docs/phase4-ux/bcerp-web/wallet/screens-wallet-recon.md",
+   "feat_ids": [
+    "FEAT-ERP-WALLET-001",
+    "FEAT-ERP-WALLET-002",
+    "FEAT-ERP-WALLET-003",
+    "FEAT-ERP-WALLET-004",
+    "FEAT-ERP-WALLET-005",
+    "FEAT-ERP-WALLET-006",
+    "FEAT-ERP-WALLET-007"
+   ],
+   "ui_id_count": 1,
+   "api_endpoints": []
+  }
+ ],
+ "metrics": {
+  "total_systems": 4,
+  "total_screen_groups": 39,
+  "total_ui_ids": 413,
+  "stakeholder_review_status": "APPROVED_WITH_CONDITIONS",
+  "deferred_note": "~70 [NEEDS_REVIEW] endpoint/role gap + F-D-02 mobile push targets — xử lý bởi /wf-plan-modules"
+ }
+}

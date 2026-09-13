@@ -4235,7 +4235,7 @@
   "screen_groups": [],
   "interface_type": "web+mobile",
   "design_status": "completed",
-  "ux_design_status": "pending",
+  "ux_design_status": "done",
   "impl_status": {},
   "implementation_order": {
     "_comment": "Thứ tự implement — AI đọc mảng này để biết làm gì trước. Chưa có FEAT — sẽ được populate bởi /wf-plan-modules sau khi features được định nghĩa.",
